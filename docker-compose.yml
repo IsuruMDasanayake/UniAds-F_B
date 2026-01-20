@@ -1,0 +1,92 @@
+services:
+  # Backend PHP-FPM Service
+  backend-app:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: uniads-backend-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./Backend:/var/www
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=uniadsnew
+      - DB_USERNAME=user
+      - DB_PASSWORD=password
+      - APP_URL=http://localhost:8000
+    networks:
+      - uniads-network
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Backend Nginx Service
+  backend-web:
+    image: nginx:alpine
+    container_name: uniads-backend-web
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./Backend:/var/www
+      - ./Backend/docker/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - uniads-network
+    depends_on:
+      - backend-app
+
+  # Frontend Service
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    container_name: uniads-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    networks:
+      - uniads-network
+
+  # Database Service
+  db:
+    image: mysql:8.0
+    container_name: uniads-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: uniadsnew
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - uniads-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 5s
+      retries: 5
+      start_period: 10s
+
+  # phpMyAdmin Service (Optional but helpful)
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: uniads-pma
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - uniads-network
+
+networks:
+  uniads-network:
+    driver: bridge
+
+volumes:
+  db-data:

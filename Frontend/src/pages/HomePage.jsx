@@ -3,14 +3,14 @@ import { useNavigate, Link } from 'react-router-dom';
 import './HomePage.css';
 
 const slides = [
-    'http://localhost:8000/images/image3.jpg',
-    'http://localhost:8000/images/image2.jpg',
-    'http://localhost:8000/images/image4.jpg',
-    'http://localhost:8000/images/image5.jpg',
-    'http://localhost:8000/images/image6.jpg',
-    'http://localhost:8000/images/image7.jpg',
-    'http://localhost:8000/images/image8.jpg',
-    'http://localhost:8000/images/image9.jpg'
+    'http://localhost:8000/images/1%20(1).jpg',
+    'http://localhost:8000/images/1%20(2).jpg',
+    'http://localhost:8000/images/1%20(3).jpg',
+    'http://localhost:8000/images/1%20(4).jpg',
+    'http://localhost:8000/images/1%20(5).jpg',
+    'http://localhost:8000/images/1%20(6).jpg',
+    'http://localhost:8000/images/1%20(7).jpg',
+    'http://localhost:8000/images/1%20(10).jpg'
 ];
 
 const HomePage = () => {
@@ -18,18 +18,24 @@ const HomePage = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [menuOpen, setMenuOpen] = useState(false);
 
-    // Redirect authenticated users to feed
+    // Redirect authenticated users
     useEffect(() => {
         const token = localStorage.getItem('ACCESS_TOKEN');
-        console.log('🏠 [HOMEPAGE] Checking auth...');
-        console.log('🏠 [HOMEPAGE] Token exists?', !!token);
-        console.log('🏠 [HOMEPAGE] Token length:', token?.length);
+        const userStr = localStorage.getItem('APP_USER');
 
         if (token) {
-            console.log('🏠 [HOMEPAGE] User is authenticated, redirecting to /feed');
+            if (userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    if (user.role === 'Admin') {
+                        navigate('/admin/dashboard');
+                        return;
+                    }
+                } catch (e) {
+                    console.error('Error parsing user data:', e);
+                }
+            }
             navigate('/feed');
-        } else {
-            console.log('🏠 [HOMEPAGE] No token found, staying on landing page');
         }
     }, [navigate]);
 
