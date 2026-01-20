@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { BACKEND_URL } from '../lib/config';
 import './HomePage.css';
 
 const slides = [
-    'http://localhost:8000/images/1%20(1).jpg',
-    'http://localhost:8000/images/1%20(2).jpg',
-    'http://localhost:8000/images/1%20(3).jpg',
-    'http://localhost:8000/images/1%20(4).jpg',
-    'http://localhost:8000/images/1%20(5).jpg',
-    'http://localhost:8000/images/1%20(6).jpg',
-    'http://localhost:8000/images/1%20(7).jpg',
-    'http://localhost:8000/images/1%20(10).jpg'
+    `${BACKEND_URL}/images/image1.jpg`,
+    `${BACKEND_URL}/images/image2.jpg`,
+    `${BACKEND_URL}/images/image3.jpg`,
+    `${BACKEND_URL}/images/image4.jpg`,
+    `${BACKEND_URL}/images/image5.jpg`,
+    `${BACKEND_URL}/images/image6.jpg`,
+    `${BACKEND_URL}/images/image7.jpg`,
+    `${BACKEND_URL}/images/image8.jpg`
 ];
 
 const HomePage = () => {
