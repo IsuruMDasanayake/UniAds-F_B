@@ -1,0 +1,295 @@
+/* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #d1deec;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Analytics Page Wrapper */
+        .dashboard-wrapper {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 60px);
+            overflow: hidden;
+
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background-color: #d1deec;
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            margin-left: 20px;
+        }
+
+        .nav-button {
+            background-color: white;
+            color: #1877f2;
+            border: none;
+            border-radius: 999px;
+            padding: 10px 16px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .nav-button:hover {
+            background-color: #e0e7ff;
+            transform: translateX(4px);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .main-header {
+            height: 60px;
+            width: 94.8%;
+            background-color: white;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #000000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+            margin-left: 40px;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .main-card {
+            background-color: white;
+            border-radius: 0 0 10px 10px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            margin-left: -10px;
+            margin-right: 20px;
+            height: 435px;
+            overflow-y: auto;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none;  /* IE 10+ */
+        }
+
+        .main-card::-webkit-scrollbar {
+            display: none;  /* Chrome, Safari, Opera */
+        }
+
+        .welcome-card {
+            background: linear-gradient(135deg, #e0ecff, #ffffff);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+            border-left: 6px solid #1877f2;
+        }
+
+        .welcome-heading {
+            font-size: 26px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+        }
+
+        .welcome-subtext {
+            font-size: 16px;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .welcome-highlight {
+            margin-top: 14px;
+            font-size: 14px;
+            color: #1877f2;
+        }
+
+        .welcome-highlight a {
+            color: #1877f2;
+            text-decoration: underline;
+            font-weight: 500;
+        }
+
+        .nav-button.active {
+            background-color: #1877f2;
+            color: white;
+            transform: translateX(4px);
+        }
+
+
+
+
+        .section-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: #0b3d91;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 30px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.07);
+    display: flex;
+    align-items: center;
+    transition: box-shadow 0.3s ease;
+    cursor: default;
+}
+
+.stat-card:hover {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+}
+
+.stat-icon {
+    font-size: 32px;
+    color: #1877f2;
+    margin-right: 16px;
+    width: 40px;
+    text-align: center;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-number {
+    font-size: 28px;
+    font-weight: 700;
+    color: #222;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #555;
+    margin-top: 4px;
+}
+.sidebar-toggle {
+    display: none; /* Hidden by default, shown on mobile */
+    align-items: center;
+    justify-content: space-between;
+    background-color: #1877f2;
+    color: white;
+    padding: 12px 20px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* MOBILE RESPONSIVE STYLES */
+@media (max-width: 768px) {
+  /* Layout changes */
+  .dashboard-wrapper {
+    flex-direction: column;
+  }
+
+  /* Sidebar toggle button */
+  .sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #1877f2;
+    color: white;
+    padding: 12px 20px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .sidebar-toggle i {
+    font-size: 20px;
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar {
+    width: 100%;
+    margin-left: 0;
+    display: none;
+    padding: 10px 16px;
+    background-color: #f0f4fb;
+    border-top: 1px solid #ccc;
+  }
+
+  .sidebar.show {
+    display: flex;
+  }
+
+  .nav-button {
+    padding: 10px 12px;
+    font-size: 15px;
+  }
+
+  .main-header {
+    font-size: 20px;
+    padding: 0 16px;
+    margin-left: 0;
+    width: 100%;
+    border-radius: 0;
+  }
+
+  .main-content {
+    padding: 0 10px;
+  }
+
+  .content-area {
+    padding: 16px 10px;
+  }
+
+  .main-card {
+    margin: 0;
+    padding: 16px;
+    height: auto;
+  }
+
+  .welcome-heading {
+    font-size: 22px;
+  }
+
+  .welcome-subtext {
+    font-size: 15px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+  }
+
+  .stat-number {
+    font-size: 22px;
+  }
+
+  .section-title {
+    font-size: 20px;
+  }
+}

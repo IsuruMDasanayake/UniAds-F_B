@@ -1,0 +1,352 @@
+/* Theme Variables */
+:root {
+    --primary: #007bff;
+    --secondary: #6c757d;
+    --background: #f8f9fa;
+    --foreground: #ffffff;
+    --text-primary: #333333;
+    --text-secondary: #555555;
+    --border: #dddddd;
+    --danger: #dc3545;
+    --font-sans: 'Poppins', sans-serif;
+    --shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+}
+
+body {
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #6c63ff, #007bff);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.profile-container {
+    width: 65%;
+    max-width: 1000px;
+    background: var(--foreground);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: var(--shadow);
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.profile-pic-section {
+    flex: 1;
+    text-align: center;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    background: #f7f7f7;
+    min-height: 500px;
+}
+
+.profile-pic-section img {
+width: 200px; /* Set width to 150px */
+height: 200px; /* Set height to 150px */
+object-fit: cover;
+border: 2px solid var(--primary);
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+margin-bottom: 15px;
+border-radius: 15px;
+}
+
+
+.profile-pic-section input[type="file"],
+.profile-pic-section input[type="text"],
+.profile-pic-section input[type="email"] {
+    margin-top: 12px;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+.profile-pic-section input[type="file"] {
+    cursor: pointer;
+    background: #f1f1f1;
+    border: none;
+}
+
+    .profile-pic-section input[type="file"]:hover {
+        background: var(--primary);
+        color: var(--foreground);
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        color: var(--foreground);
+        border: none;
+        border-radius: 10px;
+        
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow);
+    }
+    .btn-primary,
+.btn-danger {
+    margin-top: 15px;
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 8px;
+   
+    
+}
+
+    .btn-primary:hover {
+        background: #0056b3;
+    }
+
+    /* Form Section */
+.form-section {
+    flex: 2;
+    padding: 20px;
+    background: #f7f7f7;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+}
+
+.form-section h2 {
+    font-size: 24px;
+    color: var(--primary);
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 10px;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text-primary);
+    width: 600px;
+}
+
+    .btn-danger {
+        
+        background: var(--danger);
+        color: var(--foreground);
+        border: none;
+        border-radius: 10px;
+        
+    }
+
+    .btn-danger:hover {
+        background: #a71d2a;
+    }
+
+    /* Success and Error Message Styling */
+    .error-message,
+    .success-message {
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #fff;
+        margin-top: 15px;
+    }
+
+    .error-message {
+        background-color: #dc3545;
+    }
+
+    .success-message {
+        background-color: #28a745;
+    }
+
+    .success-popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.4);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    .success-popup .popup-content {
+        background-color: #28a745;
+        color: #fff;
+        padding: 25px 50px;
+        border-radius: 15px;
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    /* Overlay for Dialog */
+    #overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        z-index: 9998; /* Make sure it's below the popup */
+    }
+
+    /* Delete Dialog */
+    #deleteDialog {
+display: none; /* Hidden by default */
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+background-color: white;
+padding: 20px 25px; /* Smaller padding */
+box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.2); /* Smaller shadow */
+z-index: 10000;
+border-radius: 12px; /* Slightly smaller border radius */
+width: 300px; /* Fixed width for a smaller dialog */
+}
+
+.dialog-message {
+font-size: 14px; /* Smaller text */
+color: #333;
+margin-bottom: 15px;
+}
+
+            /* Error Message */
+.error-message {
+color: #dc3545;
+background-color: #f8d7da;
+padding: 10px;
+border-radius: 5px;
+margin-top: 10px;
+}
+
+/* Success Message */
+.success-message {
+color: #155724;
+background-color: #d4edda;
+padding: 10px;
+border-radius: 5px;
+margin-top: 10px;
+}
+
+@media screen and (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  .profile-container {
+    width: 100%;
+    flex-direction: column;
+    padding: 20px 10px;
+    gap: 20px;
+  }
+
+  .profile-pic-section {
+    min-height: auto;
+    padding: 10px;
+    box-shadow: none;
+    background: transparent;
+    border-radius: 0;
+    flex: none;
+    width: 100%;
+  }
+
+  .profile-pic-section img {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 15px;
+    display: block;
+  }
+
+  .profile-pic-section input[type="file"],
+  .profile-pic-section input[type="text"],
+  .profile-pic-section input[type="email"] {
+    font-size: 16px;
+    padding: 8px;
+    width: 300px;
+    margin-left: -8px;
+  }
+
+  .form-section {
+    flex: none;
+    padding: 15px 0;
+    width: 100%;
+    box-shadow: none;
+    background: transparent;
+    border-radius: 0;
+  }
+
+  .form-section h2 {
+    font-size: 22px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 8px;
+  }
+
+  .form-group label {
+    font-size: 16px;
+  }
+
+  .form-group input {
+    font-size: 16px;
+    padding: 10px;
+    width: 300px;
+    margin-left: -8px;
+  }
+
+  .btn-primary,
+  .btn-danger {
+    font-size: 16px;
+    padding: 14px;
+    
+  }
+
+  /* Success & error messages font size */
+  .error-message,
+  .success-message {
+    font-size: 16px;
+    padding: 14px;
+  }
+
+  /* Delete Dialog */
+  #deleteDialog {
+    width: 90%;
+    padding: 15px 20px;
+  }
+
+  .dialog-message {
+    font-size: 16px;
+  }
+}

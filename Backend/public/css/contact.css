@@ -1,0 +1,152 @@
+/* Container Card */
+.contact-card {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 30px;
+    margin: 50px auto 0;
+    max-width: 1200px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 0px;
+}
+
+/* Left Side (Institute Info) */
+.left-side {
+    flex: 1;
+    min-width: 400px;
+    padding: 20px;
+    border-right: 2px solid #e0e0e0;
+}
+
+.left-side h2 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.left-side p {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.left-side .details p {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 12px;
+}
+
+.left-side .details a {
+    color: #1e73be;
+    text-decoration: none;
+}
+
+.left-side .details a:hover {
+    text-decoration: underline;
+}
+
+.map-container iframe {
+    width: 100%;
+    height: 250px;
+    border: 0;
+    border-radius: 8px;
+}
+
+
+/* Right Side (Contact Form) */
+.right-side {
+    flex: 1;
+    min-width: 300px;
+    padding: 20px 20px 20px 40px;
+}
+
+.right-side h3 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.right-side i {
+    margin-right: 10px;
+    font-size: 22px;
+    color: #1e73be;
+}
+
+.right-side .form-group {
+    margin-bottom: 20px;
+}
+
+.right-side label {
+    font-size: 14px;
+    color: #555;
+}
+
+.right-side input,
+.right-side textarea {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease;
+}
+
+.right-side input:focus,
+.right-side textarea:focus {
+    border-color: #1e73be;
+    outline: none;
+}
+
+.right-side button {
+    background-color: #1e73be;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease;
+}
+
+.right-side button:hover {
+    background-color: #145a86;
+}
+
+.right-side button i {
+    margin-right: 10px;
+}
+
+@media (max-width: 768px) {
+    .contact-card {
+        flex-direction: column;
+        height: auto;
+        margin-top: 0px;
+    }
+
+    .left-side {
+        width: 200px; /* Or try 70% if you want a specific width */
+        padding: 20px;
+        border-right: none;
+        border-bottom: 2px solid #e0e0e0;
+        background-color: #fdfdfd; /* Optional for visibility */
+    }
+
+    .right-side {
+        width: 100%; /* Or try 100% if stacked below */
+        padding: 20px;
+    }
+
+    .right-side button {
+        width: 100%;
+        margin-top: 10px;
+    }
+}
+
+

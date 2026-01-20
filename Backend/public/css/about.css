@@ -1,0 +1,766 @@
+/* Modal Overlay */
+.about-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+        opacity 0.3s ease,
+        visibility 0.3s ease;
+}
+
+/* Show Modal */
+.about-modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.about-modal-overlay.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Modal Content */
+.about-modal-content {
+    background: #ffffff;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    padding: 25px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    position: relative;
+    animation: scaleUp 0.3s ease-in-out;
+    overflow-y: auto;
+    max-height: 90vh; /* ensures modal is never taller than screen */
+}
+
+/* Animation */
+@keyframes scaleUp {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Modal Header */
+.about-modal-header {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #222;
+    text-align: center;
+}
+
+/* Close Button */
+.about-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+    cursor: pointer;
+    background-color: black;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    text-align: center;
+    line-height: 32px;
+}
+.about-modal-close:hover {
+    color: #fff;
+    background-color: #333;
+}
+
+/* Form Groups */
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+/* Inputs and Textarea */
+textarea,
+input[type="file"],
+input[type="text"],
+input[type="email"] {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+textarea:focus,
+input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    outline: none;
+}
+
+/* Buttons */
+.submit-btn,
+.confirm-btn,
+.reset-btn {
+    display: inline-block;
+    font-size: 16px;
+    padding: 10px 22px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-btn,
+.confirm-btn {
+    background-color: #007bff;
+    color: #fff;
+}
+.submit-btn:hover,
+.confirm-btn:hover {
+    background-color: #0056b3;
+}
+
+.reset-btn {
+    background-color: #ffc107;
+    color: #000;
+}
+.reset-btn:hover {
+    background-color: #e0a800;
+}
+
+/* Image Preview */
+.image-preview-container {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.image-preview-container img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 480px) {
+    .about-modal-content {
+        width: 90%;
+        padding: 20px;
+        margin-left: -15px;
+    }
+
+    textarea {
+        min-height: 100px;
+    }
+
+    .about-modal-header {
+        font-size: 20px;
+    }
+}
+
+/* About Section Container */
+.about-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+/* General Container */
+.about-section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.institute-title {
+    text-align: center;
+    font-size: 2.5em;
+    margin-bottom: 40px;
+    color: #1e3d58;
+}
+
+/* General Container */
+.about-section {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.institute-title {
+    text-align: center;
+    font-size: 2.8em;
+    margin-bottom: 40px;
+    color: #2a4d6c;
+    font-weight: bold;
+}
+
+/* General Container */
+.about-section {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    margin-top: -50px;
+}
+
+.institute-title {
+    text-align: center;
+    font-size: 2.8em;
+    margin-bottom: 40px;
+    color: #2a4d6c;
+    font-weight: bold;
+}
+
+/* Section Styles */
+.about-content {
+    border-radius: 10px;
+    padding: 40px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Overview Section */
+.overview {
+    margin-bottom: 40px;
+    justify-content: space-between;
+}
+
+.overview h2 {
+    font-size: 2em;
+    color: #2a4d6c;
+}
+
+.overview-text {
+    font-size: 1.1em;
+    line-height: 1.7;
+    color: #333;
+}
+
+/* Mission and Vision */
+.mission-vision {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    margin-top: 40px; /* Added space before Mission/Vision */
+}
+
+.mission,
+.vision {
+    width: 48%;
+}
+
+.mission h3,
+.vision h3 {
+    font-size: 1.8em;
+    color: #2a4d6c;
+}
+
+.mission p,
+.vision p {
+    font-size: 1.1em;
+    line-height: 1.6;
+    color: #555;
+}
+
+/* General Styling */
+
+.history h3 {
+    font-size: 1.8em;
+    color: #2a4d6c;
+}
+
+.history p {
+    font-size: 1.1em;
+    line-height: 1.6;
+    color: #555;
+}
+/* Chancellor & Vice Chancellor */
+.chancellor-intro,
+.vice-chancellor-intro {
+    display: flex;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+/* ✅ Chancellor & Vice Chancellor Fixed Size */
+.chancellor-photo,
+.vice-chancellor-photo {
+    width: 300px; /* Fixed width */
+    height: 350px; /* Fixed height */
+    margin-right: 30px;
+    border-radius: 10px;
+    overflow: hidden;
+    flex-shrink: 0; /* Prevent shrinking on smaller screens */
+}
+
+.chancellor-photo img,
+.vice-chancellor-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Fill container without distortion */
+    object-position: center;
+}
+
+/* Description Section */
+.chancellor-description,
+.vice-chancellor-description {
+    flex-grow: 1;
+    font-size: 1.1em;
+    line-height: 1.6;
+    color: #555;
+}
+
+.chancellor-description h3,
+.vice-chancellor-description h3 {
+    font-size: 1.6em;
+    color: #2a4d6c;
+}
+
+.chancellor-description p,
+.vice-chancellor-description p {
+    font-size: 1em;
+    color: #555;
+}
+
+/* Add some spacing before the description */
+.chancellor-description,
+.vice-chancellor-description {
+    margin-top: 10px;
+}
+
+/* Add space between each section */
+.chancellor-intro,
+.vice-chancellor-intro {
+    margin-top: 40px;
+}
+
+/* Divider Line */
+.divider {
+    margin: 40px 0;
+    border: 0;
+    border-top: 4px solid #e2e2e2;
+}
+
+/* Gallery (Images) */
+.gallery {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.gallery img {
+    width: 23%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Academic Excellence & Achievements */
+.academic-excellence p,
+.programs-offered p,
+.global-partnerships p,
+.life-at-institute p,
+.sports-recreation p,
+.upcoming-programs p {
+    margin-top: 40px;
+    font-size: 1.1em;
+    line-height: 1.6;
+    color: #555; /* Added space before each topic */
+}
+
+.academic-excellence h3,
+.programs-offered h3,
+.global-partnerships h3,
+.life-at-institute h3,
+.sports-recreation h3,
+.upcoming-programs h3 {
+    font-size: 1.8em;
+    color: #2a4d6c;
+}
+
+/* Campus Overview */
+.campus-overview {
+    margin-top: 40px; /* Added space before Campus Overview */
+}
+
+.campus-overview h3 {
+    font-size: 2em;
+    color: #2a4d6c;
+}
+
+.campus-overview .gallery {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.campus-overview .gallery img {
+    width: 30%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+h2,
+h3 {
+    margin-bottom: 15px; /* Add space below each topic title */
+    font-size: 1.8em;
+}
+
+/* Adding space between topic title and description (e.g., Institute Overview, Mission, Vision) */
+p {
+    margin-top: 10px;
+    margin-bottom: 20px; /* Space between the paragraph and the next topic */
+    font-size: 1.1em;
+    text-align: justify;
+}
+
+/* Modal overlay styling */
+.delete-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1001;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Modal content styling */
+.delete-modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    width: 400px;
+    text-align: center;
+    position: relative;
+}
+
+/* Modal header styling */
+.delete-modal-header {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+/* Modal body styling */
+.delete-modal-body {
+    margin-bottom: 20px;
+}
+
+/* Buttons styling */
+.delete-modal-confirm-btn {
+    background-color: #e53935;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+.delete-modal-cancel-btn {
+    background-color: #9e9e9e;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.delete-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+    cursor: pointer;
+    background-color: black;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    text-align: center;
+    line-height: 32px;
+}
+
+/* About Container */
+.about-container {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px; /* Space between buttons */
+    flex-wrap: wrap;
+    margin-right: 30px; /* Space between buttons */
+}
+
+/* About Button */
+.create-about-btn {
+    background-color: #007bff;
+    color: #ffffff; /* White text */
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition:
+        background-color 0.3s ease,
+        transform 0.2s ease;
+}
+
+.create-about-btn:hover {
+    background-color: #0056b3;
+    transform: scale(1.05); /* Slight zoom on hover */
+}
+
+.create-about-btn:active {
+    background-color: #003f8c;
+    transform: scale(0.95); /* Slight shrink on click */
+}
+/* Modal and Delete Buttons */
+.open-modal-btn {
+    background-color: #28a745; /* Green background for edit button */
+    color: #ffffff; /* White text */
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition:
+        background-color 0.3s ease,
+        transform 0.2s ease;
+}
+
+.open-modal-btn:hover {
+    background-color: #218838; /* Darker green on hover */
+    transform: scale(1.05);
+}
+
+.open-modal-btn:active {
+    background-color: #1e7e34; /* Even darker green on click */
+    transform: scale(0.95);
+}
+
+.delete-about-btn {
+    background-color: #dc3545; /* Red background for delete button */
+    color: #ffffff; /* White text */
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition:
+        background-color 0.3s ease,
+        transform 0.2s ease;
+}
+
+.delete-about-btn:hover {
+    background-color: #c82333; /* Darker red on hover */
+    transform: scale(1.05);
+}
+
+.delete-about-btn:active {
+    background-color: #bd2130; /* Even darker red on click */
+    transform: scale(0.95);
+}
+
+@media (max-width: 768px) {
+    .about-container {
+        justify-content: center; /* Center the buttons */
+        flex-direction: row; /* Keep buttons in row */
+        flex-wrap: wrap; /* Wrap to new line if needed */
+        gap: 8px;
+        text-align: center;
+        margin-right: 0px;
+    }
+
+    .create-about-btn {
+        flex: 1 1 auto; /* Make buttons flexible */
+        max-width: 150px;
+        padding: 6px 5px;
+        font-size: 10px;
+    }
+
+    .open-modal-btn,
+    .delete-about-btn {
+        flex: 1 1 auto; /* Make buttons flexible */
+        max-width: 120px;
+        padding: 6px 5px;
+        font-size: 10px; /* Limit width for neat look */
+    }
+}
+
+.upload-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+.upload-modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+}
+.progress-bar-container {
+    background: #eee;
+    border-radius: 5px;
+    margin: 5px 0;
+    width: 100%;
+    height: 20px;
+}
+.progress-bar {
+    background: #007bff;
+    height: 100%;
+    width: 0%;
+    border-radius: 5px;
+    text-align: center;
+    color: #fff;
+    line-height: 20px;
+    font-size: 12px;
+}
+
+/* Fullscreen modal */
+.image-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    padding-top: 50px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.9);
+}
+
+/* Modal content (the image) */
+.image-modal img {
+    margin: auto;
+    display: block;
+    max-width: 90%;
+    max-height: 80vh;
+}
+
+/* Close button */
+.image-modal .close {
+    position: absolute;
+    top: 20px;
+    right: 40px;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Arrows */
+.image-modal .prev,
+.image-modal .next {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    padding: 16px;
+    margin-top: -50px;
+    color: white;
+    font-weight: bold;
+    font-size: 40px;
+    transition: 0.3s;
+    user-select: none;
+}
+
+.image-modal .prev {
+    left: 0;
+}
+.image-modal .next {
+    right: 0;
+}
+
+.image-modal .prev:hover,
+.image-modal .next:hover,
+.image-modal .close:hover {
+    color: #bbb;
+}
+
+/* ✅ Mobile Responsive Styles */
+@media (max-width: 768px) {
+    /* General about content */
+    .about-content,
+    .overview,
+    .mission-vision,
+    .chancellor-intro,
+    .vice-chancellor-intro,
+    .gallery,
+    .campus-overview .gallery {
+        flex-direction: column !important;
+        text-align: center;
+        align-items: center;
+    }
+
+    /* Chancellor & Vice Chancellor */
+    .chancellor-photo,
+    .vice-chancellor-photo {
+        width: 80%; /* Responsive width */
+        height: auto; /* Maintain aspect ratio */
+        margin: 0 auto 20px auto;
+    }
+
+    /* Mission & Vision -> still side by side on desktop, stacked on mobile */
+    .mission-vision {
+        flex-direction: column !important;
+    }
+
+    .mission,
+    .vision {
+        width: 100% !important;
+        margin-bottom: 20px;
+    }
+
+    /* Gallery images responsive */
+    .gallery img,
+    .campus-overview .gallery img {
+        width: 100% !important; /* Full width for mobile */
+        max-width: 100%;
+        height: auto;
+    }
+}

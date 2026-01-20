@@ -1,0 +1,357 @@
+.user-table-header {
+    display: flex; /* Allows alignment of child elements */
+    justify-content: space-between; /* Push elements to opposite sides */
+    align-items: center; /* Vertically center content */
+    margin-bottom: 20px; /* Add spacing between header and table */
+}
+
+.user-table-header .title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin: 0; /* Ensure no extra margin */
+}
+
+.add-user-btn {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.add-user-btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+.add-user-btn:active {
+    background-color: #003f7f;
+    transform: translateY(1px);
+}
+
+/* General Styles */
+.user-table {
+    margin: 10px auto;
+    padding: 15px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    max-width: 100%; /* Restricts the table width */
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-top: 20px;
+}
+
+
+/* Title */
+.title {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #333;
+    text-align: left;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+/* Table Styles */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table th,
+.table td {
+    text-align: left;
+    padding: 8px 12px; /* Reduced padding */
+    font-size: 13px; /* Smaller font size */
+    color: #555;
+    border: 1px solid #ddd;
+    transition: background 0.3s ease;
+}
+
+.table th {
+    background: #0077ff;
+    color: white;
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.table tr:nth-child(even) {
+    background-color: #f7f8fa;
+}
+
+.table tr:hover {
+    background-color: #eaf3ff;
+}
+/* Style for images inside table cells */
+.table td img {
+    max-width: 50px; /* Ensures the image fits within the cell */
+    height: auto; /* Maintain the aspect ratio */
+    border-radius: 5px; /* Optional: rounded corners for images */
+}
+
+/* Optional: Add a fixed size for images */
+.table td img.fixed-size {
+    width: 50px; /* Fixed width */
+    height: 50px; /* Fixed height */
+    object-fit: cover; /* Ensures the image is cropped if it exceeds the size */
+}
+/* Buttons */
+.btn {
+    padding: 6px 10px; /* Reduced button size */
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    text-decoration: none;
+    color: white;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-primary {
+    background-color: #4A90E2;
+    box-shadow: 0 2px 4px rgba(74, 144, 226, 0.2);
+}
+
+.btn-success {
+    background-color: #1ad720;
+    box-shadow: 0 2px 4px rgba(74, 144, 226, 0.2);
+}
+
+.btn-danger {
+    background-color: #E74C3C;
+    box-shadow: 0 2px 4px rgba(231, 76, 60, 0.2);
+}
+
+.btn:hover {
+    transform: scale(1.03);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+    .table th,
+    .table td {
+        font-size: 11px; /* Even smaller on small screens */
+        padding: 6px 8px;
+    }
+
+    .btn {
+        font-size: 11px;
+        padding: 5px 8px;
+    }
+}
+
+/* Modal Background */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 9999; 
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); 
+    padding-top: 60px;
+    transition: all 0.3s ease;
+}
+
+/* Modal Container */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Overlay effect */
+    justify-content: center;
+    align-items: center;
+}
+
+/* Modal Content */
+.modal-content {
+    background: #ffffff;
+    padding: 30px;
+    width: 90%;
+    max-width: 400px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+    animation: fadeIn 0.3s ease-in-out;
+    background-color: #ffffff;
+    margin: 5% auto;
+    padding: 25px;
+    border: none; /* Clean borderless look */
+    width: 40%;
+    border-radius: 15px; /* Softer rounded corners */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); /* Deeper shadow for emphasis */
+    transition: all 0.3s ease-in-out;
+    position: relative; /* For better control over elements */
+}
+
+/* Close Button */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+    color: #007bff;
+}
+
+/* Modal Title */
+.modal-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Form Groups */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #555;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #333;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* Modal Actions */
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Buttons */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: #ffffff;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.description-wrapper {
+    max-width: 250px; /* keep table neat */
+    word-wrap: break-word;
+}
+
+.description-wrapper .toggle-btn {
+    display: block;
+    margin-top: 5px;
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.85rem;
+}
+
+.description-wrapper .toggle-btn:hover {
+    text-decoration: underline;
+}
+
+
+.btn-delete {
+    background-color: #e3342f;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background-color 0.2s ease;
+}
+
+.btn-delete:hover {
+    background-color: #cc1f1a;
+}
+
+
+.toggle-btn {
+    padding: 2px 8px;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 1.5;
+    display: inline-flex; /* ensures side-by-side */
+    justify-content: center;
+    align-items: center;
+    border-radius: 100px;
+    text-align: center;
+    white-space: nowrap; /* prevent wrapping */
+    margin-right: 8px; /* spacing between badges/buttons */
+    cursor: pointer;
+    color: #4bde97;
+  background-color: rgba(75, 222, 151, 0.1);
+}

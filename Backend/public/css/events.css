@@ -1,0 +1,234 @@
+/* Card Container */
+.upcoming-events-card {
+    width: 300px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    margin-top: -40px; /* Adjust to match the height of your fixed navbar */
+    height: calc(100vh - 140px); /* Full height minus the navbar */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: translateX(-10px);
+    height: calc(100vh - 140px); /* Fill remaining space under the navbar */
+    /* Push content under the navbar */
+    overflow-y: auto; /* Enable vertical scrolling */
+    position: sticky; /* Keeps it in view during scroll */
+    top: 140px; /* Aligns with navbar height */
+}
+
+/* Card Header */
+.card-header {
+    position: sticky;
+    background: #fff;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    
+}
+
+/* Event Content (scrollable area) */
+.event-content {
+    margin-top: -10px;
+    padding: 10px 0;
+    height: 100%; /* Ensures it fills available space for scrolling */
+    flex-grow: 1;
+}
+.event-content {
+    overflow-y: scroll; /* Allow vertical scrolling */
+    padding: 10px 0;
+    height: 100%; /* Ensures it fills available space for scrolling */
+    flex-grow: 1;
+
+    /* Hide the scrollbar */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.event-content::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, and newer Edge */
+}
+/* Individual Event Card */
+.event {
+    margin-bottom: 20px; /* Spacing between event cards */
+    background: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    padding: 10px;
+}
+
+
+.card-header h2 {
+    font-size: 18px;
+    color: #1b74e4;
+    margin: 0;
+}
+
+.card-header a {
+    text-decoration: none;
+    font-size: 14px;
+    color: #1877f2;
+}
+
+/* Event Image */
+.event-image {
+    width: 280px;
+    height: auto;
+    border-radius: 10px;
+    background-size: cover;
+    background-position: center;
+}
+
+
+.event-image-wrapper {
+    width: 100%; /* Adjust image proportion */
+    overflow: hidden;
+    /* border-radius: 8px; Rounded corners */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+/* Event Details */
+.event-details {
+    padding: 15px 20px;
+}
+
+.event-date {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #1b74e4;
+    margin-bottom: 10px;
+}
+
+.event-date span {
+    display: inline-block;
+    background: #f0f2f5;
+    border-radius: 6px;
+    padding: 5px 10px;
+    margin-right: 10px;
+    color: #1877f2;
+}
+
+.event-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+}
+
+.event-location {
+    font-size: 14px;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Action Buttons */
+.event-actions {
+    margin-top: 15px;
+}
+
+.event-actions button {
+    width: 100%;
+    padding: 8px;
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-interested {
+    background: #1b74e4;
+    color: #fff;
+}
+
+.btn-interested:hover {
+    background: #6A11CB;
+}
+
+.btn-decline {
+    background: #f0f2f5;
+    color: #555;
+}
+
+.btn-decline:hover {
+    background: #e6e6e6;
+}
+
+.btn-interested.interested {
+    background-color: #4CAF50; /* green */
+    color: white;
+    cursor: not-allowed;
+}
+
+/* 👇 Only affects tablets and mobile devices */
+@media (max-width: 1024px) {
+    .upcoming-events-card {
+        position: fixed !important;
+        right: -330px; /* Hidden initially */
+        top: 140px;
+        z-index: 1000;
+        width: 300px;
+        height: calc(100vh - 140px); /* Full viewport minus navbar */
+        overflow-y: auto; /* Enables scrolling */
+        background: #fff;
+        transition: right 0.4s ease-in-out;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .upcoming-events-card.active {
+        right: 0;
+    }
+
+    /* Ensure child content scrolls properly */
+    .event-content {
+        overflow-y: auto !important;
+        flex-grow: 1;
+        height: 100%;
+        -webkit-overflow-scrolling: touch; /* for smooth scroll on iOS */
+    }
+
+    .right-toggle-arrow {
+        
+        position: fixed;
+        /* right: 10px; */
+        margin-left: -10px;
+        top: 190px;
+        z-index: 1001;
+        background: var(--white);
+        border-radius: 8px 0 0 8px;
+        box-shadow: -2px 2px 5px rgba(0, 0, 0, 0.1);
+        padding: 10px;
+        cursor: pointer;
+    }
+
+    .right-toggle-arrow i {
+        font-size: 18px;
+        color: #1877f2;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .right-toggle-arrow.active i {
+        transform: rotate(180deg);
+    }
+}
+
+
+/* 👇 Ensure the arrow is hidden in desktop */
+@media (min-width: 1025px) {
+    .right-toggle-arrow {
+        display: none !important;
+    }
+}
+
+

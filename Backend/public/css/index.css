@@ -1,0 +1,963 @@
+:root {
+    --primary: #007bff;
+    --secondary: #6a11cb;
+    --accent: #2575FC;
+    --text-dark: #222222;
+    --text-light: #ffffff;
+    --background-light: #ffffff;
+    --background-alt: #f8faff;
+    --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    --hover-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+    --font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    color: var(--text-dark);
+    line-height: 1.6;
+}
+
+/* Header */
+/* Header Styling */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 50px;
+    background: rgba(34, 34, 34, 0.98);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.header .logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.header nav a {
+    margin: 0 15px;
+    text-decoration: none;
+    color: var(--text-light);
+    font-size: 16px;
+    transition: color 0.3s ease;
+
+
+}
+
+.header nav a:hover {
+    color: var(--primary);
+}
+
+/* Profile Dropdown */
+.profile-dropdown {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+
+}
+
+/* Profile Label */
+.profile-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    margin-top: 5px;
+    /* Add top margin for better alignment */
+}
+
+/* Profile Image */
+.profile-label img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.username {
+    font-size: 16px;
+    color: var(--text-light);
+    font-weight: bold;
+}
+
+/* Dropdown Content */
+.profile-dropdown .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 8px;
+    top: 40px;
+    /* Adjust position */
+    right: 0;
+    text-align: left;
+}
+
+/* Show dropdown when hovering over profile label */
+.profile-dropdown:hover .dropdown-content {
+    text-align: left;
+}
+
+/* Dropdown Links */
+.profile-dropdown .dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.profile-dropdown .dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+/* Caret Icon Styling */
+.profile-dropdown i {
+    font-size: 14px;
+    color: #333;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+/* Hover effects for dropdown */
+.profile-dropdown:hover i {
+    color: #1877f2;
+}
+
+
+/* Hero Section */
+/* Hero Section */
+.hero {
+
+    color: var(--text-light);
+    text-align: center;
+    padding: 100px 20px;
+    clip-path: ellipse(100% 75% at 50% 25%);
+}
+
+.hero-content {
+    max-width: 800px;
+    margin: auto;
+}
+
+.hero h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.hero p {
+    font-size: 18px;
+    margin-bottom: 30px;
+}
+
+/* .cta-btn {
+    padding: 15px 30px;
+    background: var(--text-light);
+    color: var(--primary);
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.cta-btn:hover {
+    background: #333333;
+    color: var(--text-light);
+} */
+
+
+
+
+.hero {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 100vh;
+}
+
+.hero-slideshow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: opacity 1.5s ease-in-out;
+}
+
+.hero-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+}
+
+/* Add a fade-in effect when the image is active */
+.hero-slide.active {
+    opacity: 1;
+}
+
+/* Hero Content Container: */
+.hero-content-container {
+    position: absolute;
+    top: 50%;
+    /* Positioned in the center vertically */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    /* Ensures the content stays on top of the square box */
+    width: 80%;
+    text-align: center;
+}
+
+/* Hero Content: */
+.hero-content {
+    z-index: 3;
+    /* Make sure content is on top of the square box */
+    text-align: center;
+    color: white;
+    padding: 20px;
+    text-shadow: 10px 10px 10px rgba(0, 0, 0, 0.7);
+    margin-top: -5px;
+}
+
+.hero-content h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+.hero-content p {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.cta-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #007bff 0%, #6A11CB 100%);
+    color: white;
+    padding: 14px 30px;
+    text-decoration: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 8px 15px rgba(37, 117, 252, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.cta-btn:hover {
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 12px 25px rgba(37, 117, 252, 0.4);
+    filter: brightness(1.1);
+    background: linear-gradient(135deg, #6A11CB 0%, #007bff 100%);
+}
+
+/* Square Box Behind Content */
+.square-box {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 900px;
+    height: auto;
+    min-height: 350px;
+    padding: 40px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    z-index: 1;
+    margin-top: -60px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+
+/* Features Section */
+.features {
+    background: var(--background-light);
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.features h2 {
+    font-size: 36px;
+    margin-bottom: 40px;
+    color: var(--primary);
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    justify-content: center;
+}
+
+.feature-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 40px 30px;
+    box-shadow: var(--box-shadow);
+    text-align: center;
+    transition: all 0.4s ease;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--hover-shadow);
+    border-color: rgba(0, 123, 255, 0.1);
+}
+
+.feature-card img {
+    width: 80px;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 5px 10px rgba(0,0,0,0.05));
+}
+
+.feature-card h3 {
+    font-size: 1.25rem;
+    color: black;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.feature-card p {
+    font-size: 14px;
+    color: var(--text-dark);
+}
+
+/* About Section */
+.about {
+    padding: 80px 20px;
+    text-align: center;
+    background: linear-gradient(135deg, #007bff 0%, #6A11CB 100%);
+    color: var(--text-light);
+    position: relative;
+}
+
+.about h2 {
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+    font-weight: 700;
+}
+
+.about h3 {
+    font-size: 1.8rem;
+    margin-top: 50px;
+    margin-bottom: 15px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.about p {
+    max-width: 900px;
+    margin: 20px auto;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    font-weight: 400;
+    opacity: 0.95;
+    text-align: center;
+}
+
+.about p strong {
+    font-weight: 600;
+    color: #ffffff;
+}
+
+
+/* Footer Styles */
+.footer {
+    background: rgba(34, 34, 34, 0.98);
+    color: var(--text-light);
+    padding: 30px 20px 15px;
+    font-size: 14px;
+}
+
+.footer-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 20px;
+}
+
+.footer-brand h2 {
+    margin: 0;
+    font-size: 20px;
+    color: var(--primary);
+}
+
+.footer-brand p {
+    margin: 5px 0 0;
+    font-size: 13px;
+    color: #aaa;
+}
+
+.footer-links {
+    display: flex;
+    gap: 15px;
+}
+
+.footer-links a {
+    color: var(--text-light);
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.footer-links a:hover {
+    color: var(--primary);
+}
+
+.footer-social {
+    display: flex;
+    gap: 12px;
+}
+
+.footer-social a {
+    color: var(--text-light);
+    font-size: 16px;
+    transition: color 0.3s ease;
+}
+
+.footer-social a:hover {
+    color: var(--primary);
+}
+
+.footer-bottom {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 13px;
+    color: #aaa;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-links {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+/* Logout Button */
+.dropdown-link {
+    background: none;
+    border: none;
+    color: red;
+    /* Red text color */
+    font: inherit;
+    padding: 12px 16px;
+
+    width: 100%;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+/* Profile Button */
+.profile-btn {
+    background: none;
+    border: none;
+    color: var(--text-dark);
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    /* Center text */
+    padding: 10px 20px;
+    /* Add some padding to the button */
+    width: 100%;
+    /* Make the button take the full width if needed */
+}
+
+/* Dropdown Content */
+.dropdown-content {
+    display: none;
+    /* Hidden by default */
+    position: absolute;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 8px;
+    right: 0;
+}
+
+.dropdown-content a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+/* Ensure the profile name uses the same font style as the rest of the text */
+.profile-btn {
+    background: none;
+    border: none;
+    color: var(--text-dark);
+    font-size: 16px;
+    font-weight: bold;
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* Ensure font is consistent */
+    cursor: pointer;
+    text-align: center;
+    /* Center text */
+    padding: 10px 20px;
+    /* Add some padding to the button */
+    width: 100%;
+    /* Make the button take the full width if needed */
+}
+
+/* Hamburger */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    gap: 5px;
+}
+
+.hamburger span {
+    height: 3px;
+    width: 25px;
+    background-color: white;
+    border-radius: 2px;
+}
+
+/* Navigation and Dropdown */
+.header-menu {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.header-menu nav {
+    display: flex;
+    gap: 20px;
+}
+
+.header-menu nav a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+    transition: color 0.3s ease;
+}
+
+.header-menu nav a:hover {
+    color: #007bff;
+}
+
+/* Dropdown */
+.profile-dropdown {
+    position: relative;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background: white;
+    border-radius: 6px;
+    min-width: 160px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    text-align: left;
+    z-index: 10;
+}
+
+.dropdown-content a,
+.dropdown-link {
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    color: black;
+    font-size: 15px;
+    border-radius: 4px;
+}
+
+.dropdown-link {
+    background: none;
+    border: none;
+    color: red;
+    cursor: pointer;
+    text-align: left;
+}
+
+.dropdown-content a:hover,
+.dropdown-link:hover {
+    background-color: #f1f1f1;
+}
+
+.whatsapp-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #25D366;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.whatsapp-link:hover {
+    color: #128C7E;
+}
+
+.whatsapp-link i {
+    font-size: 20px;
+}
+
+
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+    .hamburger {
+        display: flex;
+    }
+
+    .header-menu {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        background-color: #222;
+        padding: 10px 0;
+        margin-top: 10px;
+    }
+
+    .header-menu.show {
+        display: flex;
+    }
+
+    .header-menu nav {
+        flex-direction: column;
+        width: 100%;
+
+    }
+
+    .header-menu nav a {
+        padding: 10px 20px;
+        border-bottom: 1px solid #444;
+    }
+
+    .profile-dropdown {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+
+    .hero-content p {
+        font-size: 1rem;
+    }
+
+    .hero-content-container {
+        width: 95%;
+    }
+
+    .square-box {
+        width: 90%;
+        height: auto;
+        padding: 30px 10px;
+        margin-top: -70px;
+    }
+
+    .features h2,
+    .about h2 {
+        font-size: 28px;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .feature-card {
+        padding: 20px 15px;
+    }
+
+    .about p {
+        font-size: 14px;
+        padding: 0 10px;
+    }
+
+    .profile-label {
+        margin-top: 10px;
+    }
+
+    .hero {
+        padding: 60px 15px;
+    }
+
+    .cta-btn {
+        font-size: 16px;
+        padding: 10px 20px;
+    }
+
+    .hero-content-container {
+        top: 55%;
+        transform: translate(-50%, -55%);
+    }
+
+    .dropdown-content {
+        min-width: 140px;
+        right: 0;
+    }
+
+    .dropdown-content a {
+        font-size: 14px;
+        padding: 10px 12px;
+    }
+
+}
+
+/* Contact Section */
+/* Contact Section */
+.contact {
+    background: var(--background-light);
+    padding: 80px 20px;
+    text-align: center;
+}
+
+.contact-header {
+    max-width: 700px;
+    margin: 0 auto 50px;
+}
+
+.contact-header h2 {
+    font-size: 36px;
+    color: var(--primary);
+    margin-bottom: 15px;
+}
+
+.contact-header p {
+    font-size: 16px;
+    color: var(--text-dark);
+}
+
+.contact-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* Contact Wrapper (Split Card) */
+.contact-wrapper {
+    display: flex;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* Left Side: Contact Info (Gradient) */
+.contact-info {
+    flex: 1;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    padding: 40px;
+    color: #fff;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.contact-info h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #fff;
+}
+
+.contact-info p {
+    font-size: 16px;
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.contact-info i {
+    font-size: 20px;
+    width: 25px;
+    text-align: center;
+}
+
+.contact-info a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.contact-info a:hover {
+    text-decoration: underline;
+}
+
+/* Social Icons */
+.social-links {
+    margin-top: 30px;
+    display: flex;
+    gap: 15px;
+}
+
+.social-links a {
+    background: rgba(255, 255, 255, 0.2);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.social-links a:hover {
+    background: #fff;
+    transform: translateY(-3px);
+}
+
+.social-links a:hover i {
+    color: var(--primary);
+}
+
+/* Right Side: Contact Form */
+.contact-form {
+    flex: 1.5;
+    padding: 40px;
+    background: #fff;
+    text-align: left;
+}
+
+.contact-form h3 {
+    font-size: 24px;
+    color: var(--primary);
+    margin-bottom: 25px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.contact-form input,
+.contact-form textarea {
+    width: 100%;
+    padding: 12px 15px;
+    background: #f4f4f4;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: var(--font-family);
+    transition: all 0.3s ease;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+    background: #fff;
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
+}
+
+.contact-btn {
+    background: var(--primary);
+    color: #fff;
+    padding: 14px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.3s ease;
+    width: 100%;
+}
+
+.contact-btn:hover {
+    background: var(--secondary);
+    transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .contact-wrapper {
+        flex-direction: column;
+    }
+
+    .contact-info,
+    .contact-form {
+        padding: 30px;
+        
+    }
+
+    .contact-info {
+        text-align: left;
+    }
+
+    .contact-info p {
+        justify-content: left;
+    }
+
+    .social-links {
+        justify-content: center;
+    }
+}

@@ -1,0 +1,603 @@
+/* CSS Variables matching user request */
+:root {
+    --c-primary: #ffc107;
+    --c-primary-soft: rgba(255, 193, 7, 0.08);
+    /* Yellow-soft */
+    --c-accent: #ff4757;
+    --c-dark: #0f172a;
+    --c-text-muted: #64748b;
+    --c-bg: #f5f5f5;
+    --c-card-bg: white;
+    --c-glass: rgba(255, 255, 255, 0.9);
+    --c-radius-lg: 24px;
+    --c-radius-md: 16px;
+    --c-shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --c-shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+}
+
+.profile-header-section {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f5f5f5;
+    width: 100%;
+    /* Default to mobile full width */
+    margin: 0;
+    border-radius: 0;
+    
+}
+
+/* Cover Photo */
+.cover-photo-container {
+    height: 350px;
+    position: relative;
+    overflow: hidden;
+    background: var(--c-bg);
+    border-radius: 0;
+    /* Default no radius for mobile usually */
+}
+
+.cover-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cover-photo-container:hover .cover-photo {
+    transform: scale(1.05);
+}
+
+.cover-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(to top, rgba(15, 23, 42, 0.6), transparent);
+}
+
+/* Glass Content Card */
+.profile-content {
+    background: var(--c-glass);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(50px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--c-radius-lg);
+    padding: 30px 40px;
+    margin: -50px auto 0 auto;
+    /* Center by default */
+    box-shadow: var(--c-shadow-md);
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    position: relative;
+    z-index: 10;
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    width: calc(100% - 20px);
+    /* Responsive width with 20px margin each side */
+    max-width: 90%;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Profile Photo */
+.profile-photo-wrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.photo-inner {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    padding: 6px;
+    background: white;
+    box-shadow: var(--c-shadow-md);
+    transition: all 0.3s ease;
+}
+
+.profile-photo {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #f1f5f9;
+}
+
+.profile-photo-wrapper:hover .photo-inner {
+    transform: translateY(-5px) rotate(2deg);
+}
+
+/* Info Section */
+.profile-info {
+    flex: 1;
+}
+
+.title-row h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--c-dark);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+}
+
+.premium-verified-badge {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    60% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.profile-bio {
+    font-size: 1.1rem;
+    color: #64748b;
+    margin-bottom: 20px;
+    font-weight: 500;
+    max-width: 800px;
+}
+
+.profile-stats-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/* Pill Shaped Meta Items */
+.meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 100px;
+    /* Pill shape */
+    color: #64748b;
+    font-size: 0.95rem;
+    font-weight: 500;
+    white-space: normal;
+    /* Allow wrap for long locations on mobile */
+    transition: all 0.2s ease;
+}
+
+.meta-item:hover {
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.meta-item svg {
+    color: var(--c-text-muted);
+}
+
+.meta-item.accent {
+    background: var(--c-primary-soft);
+    border-color: rgba(255, 193, 7, 0.2);
+    color: var(--c-text-muted);
+}
+
+.meta-item.accent svg {
+    color: var(--c-primary);
+}
+
+/* Stars / Ratings Pill */
+.rating-summary-container {
+    display: inline-flex;
+}
+
+.rating-summary-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    padding: 8px 16px;
+    border-radius: 100px;
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.rating-summary-inline:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.stars-box {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.rating-text {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+
+/* Action Buttons Column */
+.profile-actions-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-start;
+    gap: 12px;
+    min-width: 200px;
+    margin-left: auto;
+    /* Force to right corner */
+    padding-top: 10px;
+}
+
+.owner-tools,
+.visitor-tools {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    align-items: flex-end;
+}
+
+/* Button Refinements */
+.btn-inst {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    width: 100%;
+    /* Or auto if want pill? Screenshot shows wide buttons maybe. Let's stick to full width of column or fixed width */
+    max-width: 180px;
+}
+
+.btn-add-post {
+    background: var(--c-primary);
+    color: var(--c-dark);
+}
+
+.btn-add-post:hover {
+    background: #fbbf24;
+    transform: translateY(-1px);
+}
+
+.btn-add-event {
+    background: var(--c-accent);
+    color: #ffffff;
+}
+
+.btn-add-event:hover {
+    background: #ff4757;
+    transform: translateY(-1px);
+}
+
+.btn-edit-profile {
+    background: var(--c-dark);
+    color: #ffffff;
+}
+
+.btn-edit-profile:hover {
+    background: var(--c-dark);
+    transform: translateY(-1px);
+}
+
+.btn-follow {
+    background: var(--c-primary);
+    color: var(--c-dark);
+}
+
+.btn-follow:hover {
+    background: #fbbf24;
+    transform: translateY(-1px);
+}
+
+.btn-followed {
+    background: var(--c-accent);
+    color: #ffffff;
+}
+
+.btn-followed:hover {
+    background: #ff4757;
+    transform: translateY(-1px);
+}
+
+/* Utilities */
+.text-primary {
+    color: var(--c-primary) !important;
+}
+
+.btn-reviews {
+    background: var(--c-dark);
+    border: 1px solid #e2e8f0;
+    color: #ffffff;
+}
+
+.btn-reviews:hover {
+    transform: translateY(-1px);
+}
+
+/* Navigation Tabs */
+.profile-tabs-wrapper {
+    margin-top: 30px;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+
+}
+
+.profile-tabs {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    background: #f5f5f5;
+}
+
+.tab-btn {
+    padding: 18px 25px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--c-text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+    color: var(--c-dark);
+}
+
+.tab-btn.active {
+    color: var(--c-primary);
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--c-primary);
+    border-radius: 4px;
+}
+
+.analytics-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #b45309;
+    /* Deep gold */
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .profile-content {
+        gap: 30px;
+        padding: 30px;
+    }
+}
+
+@media (min-width: 1024px) {
+
+    /* Desktop specific overrides */
+    .profile-header-section {
+        width: calc(100% - 40px);
+        margin: 100px auto 0 auto;
+        border-radius: 20px;
+    }
+
+    .profile-content {
+        margin-left: auto;
+        margin-right: auto;
+        width: calc(100% - 80px);
+        /* Leave more space on desktop */
+    }
+
+    .cover-photo-container {
+        border-radius: 20px 20px 0 0;
+    }
+}
+
+/* Tablet / Small Desktop (900px - 1024px) */
+@media (max-width: 1024px) {
+    .profile-header-section {
+        width: 100%;
+        /* Full width for smaller screens */
+        margin: 0 auto;
+        border-radius: 0;
+        margin-top: 100px;
+        
+    }
+
+    .cover-photo-container {
+        border-radius: 20px 20px 0 0;
+        margin-bottom: 60px;
+        width: 95%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .profile-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-top: -120px;
+        width: calc(100% - 30px);
+        margin-left: auto;
+        margin-right: auto;
+        padding: 30px 20px;
+        width: 90%;
+    }
+
+    .profile-photo-wrapper {
+        margin-top: -80px;
+    }
+
+    .title-row {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .title-row h1 {
+        text-align: center;
+        justify-content: center;
+    }
+
+    .profile-stats-row {
+        justify-content: center;
+    }
+
+    .owner-tools,
+    .visitor-tools {
+        flex-direction: row;
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+        /* Ensure buttons wrap if they are too wide */
+    }
+
+    .profile-actions-col {
+        align-items: center;
+        width: 100%;
+    }
+
+    .btn-inst {
+        flex: 1;
+        justify-content: center;
+        max-width: 200px;
+    }
+}
+
+/* Star Ratings Styling */
+.rating-summary-container {
+    display: inline-flex;
+    align-items: center;
+}
+
+.stars-summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 6px 16px;
+    background: white;
+    border-radius: 999px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f1f5f9;
+}
+
+.star-display {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.stars-summary:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Mobile / Expanded Navbar (< 900px) */
+@media (max-width: 900px) {
+    .profile-header-section {
+        margin-top: 175px;
+        /* Increased margin for expanded fixed navbar */
+    }
+}
+
+@media (max-width: 768px) {
+    .cover-photo-container {
+        height: 250px;
+        margin-bottom: 80px;
+    }
+
+    .title-row {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .title-row h1 {
+        font-size: 1.5rem;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .profile-bio {
+        font-size: 1rem;
+    }
+
+    .tab-btn {
+        padding: 15px 12px;
+        font-size: 0.75rem;
+    }
+
+    .owner-tools,
+    .visitor-tools {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-content {
+        padding: 20px;
+    }
+
+    .photo-inner {
+        width: 120px;
+        height: 120px;
+    }
+
+    .profile-tabs {
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 5px;
+        justify-content: center;
+        /* Center tabs for better mobile look */
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        /* Hide scrollbar for Chrome/Safari */
+    }
+
+    .profile-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .tab-btn {
+        flex-shrink: 0;
+        /* Don't squash tabs */
+    }
+}

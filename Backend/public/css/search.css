@@ -1,0 +1,51 @@
+.container {
+    max-width: 1000px;
+    margin: 50px auto;
+    padding: 0 20px;
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h2 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 25px;
+}
+
+h3 {
+    font-size: 22px;
+    color: #444;
+    margin-top: 30px;
+    margin-bottom: 15px;
+}
+
+.card {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    padding: 15px 20px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.card:hover {
+    background-color: #f1f1f1;
+    transform: scale(1.01);
+}
+
+.card a {
+    text-decoration: none;
+    color: #2c3e50;
+    font-weight: bold;
+    display: block;
+}
+
+.card a:hover {
+    color: #007bff;
+}
+
+p {
+    color: #777;
+    font-size: 16px;
+}
+

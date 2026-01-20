@@ -1,0 +1,46 @@
+/* InstituteFeed.css */
+
+.institute-feed-layout {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.feed-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+    .feed-grid {
+        grid-template-columns: 280px 1fr 300px;
+        /* Fixed width sidebars, fluid center */
+    }
+}
+
+.institute-feed-layout .left-sidebar,
+.institute-feed-layout .right-sidebar {
+    position: sticky;
+    top: 2rem;
+    height: calc(100vh - 100px);
+    /* Constrain height for scrolling */
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+.institute-feed-layout .left-sidebar::-webkit-scrollbar,
+.institute-feed-layout .right-sidebar::-webkit-scrollbar {
+    display: none;
+}
+
+.institute-feed-layout .center-content {
+    height: calc(100vh - 100px);
+    overflow-y: auto;
+    scrollbar-width: none;
+    padding-bottom: 2rem;
+}
+
+.institute-feed-layout .center-content::-webkit-scrollbar {
+    display: none;
+}

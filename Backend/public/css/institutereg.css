@@ -1,0 +1,541 @@
+/* General reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    /* background: linear-gradient(to bottom right, #6A11CB, #2575FC); */
+    background: #d1deec;
+}
+
+
+/* Wrapper */
+.form-wrapper {
+    width: 100%;
+    max-width: 950px;
+    background-color: white;
+    border-radius: 12px;
+    padding: 20px 10px 10px; /* added extra top padding */
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    animation: fadeIn 1s ease-in-out;
+    margin-top: 1px; /* more top space to avoid clipping */
+}
+
+/* Left Panel */
+.form-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    padding-right: 20px;
+}
+
+
+
+/* Label */
+.form-group label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    display: block;
+    margin-bottom: 4px; /* less space below label */
+}
+
+/* Input */
+.form-group input {
+    display: block;
+    width: 100%;
+    padding: 6px 10px;  /* reduced vertical padding from 10px to 6px */
+    font-size: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-top: 0;
+    margin-bottom: 6px; /* less bottom margin */
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+    height: 32px; /* set fixed height to keep inputs short */
+}
+
+.form-group input:focus {
+    border-color: #2575FC;
+}
+
+/* Submit Button */
+.auth-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    background-color: #2575FC;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    margin-top: 10px;
+}
+
+.auth-button:hover {
+    background-color: #6A11CB;
+    transform: scale(1.05);
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive (Mobile) */
+@media (max-width: 768px) {
+    body {
+        align-items: flex-start;
+        padding: 30px 15px;
+        height: auto; /* More padding to avoid clipped form */
+    }
+
+    .form-wrapper {
+        flex-direction: column;
+        padding: 30px 20px;
+        gap: 20px;
+        height: auto; /* Let height expand naturally */
+        background-color: white;
+    }
+
+    .form-left {
+        padding-right: 0;
+        margin-bottom: 20px;
+    }
+
+    .form-left h2 {
+        font-size: 24px;
+    }
+
+    .form-left p,
+    .form-left ul {
+        font-size: 14px;
+    }
+
+    .auth-button {
+        font-size: 15px;
+    }
+
+    .form-group input {
+        font-size: 15px;
+    }
+}
+
+
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+    cursor: pointer;
+    background-color: black;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    text-align: center;
+    line-height: 32px;
+}
+
+.close:hover {
+    color: #fff;
+    background-color: #333;
+}
+
+.alert-modal {
+    display: flex;
+    position: fixed;
+    z-index: 9999;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    justify-content: center;
+    align-items: center;
+}
+
+.alert-modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+}
+
+.alert-close-btn {
+    position: absolute;
+    top: 10px; right: 15px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+
+/* === ALERT STYLES === */
+        /* .alert-success, .alert-error {
+            max-width: 950px;
+            margin: 20px auto;
+            padding: 15px 20px;
+            border-radius: 8px;
+            position: relative;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: default;
+            text-align: left;
+        }
+        .alert-success {
+            background-color: #e6ffed;
+            border: 1px solid #2ecc40;
+            color: #2ecc40;
+        }
+        .alert-error {
+            background-color: #ffe6e6;
+            border: 1px solid #ff4d4d;
+            color: #b30000;
+        }
+        .alert-close {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            font-size: 20px;
+            color: inherit;
+            cursor: pointer;
+        } */
+
+        
+        .input-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+            
+        }
+        .input-hint.error {
+            color: #b30000;
+            font-weight: 600;
+        }
+        .input-hint.success {
+            color: #2ecc40;
+            font-weight: 600;
+        }
+
+        /* .modal {
+            position: fixed;
+            z-index: 10000;
+            left: 0; top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px; right: 15px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            color: #6A11CB;
+        } */
+
+
+
+        /* Override body if needed */
+        
+        /* Modern Card Wrapper */
+        .form-wrapper {
+            background: #fff;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border-radius: 20px;
+            overflow: hidden;
+            padding: 0 !important;
+            gap: 0 !important;
+            max-width: 1000px; /* Slightly wider to accommodate split columns securely */
+            border: 1px solid rgba(255,255,255,0.1);
+            height: auto; /* Fixed height */
+            display: flex;
+        }
+
+        /* Left Section - The "Brand" Side */
+        .form-left {
+            background: linear-gradient(135deg, #6A11CB 0%, #2575FC 100%);
+            padding: 40px 30px;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            width: 35%; /* Reduced width to give more room to form */
+            
+        }
+
+        /* Decorative background element */
+        .form-left::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+        .form-left::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            left: -50px;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .form-left h2 {
+            color: #fff !important;
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .form-left p {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-size: 1rem;
+            font-weight: 380;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 1;
+            line-height: 1.5;
+        }
+
+        .form-left ul {
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-left ul li {
+            margin-bottom: 15px;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 0.85rem;
+            line-height: 1.4;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-left ul li strong {
+            color: #fff !important;
+            font-size: 0.95rem;
+            margin-bottom: 2px;
+            display: block;
+        }
+
+        /* Right Section - The Form */
+        .form-right {
+            padding: 30px; /* Reduced padding */
+            background: #fff;
+            width: 65%; /* Increased width */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin-bottom: -20px;   
+        }
+
+        /* GRID LAYOUT FOR FORM */
+        .form-right form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px; /* Space between columns */
+        }
+
+        /* Make first two fields (Institute Name & Email) full width */
+        .form-right .form-group:nth-child(2),
+        .form-right .form-group:nth-child(3) {
+            grid-column: 1 / -1;
+        }
+
+        .form-group {
+            margin-bottom: 0px; /* Reset, controlled by grid gap */
+        }
+
+        .password-container {
+            position: relative;
+            width: 100%;
+        }
+
+        /* Hide default password reveal/clear buttons in Edge/IE */
+        input::-ms-reveal,
+        input::-ms-clear {
+            display: none;
+        }
+
+        /* Make password confirmation take same space */
+        .form-group:nth-last-child(2), /* Last input */
+        .form-group:nth-last-child(3) { /* Second to last input */
+            /* Ensure these sit nicely */
+        }
+
+        .form-group label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 4px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input {
+            background: #f8f9fa;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            padding: 8px 40px 8px 12px; /* Added right padding for icon */
+            height: 38px !important; /* Fixed compact height */
+            font-size: 0.9rem;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: none;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666;
+            font-size: 16px;
+            transition: color 0.3s ease;
+            z-index: 10;
+        }
+
+        .toggle-password:hover {
+            color: #2575FC;
+        }
+
+        .form-group input:focus {
+            background: #fff;
+            border-color: #2575FC;
+            box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.1);
+            transform: translateY(-1px);
+        }
+
+        /* Submit Button Spans Full Width */
+        .auth-button {
+            grid-column: 1 / -1; /* Span all columns */
+            margin-top: -5px; 
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #007bff);
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 8px 15px rgba(37, 117, 252, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px rgba(106, 17, 203, 0.3);
+            background: linear-gradient(90deg, #007bff);
+        }
+
+        .input-hint {
+            font-size: 0.7rem;
+            margin-top: 2px;
+            min-height: 12px;
+            white-space: normal;
+            overflow: visible;
+            max-width: 100%;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .form-wrapper {
+                flex-direction: column;
+                margin: 20px;
+                height: auto;
+                max-width: 100%;
+            }
+            .form-left, .form-right {
+                width: 100%;
+            }
+            .form-right form {
+                grid-template-columns: 1fr; /* Stack on mobile */
+            }
+            .form-left {
+                padding: 30px;
+            }
+            .form-left h2 {
+                font-size: 1.8rem;
+            }
+            .form-right {
+                padding: 30px;
+            }
+        }

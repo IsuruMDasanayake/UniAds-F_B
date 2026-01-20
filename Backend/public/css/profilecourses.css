@@ -1,0 +1,378 @@
+/* =======================
+   Container & Grid
+======================= */
+.courses-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.courses-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.course-card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: center;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+}
+
+.course-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.course-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 10px 0;
+    padding: 0 10px;
+}
+
+/* =======================
+   Post Modal Unique
+======================= */
+.post-modal,
+.apply-modal-unique,
+.info-modal-unique {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.post-modal-content,
+.apply-modal-content-unique,
+.info-modal-content-unique {
+    background: #fff;
+    border-radius: 12px;
+    padding: 25px;
+    width: 100%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    animation: fadeInScale 0.3s ease;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* =======================
+   Close Buttons
+======================= */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+    cursor: pointer;
+    background-color: black;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    text-align: center;
+    line-height: 32px;
+}
+
+.close-btn:hover {
+    color: #fff;
+    background-color: #333;
+}
+
+/* =======================
+   Post Modal Content
+======================= */
+.post-modal-body {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+}
+
+.post-modal-image {
+    width: 100%;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.post-modal-text {
+    flex: 1;
+}
+
+.post-modal-title {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.post-modal-description {
+    font-size: 16px;
+    color: #555;
+    white-space: pre-line;
+    line-height: 1.6;
+}
+
+.post-modal-footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-primary-unique,
+.btn-secondary-unique {
+    padding: 10px 20px;
+    font-size: 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.btn-primary-unique {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-primary-unique:hover {
+    background-color: #0056b3;
+}
+
+.btn-secondary-unique {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary-unique:hover {
+    background-color: #4b545c;
+}
+
+/* =======================
+   Apply Modal Unique
+======================= */
+/* Modal Overlay */
+.apply-modal-unique {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    z-index: 1000;
+}
+
+.apply-modal-content-unique {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 25px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    animation: fadeInUnique 0.3s ease;
+}
+
+.apply-modal-title-unique {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Close Button */
+.close-btn-unique {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+    cursor: pointer;
+    background-color: black;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    text-align: center;
+    line-height: 32px;
+}
+
+
+/* Form Groups */
+.form-group-unique {
+    margin-bottom: 15px;
+}
+
+.form-group-unique label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.form-group-unique input,
+.form-group-unique textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    background-color: #f9f9f9;
+    box-sizing: border-box;
+}
+
+/* Submit Button */
+.btn-submit-unique {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.btn-submit-unique:hover {
+    background-color: #0056b3;
+}
+
+/* Consent Checkbox */
+.consent-checkbox-unique {
+    margin-bottom: 15px;
+}
+
+.consent-checkbox-unique label {
+    display: flex;            /* Flex layout keeps checkbox and text aligned */
+    align-items: flex-start;  /* Align checkbox with first line of text */
+    gap: 8px;                 /* Space between checkbox and text */
+    font-size: 13px;
+    color: #555;
+    line-height: 1.4;
+}
+
+.consent-checkbox-unique input[type="checkbox"] {
+    flex-shrink: 0;           /* Prevent checkbox from shrinking */
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;          /* Align checkbox with first line */
+}
+
+.consent-checkbox-unique a {
+    color: #007bff;
+    text-decoration: underline;
+}
+
+.consent-checkbox-unique a:hover {
+    color: #0056b3;
+}
+
+/* Animation */
+@keyframes fadeInUnique {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .apply-modal-content-unique {
+        width: 95%;
+    }
+}
+
+
+/* =======================
+   Info Modal Unique
+======================= */
+.info-modal-title-unique {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+    text-align: center;
+}
+
+.info-modal-description-unique {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.6;
+}
+
+/* =======================
+   Responsive
+======================= */
+@media (max-width: 768px) {
+    .courses-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .post-modal,
+    .apply-modal-unique,
+    .info-modal-unique {
+        left: -8px;
+    }
+
+    .post-modal-body {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .post-modal-image,
+    .post-modal-description {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .courses-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .post-modal-title,
+    .apply-modal-title-unique,
+    .info-modal-title-unique {
+        font-size: 18px;
+    }
+
+    .post-modal-description,
+    .info-modal-description-unique {
+        font-size: 14px;
+    }
+}

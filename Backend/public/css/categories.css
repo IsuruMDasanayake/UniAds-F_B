@@ -1,0 +1,545 @@
+/* General Styles */
+        body {
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-top: -40px;
+    padding: 0;
+    color: #333;
+    background-color: #d1deec; /* Light background for contrast */
+}
+
+.container {
+    max-width: 850px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+.page-title {
+    font-size: 1.5rem;
+    
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.post-card {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    padding: 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+
+
+.post-image-wrapper {
+    flex: 0 0 30%; /* Image occupies 30% of the container */
+    height: 100%;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.post-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.post-details {
+    flex: 1; /* Details occupy the remaining space */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.institute-details {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.profile-picture {
+    width: 50px;
+    height: 50px;
+    border-radius: 20%;
+    border: 2px solid #ddd;
+    object-fit: cover;
+}
+
+.institute-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2a4d6c;
+}
+
+.premium-badge {
+    width: 20px;
+    height: 20px;
+    margin-left: 6px;
+    vertical-align: middle;
+    margin-top: -6px;
+}
+
+.post-timestamp {
+    font-size: 12px; /* Smaller font size for the timestamp */
+    color: #777; /* Light gray color for the timestamp */
+    font-weight: 400; /* Normal font weight */
+    margin-top: 5px; /* Adds space between the institute name and timestamp */
+    text-align: center; /* Centers the timestamp below the name */
+    letter-spacing: 0.5px; /* Adds slight spacing for readability */
+    opacity: 0.8; /* Slight opacity for a subtle effect */
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Clean and modern font */
+}
+
+.post-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #333;
+    margin-top: 5px;
+}
+.post-description {
+    font-size: 14px;
+    font-weight: 300; /* Makes the text thinner */
+    color: #555; /* Softer color for readability */
+    line-height: 1.6; /* Increases line spacing for a cleaner look */
+    margin: 10px 0; /* Adds spacing above and below the text */
+   
+    text-align: justify; /* Aligns text for a neat appearance */
+    padding: 0 10px; /* Adds slight padding for better spacing inside the container */
+    overflow: hidden; /* Ensures no overflow issues */
+    text-overflow: ellipsis; /* Adds ellipsis for long text */
+    display: -webkit-box; /* For limiting lines */
+    -webkit-line-clamp: 3; /* Limits text to 3 lines */
+    -webkit-box-orient: vertical;
+    transition: color 0.3s ease; /* Smooth color transition on hover */
+}
+
+
+.post-meta {
+    font-size: 0.9rem;
+    color: #555;
+    margin-top: 15px;
+}
+
+.programme-link {
+    font-size: 1rem;
+    color: #007BFF;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.2s ease;
+    margin-left: 250px;
+}
+
+.programme-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        max-width: 400px;
+    }
+    .post-card {
+        flex-direction: column;
+        padding: 15px;
+        padding-bottom: -15px;
+    }
+
+    .post-image-wrapper {
+        flex: none;
+        width: 100%;
+        height: 100%;
+    }
+
+    .post-title {
+        font-size: 1.3rem;
+    }
+
+    .programme-link {
+        font-size: 0.9rem;
+        margin-left: 1px; /* Adjust margin for smaller screens */
+    }
+
+    .premium-badge {
+    width: 15px;
+    height: 15px;
+    margin-left: 2px;
+    vertical-align: middle;
+    margin-top: -10px;
+}
+}
+
+
+
+/* ==== Modal Background ==== */
+.programme-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* ==== Modal Box ==== */
+.programme-modal-content {
+    
+    border-radius: 12px;
+    max-width: 700px;
+    width: 100%;
+    padding: 25px;
+    position: relative;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    animation: fadeIn 0.3s ease-in-out;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.programme-modal-content {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+}
+
+/* ==== Close Button ==== */
+.programme-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+    cursor: pointer;
+    background-color: black;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    text-align: center;
+    line-height: 32px;
+}
+.programme-close-btn:hover {
+    color: #ffffff;
+    background-color: #333;
+}
+
+/* ==== Image ==== */
+.programme-image {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+/* ==== Title ==== */
+.programme-title {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 12px;
+    text-align: center;
+    color: #222;
+}
+
+/* ==== Description ==== */
+.programme-description {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.6;
+    
+    white-space: pre-line;
+}
+
+/* ==== Animation ==== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.programme-footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+.btn-secondary:hover {
+    background-color: #495057;
+}
+
+/* === Apply Now Modal - General === */
+#applyModal.programme-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    justify-content: center;
+    align-items: center;
+}
+
+/* === Modal Content Box === */
+#applyModal .programme-modal-content {
+    background-color: #ffffff;
+    width: 90%;
+    max-width: 600px;
+    padding: 30px;
+    border-radius: 12px;
+    position: relative;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* === Close Button === */
+.programme-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+    cursor: pointer;
+    background-color: black;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    text-align: center;
+    line-height: 32px;
+}
+
+.programme-close-btn:hover {
+    color: #fff;
+    background-color: #333;
+}
+
+/* === Modal Title === */
+#applyModal .programme-title {
+    text-align: center;
+    font-size: 22px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* === Form Group === */
+#applyModal .form-group {
+    margin-bottom: 15px;
+}
+
+#applyModal .form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+#applyModal .form-group input,
+#applyModal .form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background: #f9f9f9;
+    transition: border-color 0.3s ease;
+}
+
+#applyModal .form-group input:focus,
+#applyModal .form-group textarea:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* === Submit Button === */
+#applyModal .btn-primary {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+#applyModal .btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Consent Checkbox Inline */
+#applyModal .consent-checkbox {
+    margin-bottom: 15px;
+}
+
+#applyModal .consent-checkbox label {
+    display: inline;          /* inline to keep checkbox and first word on same line */
+    font-size: 13px;
+    color: #555;
+}
+
+#applyModal .consent-checkbox input[type="checkbox"] {
+    display: inline-block;
+    vertical-align: middle;   /* align checkbox with text */
+    margin-right: 6px;        /* small gap between checkbox and text */
+    width: 16px;
+    height: 16px;
+}
+
+#applyModal .consent-checkbox a {
+    color: #007bff;
+    text-decoration: underline;
+}
+
+#applyModal .consent-checkbox a:hover {
+    color: #0056b3;
+}
+
+
+/* === Fade-in animation === */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* === Responsive: Mobile View === */
+@media (max-width: 576px) {
+    #applyModal .programme-modal-content {
+        padding: 20px;
+        border-radius: 10px;
+    }
+
+    #applyModal .programme-title {
+        font-size: 18px;
+    }
+
+    #applyModal .btn-primary {
+        font-size: 15px;
+        padding: 10px;
+    }
+
+    #applyModal .form-group input,
+    #applyModal .form-group textarea {
+        font-size: 13px;
+    }
+
+    .programme-close-btn {
+        top: 10px;
+        right: 15px;
+        font-size: 22px;
+    }
+}
+
+
+/* ==== Responsive ==== */
+@media (max-width: 768px) {
+    .programme-modal-content {
+        padding: 20px;
+        max-width: 90%;
+        left: -8px;
+        
+    }
+
+    .programme-title {
+        font-size: 20px;
+    }
+
+    .programme-description {
+        font-size: 15px;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        
+        font-size: 15px;
+        padding: 12px 16px;
+         /* Full width for easier tapping */
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .programme-modal-content {
+        padding: 15px;
+    }
+
+    .programme-title {
+        font-size: 18px;
+    }
+
+    .programme-description {
+        font-size: 14px;
+    }
+
+    .programme-close-btn {
+        top: 10px;
+        right: 14px;
+        font-size: 22px;
+        background-color: black;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        font-size: 15px;
+        padding: 12px 16px;
+        width: 50%; /* Full width for easier tapping */
+        margin-bottom: 10px;
+    }
+}
+
+
+
+
+
+
