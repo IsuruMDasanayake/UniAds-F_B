@@ -42,10 +42,16 @@ services:
     build:
       context: ./Frontend
       dockerfile: Dockerfile
+      target: build-stage # Stop at Node stage to run dev server
     container_name: uniads-frontend
     restart: unless-stopped
+    volumes:
+      - ./Frontend:/app
+      - frontend-node-modules:/app/node_modules # Isolated dependencies
+    working_dir: /app
+    command: npm run dev -- --host
     ports:
-      - "3000:80"
+      - "3000:5173"
     networks:
       - uniads-network
 
@@ -90,3 +96,4 @@ networks:
 
 volumes:
   db-data:
+  frontend-node-modules:

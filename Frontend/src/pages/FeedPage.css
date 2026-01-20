@@ -262,43 +262,43 @@
     justify-content: flex-end;
 }
 
-.action-btn {
+.post-action-btn {
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 0.5rem;
     padding: 0.6rem 1.25rem;
-    border-radius: 20px;
-    border: none;
-    cursor: pointer;
+    border-radius: 14px;
     font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
     font-family: 'Poppins', sans-serif;
-    transition: all 0.3s ease;
 }
 
-.like-btn {
-    background: #ff4757;
+.btn-like {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.btn-like:hover {
+    background: #fecaca;
+    transform: scale(1.02);
+}
+
+.btn-like.liked {
+    background: #ef4444;
     color: white;
 }
 
-.like-btn:hover {
-    background: #ff6b7a;
-    transform: translateY(-2px);
-}
-
-.like-btn.liked {
-    background: #ff4757;
-}
-
-.action-btn:not(.like-btn):not(.save-btn) {
+.btn-see-more {
     background: #ffc107;
     color: #0f172a;
 }
 
-.action-btn:hover:not(.like-btn):not(.save-btn) {
-    background: #0f172a;
-    color: white;
-    transform: translateY(-2px);
+.btn-see-more:hover {
+    background: #eab308;
+    transform: scale(1.02);
 }
 
 
