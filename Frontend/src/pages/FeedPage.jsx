@@ -418,18 +418,18 @@ function FeedPage() {
                                     <p className="post-description">{post.small_description}</p>
                                     <div className="post-actions">
                                         <button
-                                            className={`action-btn like-btn ${post.is_liked_by_user ? 'liked' : ''}`}
+                                            className={`post-action-btn btn-like ${post.is_liked_by_user ? 'liked' : ''}`}
                                             onClick={() => handleLike(post.id)}
                                         >
-                                            <Heart size={18} fill={post.is_liked_by_user ? '#ff4757' : 'none'} />
-                                            <span>Like | {post.likes_count || 0}</span>
+                                            <Heart size={16} fill={post.is_liked_by_user ? 'white' : 'transparent'} />
+                                            <span>{post.likes_count || 0}</span>
                                         </button>
                                         <button
-                                            className="action-btn"
+                                            className="post-action-btn btn-see-more"
                                             onClick={() => openPostModal(post)}
                                         >
-                                            <MessageCircle size={18} />
                                             <span>See More</span>
+                                            <Info size={16} />
                                         </button>
                                         {user?.role === 'User' && (
                                             <button
