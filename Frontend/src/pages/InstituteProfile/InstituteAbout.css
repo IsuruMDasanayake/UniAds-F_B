@@ -1,21 +1,5 @@
 /* InstituteAbout.css */
 
-:root {
-    --c-primary: #ffc107;
-    --c-primary-soft: rgba(255, 71, 87, 0.08);
-    --c-accent: #ff4757;
-    --c-dark: #0f172a;
-    --c-text-muted: #64748b;
-    --c-bg: #f5f5f5;
-    /* Slightly darker cool grey for better contrast */
-    --c-card-bg: rgba(255, 255, 255, 0.95);
-    --c-glass: rgba(255, 255, 255, 0.7);
-    --c-radius-lg: 32px;
-    --c-radius-md: 20px;
-    --c-shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    --c-shadow-md: 0 20px 40px -5px rgba(0, 0, 0, 0.1), 0 10px 20px -5px rgba(0, 0, 0, 0.04);
-    --c-shadow-glow: 0 0 50px -10px rgba(255, 71, 87, 0.15);
-}
 
 .about-container {
     max-width: 1200px;
@@ -262,7 +246,7 @@
 
 .edit-btn {
     background: #fffbf0;
-    color: #ffc107;
+    color: var(--c-primary);
 }
 
 .edit-btn:hover {

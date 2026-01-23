@@ -8,22 +8,13 @@
     justify-content: center;
     height: 100vh;
     background: #f5f5f5;
-    color: #0f172a;
+    color: var(--c-dark);
 }
 
-.feed-loading .loading-spinner {
-    width: 50px;
-    height: 50px;
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-top-color: #6610f2;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+.feed-loading p {
+    margin-top: 1rem;
+    font-weight: 600;
+    color: var(--c-text-muted);
 }
 
 /* Main Container */
@@ -76,7 +67,7 @@
 .sidebar-card h3 {
     font-size: 1rem;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--c-dark);
     margin-bottom: 0.8rem;
     margin-top: 1.2rem;
 }
@@ -94,7 +85,7 @@
     gap: 0.75rem;
     padding: 0.6rem 0.8rem;
     border-radius: 10px;
-    color: #0f172a;
+    color: var(--c-dark);
     text-decoration: none;
     font-weight: 600;
     font-size: 0.9rem;
@@ -103,12 +94,12 @@
 
 .nav-item:hover {
     background: #f8f9fa;
-    color: #0f172a;
+    color: var(--c-dark);
 }
 
 .nav-item.active {
     background: #fff9e6;
-    color: #ffc107;
+    color: var(--c-primary);
 }
 
 .sidebar-divider {
@@ -132,14 +123,14 @@
 }
 
 .category-list a {
-    color: #0f172a;
+    color: var(--c-dark);
     text-decoration: none;
     font-size: 0.9rem;
     transition: all 0.2s ease;
 }
 
 .category-list a:hover {
-    color: #ffc107;
+    color: var(--c-primary);
     padding-left: 4px;
 }
 
@@ -147,8 +138,8 @@
     display: block;
     width: 100%;
     padding: 0.6rem;
-    background: #ffc107;
-    color: #0f172a;
+    background: var(--c-primary);
+    color: white;
     border: none;
     border-radius: 8px;
     font-size: 0.8rem;
@@ -162,7 +153,7 @@
 }
 
 .see-more-btn:hover {
-    background: #0f172a;
+    background: var(--c-primary-hover);
     color: white;
 }
 
@@ -230,7 +221,7 @@
 
 .institute-name {
     font-weight: 700;
-    color: #0f172a;
+    color: var(--c-dark);
     font-size: 1rem;
 }
 
@@ -242,7 +233,7 @@
 .post-title {
     font-size: 1.15rem;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--c-dark);
     margin-bottom: 0rem;
     margin-top: -0.3rem;
 }
@@ -277,34 +268,35 @@
 }
 
 .btn-like {
-    background: #fee2e2;
-    color: #ef4444;
+    background: var(--c-accent-soft);
+    color: var(--c-accent);
 }
 
 .btn-like:hover {
-    background: #fecaca;
+    background: var(--c-accent);
+    color: white;
     transform: scale(1.02);
 }
 
 .btn-like.liked {
-    background: #ef4444;
+    background: var(--c-accent);
     color: white;
 }
 
 .btn-see-more {
-    background: #ffc107;
-    color: #0f172a;
+    background: var(--c-primary);
+    color: white;
 }
 
 .btn-see-more:hover {
-    background: #eab308;
+    background: var(--c-primary-hover);
     transform: scale(1.02);
 }
 
 
 .btn-secondary {
     width: 20%;
-    background-color: #0f172a;
+    background-color: var(--c-dark);
     color: white;
     font-family: 'Poppins', sans-serif;
     border-radius: 20px;
@@ -312,11 +304,11 @@
     cursor: pointer;
     font-size: 0.85rem;
     transition: all 0.3s ease;
+    height: 40px;
 }
 
 .btn-secondary:hover {
-    background: #ffc107;
-    color: #0f172a;
+    background: var(--c-primary-hover);
     transform: translateY(-2px);
 }
 
@@ -335,16 +327,16 @@
 }
 
 .action-btn.save-btn:hover {
-    background: #f1f5f9;
-    border-color: #ffc107;
-    color: #ffc107 !important;
+    background: var(--c-bookmark-soft);
+    border-color: var(--c-bookmark);
+    color: var(--c-bookmark);
     transform: scale(1.05);
 }
 
 .action-btn.save-btn.saved {
     background: #fff9e6;
-    border-color: #ffc107;
-    color: #ffc107 !important;
+    color: var(--c-bookmark);
+        
 }
 
 .save-btn svg {
@@ -404,13 +396,13 @@
 .events-header h3 {
     font-size: 1.15rem;
     font-weight: 800;
-    color: #0f172a;
+    color: var(--c-dark);
     margin: 0;
     letter-spacing: -0.5px;
 }
 
 .see-all {
-    background: #ff4757;
+    background: var(--c-accent);
     border: none;
     padding: 0.4rem 0.8rem;
     border-radius: 20px;
@@ -421,7 +413,7 @@
 }
 
 .see-all:hover {
-    background: #0f172a;
+    background: var(--c-accent-hover);
     color: white;
 }
 
@@ -518,7 +510,7 @@
 
 .event-date-badge {
     background: #f7eaeb;
-    color: #ff4757;
+    color: var(--c-accent);
     padding: 0.35rem 0.75rem;
     border-radius: 8px;
     font-size: 0.75rem;
@@ -529,7 +521,7 @@
 }
 
 .event-card-institute {
-    color: #0f172a;
+    color: var(--c-dark);
     font-weight: 600;
     font-size: 0.75rem;
     text-transform: uppercase;
@@ -539,7 +531,7 @@
 .event-card-title {
     font-size: 1rem;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--c-dark);
     margin: 0;
     line-height: 1.4;
     display: -webkit-box;
@@ -554,7 +546,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    color: #0f172a;
+    color: var(--c-dark);
     font-size: 0.8rem;
     font-weight: 500;
 }
@@ -566,8 +558,8 @@
 .event-interest-btn {
     width: 100%;
     padding: 0.75rem;
-    background: white;
-    color: #0f172a;
+    background: var(--c-accent-soft);
+    color: var(--c-accent);
     border: 1px solid #e2e8f0;
     border-radius: 12px;
     font-weight: 700;
@@ -579,16 +571,16 @@
 }
 
 .event-interest-btn:hover {
-    background: #f8fafc;
-    border-color: #ff4757;
-    color: #ff4757;
+    background: var(--c-accent-hover);
+    border-color: var(--c-accent);
+    color: white;
     box-shadow: 0 4px 10px rgba(59, 130, 246, 0.1);
 }
 
 .event-interest-btn.interested {
-    background: #ff4757;
+    background: var(--c-accent);
     color: white;
-    border-color: #ff4757;
+    border-color: var(--c-accent);
     cursor: default;
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
@@ -684,8 +676,8 @@
         right: 0;
         top: 30%;
         transform: translateY(-50%);
-        background: #ffc107;
-        color: #0f172a;
+        background: var(--c-primary);
+        color: var(--c-dark);
         width: 40px;
         height: 60px;
         border-radius: 20px 0 0 20px;

@@ -178,7 +178,7 @@ function Navbar({ user }) {
                                                     <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="3.6" className="loader-circle loader-circle-animation"></circle>
                                                 </svg>
                                             </div>
-                                            <span>Searching...</span>
+                                            <p>Searching for excellence...</p>
                                         </div>
                                     ) : !hasResults ? (
                                         <div className="no-results-found">

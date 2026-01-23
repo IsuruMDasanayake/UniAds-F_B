@@ -52,7 +52,7 @@
     z-index: 50;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     transition: all 0.2s ease;
-    color: #0f172a;
+    color: var(--c-dark);
 }
 
 .modal-close-trigger:hover {
@@ -90,7 +90,7 @@
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    
 }
 
 .form-group label {
@@ -112,6 +112,8 @@
     font-size: 0.85rem;
     /* Smaller font */
     transition: all 0.3s;
+    height: 40px;
+    margin-bottom: -20px;
 }
 
 .form-group textarea {
@@ -125,7 +127,7 @@
     border-color: var(--c-primary);
     background: white;
     outline: none;
-    box-shadow: 0 0 0 3px var(--c-primary-soft);
+    
 }
 
 .consent-group {

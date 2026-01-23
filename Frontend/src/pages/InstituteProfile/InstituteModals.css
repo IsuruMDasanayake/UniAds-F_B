@@ -1,17 +1,5 @@
 /* InstituteModals.css - Premium Refined Aesthetic */
 
-:root {
-    --modal-bg: #ffffff;
-    --modal-overlay: rgba(15, 23, 42, 0.4);
-    --modal-radius: 24px;
-    --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-    /* Colors from ProfileHeader */
-    --c-primary: #ffc107;
-    --c-accent: #ff4757;
-    --c-dark: #0f172a;
-    --c-text-muted: #64748b;
-    --c-border: #e2e8f0;
-}
 
 /* Modal Container */
 .modal-overlay {
@@ -81,7 +69,7 @@
 
 .input-grid {
     display: grid;
-    grid-template-cols: 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
 }
 
@@ -138,7 +126,7 @@
     z-index: 50;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     transition: all 0.2s ease;
-    color: #0f172a;
+    color: var(--c-dark);
 }
 
 .modal-close-trigger:hover {
@@ -645,7 +633,7 @@ input:checked+.slider:before {
 }
 
 .star-btn.active {
-    color: var(--c-primary);
+    color: var(--c-bookmark);
 }
 
 .star-btn:hover {

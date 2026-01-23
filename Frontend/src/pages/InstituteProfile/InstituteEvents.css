@@ -82,7 +82,7 @@
 .event-day {
     font-size: 1.1rem;
     font-weight: 800;
-    color: #0f172a;
+    color: var(--c-dark);
     line-height: 1;
 }
 
@@ -90,7 +90,7 @@
     font-size: 0.7rem;
     text-transform: uppercase;
     font-weight: 600;
-    color: #ff4757;
+    color: var(--c-accent);
     /* Brand color accent */
     margin-top: 2px;
 }
@@ -180,7 +180,7 @@
 
 .edit-btn {
     background: #fffbf0;
-    color: #ffc107;
+    color: var(--c-primary);
 }
 
 .edit-btn:hover {

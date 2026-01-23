@@ -35,7 +35,7 @@
     z-index: 50;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     transition: all 0.2s ease;
-    color: #0f172a;
+    color: var(--c-dark);
 }
 
 .modal-close-trigger:hover {
@@ -155,7 +155,7 @@
 }
 
 .create-info-modal .remove-img-btn:hover {
-    background: #ff4757;
+    background: var(--c-accent);
     transform: scale(1.1);
 }
 

@@ -134,7 +134,7 @@
 
 #institute-profile-posts-wrapper .btn-header-action {
     background: #fffbf0;
-    color: #ffc107;
+    color: var(--c-primary);
 }
 
 #institute-profile-posts-wrapper .btn-header-action:hover {
@@ -160,7 +160,7 @@
 #institute-profile-posts-wrapper .post-title {
     font-size: 1.2rem;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--c-dark);
     margin-bottom: 0.5rem;
     font-family: 'Poppins', sans-serif;
     letter-spacing: -0.01em;
@@ -219,8 +219,8 @@
 }
 
 #institute-profile-posts-wrapper .btn-see-more {
-    background: #ffc107;
-    color: #0f172a;
+    background: var(--c-primary);
+    color: var(--c-dark);
 }
 
 #institute-profile-posts-wrapper .btn-see-more:hover {
@@ -249,7 +249,7 @@
 #institute-profile-posts-wrapper .ui-bookmark {
     --icon-size: 20px;
     --icon-secondary-color: #94a3b8;
-    --icon-primary-color: #ffc107;
+    --icon-primary-color: var(--c-primary);
     cursor: pointer;
 }
 
@@ -265,8 +265,8 @@
 }
 
 #institute-profile-posts-wrapper .ui-bookmark input:checked+.bookmark {
-    fill: var(--icon-primary-color);
-    filter: drop-shadow(0 0 4px rgba(255, 193, 7, 0.3));
+    fill: var(--c-bookmark);
+    filter: drop-shadow(0 0 4px var(--c-bookmark-soft));
 }
 
 /* Responsive adjustments */

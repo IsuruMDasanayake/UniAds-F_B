@@ -47,7 +47,7 @@
     z-index: 50;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     transition: all 0.2s ease;
-    color: #0f172a;
+    color: var(--c-dark);
 }
 
 .modal-close-trigger:hover {
@@ -65,7 +65,7 @@
 .modal-media-side {
     position: relative;
     height: 100%;
-    background: #0f172a;
+    background: var(--c-dark);
 }
 
 .modal-media-side img {
@@ -119,7 +119,7 @@
 .modal-header-details h2 {
     font-size: 2.2rem;
     font-weight: 800;
-    color: #0f172a;
+    color: var(--c-dark);
     line-height: 1.1;
     letter-spacing: -1px;
 }
@@ -150,7 +150,7 @@
 }
 
 .modal-location-strip strong {
-    color: #0f172a;
+    color: var(--c-dark);
     font-size: 1.1rem;
 }
 
@@ -161,7 +161,7 @@
 
 .modal-body-text h4 {
     font-size: 1.1rem;
-    color: #0f172a;
+    color: var(--c-dark);
     margin-bottom: 12px;
     font-weight: 700;
 }
@@ -190,7 +190,7 @@
 }
 
 .modal-action-btn {
-    background: #0f172a;
+    background: var(--c-dark);
     color: white;
     padding: 14px 30px;
     border-radius: 14px;

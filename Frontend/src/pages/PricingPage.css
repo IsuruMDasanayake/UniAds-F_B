@@ -1,21 +1,5 @@
 /* PricingPage.css - Premium Re-imagined */
 
-:root {
-    --c-primary: #ffc107;
-    --c-primary-soft: rgba(255, 193, 7, 0.08);
-    --c-accent: #ff4757;
-    --c-dark: #0f172a;
-    --c-text-muted: #64748b;
-    --c-bg: #f5f5f5;
-    --c-card-bg: white;
-    --c-glass: rgba(255, 255, 255, 0.9);
-    --c-radius-lg: 24px;
-    --c-radius-md: 16px;
-    --c-shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    --c-shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
-    --c-shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-    --font-poppins: 'Poppins', sans-serif;
-}
 
 .pricing-page-v2 {
     background-color: var(--c-bg);
@@ -178,12 +162,12 @@
     left: 50%;
     transform: translateX(-50%);
     background: var(--c-primary);
-    color: var(--c-dark);
+    color: white;
     padding: 0.5rem 1.5rem;
     border-radius: 99px;
     font-size: 0.8rem;
     font-weight: 800;
-    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+    box-shadow: 0 4px 15px rgba(29, 55, 92, 0.3);
     letter-spacing: 0.05em;
 }
 
@@ -258,9 +242,9 @@
 /* Actions */
 .subscribe-btn {
     width: 100%;
-    background: #e3ffec;
-    color: #22c55e;
-    border-color: #22c55e;
+    background: var(--c-success-soft);
+    color: var(--c-success);
+    border-color: var(--c-success);
     border: none;
     padding: 1.25rem;
     border-radius: 12px;
@@ -274,7 +258,7 @@
 }
 
 .subscribe-btn:hover:not(:disabled) {
-    background: #22c55e;
+    background: var(--c-success);
     color: white;
     transform: scale(1.02);
     box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.3);
@@ -283,9 +267,9 @@
 .cancel-trial-btn,
 .cancel-sub-btn {
     width: 100%;
-    background: #fef2f2;
-    color: #ef4444;
-    border-color: #ef4444;
+    background: var(--c-accent-soft);
+    color: var(--c-accent);
+    border-color: var(--c-accent);
     border: none;
     padding: 1rem;
     border-radius: 12px;
@@ -300,33 +284,33 @@
 .cancel-trial-btn:hover,
 .cancel-sub-btn:hover {
     border-color: var(--c-accent);
-    background: #fee2e2;
-    color: #dc2626;
+    background: var(--c-accent-soft);
+    color: var(--c-accent-hover);
 }
 
 .trial-badge {
-    background: #ecfdf5;
-    color: #065f46;
+    background: var(--c-success-soft);
+    color: var(--c-success);
     padding: 1rem;
     border-radius: 12px;
     font-weight: 700;
     margin-bottom: 1.5rem;
     text-align: center;
-    border: 1px solid #a7f3d0;
+    border: 1px solid var(--c-success);
 }
 
 /* Status Alert */
 .status-box {
-    background: #f0fdf4;
+    background: var(--c-success-soft);
     padding: 1.5rem;
     border-radius: var(--c-radius-md);
     margin-bottom: 2rem;
     text-align: center;
-    border: 1px solid #dcfce7;
+    border: 1px solid var(--c-success);
 }
 
 .status-box h3 {
-    color: #166534;
+    color: var(--c-success);
     font-weight: 700;
     margin-bottom: 0.25rem;
 }
@@ -365,18 +349,18 @@
 }
 
 .widget-icon.widget-icon {
-    background: #fff7ed;
-    color: #f97316;
+    background: var(--c-accent-soft);
+    color: var(--c-accent);
 }
 
 .widget-icon.widget-icon2 {
-    background: #eff6ff;
-    color: #3b82f6;
+    background: var(--c-primary-soft);
+    color: var(--c-primary);
 }
 
 .widget-icon.widget-icon3 {
-    background: #f0fdf4;
-    color: #22c55e;
+    background: var(--c-success-soft);
+    color: var(--c-success);
 }
 
 .widget-card h3 {
@@ -564,14 +548,14 @@
     left: 0;
     right: 0;
     height: 6px;
-    background: linear-gradient(90deg, #ff4757, #ff6b81);
+    background: linear-gradient(90deg, var(--c-accent), #ff6b81);
 }
 
 .cancel-icon-circle {
     width: 80px;
     height: 80px;
     background: #fff1f2;
-    color: #ff4757;
+    color: var(--c-accent);
     border-radius: 50%;
     display: flex;
     align-items: center;

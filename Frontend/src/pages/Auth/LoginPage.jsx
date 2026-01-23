@@ -85,7 +85,7 @@ const LoginPage = () => {
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ duration: 0.6 }}
             >
-                <img src="/images/logo.png" alt="UniAds" className="auth-brand-logo" />
+                {/* <img src="/images/logo.png" alt="UniAds" className="auth-brand-logo" /> */}
                 <h1 className="auth-welcome-title">Welcome Back!</h1>
                 <p className="auth-description">
                     Log in to continue exploring educational opportunities, managing your profile, and connecting with institutions.

@@ -2,10 +2,17 @@
 
 .loading-screen {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100vh;
     background: white;
+}
+
+.loading-screen p {
+    margin-top: 1rem;
+    font-weight: 600;
+    color: var(--c-text-muted);
 }
 
 .saved-page-container {
@@ -23,7 +30,7 @@
     text-align: center;
     font-size: 1.8rem;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--c-dark);
     margin-bottom: 1rem;
     margin-top: 4.5rem;
 }
@@ -104,7 +111,7 @@
 
 .institute-name-text {
     font-weight: 700;
-    color: #0f172a;
+    color: var(--c-dark);
     font-size: 0.95rem;
     margin-top: -0.5rem;
 }
@@ -118,7 +125,7 @@
 .saved-post-title {
     font-size: 1.2rem;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--c-dark);
     margin-bottom: 0.5rem;
     margin-top: 2rem;
 }
@@ -152,8 +159,8 @@
 }
 
 .view-programme-btn {
-    color: #0f172a;
-    background: #ffc107;
+    color: var(--c-dark);
+    background: var(--c-primary);
     font-weight: 600;
     text-decoration: none;
     font-size: 0.9rem;
@@ -166,7 +173,7 @@
 }
 
 .view-programme-btn:hover {
-    background: #0f172a;
+    background: var(--c-dark);
     color: white;
     text-decoration: none;
     transform: translateY(-1px);
@@ -180,7 +187,7 @@
 .ui-bookmark {
     --icon-size: 24px;
     --icon-secondary-color: #94a3b8;
-    --icon-primary-color: #ffc107;
+    --icon-primary-color: var(--c-primary);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -199,8 +206,8 @@
 }
 
 .ui-bookmark input:checked+.bookmark {
-    fill: var(--icon-primary-color);
-    filter: drop-shadow(0 0 4px rgba(255, 193, 7, 0.3));
+    fill: var(--c-bookmark);
+    filter: drop-shadow(0 0 4px var(--c-bookmark-soft));
 }
 
 .no-saved-posts {
@@ -228,8 +235,8 @@
 
 .browse-btn {
     padding: 0.8rem 2rem;
-    background: #ffc107;
-    color: #0f172a;
+    background: var(--c-primary);
+    color: #ffffff;
     text-decoration: none;
     border-radius: 25px;
     font-weight: 700;
@@ -237,9 +244,9 @@
 }
 
 .browse-btn:hover {
-    background: #e0ac06;
+    background: var(--c-primary-hover);
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3);
+    box-shadow: 0 5px 15px rgba(29, 55, 92, 0.2);
 }
 
 
