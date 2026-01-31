@@ -40,7 +40,7 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, isDeleting, title }) =
                             <AlertTriangle size={50} style={{ margin: '0 auto' }} />
                         </div>
 
-                        <h2 style={{ marginBottom: '15px', fontSize: '1.5rem', fontWeight: '800' }}>Confirm Deletion</h2>
+                        <h2 style={{ marginBottom: '15px', fontSize: '1.5rem', fontWeight: '800', color: '#1e293b' }}>Confirm Deletion</h2>
                         <p style={{ color: '#64748b', marginBottom: '30px', lineHeight: '1.6', fontSize: '0.95rem' }}>
                             Are you sure you want to delete this? <br /> This cannot be undone.
                         </p>

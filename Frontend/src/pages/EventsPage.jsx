@@ -10,6 +10,7 @@ import { getStorageUrl } from '../lib/config';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import EventDetailsModal from '../components/Modals/EventDetailsModal';
+import AddEventModal from './InstituteProfile/modals/AddEventModal';
 import './EventsPage.css';
 
 function EventsPage() {
@@ -20,6 +21,7 @@ function EventsPage() {
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [processingId, setProcessingId] = useState(null);
+    const [showAddEventModal, setShowAddEventModal] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -39,6 +41,15 @@ function EventsPage() {
         };
         fetchData();
     }, []);
+
+    const fetchEvents = async () => {
+        try {
+            const eventsRes = await axiosClient.get('/api/events');
+            setEvents(eventsRes.data.data || []);
+        } catch (error) {
+            console.error('Failed to fetch events:', error);
+        }
+    };
 
     const handleMarkInterest = async (eventId) => {
         if (processingId) return;
@@ -125,7 +136,7 @@ function EventsPage() {
                         <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="3.6" className="loader-circle loader-circle-animation"></circle>
                     </svg>
                 </div>
-                <p>Fetching Campus Buzz...</p>
+                <p>Loading Events...</p>
             </div>
         );
     }
@@ -307,10 +318,33 @@ function EventsPage() {
                     <div className="sidebar-widget help-card">
                         <h4>Organizing an Event?</h4>
                         <p>Get your institution featured on UniAds Portal.</p>
-                        <Link to="/institutionprofileadd" className="help-link">Register Now</Link>
+                        {user?.role === 'Institute' ? (
+                            <button
+                                onClick={() => setShowAddEventModal(true)}
+                                className="help-link"
+                                style={{ width: '100%', border: 'none', textAlign: 'center' }}
+                            >
+                                Add Event
+                            </button>
+                        ) : (
+                            <Link to="/institutionprofileadd" className="help-link">Register Now</Link>
+                        )}
                     </div>
                 </aside>
             </div>
+
+            <AnimatePresence>
+                {showAddEventModal && (
+                    <AddEventModal
+                        institute={user?.institute}
+                        onClose={() => setShowAddEventModal(false)}
+                        onSuccess={() => {
+                            setShowAddEventModal(false);
+                            fetchEvents();
+                        }}
+                    />
+                )}
+            </AnimatePresence>
 
             <EventDetailsModal
                 event={selectedEvent}

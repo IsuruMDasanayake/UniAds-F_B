@@ -219,12 +219,14 @@ const CoursesPage = () => {
                                         <div className="card-top">
                                             <img src={getStorageUrl(post.image)} alt={post.title} />
                                             <div className="type-badge">{post.course_type}</div>
-                                            <button
-                                                className={`save-circle ${post.is_saved ? 'saved' : ''}`}
-                                                onClick={(e) => { e.preventDefault(); handleToggleSave(post.id); }}
-                                            >
-                                                <Bookmark size={18} fill={post.is_saved ? "currentColor" : "none"} />
-                                            </button>
+                                            {user?.role !== 'Institute' && (
+                                                <button
+                                                    className={`save-circle ${post.is_saved ? 'saved' : ''}`}
+                                                    onClick={(e) => { e.preventDefault(); handleToggleSave(post.id); }}
+                                                >
+                                                    <Bookmark size={18} fill={post.is_saved ? "currentColor" : "none"} />
+                                                </button>
+                                            )}
                                         </div>
                                         <div className="card-inner">
                                             <div className="inst-row">
@@ -244,7 +246,7 @@ const CoursesPage = () => {
                                                     >
                                                         <span className="name">
                                                             {post.institute?.institute_name}
-                                                            {!!post.institute?.is_premium && <BadgeCheck size={14} className="v-badge" />}
+                                                            {!!post.institute?.is_premium && <BadgeCheck size={18} fill="#ff4757" color="#ffffff" style={{ marginLeft: '4px', display: 'inline-block' }} className="v-badge" />}
                                                         </span>
                                                     </Link>
                                                     <span className="loc">{post.location}</span>
@@ -276,7 +278,7 @@ const CoursesPage = () => {
                     // ---------------- BROWSE BY DISCIPLINE VIEW ----------------
                     <div className="browse-view">
                         <header className="browse-header">
-                            <h1>Explore Our Disciplines</h1>
+                            <h1>Explore Our <span>Disciplines</span></h1>
                             <p>Find your perfect course from our extensive range of programs</p>
 
                             <div className="browse-search">

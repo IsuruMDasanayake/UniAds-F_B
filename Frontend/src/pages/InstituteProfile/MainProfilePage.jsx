@@ -5,6 +5,7 @@ import Navbar from '../../components/Navbar';
 import ProfileHeader from './ProfileHeader';
 import InstituteFeed from './InstituteFeed';
 import InstituteAbout from './InstituteAbout';
+import InstituteEvents from './InstituteEvents';
 import InstituteCourses from './InstituteCourses';
 import InstituteContact from './InstituteContact';
 
@@ -27,6 +28,7 @@ const MainProfilePage = () => {
     const getActiveTab = () => {
         const path = location.pathname;
         if (path.endsWith('/about')) return 'about';
+        if (path.endsWith('/events')) return 'events';
         if (path.endsWith('/courses')) return 'courses';
         if (path.endsWith('/contact')) return 'contact';
         return 'feed'; // Default to feed (profile or profile/feed)
@@ -216,6 +218,15 @@ const MainProfilePage = () => {
                 )}
                 {activeTab === 'about' && (
                     <InstituteAbout about={about} institute={institute} isOwner={isOwner} />
+                )}
+                {activeTab === 'events' && (
+                    <div className="container mx-auto px-4 py-8">
+                        <InstituteEvents
+                            events={events}
+                            isOwner={isOwner}
+                            onEventsUpdate={refreshData}
+                        />
+                    </div>
                 )}
                 {activeTab === 'courses' && (
                     <InstituteCourses institute={institute} courses={posts} isOwner={isOwner} />

@@ -135,6 +135,7 @@ const InstituteContact = ({ institute }) => {
                                 value={formData.message}
                                 onChange={handleChange}
                                 required
+                                rows={10}
                                 className="form-textarea"
                                 placeholder="Write your message here..."
                             ></textarea>

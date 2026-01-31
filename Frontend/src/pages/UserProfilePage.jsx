@@ -43,6 +43,13 @@ const UserProfilePage = () => {
     });
     const [alert, setAlert] = useState({ show: false, type: '', message: '' });
     const [errors, setErrors] = useState({});
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 992);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 992);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const showAlert = (type, message) => {
         setAlert({ show: true, type, message });
@@ -237,7 +244,7 @@ const UserProfilePage = () => {
                             </div>
                         </div>
 
-                        <div className="sidebar-widget">
+                        <div className="sidebar-widget menu-widget">
                             <h3 className="widget-title">Menu</h3>
                             <nav className="sidebar-nav">
                                 <button
@@ -269,7 +276,7 @@ const UserProfilePage = () => {
                             </nav>
                         </div>
 
-                        <div className="sidebar-widget">
+                        {/* <div className="sidebar-widget">
                             <div className="flex items-center justify-between mb-2">
                                 <span className="text-sm font-medium">Profile Completion</span>
                                 <span className="text-xs text-yellow-600 font-bold"> 100%</span>
@@ -278,16 +285,16 @@ const UserProfilePage = () => {
                                 <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '100%' }}></div>
                             </div>
                             <p className="text-[10px] text-gray-500 mt-2">Your profile is up to date!</p>
-                        </div>
+                        </div> */}
                     </aside>
 
                     {/* Main Content Area */}
                     <div className="profile-main-area">
-                        {activeTab === 'profile' && (
+                        {(isMobile || activeTab === 'profile') && (
                             <motion.div
                                 className="content-card"
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
+                                initial={{ opacity: 0, x: isMobile ? 0 : 20, y: isMobile ? 20 : 0 }}
+                                animate={{ opacity: 1, x: 0, y: 0 }}
                                 key="profile-tab"
                             >
                                 <div className="section-header">
@@ -375,11 +382,11 @@ const UserProfilePage = () => {
                             </motion.div>
                         )}
 
-                        {activeTab === 'security' && (
+                        {(isMobile || activeTab === 'security') && (
                             <motion.div
                                 className="content-card"
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
+                                initial={{ opacity: 0, x: isMobile ? 0 : 20, y: isMobile ? 20 : 0 }}
+                                animate={{ opacity: 1, x: 0, y: 0 }}
                                 key="security-tab"
                             >
                                 <div className="section-header">

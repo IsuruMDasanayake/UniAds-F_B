@@ -293,19 +293,21 @@ function FeedPage() {
 
     if (loading) {
         return (
-            <div className="feed-loading">
-                <div className="ui-loader loader-blk">
-                    <svg viewBox="22 22 44 44" className="multiColor-loader">
-                        <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="3.6" className="loader-circle loader-circle-animation"></circle>
-                    </svg>
+            <div className="feed-page-wrapper feed-loading">
+                <div className="spinner-box">
+                    <div className="ui-loader loader-blk">
+                        <svg viewBox="22 22 44 44" className="multiColor-loader">
+                            <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="3.6" className="loader-circle loader-circle-animation"></circle>
+                        </svg>
+                    </div>
+                    <p>Loading feed...</p>
                 </div>
-                <p>Loading feed...</p>
             </div>
         );
     }
 
     return (
-        <div className="feed-page">
+        <div className="feed-page-wrapper feed-page">
             <Navbar user={user} />
 
             <main className="feed-main">

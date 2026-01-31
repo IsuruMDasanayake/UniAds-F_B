@@ -35,6 +35,7 @@ const InstituteFeed = ({ institute, isOwner, posts, events, gallery, onGalleryUp
                         events={events}
                         isOwner={isOwner}
                         onEventsUpdate={onEventsUpdate}
+                        isSidebar={true}
                     />
                 </div>
             </div>

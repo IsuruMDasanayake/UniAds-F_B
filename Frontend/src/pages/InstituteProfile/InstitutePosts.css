@@ -18,7 +18,8 @@
     box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
     display: flex;
     /* Horizontal Split */
-    min-height: 220px;
+    max-height: 400px;
+    min-height: 250px;
     border: 1px solid rgba(241, 245, 249, 1);
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
 }
@@ -34,6 +35,18 @@
     position: relative;
     overflow: hidden;
     background: #f8fafc;
+}
+
+@media (max-width: 1300px) {
+    #institute-profile-posts-wrapper .post-image-container {
+        width: 250px;
+    }
+}
+
+@media (max-width: 1100px) {
+    #institute-profile-posts-wrapper .post-image-container {
+        width: 220px;
+    }
 }
 
 #institute-profile-posts-wrapper .post-img {
@@ -133,23 +146,21 @@
 }
 
 #institute-profile-posts-wrapper .btn-header-action {
-    background: #fffbf0;
+    background: var(--c-primary-soft);
     color: var(--c-primary);
 }
 
 #institute-profile-posts-wrapper .btn-header-action:hover {
-    background: #fff6da;
-    color: #eab308;
+    transform: translateY(-2px);
 }
 
 #institute-profile-posts-wrapper .btn-header-action.delete {
-    background: #fef2f2;
-    color: #ef4444;
+    background: var(--c-accent-soft);
+    color: var(--c-accent);
 }
 
 #institute-profile-posts-wrapper .btn-header-action.delete:hover {
-    background: #fee2e2;
-    color: #dc2626;
+    transform: translateY(-2px);
 }
 
 /* Post Body Text */
@@ -158,16 +169,16 @@
 }
 
 #institute-profile-posts-wrapper .post-title {
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--c-dark);
-    margin-bottom: 0.5rem;
+    margin-bottom: 1.2rem;
     font-family: 'Poppins', sans-serif;
     letter-spacing: -0.01em;
 }
 
 #institute-profile-posts-wrapper .post-description-text {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: #64748b;
     line-height: 1.6;
     display: -webkit-box;
@@ -220,16 +231,16 @@
 
 #institute-profile-posts-wrapper .btn-see-more {
     background: var(--c-primary);
-    color: var(--c-dark);
+    color: var(--c-text-inverse);
 }
 
 #institute-profile-posts-wrapper .btn-see-more:hover {
-    background: #eab308;
+    background: var(--c-primary-hover);
     transform: scale(1.02);
 }
 
 #institute-profile-posts-wrapper .btn-boost {
-    background: #2563eb;
+    background: var(--c-primary);
     color: white;
     width: 100%;
     /* If owner, full width? No, let's keep it compact for profile view consistency or based on role */
@@ -237,7 +248,7 @@
 }
 
 #institute-profile-posts-wrapper .btn-boost:hover {
-    background: #1d4ed8;
+    background: var(--c-primary-hover);
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 
@@ -249,7 +260,7 @@
 #institute-profile-posts-wrapper .ui-bookmark {
     --icon-size: 20px;
     --icon-secondary-color: #94a3b8;
-    --icon-primary-color: var(--c-primary);
+    --icon-primary-color: var(--c-bookmark);
     cursor: pointer;
 }
 

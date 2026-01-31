@@ -16,7 +16,7 @@
 }
 
 .saved-page-container {
-    background: #f8fafc;
+    background: var(--c-bg);
     min-height: 100vh;
 }
 
@@ -38,7 +38,7 @@
 .saved-posts-list {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
 }
 
 .saved-post-card {
@@ -47,7 +47,7 @@
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    border: 1px solid #f1f5f9;
+    border: 1px solid var(--c-slate-100);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -159,7 +159,7 @@
 }
 
 .view-programme-btn {
-    color: var(--c-dark);
+    color: var(--c-text-inverse);
     background: var(--c-primary);
     font-weight: 600;
     text-decoration: none;
@@ -173,7 +173,7 @@
 }
 
 .view-programme-btn:hover {
-    background: var(--c-dark);
+    background: var(--c-primary-hover);
     color: white;
     text-decoration: none;
     transform: translateY(-1px);
@@ -186,7 +186,7 @@
 
 .ui-bookmark {
     --icon-size: 24px;
-    --icon-secondary-color: #94a3b8;
+    --icon-secondary-color: var(--c-slate-400);
     --icon-primary-color: var(--c-primary);
     cursor: pointer;
     display: flex;
@@ -254,12 +254,16 @@
 @media (max-width: 768px) {
     .saved-page-title {
         font-size: 1.5rem;
-        margin-top: 200px;
+        margin-top: 170px;
         margin-bottom: 0.5rem;
     }
 
     .saved-page-content {
         padding: 1rem;
+    }
+
+    .saved-page-title {
+        margin-bottom: 20px;
     }
 
     .saved-post-card {

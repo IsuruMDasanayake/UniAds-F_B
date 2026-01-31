@@ -17,6 +17,8 @@
     overflow: hidden;
     background: var(--c-bg);
     border-radius: 0;
+    width: 98%;
+    margin: 0 auto;
     /* Default no radius for mobile usually */
 }
 
@@ -42,8 +44,8 @@
 
 /* Glass Content Card */
 .profile-content {
-    background: var(--c-glass);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.6);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(50px);
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: var(--c-radius-lg);
@@ -186,7 +188,7 @@
 
 .meta-item.accent {
     background: var(--c-primary-soft);
-    border-color: rgba(255, 193, 7, 0.2);
+    border-color: #e2e8f0;
     color: var(--c-text-muted);
 }
 
@@ -220,6 +222,7 @@
     display: flex;
     align-items: center;
     gap: 2px;
+    color: var(--c-bookmark);
 }
 
 .rating-text {
@@ -271,17 +274,16 @@
 
 .btn-add-post {
     background: var(--c-primary);
-    color: var(--c-dark);
+    color: var(--c-text-inverse);
 }
 
 .btn-add-post:hover {
-    background: #fbbf24;
     transform: translateY(-1px);
 }
 
 .btn-add-event {
     background: var(--c-accent);
-    color: #ffffff;
+    color: var(--c-text-inverse);
 }
 
 .btn-add-event:hover {
@@ -291,7 +293,7 @@
 
 .btn-edit-profile {
     background: var(--c-dark);
-    color: #ffffff;
+    color: var(--c-text-inverse);
 }
 
 .btn-edit-profile:hover {
@@ -301,17 +303,16 @@
 
 .btn-follow {
     background: var(--c-primary);
-    color: var(--c-dark);
+    color: var(--c-text-inverse);
 }
 
 .btn-follow:hover {
-    background: #fbbf24;
     transform: translateY(-1px);
 }
 
 .btn-followed {
     background: var(--c-accent);
-    color: #ffffff;
+    color: var(--c-text-inverse);
 }
 
 .btn-followed:hover {
@@ -327,7 +328,7 @@
 .btn-reviews {
     background: var(--c-dark);
     border: 1px solid #e2e8f0;
-    color: #ffffff;
+    color: var(--c-text-inverse);
 }
 
 .btn-reviews:hover {
@@ -346,6 +347,7 @@
     gap: 20px;
     justify-content: center;
     background: #f5f5f5;
+    padding: 0 20px;
 }
 
 .tab-btn {
@@ -379,6 +381,10 @@
     height: 4px;
     background: var(--c-primary);
     border-radius: 4px;
+}
+
+.mobile-only-tab {
+    display: none !important;
 }
 
 .analytics-tab {
@@ -484,7 +490,19 @@
     .btn-inst {
         flex: 1;
         justify-content: center;
-        max-width: 200px;
+        max-width: none;
+        /* Allow buttons to expand/shrink together */
+        min-width: 0;
+        /* Important for flex shrink */
+        padding: 8px 10px;
+        font-size: 0.85rem;
+        gap: 6px;
+        white-space: nowrap;
+        /* Force text to stay in one line */
+    }
+
+    .mobile-only-tab {
+        display: block !important;
     }
 }
 
@@ -509,7 +527,7 @@
     display: flex;
     align-items: center;
     gap: 2px;
-    color: var(--c-bookmark);
+    color: var(--c-bookmark) !important;
 }
 
 .stars-summary:hover {
@@ -568,14 +586,13 @@
     }
 
     .profile-tabs {
-        gap: 10px;
+        gap: 8px;
         overflow-x: auto;
-        padding-bottom: 5px;
+        padding: 0 15px 5px 15px;
         justify-content: center;
-        /* Center tabs for better mobile look */
+        /* Center tabs for a balanced look */
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
-        /* Hide scrollbar for Chrome/Safari */
     }
 
     .profile-tabs::-webkit-scrollbar {
@@ -583,7 +600,10 @@
     }
 
     .tab-btn {
+        padding: 12px 10px;
+        font-size: 0.7rem;
         flex-shrink: 0;
-        /* Don't squash tabs */
+        letter-spacing: 1px;
+        align-items: center !important;
     }
 }

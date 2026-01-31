@@ -58,10 +58,10 @@ const ProfileHeader = ({
         const hasHalfStar = rating - fullStars >= 0.5;
 
         for (let i = 0; i < fullStars; i++) {
-            stars.push(<Star key={`full-${i}`} size={16} fill="currentColor" color="currentColor" className="text-primary" />);
+            stars.push(<Star key={`full-${i}`} size={16} fill="currentColor" color="currentColor" />);
         }
         if (hasHalfStar) {
-            stars.push(<StarHalf key="half" size={16} fill="currentColor" color="currentColor" className="text-primary" />);
+            stars.push(<StarHalf key="half" size={16} fill="currentColor" color="currentColor" />);
         }
         const remaining = 5 - stars.length;
         for (let i = 0; i < remaining; i++) {
@@ -151,13 +151,13 @@ const ProfileHeader = ({
                                 {/* Duplicate Star view for owner? Blade shows it inside action-buttons for mobile/layout reasons sometimes, skipping to avoid clutter unless requested specifically, sticking to main info area for stars */}
 
                                 <button className="btn-inst btn-add-post" onClick={handleAddPostClick}>
-                                    <PlusCircle size={18} /> Add Post
+                                    <PlusCircle size={16} /> Add Post
                                 </button>
                                 <button className="btn-inst btn-add-event" onClick={handleAddEventClick}>
-                                    <CalendarIcon size={18} /> Add Event
+                                    <CalendarIcon size={16} /> Add Event
                                 </button>
                                 <button className="btn-inst btn-edit-profile" onClick={() => setShowEditProfile(true)}>
-                                    <Edit size={18} /> Edit Profile
+                                    <Edit size={16} /> Edit Profile
                                 </button>
                             </div>
                         ) : (
@@ -168,13 +168,13 @@ const ProfileHeader = ({
                                         onClick={onFollow}
                                         className={`btn-inst btn-follow ${isFollowing ? 'btn-followed' : ''}`}
                                     >
-                                        {isFollowing ? <><Check size={18} /> Followed</> : <><UserPlus size={18} /> Follow</>}
+                                        {isFollowing ? <><Check size={16} /> Followed</> : <><UserPlus size={16} /> Follow</>}
                                     </button>
                                 )}
 
                                 {currentUser && isPremium && institute.reviews_enabled == 1 && (
                                     <button className="btn-inst btn-reviews" onClick={() => setShowReviews(true)}>
-                                        <MessageSquare size={18} /> Reviews
+                                        <MessageSquare size={16} /> Reviews
                                     </button>
                                 )}
                             </div>
@@ -185,10 +185,10 @@ const ProfileHeader = ({
                 {/* Navigation Tabs */}
                 <div className="profile-tabs-wrapper">
                     <div className="profile-tabs">
-                        {['feed', 'about', 'courses', 'contact'].map((tab) => (
+                        {['feed', 'events', 'about', 'courses', 'contact'].map((tab) => (
                             <button
                                 key={tab}
-                                className={`tab-btn ${activeTab === tab ? 'active' : ''}`}
+                                className={`tab-btn ${activeTab === tab ? 'active' : ''} ${tab === 'events' ? 'mobile-only-tab' : ''}`}
                                 onClick={() => setActiveTab(tab)}
                             >
                                 {tab.toUpperCase()}

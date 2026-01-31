@@ -141,11 +141,11 @@
     transform: scale(1.1);
     background: white;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-    color: var(--c-primary);
+    color: var(--c-bookmark);
 }
 
 .save-circle.saved {
-    color: var(--c-primary);
+    color: var(--c-bookmark);
     background: white;
     box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
 }

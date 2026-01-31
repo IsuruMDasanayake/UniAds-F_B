@@ -27,7 +27,7 @@
 .user-profile-page {
     min-height: 100vh;
     background-color: var(--c-bg);
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     color: var(--c-dark);
 }
 
@@ -358,7 +358,7 @@
 
 /* Buttons */
 .btn-save {
-    background: var(--c-dark);
+    background: var(--c-primary);
     color: white;
     padding: 12px 24px;
     border-radius: 12px;
@@ -373,7 +373,7 @@
 }
 
 .btn-save:hover {
-    background: #1e293b;
+    background: var(--c-primary-hover);
     transform: translateY(-1px);
 }
 
@@ -390,11 +390,15 @@
     .profile-main-area {
         order: 1;
     }
+
+    .menu-widget {
+        display: none;
+    }
 }
 
 @media (max-width: 768px) {
     .profile-header-card {
-        margin-top: 130px;
+        margin-top: 80px;
     }
 
     .profile-header-content {

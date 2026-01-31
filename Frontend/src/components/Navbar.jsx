@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
     Home, Building2, GraduationCap, Calendar, Search,
     LogOut, CreditCard, ChevronDown, X, Loader2,
@@ -12,6 +12,7 @@ import './Navbar.css';
 
 function Navbar({ user }) {
     const navigate = useNavigate();
+    const location = useLocation();
     const searchRef = useRef(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState({ posts: [], institutes: [], events: [] });
@@ -253,20 +254,20 @@ function Navbar({ user }) {
                     </div>
 
                     <nav className="navbar-links">
-                        <Link to="/feed" className="nav-icon-link active" title="Home">
+                        <Link to="/feed" className={`nav-icon-link ${location.pathname === '/feed' ? 'active' : ''}`} title="Home">
                             <Home size={24} />
                         </Link>
-                        <Link to="/institutions" className="nav-icon-link" title="Institutes">
+                        <Link to="/institutions" className={`nav-icon-link ${location.pathname === '/institutions' ? 'active' : ''}`} title="Institutes">
                             <Building2 size={24} />
                         </Link>
-                        <Link to="/courses" className="nav-icon-link" title="Courses">
+                        <Link to="/courses" className={`nav-icon-link ${location.pathname === '/courses' ? 'active' : ''}`} title="Courses">
                             <GraduationCap size={24} />
                         </Link>
-                        <Link to="/events" className="nav-icon-link" title="Events">
+                        <Link to="/events" className={`nav-icon-link ${location.pathname === '/events' ? 'active' : ''}`} title="Events">
                             <Calendar size={24} />
                         </Link>
                         {displayUser?.role === 'Institute' && (
-                            <Link to="/pricing" className="nav-icon-link pricing" title="Pricing">
+                            <Link to="/pricing" className={`nav-icon-link pricing ${location.pathname === '/pricing' ? 'active' : ''}`} title="Pricing">
                                 <CreditCard size={24} />
                             </Link>
                         )}
@@ -317,20 +318,20 @@ function Navbar({ user }) {
 
             {/* Mobile Bottom Navigation */}
             <nav className={`mobile-bottom-nav ${isMinimized ? 'hidden' : ''}`}>
-                <Link to="/feed" className="nav-icon-link mobile" title="Home">
+                <Link to="/feed" className={`nav-icon-link mobile ${location.pathname === '/feed' ? 'active' : ''}`} title="Home">
                     <Home size={24} />
                 </Link>
-                <Link to="/institutions" className="nav-icon-link mobile" title="Institutes">
+                <Link to="/institutions" className={`nav-icon-link mobile ${location.pathname === '/institutions' ? 'active' : ''}`} title="Institutes">
                     <Building2 size={24} />
                 </Link>
-                <Link to="/courses" className="nav-icon-link mobile" title="Courses">
+                <Link to="/courses" className={`nav-icon-link mobile ${location.pathname === '/courses' ? 'active' : ''}`} title="Courses">
                     <GraduationCap size={24} />
                 </Link>
-                <Link to="/events" className="nav-icon-link mobile" title="Events">
+                <Link to="/events" className={`nav-icon-link mobile ${location.pathname === '/events' ? 'active' : ''}`} title="Events">
                     <Calendar size={24} />
                 </Link>
                 {displayUser?.role === 'Institute' && (
-                    <Link to="/pricing" className="nav-icon-link mobile pricing" title="Pricing">
+                    <Link to="/pricing" className={`nav-icon-link mobile pricing ${location.pathname === '/pricing' ? 'active' : ''}`} title="Pricing">
                         <CreditCard size={24} />
                     </Link>
                 )}

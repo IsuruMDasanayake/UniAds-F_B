@@ -43,7 +43,7 @@
     transform: translateY(-50%);
     width: 6px;
     height: 80%;
-    background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-accent) 100%);
+    background: linear-gradient(135deg, var(--c-accent) 0%, var(--c-accent) 100%);
     border-radius: 4px;
 }
 
@@ -245,24 +245,20 @@
 }
 
 .edit-btn {
-    background: #fffbf0;
+    background: var(--c-primary-soft);
     color: var(--c-primary);
 }
 
 .edit-btn:hover {
-    background: #fff6da;
-    color: #eab308;
     transform: translateY(-2px);
 }
 
 .delete-btn {
-    background: #fef2f2;
-    color: #ef4444;
+    background: var(--c-accent-soft);
+    color: var(--c-accent);
 }
 
 .delete-btn:hover {
-    background: #fee2e2;
-    color: #dc2626;
     transform: translateY(-2px);
 }
 
@@ -281,28 +277,7 @@
     letter-spacing: 0.02em;
 }
 
-.btn-primary {
-    background: linear-gradient(135deg, var(--c-primary) 0%, #fbbf24 100%);
-    color: var(--c-dark);
-    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
-}
 
-.btn-primary:hover {
-    box-shadow: 0 8px 20px rgba(255, 193, 7, 0.4);
-    transform: translateY(-2px);
-}
-
-.btn-danger {
-    background: var(--c-accent);
-    color: white;
-    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
-}
-
-.btn-danger:hover {
-    background: #e11d48;
-    box-shadow: 0 8px 20px rgba(255, 71, 87, 0.4);
-    transform: translateY(-2px);
-}
 
 .btn-create {
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -314,6 +289,19 @@
     font-size: 1.15rem;
     border-radius: var(--c-radius-md);
     box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+
+    padding: 0.875rem 1.75rem;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
 
 }
 

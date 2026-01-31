@@ -86,7 +86,7 @@ const InstitutionsPage = () => {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.5 }}
                     >
-                        Our Partner Institutions
+                        <h1>Our Partner <span>Institutions</span></h1>
                     </motion.h1>
                     <motion.p
                         initial={{ opacity: 0, x: -20 }}

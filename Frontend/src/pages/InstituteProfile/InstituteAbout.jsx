@@ -129,7 +129,6 @@ const InstituteAbout = ({ about: initialAbout, institute }) => {
             <div className="about-container">
                 {isOwner ? (
                     <div className="empty-state">
-                        <h3 className="section-title">Create Your About Section</h3>
                         <p className="text-content mb-4">Tell detailed stories about your institute, history, and life on campus.</p>
                         <button className="btn btn-create" onClick={() => setShowCreateModal(true)}>
                             <Plus size={20} /> Create About Page

@@ -80,7 +80,7 @@ const AddEventModal = ({ institute, onClose, onSuccess }) => {
 
     return (
         <motion.div
-            className="modal-overlay"
+            className="institute-modal-overlay"
             onClick={onClose}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -135,17 +135,16 @@ const AddEventModal = ({ institute, onClose, onSuccess }) => {
                             <textarea name="event_description" placeholder="Enter event description" value={formData.event_description} onChange={handleChange} required></textarea>
                         </div>
 
-                        <div className="input-grid">
-                            <div className="form-group">
-                                <label>Location (Sub Location):</label>
-                                <textarea name="sub_location" placeholder="Enter location details (e.g. Building A)" value={formData.sub_location} onChange={handleChange} required></textarea>
-                            </div>
-
+                        
                             <div className="form-group">
                                 <label>Main Location (City/Area):</label>
                                 <input type="text" name="main_location" placeholder="Enter main location (e.g. Colombo)" value={formData.main_location} onChange={handleChange} required />
                             </div>
-                        </div>
+                            <div className="form-group">
+                                <label>Location (Sub Location):</label>
+                                <input type="text" name="sub_location" placeholder="Enter location details (e.g. Building A)" value={formData.sub_location} onChange={handleChange} required />
+                            </div>
+                        
                     </div>
 
                     <div className="modal-footer">
@@ -157,10 +156,12 @@ const AddEventModal = ({ institute, onClose, onSuccess }) => {
                                 <span className="progress-text">{uploadProgress}% Uploading...</span>
                             </div>
                         )}
-                        <button type="submit" className="btn btn-primary" disabled={loading}>
-                            {loading ? "Adding..." : "Add Event"}
-                        </button>
-                        <button type="button" className="btn btn-cancel" onClick={onClose}>Cancel</button>
+                        <div className="modal-footer-actions">
+                            <button type="submit" className="btn btn-primary" disabled={loading}>
+                                {loading ? <Loader2 className="animate-spin" size={18} /> : "Add Event"}
+                            </button>
+                            <button type="button" className="btn btn-cancel" onClick={onClose}>Cancel</button>
+                        </div>
                     </div>
                 </form>
             </motion.div>

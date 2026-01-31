@@ -42,11 +42,13 @@ function App() {
           <Route path="/profile/about" element={<ProfileWrapper />} />
           <Route path="/profile/courses" element={<ProfileWrapper />} />
           <Route path="/profile/contact" element={<ProfileWrapper />} />
+          <Route path="/profile/events" element={<ProfileWrapper />} />
 
           <Route path="/institutions/:id/profile" element={<MainProfilePage />} />
           <Route path="/institutions/:id/about" element={<MainProfilePage />} />
           <Route path="/institutions/:id/courses" element={<MainProfilePage />} />
           <Route path="/institutions/:id/contact" element={<MainProfilePage />} />
+          <Route path="/institutions/:id/events" element={<MainProfilePage />} />
         </Routes>
       </div>
     </Router>

@@ -3,11 +3,12 @@
 .institute-gallery-container {
     background-color: #fff;
     border-radius: 8px;
-    /* Slightly squarer than before */
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    /* Subtle shadow like screenshot */
-    padding: 1.5rem;
+    padding: 1rem;
+    /* Reduced from 1.5rem to prevent cropping */
     height: fit-content;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .gallery-header {
@@ -49,29 +50,29 @@
 }
 
 .btn-choose {
-    background-color: #008000;
+    background-color: var(--c-success);
     /* Green from screenshot */
     color: white;
     box-shadow: 0 2px 4px rgba(0, 128, 0, 0.2);
 }
 
 .btn-choose:hover {
-    background-color: #006400;
+    background-color: var(--c-success-hover);
     box-shadow: 0 4px 6px rgba(0, 128, 0, 0.3);
 }
 
 .btn-upload {
-    background-color: #007bff;
+    background-color: var(--c-primary);
     /* Blue */
     color: white;
 }
 
 .btn-upload:hover {
-    background-color: #0056b3;
+    background-color: var(--c-primary-hover);
 }
 
 .btn-cancel {
-    background-color: #6c757d;
+    background-color: var(--c-dark);
     color: white;
 }
 
@@ -100,7 +101,8 @@
     border-radius: 8px;
     overflow: hidden;
     cursor: pointer;
-    /* No shadow on item itself in screenshot, mostly flat images */
+    box-sizing: border-box;
+    margin-left: -5px;
 }
 
 .gallery-img {
@@ -117,7 +119,7 @@
     position: absolute;
     top: 10px;
     right: 10px;
-    background-color: #ff0000;
+    background-color: var(--c-accent-hover);
     /* Bright red */
     color: white;
     border: none;

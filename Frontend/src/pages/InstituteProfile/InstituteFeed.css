@@ -3,44 +3,83 @@
 .institute-feed-layout {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 2rem 1rem;
+    width: 100%;
+}
+
+@media (min-width: 1024px) {
+    .institute-feed-layout {
+        width: calc(100% - 40px);
+        margin: 20px auto;
+    }
 }
 
 .feed-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.5rem;
+    width: 100%;
 }
 
-@media (min-width: 1024px) {
+/* 2-column layout for narrower desktops (1024px - 1249px) */
+@media (min-width: 1024px) and (max-width: 1249px) {
     .feed-grid {
-        grid-template-columns: 280px 1fr 300px;
-        /* Fixed width sidebars, fluid center */
+        grid-template-columns: 1fr 320px;
+        gap: 1.5rem;
+    }
+
+    .left-sidebar {
+        display: none !important;
+    }
+
+    .right-sidebar {
+        display: block !important;
     }
 }
 
-.institute-feed-layout .left-sidebar,
-.institute-feed-layout .right-sidebar {
+/* 3-column layout for larger desktops (1250px and above) */
+@media (min-width: 1250px) {
+    .feed-grid {
+        grid-template-columns: 260px 1fr 320px;
+        gap: 1.5rem;
+    }
+
+    .left-sidebar,
+    .right-sidebar {
+        display: block !important;
+    }
+}
+
+/* Common sidebar transitions/styles */
+.left-sidebar,
+.right-sidebar {
     position: sticky;
-    top: 2rem;
-    height: calc(100vh - 100px);
-    /* Constrain height for scrolling */
+    top: 110px;
+    /* Adjust based on your header height */
+    height: calc(100vh - 130px);
     overflow-y: auto;
     scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
-.institute-feed-layout .left-sidebar::-webkit-scrollbar,
-.institute-feed-layout .right-sidebar::-webkit-scrollbar {
+.left-sidebar::-webkit-scrollbar,
+.right-sidebar::-webkit-scrollbar {
     display: none;
 }
 
-.institute-feed-layout .center-content {
-    height: calc(100vh - 100px);
-    overflow-y: auto;
-    scrollbar-width: none;
-    padding-bottom: 2rem;
+.center-content {
+    min-width: 0;
+    /* Prevents grid items from overflowing */
 }
 
-.institute-feed-layout .center-content::-webkit-scrollbar {
-    display: none;
+/* Hide sidebars on mobile */
+@media (max-width: 1023px) {
+
+    .left-sidebar,
+    .right-sidebar {
+        display: none !important;
+    }
+
+    .institute-feed-layout {
+        padding: 1rem;
+    }
 }

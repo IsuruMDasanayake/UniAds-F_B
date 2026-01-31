@@ -194,15 +194,6 @@ const UpdateInfoModal = ({ isOpen, onClose, instituteId, initialData, onSuccess 
                             )}
                         </AnimatePresence>
 
-                        {loading && (
-                            <div className="upload-progress-container">
-                                <div className="progress-bar-bg">
-                                    <div className="progress-bar-fill" style={{ width: `${uploadProgress}%` }}></div>
-                                </div>
-                                <span className="progress-text" style={{ marginLeft: '350px' }}>{uploadProgress}% Updating Profile...</span>
-                            </div>
-                        )}
-
                         <form onSubmit={handleSubmit} className="modal-form">
                             <div className="modal-body custom-scrollbar">
                                 <InputField label="Institute Overview" name="institute_overview" value={formData.institute_overview} onChange={handleTextChange} type="textarea" />
@@ -244,10 +235,20 @@ const UpdateInfoModal = ({ isOpen, onClose, instituteId, initialData, onSuccess 
                             </div>
 
                             <div className="modal-footer">
-                                <button type="submit" className="btn btn-primary" disabled={loading}>
-                                    {loading ? <Loader2 className="animate-spin" size={18} /> : 'Save Changes'}
-                                </button>
-                                <button type="button" className="btn btn-cancel" onClick={onClose}>Cancel</button>
+                                {loading && (
+                                    <div className="upload-progress-container">
+                                        <div className="progress-bar-bg">
+                                            <div className="progress-bar-fill" style={{ width: `${uploadProgress}%` }}></div>
+                                        </div>
+                                        <span className="progress-text">{uploadProgress}% Updating Profile...</span>
+                                    </div>
+                                )}
+                                <div className="modal-footer-actions">
+                                    <button type="submit" className="btn btn-primary" disabled={loading}>
+                                        {loading ? <Loader2 className="animate-spin" size={18} /> : 'Save Changes'}
+                                    </button>
+                                    <button type="button" className="btn btn-cancel" onClick={onClose}>Cancel</button>
+                                </div>
                             </div>
                         </form>
                     </motion.div>

@@ -6,7 +6,7 @@
     left: 20px;
     right: 20px;
     z-index: 2000;
-    background: white;
+    background: var(--c-card-bg);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     border-radius: 20px;
     padding: 0.5rem 2rem;
@@ -64,7 +64,7 @@
 .navbar-search-bar {
     display: flex;
     align-items: center;
-    background: #f1f5f9;
+    background: var(--c-slate-100);
     border-radius: 16px;
     padding: 2px 12px 2px 4px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -74,7 +74,7 @@
 }
 
 .navbar-search-bar.active {
-    background: white;
+    background: var(--c-card-bg);
     border-color: var(--c-accent);
     box-shadow: 0 10px 25px -5px rgba(255, 71, 87, 0.1);
 }
@@ -85,7 +85,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #64748b;
+    color: var(--c-slate-500);
 }
 
 .navbar-search-bar input {
@@ -97,15 +97,15 @@
     font-weight: 500;
     color: var(--c-dark);
     outline: none;
-    font-family: 'Poppins', sans-serif;
+    font-family: var(--font-main);
 }
 
 .navbar-search-bar input::placeholder {
-    color: #94a3b8;
+    color: var(--c-slate-400);
 }
 
 .search-clear-btn {
-    background: #e2e8f0;
+    background: var(--c-slate-200);
     border: none;
     width: 24px;
     height: 24px;
@@ -114,7 +114,7 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: #64748b;
+    color: var(--c-slate-500);
     transition: all 0.2s;
 }
 
@@ -167,7 +167,7 @@
 }
 
 .results-scroll-area::-webkit-scrollbar-thumb {
-    background: #e2e8f0;
+    background: var(--c-slate-200);
     border-radius: 10px;
 }
 
@@ -176,14 +176,14 @@
 }
 
 .result-group:not(:last-child) {
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--c-slate-100);
     margin-bottom: 0.5rem;
 }
 
 .group-title {
     font-size: 0.75rem;
     font-weight: 700;
-    color: #94a3b8;
+    color: var(--c-slate-400);
     text-transform: uppercase;
     letter-spacing: 1px;
     margin: 0.5rem 0.5rem 0.75rem 0.5rem;
@@ -242,7 +242,7 @@
 
 .item-sub {
     font-size: 0.8rem;
-    color: #64748b;
+    color: var(--c-slate-500);
 }
 
 .name-with-badge {
@@ -264,7 +264,7 @@
     align-items: center;
     gap: 1rem;
     font-size: 0.75rem;
-    color: #94a3b8;
+    color: var(--c-slate-400);
     margin-top: 2px;
 }
 
@@ -312,13 +312,17 @@
 }
 
 .nav-icon-link:hover {
-    color: var(--c-primary);
+    color: var(--c-primary-hover);
 }
 
 /* Updated Home icon to dark to match image */
 .nav-icon-link.active {
-    color: var(--c-primary);
+    color: var(--c-primary-active);
+    background: var(--c-primary-soft);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: relative;
 }
+
 
 .nav-icon-link.pricing {
     color: #28a745;
@@ -378,7 +382,7 @@
     position: absolute;
     top: calc(100% + 15px);
     right: 0;
-    background: white;
+    background: var(--c-card-bg);
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     min-width: 200px;
@@ -510,7 +514,7 @@
         bottom: 0;
         left: 0;
         right: 0;
-        background: white;
+        background: var(--c-card-bg);
         height: 70px;
         box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
         z-index: 2000;
@@ -533,9 +537,11 @@
     }
 
     .nav-icon-link.mobile.active {
-        color: var(--c-primary);
-
+        color: var(--c-primary-active);
+        background: #f8fafc;
+        position: relative;
     }
+
 
     .nav-icon-link.mobile:hover {
         background: #f8fafc;

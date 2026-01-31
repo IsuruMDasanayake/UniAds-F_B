@@ -4,7 +4,7 @@
 .events-page-v2 {
     background-color: var(--c-bg);
     min-height: 100vh;
-    font-family: 'Poppins', sans-serif;
+    font-family: var(--font-main);
 }
 
 .events-container {
@@ -66,7 +66,6 @@
     align-items: center;
     gap: 0.75rem;
     padding: 0.75rem 1rem;
-    border-radius: 4px;
     border: none;
     background: transparent;
     color: var(--c-dark);
@@ -75,14 +74,17 @@
     transition: all 0.2s ease;
     text-align: left;
     font-family: 'Poppins', sans-serif;
+    margin-top: 10px;
+    border-radius: var(--c-radius-md);
 }
 
 .filter-menu nav button:hover {
-    background: #f1f5f9;
+    background: var(--c-primary-soft);
+    border-radius: var(--c-radius-md);
 }
 
 .filter-menu nav button.active {
-    background: #eff6ff;
+    background: var(--c-primary-soft);
     color: var(--c-accent);
 }
 
@@ -184,9 +186,9 @@
 
 .modern-event-card {
     background: white;
-    border-radius: var(--e-radius-lg);
+    border-radius: var(--c-radius-lg);
     overflow: hidden;
-    box-shadow: var(--e-shadow-sm);
+    box-shadow: var(--c-shadow-sm);
     border: 1px solid #f1f5f9;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
@@ -195,7 +197,7 @@
 
 .modern-event-card:hover {
     transform: translateY(-5px);
-    box-shadow: var(--e-shadow-md);
+    box-shadow: var(--c-shadow-md);
 }
 
 .card-media {
@@ -234,7 +236,7 @@
 .date-overlay .day {
     font-size: 1.25rem;
     font-weight: 800;
-    color: var(--c-text-heading);
+    color: var(--c-primary);
     line-height: 1;
 }
 
@@ -348,9 +350,9 @@
     gap: 0.5rem;
     padding: 0.65rem;
     border-radius: 12px;
+    background: var(--c-accent-soft);
+    color: var(--c-accent);
     border: 1px solid #e2e8f0;
-    background: white;
-    color: var(--c-text-heading);
     font-weight: 600;
     font-size: 0.85rem;
     cursor: pointer;
@@ -358,15 +360,21 @@
     font-family: 'Poppins', sans-serif;
 }
 
-.interest-toggle-btn:hover:not(:disabled) {
-    background: #f8fafc;
+.interest-toggle-btn:hover {
+    background: var(--c-accent);
     border-color: var(--c-accent);
-    color: var(--c-accent);
+    color: var(--c-text-inverse);
 }
 
 .interest-toggle-btn.interested {
     background: var(--c-accent);
-    color: white;
+    color: var(--c-text-inverse);
+    border-color: var(--c-accent);
+}
+
+.interest-toggle-btn.interested:hover {
+    background: var(--c-accent-hover);
+    color: var(--c-text-inverse);
     border-color: var(--c-accent);
 }
 
@@ -377,7 +385,7 @@
     align-items: center;
     justify-content: center;
     background: var(--c-primary);
-    color: var(--c-dark);
+    color: var(--c-text-inverse);
     border: none;
     border-radius: 12px;
     cursor: pointer;
@@ -389,8 +397,8 @@
 }
 
 .details-link-btn:hover {
-    background: var(--c-text-heading);
-    color: white;
+    background: var(--c-primary-hover);
+    color: var(--c-text-inverse);
 }
 
 /* Right Sidebar Items */
@@ -467,8 +475,8 @@
 
 .help-link {
     display: block;
-    background: var(--c-primary);
-    color: var(--c-text-heading);
+    background: var(--c-accent);
+    color: var(--c-text-inverse);
     padding: 0.65rem;
     border-radius: 10px;
     text-decoration: none;
@@ -477,8 +485,8 @@
 }
 
 .help-link:hover {
-    background: var(--c-dark);
-    color: var(--c-text-heading);
+    background: var(--c-accent-hover);
+    color: var(--c-text-inverse);
 }
 
 /* Modal v2 */

@@ -7,7 +7,7 @@ import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import EventDetailsModal from '../../components/Modals/EventDetailsModal';
 import './InstituteEvents.css';
 
-const InstituteEvents = ({ events, isOwner, onEventsUpdate }) => {
+const InstituteEvents = ({ events, isOwner, onEventsUpdate, isSidebar }) => {
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
@@ -108,10 +108,10 @@ const InstituteEvents = ({ events, isOwner, onEventsUpdate }) => {
     return (
         <div className="institute-events-container">
             <div className="events-header">
-                <h3 className="events-section-title">Upcoming Events</h3>
+                {/* <h3 className="events-section-title">Events</h3> */}
             </div>
 
-            <div className="events-grid">
+            <div className={`events-grid ${isSidebar ? 'is-sidebar' : ''}`}>
                 {localEvents && localEvents.length > 0 ? (
                     localEvents.map((event) => (
                         <div

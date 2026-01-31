@@ -5,54 +5,35 @@ import { motion, AnimatePresence } from 'framer-motion';
 import '../InstituteModals.css';
 
 const DeleteConfirmationModal = ({ onConfirm, onCancel, title, message, isDeleting }) => (
-    <div className="modal-overlay" style={{ zIndex: 10000, backgroundColor: 'rgba(15, 23, 42, 0.6)' }} onClick={onCancel}>
+    <div className="institute-modal-overlay confirmation-overlay" style={{ zIndex: 100000 }} onClick={onCancel}>
         <motion.div
             className="modal-content confirmation-modal"
             onClick={e => e.stopPropagation()}
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            style={{ maxWidth: '400px', padding: '32px', textAlign: 'center' }}
         >
-            <div style={{
-                width: '64px',
-                height: '64px',
-                backgroundColor: '#fff1f2',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 20px',
-                color: '#e11d48'
-            }}>
-                <AlertTriangle size={32} />
+            <div className="confirm-icon-box">
+                <AlertTriangle size={40} />
             </div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', marginBottom: '12px' }}>{title || 'Delete Item?'}</h3>
-            <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.5, marginBottom: '24px' }}>
+            <h3 className="confirm-title">{title || 'Delete Item?'}</h3>
+            <p className="confirm-message">
                 {message || 'Are you sure you want to delete this? This action cannot be undone.'}
             </p>
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div className="confirm-actions">
                 <button
                     className="btn btn-cancel"
                     onClick={onCancel}
                     disabled={isDeleting}
-                    style={{ flex: 1, padding: '12px' }}
                 >
                     Cancel
                 </button>
                 <button
-                    className="btn"
+                    className="btn btn-confirm-delete"
                     onClick={onConfirm}
                     disabled={isDeleting}
-                    style={{
-                        flex: 1,
-                        padding: '12px',
-                        backgroundColor: '#e11d48',
-                        color: 'white',
-                        boxShadow: '0 8px 16px -4px rgba(225, 29, 72, 0.3)'
-                    }}
                 >
-                    {isDeleting ? <Loader2 className="animate-spin" size={18} /> : 'Delete Now'}
+                    {isDeleting ? <Loader2 className="animate-spin" size={20} /> : 'Delete Now'}
                 </button>
             </div>
         </motion.div>
@@ -153,7 +134,7 @@ const ReviewsModal = ({ institute, currentUser, onClose }) => {
 
     return (
         <>
-            <div className="modal-overlay" onClick={onClose} id="reviews-modal">
+            <div className="institute-modal-overlay" onClick={onClose} id="reviews-modal">
                 <motion.div
                     className="modal-content"
                     onClick={e => e.stopPropagation()}
@@ -230,7 +211,7 @@ const ReviewsModal = ({ institute, currentUser, onClose }) => {
                                                 type="submit"
                                                 className="btn btn-primary"
                                                 disabled={submitting}
-                                                style={{ width: 'auto', padding: '12px 24px', borderRadius: '12px' }}
+                                                style={{ width: 'auto', padding: '8px 16px', borderRadius: '12px', marginTop: '1rem' }}
                                             >
                                                 {submitting ? (
                                                     <>

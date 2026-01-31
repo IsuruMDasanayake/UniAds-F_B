@@ -17,7 +17,7 @@
     width: 100%;
     overflow: hidden;
     background: var(--c-bg);
-    font-family: 'Poppins', sans-serif;
+    font-family: var(--font-main);
 }
 
 /* ============================================
@@ -102,7 +102,7 @@
    Form Header
    ============================================ */
 .login-auth-container .auth-header {
-    margin-bottom: 20px;
+    margin-bottom: 50px;
     text-align: center;
 
 }
@@ -369,7 +369,7 @@
         margin-bottom: 0.5rem;
         object-fit: contain;
         position: relative;
-        
+
     }
 
     .login-auth-container .back-home-floating {
@@ -383,4 +383,3 @@
         justify-content: center;
     }
 }
-

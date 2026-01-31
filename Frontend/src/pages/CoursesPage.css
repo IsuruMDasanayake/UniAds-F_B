@@ -43,8 +43,13 @@
 .browse-header h1 {
     font-size: 2.5rem;
     font-weight: 800;
-    color: var(--c-dark);
+    color: var(--c-primary);
     margin-bottom: 0.5rem;
+    margin-top: 20px;
+}
+
+.browse-header h1 span {
+    color: var(--c-accent);
 }
 
 .browse-header p {
@@ -399,7 +404,7 @@
 .main-apply-btn {
     width: 100%;
     background: var(--c-primary);
-    color: var(--c-dark);
+    color: var(--c-text-inverse);
     border: none;
     padding: 0.9rem;
     border-radius: 16px;
@@ -411,7 +416,7 @@
 }
 
 .main-apply-btn:hover {
-    background: var(--c-dark);
+    background: var(--c-primary-hover);
     color: white;
 }
 

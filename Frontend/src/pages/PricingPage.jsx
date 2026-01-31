@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axiosClient from '../lib/axios';
-import { CheckCircle, AlertCircle, Rocket, Shield, BarChart2, Users, Star, Facebook, Layout, Loader, ArrowLeft, ChevronDown, Sparkles, X, AlertTriangle } from 'lucide-react';
+import { CheckCircle, AlertCircle, Rocket, Shield, BarChart2, Users, Star, Facebook, Layout, Loader, ArrowLeft, ChevronDown, Sparkles, X, AlertTriangle, ShieldAlert } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import './PricingPage.css';
@@ -202,12 +202,21 @@ const PricingPage = () => {
                     </div>
                 </div>
             ) : error ? (
-                <div className="pricing-container" style={{ textAlign: 'center', paddingTop: '100px' }}>
-                    <AlertCircle size={64} className="text-red-500 mx-auto mb-4" />
-                    <h2 className="text-2xl font-bold text-gray-800">{error}</h2>
-                    <button onClick={() => navigate(-1)} className="back-link mt-4 inline-block">
-                        Go Back
-                    </button>
+                <div className="pricing-error-container">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="error-card-v2"
+                    >
+                        <div className="error-icon-v2">
+                            {error.includes('Only institutions') ? <ShieldAlert size={40} /> : <AlertCircle size={40} />}
+                        </div>
+                        <h2 className="error-title-v2">{error.includes('Only institutions') ? 'Access Restricted' : 'Oops!'}</h2>
+                        <p className="error-msg-v2">{error}</p>
+                        <button onClick={() => navigate(-1)} className="error-back-btn">
+                            <ArrowLeft size={18} className="inline mr-2" /> Go Back
+                        </button>
+                    </motion.div>
                 </div>
             ) : status === 'cancelled_but_valid' ? (
                 // Cancelled State UI
@@ -257,7 +266,7 @@ const PricingPage = () => {
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ duration: 0.6 }}
                             >
-                                <h1>Unlock Full Potential <Sparkles className="inline text-yellow-400" size={40} /></h1>
+                                <h1>Unlock Your Full <span>Potential</span> <Sparkles className="inline text-yellow-400" size={40} /></h1>
                                 <p>
                                     Boost your institute's visibility, gain deep analytics, and stand out from the competition with UniAds Premium.
                                 </p>
@@ -284,6 +293,13 @@ const PricingPage = () => {
                                     >
                                         <CheckCircle size={18} />
                                         <span>Verified Badge</span>
+                                    </motion.div>
+                                    <motion.div
+                                        className="hero-benefit-item"
+                                        whileHover={{ scale: 1.05 }}
+                                    >
+                                        <CheckCircle size={18} />
+                                        <span>Student Community</span>
                                     </motion.div>
                                 </div>
                             </motion.div>

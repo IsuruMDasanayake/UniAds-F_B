@@ -145,7 +145,7 @@ const AddPostModal = ({ institute, onClose, onSuccess }) => {
 
     return (
         <motion.div
-            className="modal-overlay"
+            className="institute-modal-overlay"
             onClick={onClose}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -314,10 +314,12 @@ const AddPostModal = ({ institute, onClose, onSuccess }) => {
                                 <span className="progress-text">{uploadProgress}% Uploading...</span>
                             </div>
                         )}
-                        <button type="submit" className="btn btn-primary" disabled={loading}>
-                            {loading ? "Adding..." : "Add Post"}
-                        </button>
-                        <button type="button" className="btn btn-cancel" onClick={onClose}>Cancel</button>
+                        <div className="modal-footer-actions">
+                            <button type="submit" className="btn btn-primary" disabled={loading}>
+                                {loading ? <Loader2 className="animate-spin" size={18} /> : "Add Post"}
+                            </button>
+                            <button type="button" className="btn btn-cancel" onClick={onClose}>Cancel</button>
+                        </div>
                     </div>
                 </form>
             </motion.div>

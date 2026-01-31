@@ -4,7 +4,7 @@
 .pricing-page-v2 {
     background-color: var(--c-bg);
     min-height: 100vh;
-    font-family: var(--font-poppins);
+    font-family: var(--font-main);
     padding-bottom: 6rem;
     overflow-x: hidden;
     position: relative;
@@ -84,7 +84,7 @@
 .pricing-hero h1 {
     font-size: clamp(2.5rem, 5vw, 4rem);
     font-weight: 800;
-    color: var(--c-dark);
+    color: var(--c-primary);
     line-height: 1.1;
     margin-bottom: 1.5rem;
     letter-spacing: -0.03em;
@@ -95,6 +95,15 @@
     .pricing-hero h1 {
         margin-top: 140px;
     }
+}
+
+.pricing-hero h1 span {
+    color: var(--c-accent);
+}
+
+.pricing-hero h1 svg {
+    color: var(--c-bookmark);
+    margin-left: 10px;
 }
 
 .pricing-hero p {
@@ -132,7 +141,7 @@
 }
 
 .hero-benefit-item svg {
-    color: var(--c-primary);
+    color: var(--c-accent);
 }
 
 /* --- The Premium Card --- */
@@ -161,7 +170,7 @@
     top: -15px;
     left: 50%;
     transform: translateX(-50%);
-    background: var(--c-primary);
+    background: var(--c-accent);
     color: white;
     padding: 0.5rem 1.5rem;
     border-radius: 99px;
@@ -223,8 +232,8 @@
 .feature-icon {
     width: 32px;
     height: 32px;
-    background: var(--c-primary-soft);
-    color: var(--c-primary);
+    background: var(--c-success-soft);
+    color: var(--c-success);
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -248,7 +257,7 @@
     border: none;
     padding: 1.25rem;
     border-radius: 12px;
-    font-family: 'Poppins', sans-serif;
+    font-family: var(--font-main);
     font-style: normal;
     font-size: 1.1rem;
     font-weight: 700;
@@ -440,7 +449,7 @@
     border-radius: 24px;
     width: 90%;
     max-width: 400px;
-    height: 400px;
+    height: 380px;
     text-align: center;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     position: relative;
@@ -659,6 +668,12 @@
     z-index: 2000;
 }
 
+@media (max-width: 1024px) {
+    .pricing-container {
+        margin-top: -70px;
+    }
+}
+
 /* --- Responsive Helpers --- */
 @media (max-width: 768px) {
     .pricing-container {
@@ -668,6 +683,14 @@
     .cancel-box {
         padding: 3rem 2rem;
         margin: 20px auto;
+    }
+
+    .pricing-card-wrapper {
+        margin-top: -50px;
+    }
+
+    .hero-benefits {
+        display: none;
     }
 
     .cancel-box h2 {
@@ -683,6 +706,10 @@
 @media (max-width: 480px) {
     .pricing-container {
         padding-top: 120px;
+    }
+
+    .hero-benefits {
+        display: none;
     }
 
     .cancel-box {
@@ -715,4 +742,95 @@
     .amount {
         font-size: 3.5rem;
     }
+}
+
+/* --- Error State V2: Dangerous Forbidden Alert --- */
+.pricing-error-container {
+    padding-top: 15vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    margin-top: 60px;
+}
+
+.error-card-v2 {
+    background: white;
+    padding: 3.5rem 2.5rem;
+    border-radius: 28px;
+    box-shadow: 0 40px 100px -15px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(220, 38, 38, 0.1);
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.error-card-v2:hover {
+    transform: translateY(-5px);
+}
+
+.error-card-v2::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, #dc2626, #ef4444);
+}
+
+.error-icon-v2 {
+    background: #fef2f2;
+    color: #dc2626;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    box-shadow: 0 10px 20px -5px rgba(220, 38, 38, 0.2);
+}
+
+.error-title-v2 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+}
+
+.error-msg-v2 {
+    color: #475569;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+    font-weight: 500;
+}
+
+.error-back-btn {
+    background: #1e293b;
+    color: white;
+    padding: 1rem 2.5rem;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.error-back-btn:hover {
+    background: #0f172a;
+    transform: translateY(-2px);
+    box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.3);
 }

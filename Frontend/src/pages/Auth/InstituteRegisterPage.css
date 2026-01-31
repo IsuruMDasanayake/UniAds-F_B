@@ -110,7 +110,7 @@
 .institute-auth-container .auth-form {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
+    gap: 1.5rem;
 }
 
 .institute-auth-container .form-group {

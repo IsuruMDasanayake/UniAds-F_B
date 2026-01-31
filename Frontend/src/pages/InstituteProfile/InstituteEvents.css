@@ -15,13 +15,19 @@
     font-weight: 700;
     color: #1e293b;
     margin: 0;
+
 }
 
 /* Grid Layout */
 .events-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 20px;
+}
+
+.events-grid.is-sidebar {
+    grid-template-columns: 1fr;
+    gap: 15px;
 }
 
 /* Event Card - Premium Design */
@@ -36,6 +42,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    margin-top: -30px;
     /* Ensure full height in grid */
 }
 
@@ -179,23 +186,21 @@
 }
 
 .edit-btn {
-    background: #fffbf0;
+    background: var(--c-primary-soft);
     color: var(--c-primary);
 }
 
 .edit-btn:hover {
-    background: #fff6da;
-    color: #eab308;
+    transform: translateY(-2px);
 }
 
 .delete-btn {
-    background: #fef2f2;
-    color: #ef4444;
+    background: var(--c-accent-soft);
+    color: var(--c-accent);
 }
 
 .delete-btn:hover {
-    background: #fee2e2;
-    color: #dc2626;
+    transform: translateY(-2px);
 }
 
 /* Empty State */
@@ -221,5 +226,19 @@
 @media (max-width: 640px) {
     .events-grid {
         grid-template-columns: 1fr;
+        margin-top: 0;
+        max-width: 95%;
+        margin-left: 2.5%;
+    }
+}
+
+@media (max-width: 1024px) {
+    .events-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        margin-top: 0;
+        max-width: 95%;
+        margin-left: 2.5%;
+        margin-top: 45px;
+        gap: 10px;
     }
 }
