@@ -226,7 +226,7 @@
 
 .update-info-modal .btn-primary {
     background: var(--c-primary);
-    color: var(--c-text-heading);
+    color: var(--c-text-inverse);
 
 }
 

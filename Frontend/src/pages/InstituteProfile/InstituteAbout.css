@@ -135,21 +135,21 @@
 
 .profile-img-container {
     flex-shrink: 0;
-    width: 180px;
-    height: 180px;
-    border-radius: 50%;
+    width: 30%;
+    height: 100%;
+    /* Restored height to ensure it stays a box */
+    border-radius: 10%;
     overflow: hidden;
-    border: 4px solid #f8fafc;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
     position: relative;
+    /* CRITICAL: Required for ::after to stay inside */
+    cursor: pointer;
 }
 
 .profile-img-container::after {
     content: '';
     position: absolute;
     inset: 0;
-    border-radius: 50%;
+    border-radius: 10%;
     border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -345,8 +345,9 @@
     }
 
     .profile-img-container {
-        width: 140px;
-        height: 140px;
+        width: 60%;
+        /* Full width on mobile */
+        height: 100%;
     }
 
     .section-title {
