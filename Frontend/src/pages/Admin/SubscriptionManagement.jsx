@@ -9,13 +9,21 @@ import {
     ArrowUpRight,
     ShieldCheck
 } from 'lucide-react';
+import ActionConfirmModal from '../../components/Modals/ActionConfirmModal';
 import axiosClient from '../../lib/axios';
+import { getStorageUrl } from '../../lib/config';
 import './SubscriptionManagement.css';
 
 const SubscriptionManagement = () => {
     const [subscriptions, setSubscriptions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+
+    // Status Toggle State
+    const [statusModalOpen, setStatusModalOpen] = useState(false);
+    const [selectedSubscription, setSelectedSubscription] = useState(null);
+    const [targetStatus, setTargetStatus] = useState('');
+    const [isProcessing, setIsProcessing] = useState(false);
 
     useEffect(() => {
         fetchSubscriptions();
@@ -33,9 +41,42 @@ const SubscriptionManagement = () => {
         }
     };
 
+    const handleToggleStatus = (id, currentStatus) => {
+        let newStatus = "";
+        const status = (currentStatus || "").toLowerCase();
+
+        if (status === 'active') {
+            newStatus = 'expired';
+        } else if (status === 'cancelled') {
+            newStatus = 'active';
+        } else if (status === 'expired') {
+            console.warn('Expired subscriptions cannot be changed manually.');
+            return;
+        }
+
+        setSelectedSubscription(id);
+        setTargetStatus(newStatus);
+        setStatusModalOpen(true);
+    };
+
+    const confirmStatusToggle = async () => {
+        try {
+            setIsProcessing(true);
+            await axiosClient.patch(`/api/admin/subscriptions/${selectedSubscription}/toggle-status`, {
+                status: targetStatus
+            });
+            fetchSubscriptions();
+            setStatusModalOpen(false);
+        } catch (error) {
+            console.error('Error updating status:', error);
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
     const filteredSubscriptions = subscriptions.filter(sub =>
-        (sub.user?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-        (sub.plan_name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+        (sub.institute?.institute_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (sub.plan?.toLowerCase() || '').includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -52,14 +93,14 @@ const SubscriptionManagement = () => {
                     <div className="summary-icon platinum"><TrendingUp size={24} /></div>
                     <div className="summary-content">
                         <span className="summary-label">Active Subscriptions</span>
-                        <span className="summary-value">{subscriptions.length}</span>
+                        <span className="summary-value">{subscriptions.filter(s => !s.is_trial).length}</span>
                     </div>
                 </div>
                 <div className="admin-glass-card summary-card">
                     <div className="summary-icon gold"><Gift size={24} /></div>
                     <div className="summary-content">
-                        <span className="summary-label">Premium Plans</span>
-                        <span className="summary-value">{subscriptions.filter(s => s.plan_name?.includes('Premium')).length}</span>
+                        <span className="summary-label">Free Trials</span>
+                        <span className="summary-value">{subscriptions.filter(s => s.is_trial).length}</span>
                     </div>
                 </div>
             </div>
@@ -81,25 +122,27 @@ const SubscriptionManagement = () => {
                     <table>
                         <thead>
                             <tr>
-                                <th>Subscriber</th>
-                                <th>Plan Name</th>
-                                <th>Price</th>
-                                <th>Duration</th>
-                                <th>Expires</th>
+                                <th>Institute</th>
+                                <th>Plan</th>
+                                <th>Trial</th>
                                 <th>Status</th>
+                                <th>Started At</th>
+                                <th>Ends At</th>
+                                <th>Cancelled At</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan="6" className="text-center p-12">
+                                    <td colSpan="8" className="text-center p-12">
                                         <div className="loader mx-auto mb-4"></div>
                                         <p className="text-muted">Loading subscriptions...</p>
                                     </td>
                                 </tr>
                             ) : filteredSubscriptions.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" className="text-center p-12">
+                                    <td colSpan="8" className="text-center p-12">
                                         <p className="text-muted">No subscriptions found.</p>
                                     </td>
                                 </tr>
@@ -109,31 +152,50 @@ const SubscriptionManagement = () => {
                                         <td>
                                             <div className="subscriber-cell">
                                                 <div className="sub-avatar">
-                                                    <Users size={16} />
+                                                    {sub.institute?.profile_photo ? (
+                                                        <img
+                                                            src={getStorageUrl(sub.institute.profile_photo)}
+                                                            alt={sub.institute.institute_name}
+                                                            className="avatar-img"
+                                                        />
+                                                    ) : (
+                                                        <Users size={16} />
+                                                    )}
                                                 </div>
                                                 <div className="sub-meta">
-                                                    <span className="sub-name">{sub.user?.name || 'Unknown'}</span>
-                                                    <span className="sub-email">{sub.user?.email || '-'}</span>
+                                                    <span className="sub-name">{sub.institute?.institute_name || 'Admin'}</span>
+                                                    <span className="sub-email">{sub.institute?.email || sub.user?.email || '-'}</span>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <span className={`plan-badge ${(sub.plan_name || '').toLowerCase().replace(/\s+/g, '-')}`}>
-                                                {sub.plan_name}
+                                            <span className={`plan-badge ${(sub.plan || '').toLowerCase().replace(/\s+/g, '-')}`}>
+                                                {sub.plan || 'Monthly'}
                                             </span>
                                         </td>
-                                        <td>Rs. {(sub.price || 0).toLocaleString()}</td>
-                                        <td>{sub.duration_months} Months</td>
                                         <td>
-                                            <div className="expiry-cell">
-                                                <Clock size={14} className="text-muted" />
-                                                <span>{new Date(sub.expires_at).toLocaleDateString()}</span>
+                                            <span className={`trial-badge ${(sub.is_trial ? sub.status : (sub.institute?.trial_status || 'not_used'))}`}>
+                                                {sub.is_trial ? sub.status : (sub.institute?.trial_status ? sub.institute.trial_status.replace('_', ' ') : 'Not used')}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span className={`status-pill ${sub.status}`}>
+                                                {sub.status || 'Active'}
+                                            </span>
+                                        </td>
+                                        <td>{sub.started_at ? new Date(sub.started_at).toLocaleDateString() : 'N/A'}</td>
+                                        <td>{sub.ends_at ? new Date(sub.ends_at).toLocaleDateString() : 'N/A'}</td>
+                                        <td>{sub.cancelled_at ? new Date(sub.cancelled_at).toLocaleDateString() : 'N/A'}</td>
+                                        <td>
+                                            <div className="actions-cell">
+                                                <button
+                                                    className="action-btn-sm toggle"
+                                                    title="Toggle Status"
+                                                    onClick={() => handleToggleStatus(sub.id, sub.status)}
+                                                >
+                                                    <Clock size={16} />
+                                                </button>
                                             </div>
-                                        </td>
-                                        <td>
-                                            <span className="status-indicator active">
-                                                <ShieldCheck size={14} /> Active
-                                            </span>
                                         </td>
                                     </tr>
                                 ))
@@ -142,6 +204,17 @@ const SubscriptionManagement = () => {
                     </table>
                 </div>
             </div>
+
+            <ActionConfirmModal
+                isOpen={statusModalOpen}
+                onClose={() => setStatusModalOpen(false)}
+                onConfirm={confirmStatusToggle}
+                isProcessing={isProcessing}
+                title="Change Subscription Status"
+                message={`Are you sure you want to change this subscription to ${targetStatus}? This will affect the institute's premium access.`}
+                confirmText={`Yes, mark as ${targetStatus}`}
+                type={targetStatus === 'active' ? 'success' : 'danger'}
+            />
         </div>
     );
 };

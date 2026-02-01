@@ -49,7 +49,8 @@ class SubscriptionController extends Controller
             $status = 'trial_active';
         } elseif ($institute->is_premium) {
             // Check if subscription was cancelled but is still valid (premium not expired)
-            if ($activeSubscription && $activeSubscription->status === 'cancelled') {
+            // Now we check cancelled_at instead of status
+            if ($activeSubscription && $activeSubscription->cancelled_at) {
                 $status = 'cancelled_but_valid';
             } else {
                 $status = 'active';
@@ -60,16 +61,14 @@ class SubscriptionController extends Controller
             $status = 'subscribe';
         }
 
-        // Refine status based on subscription if needed, but the above covers the main states
-        // If subscription is cancelled but time remains, is_premium should still be true
-
         return response()->json([
             'status' => $status,
             'institute' => $institute,
             'activeSubscription' => $activeSubscription,
             'trial_expires_at' => $institute->trial_expires_at,
             'premium_expires_at' => $institute->premium_expires_at,
-            'trial_status' => $institute->trial_status
+            'trial_status' => $institute->trial_status,
+            'trial_cancelled_at' => $institute->trial_cancelled_at
         ]);
     }
 
@@ -93,6 +92,7 @@ class SubscriptionController extends Controller
         $institute->update([
             'trial_status' => 'active',
             'trial_expires_at' => now()->addDays($trialDays),
+            'trial_cancelled_at' => null,
             'is_premium' => true,
             'premium_expires_at' => now()->addDays($trialDays),
         ]);
@@ -223,20 +223,37 @@ class SubscriptionController extends Controller
                         $institute->update([
                             'trial_status' => 'active',
                             'trial_expires_at' => now()->addDays(30),
+                            'trial_cancelled_at' => null,
                             'is_premium' => true,
                             'premium_expires_at' => now()->addDays(30),
                         ]);
                     } else {
-                        // Create Subscription Record
-                        Subscription::create([
-                            'institute_id' => $institute->id,
-                            'gateway_subscription_id' => $paymentId, // Use PayHere payment ID
-                            'plan' => 'monthly',
-                            'status' => 'active',
-                            'started_at' => now(),
-                            'ends_at' => now()->addDays(30),
-                            'is_trial' => false,
-                        ]);
+                        // Check for an existing subscription that can be renewed (expired)
+                        $subscription = Subscription::where('institute_id', $institute->id)
+                            ->where('status', 'expired')
+                            ->latest()
+                            ->first();
+
+                        if ($subscription) {
+                            $subscription->update([
+                                'gateway_subscription_id' => $paymentId,
+                                'status' => 'active',
+                                'started_at' => now(),
+                                'ends_at' => now()->addDays(30),
+                                'is_trial' => false,
+                                'cancelled_at' => null,
+                            ]);
+                        } else {
+                            Subscription::create([
+                                'institute_id' => $institute->id,
+                                'gateway_subscription_id' => $paymentId,
+                                'plan' => 'monthly',
+                                'status' => 'active',
+                                'started_at' => now(),
+                                'ends_at' => now()->addDays(30),
+                                'is_trial' => false,
+                            ]);
+                        }
 
                         // Update Institute
                         $institute->update([
@@ -279,7 +296,7 @@ class SubscriptionController extends Controller
 
         if ($subscription) {
             $subscription->update([
-                'status' => 'cancelled',
+                'status' => 'active', // Stays active until ends_at
                 'cancelled_at' => now(),
             ]);
             // Premium benefits remain until premium_expires_at
@@ -294,7 +311,7 @@ class SubscriptionController extends Controller
                 'institute_id' => $institute->id,
                 'gateway_subscription_id' => 'MANUAL-CANCEL-' . time(),
                 'plan' => 'monthly',
-                'status' => 'cancelled', // Directly cancelled
+                'status' => 'active', // Stays active until sync expiry
                 'started_at' => now(), // Assume started now for record
                 'ends_at' => $institute->premium_expires_at, // Sync expiry
                 'cancelled_at' => now(),
@@ -324,10 +341,11 @@ class SubscriptionController extends Controller
             return response()->json(['error' => 'Trial is not active.'], 400);
         }
 
+        // Immediate cancellation for trials
         $institute->update([
             'trial_status' => 'cancelled',
+            'trial_cancelled_at' => now(),
             'is_premium' => false,
-            // 'trial_expires_at' => null, // keeping expiry record might be useful or clear it
             'premium_expires_at' => null,
         ]);
 
@@ -356,6 +374,7 @@ class SubscriptionController extends Controller
             $institute->update([
                 'trial_status' => 'active',
                 'trial_expires_at' => now()->addDays(30),
+                'trial_cancelled_at' => null,
                 'is_premium' => true,
                 'premium_expires_at' => now()->addDays(30),
             ]);
@@ -368,16 +387,32 @@ class SubscriptionController extends Controller
                 return response()->json(['success' => true]);
             }
 
-            // Create Subscription Record manually for localhost verification
-            Subscription::create([
-                'institute_id' => $institute->id,
-                'gateway_subscription_id' => $orderId,
-                'plan' => 'monthly',
-                'status' => 'active',
-                'started_at' => now(),
-                'ends_at' => now()->addDays(30),
-                'is_trial' => false,
-            ]);
+            // Renew or Create Subscription Record
+            $subscription = Subscription::where('institute_id', $institute->id)
+                ->where('status', 'expired')
+                ->latest()
+                ->first();
+
+            if ($subscription) {
+                $subscription->update([
+                    'gateway_subscription_id' => $orderId,
+                    'status' => 'active',
+                    'started_at' => now(),
+                    'ends_at' => now()->addDays(30),
+                    'is_trial' => false,
+                    'cancelled_at' => null,
+                ]);
+            } else {
+                Subscription::create([
+                    'institute_id' => $institute->id,
+                    'gateway_subscription_id' => $orderId,
+                    'plan' => 'monthly',
+                    'status' => 'active',
+                    'started_at' => now(),
+                    'ends_at' => now()->addDays(30),
+                    'is_trial' => false,
+                ]);
+            }
 
             $institute->update([
                 'is_premium' => true,
@@ -401,46 +436,127 @@ class SubscriptionController extends Controller
 
     public function apiAdminIndex()
     {
-        $subscriptions = Subscription::with('institute')->orderBy('created_at', 'desc')->get();
-        return response()->json($subscriptions);
+        // 1. Get all paid subscriptions
+        $subscriptions = Subscription::with('institute')->get();
+
+        // 2. Get institutes that are currently on trial OR have used a trial.
+        // We now include them even if they have a paid subscription to show full history.
+        $trialInstitutes = Institute::where('trial_status', '!=', 'not_used')
+            ->get();
+
+        $merged = $subscriptions->map(function ($sub) {
+            // Dynamically determine status: Active if not expired, regardless of cancellation
+            $isExpired = $sub->ends_at && Carbon::parse($sub->ends_at)->isPast();
+            $sub->status = $isExpired ? 'expired' : 'active';
+            return $sub;
+        });
+
+        foreach ($trialInstitutes as $inst) {
+            $isExpired = $inst->trial_expires_at && Carbon::parse($inst->trial_expires_at)->isPast();
+            $isCancelled = (bool)$inst->trial_cancelled_at;
+
+            $status = 'active';
+            if ($isExpired) {
+                $status = 'expired';
+            } elseif ($isCancelled) {
+                $status = 'cancelled';
+            }
+
+            $merged->push([
+                'id' => 'trial-' . $inst->id,
+                'institute_id' => $inst->id,
+                'institute' => $inst,
+                'plan' => 'trial',
+                'status' => $status,
+                'started_at' => $inst->trial_expires_at ? Carbon::parse($inst->trial_expires_at)->subDays(30) : null,
+                'ends_at' => $inst->trial_expires_at,
+                'cancelled_at' => $inst->trial_cancelled_at,
+                'is_trial' => true,
+                'created_at' => $inst->created_at,
+            ]);
+        }
+
+        // Sort by started_at desc
+        $sorted = $merged->sortByDesc(function ($item) {
+            return is_array($item) ? ($item['started_at'] ?? $item['created_at']) : ($item->started_at ?? $item->created_at);
+        })->values();
+
+        return response()->json($sorted);
     }
 
     public function apiToggleStatus(Request $request, $id)
     {
-        $subscription = Subscription::findOrFail($id);
-
         // Admin manually changing status (Active, Cancelled, Expired)
-        $newStatus = $request->input('status');
+        $newStatus = strtolower($request->input('status'));
 
-        if (in_array($newStatus, ['active', 'cancelled', 'expired'])) {
-            $subscription->status = $newStatus;
-
-            // Sync with institute status
-            $institute = Institute::find($subscription->institute_id);
-            if ($institute) {
-                if ($newStatus === 'active') {
-                    $institute->is_premium = true;
-                    // Ensure expiry is valid if not set - but subscription usually has ends_at
-                    if (!$institute->premium_expires_at || $institute->premium_expires_at < now()) {
-                        $institute->premium_expires_at = $subscription->ends_at ?? now()->addDays(30);
-                    }
-                } elseif ($newStatus === 'cancelled' || $newStatus === 'expired') {
-                    // institute premium status might remain until expiry, or strictly follow this toggle?
-                    // Admin overriding implies immediate action usually.
-                    // But subscription logic usually dictates service until period end.
-                    // If Admin marks as Cancelled, let's respect subscription logic (cancelled_at), but if Expired, then revoke.
-
-                    if ($newStatus === 'expired') {
-                        $institute->is_premium = false;
-                    }
-                }
-                $institute->save();
-            }
-
-            $subscription->save();
-            return response()->json(['success' => true, 'message' => 'Subscription status updated', 'status' => $subscription->status]);
+        if (!in_array($newStatus, ['active', 'cancelled', 'expired'])) {
+            return response()->json(['success' => false, 'message' => 'Invalid status'], 400);
         }
 
-        return response()->json(['success' => false, 'message' => 'Invalid status'], 400);
+        // Handle Virtual Trial Status
+        if (str_starts_with($id, 'trial-')) {
+            $instituteId = substr($id, 6);
+            $institute = Institute::findOrFail($instituteId);
+
+            if ($newStatus === 'active') {
+                $institute->trial_status = 'active';
+                $institute->is_premium = true;
+                $institute->trial_cancelled_at = null;
+                if (!$institute->trial_expires_at) {
+                    $institute->trial_expires_at = now()->addDays(30);
+                }
+            } elseif ($newStatus === 'cancelled') {
+                // Trials cancel immediately
+                $institute->trial_status = 'cancelled';
+                $institute->is_premium = false;
+                $institute->trial_cancelled_at = now();
+            } elseif ($newStatus === 'expired') {
+                $institute->trial_status = 'expired';
+                $institute->is_premium = false;
+            }
+
+            $institute->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Trial status updated',
+                'status' => $newStatus
+            ]);
+        }
+
+        $subscription = Subscription::findOrFail($id);
+
+        if ($newStatus === 'active') {
+            $subscription->status = 'active';
+            $subscription->cancelled_at = null;
+        } elseif ($newStatus === 'cancelled') {
+            // If cancelled, it stays active until ends_at
+            $subscription->status = 'active';
+            $subscription->cancelled_at = now();
+        } elseif ($newStatus === 'expired') {
+            $subscription->status = 'expired';
+        }
+
+        // Sync with institute status
+        $institute = Institute::find($subscription->institute_id);
+        if ($institute) {
+            if ($newStatus === 'active' || $newStatus === 'cancelled') {
+                // Both Active and Cancelled (marked for end) mean premium is currently ON
+                $institute->is_premium = true;
+                if (!$institute->premium_expires_at || $institute->premium_expires_at < now()) {
+                    $institute->premium_expires_at = $subscription->ends_at ?? now()->addDays(30);
+                }
+            } elseif ($newStatus === 'expired') {
+                $institute->is_premium = false;
+            }
+            $institute->save();
+        }
+
+        $subscription->save();
+        return response()->json([
+            'success' => true,
+            'message' => 'Subscription status updated',
+            'status' => $subscription->status
+        ]);
     }
 }

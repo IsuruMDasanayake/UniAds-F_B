@@ -26,6 +26,7 @@ class Institute extends Model
         'premium_expires_at',
         'trial_status',
         'trial_expires_at',
+        'trial_cancelled_at',
         'followers_enabled',
         'reviews_enabled',
         'profile_views',

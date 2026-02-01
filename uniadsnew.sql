@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.3
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Jan 12, 2026 at 07:00 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.1.25
+-- Host: db
+-- Generation Time: Feb 01, 2026 at 07:33 PM
+-- Server version: 8.0.44
+-- PHP Version: 8.3.26
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -28,32 +28,32 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `about_sections` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `institute_id` bigint(20) UNSIGNED NOT NULL,
-  `institute_overview` text DEFAULT NULL,
-  `mission` text DEFAULT NULL,
-  `vision` text DEFAULT NULL,
-  `history` text DEFAULT NULL,
-  `chancellor_intro` text DEFAULT NULL,
-  `chancellor_photo` varchar(255) DEFAULT NULL,
-  `vice_chancellor_intro` text DEFAULT NULL,
-  `vice_chancellor_photo` varchar(255) DEFAULT NULL,
-  `academic_excellence` text DEFAULT NULL,
-  `academic_images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`academic_images`)),
-  `programs_offered` text DEFAULT NULL,
-  `programs_images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`programs_images`)),
-  `global_partnerships` text DEFAULT NULL,
-  `partnerships_images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`partnerships_images`)),
-  `life_at_institute` text DEFAULT NULL,
-  `life_images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`life_images`)),
-  `sports_recreation` text DEFAULT NULL,
-  `sports_images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`sports_images`)),
-  `upcoming_programs` text DEFAULT NULL,
-  `upcoming_images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`upcoming_images`)),
-  `campus_images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`campus_images`)),
+  `id` bigint UNSIGNED NOT NULL,
+  `institute_id` bigint UNSIGNED NOT NULL,
+  `institute_overview` text COLLATE utf8mb4_unicode_ci,
+  `mission` text COLLATE utf8mb4_unicode_ci,
+  `vision` text COLLATE utf8mb4_unicode_ci,
+  `history` text COLLATE utf8mb4_unicode_ci,
+  `chancellor_intro` text COLLATE utf8mb4_unicode_ci,
+  `chancellor_photo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `vice_chancellor_intro` text COLLATE utf8mb4_unicode_ci,
+  `vice_chancellor_photo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `academic_excellence` text COLLATE utf8mb4_unicode_ci,
+  `academic_images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+  `programs_offered` text COLLATE utf8mb4_unicode_ci,
+  `programs_images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+  `global_partnerships` text COLLATE utf8mb4_unicode_ci,
+  `partnerships_images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+  `life_at_institute` text COLLATE utf8mb4_unicode_ci,
+  `life_images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+  `sports_recreation` text COLLATE utf8mb4_unicode_ci,
+  `sports_images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+  `upcoming_programs` text COLLATE utf8mb4_unicode_ci,
+  `upcoming_images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+  `campus_images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ;
 
 --
 -- Dumping data for table `about_sections`
@@ -69,12 +69,12 @@ INSERT INTO `about_sections` (`id`, `institute_id`, `institute_overview`, `missi
 --
 
 CREATE TABLE `apply_cases` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `user_id` bigint(20) UNSIGNED DEFAULT NULL,
-  `post_id` bigint(20) UNSIGNED DEFAULT NULL,
-  `institute_id` bigint(20) UNSIGNED NOT NULL,
-  `course_title` varchar(255) NOT NULL,
-  `applied_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `id` bigint UNSIGNED NOT NULL,
+  `user_id` bigint UNSIGNED DEFAULT NULL,
+  `post_id` bigint UNSIGNED DEFAULT NULL,
+  `institute_id` bigint UNSIGNED NOT NULL,
+  `course_title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `applied_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -93,10 +93,10 @@ INSERT INTO `apply_cases` (`id`, `user_id`, `post_id`, `institute_id`, `course_t
 --
 
 CREATE TABLE `categories` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `main_category` varchar(255) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `icon` varchar(255) DEFAULT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `main_category` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `icon` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -106,11 +106,11 @@ CREATE TABLE `categories` (
 --
 
 INSERT INTO `categories` (`id`, `main_category`, `name`, `icon`, `created_at`, `updated_at`) VALUES
-(181, 'Courses', 'Bachelor of Science (BSc – General, Special, Honours)', 'fa fa-flask', NULL, '2025-08-31 13:09:28'),
+(181, 'Courses', 'Bachelor of Science (BSc – General, Special, Honours)', 'fas fa-microscope', NULL, '2026-02-01 13:25:49'),
 (182, 'Courses', 'Bachelor of Applied Sciences', 'fa fa-flask', NULL, '2025-09-13 02:04:17'),
 (183, 'Courses', 'Bachelor of Science in Environmental Science', 'fa fa-leaf', NULL, NULL),
 (185, 'Courses', 'Bachelor of Science in Information Technology', 'fa fa-cogs', NULL, NULL),
-(186, 'Courses', 'Bachelor of Science in Computer Science', 'fa fa-laptop-code', NULL, NULL),
+(186, 'Courses', 'Computer Science', 'fa fa-laptop-code', NULL, '2026-02-01 12:48:15'),
 (187, 'Courses', 'Bachelor of Software Engineering', 'fa fa-cogs', NULL, NULL),
 (188, 'Courses', 'Bachelor of Engineering Technology', 'fa fa-cogs', NULL, NULL),
 (190, 'Courses', 'Bachelor of Agricultural Science', 'fa fa-flask', NULL, NULL),
@@ -238,7 +238,6 @@ INSERT INTO `categories` (`id`, `main_category`, `name`, `icon`, `created_at`, `
 (313, 'Courses', 'Master of Science in Building Services Engineering', 'fa fa-user-graduate', NULL, NULL),
 (314, 'Courses', 'Master of Science in Textile & Clothing Management', 'fa fa-user-graduate', NULL, NULL),
 (315, 'Courses', 'Master of Supply Chain Management', 'fa fa-user-graduate', NULL, NULL),
-(316, 'Courses', 'Master of Science in Artificial Intelligence', 'fa fa-user-graduate', NULL, NULL),
 (317, 'Courses', 'Master of Science in Information Technology', 'fa fa-user-graduate', NULL, NULL),
 (318, 'Courses', 'Master of Science in Multimedia Technologies', 'fa fa-user-graduate', NULL, NULL),
 (319, 'Courses', 'MBA in Management of Technology', 'fa fa-user-graduate', NULL, NULL),
@@ -414,10 +413,10 @@ INSERT INTO `categories` (`id`, `main_category`, `name`, `icon`, `created_at`, `
 --
 
 CREATE TABLE `chats` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `user1_id` bigint(20) UNSIGNED NOT NULL,
-  `user2_id` bigint(20) UNSIGNED NOT NULL,
-  `last_message_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `id` bigint UNSIGNED NOT NULL,
+  `user1_id` bigint UNSIGNED NOT NULL,
+  `user2_id` bigint UNSIGNED NOT NULL,
+  `last_message_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -429,20 +428,20 @@ CREATE TABLE `chats` (
 --
 
 CREATE TABLE `events` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `event_title` varchar(255) NOT NULL,
-  `event_description` text NOT NULL,
-  `event_image` varchar(255) NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `event_title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `event_description` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `event_image` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `event_date` date NOT NULL,
-  `main_location` varchar(255) DEFAULT NULL,
-  `sub_location` text NOT NULL,
-  `institute_id` bigint(20) UNSIGNED NOT NULL,
+  `main_location` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sub_location` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `institute_id` bigint UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `view_count` bigint(20) UNSIGNED NOT NULL DEFAULT 0,
-  `interested_count` int(10) UNSIGNED NOT NULL DEFAULT 0,
-  `is_active` tinyint(1) NOT NULL DEFAULT 1,
-  `decline_count` int(10) UNSIGNED NOT NULL DEFAULT 0
+  `view_count` bigint UNSIGNED NOT NULL DEFAULT '0',
+  `interested_count` int UNSIGNED NOT NULL DEFAULT '0',
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `decline_count` int UNSIGNED NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -450,9 +449,8 @@ CREATE TABLE `events` (
 --
 
 INSERT INTO `events` (`id`, `event_title`, `event_description`, `event_image`, `event_date`, `main_location`, `sub_location`, `institute_id`, `created_at`, `updated_at`, `view_count`, `interested_count`, `is_active`, `decline_count`) VALUES
-(7, 'ewgGe', 'rgegreg', 'event_images/GPveMeKhBjiBhdAGVEwarFqf5rOANcz9sEZC3Mc3.jpg', '2027-07-13', NULL, 'gerg', 1, '2025-07-01 06:14:49', '2025-12-29 14:19:23', 1, 0, 1, 0),
-(9, 'ewgGe', 'rgerge', 'event_images/rGWisn2lXGL38MBAcIcdYrbXG6YOqVVDphdSTMiy.jpg', '2026-07-01', NULL, 'rgjtjty', 1, '2025-07-01 06:15:20', '2025-12-31 12:16:37', 2, 1, 1, 0),
-(11, 'Event No.10', 'Course Details:\r\n🕘 When: Saturdays \r\n🕙 Time: 9:00 AM - 12:00 PM \r\n📍 Where: SIBA Campus\r\n\r\n💡 Why Choose Our Program?\r\n\r\nPart-Time Flexibility: Perfect for busy schedules!\r\nExpert Instructors: Learn from the best in the field.\r\nComprehensive Curriculum: Tailored for beginners.\r\nHSK Exam Prep: Get ready to ace the HSK Level 03 exam!\r\n🌐 Connect, Communicate, Conquer!\r\n\r\n🔗 Secure Your Spot Today and start your journey towards mastering Chinese! Limited seats available.\r\n\r\n📲 For more information, visit our website or contact us at [Contact Information].', 'event_images/qmx9q7j5XfOqbFSPVuyCh3xkDYjrKvTQqVwC4sGw.webp', '2025-12-30', NULL, 'KDU', 1, '2025-07-02 02:53:27', '2025-12-29 14:20:02', 2, 1, 1, 0);
+(9, 'ewgGe', 'rgerge', 'event_images/fzEGZbyQDOcGMtUEqEvcYX5b5dhadQoGpBD3GQyE.jpg', '2026-07-01', 'Kurunegala', 'rgjtjty', 1, '2025-07-01 06:15:20', '2026-02-01 18:21:05', 2, 1, 1, 0),
+(11, 'Event No.10', 'Course Details:\r\n🕘 When: Saturdays \r\n🕙 Time: 9:00 AM - 12:00 PM \r\n📍 Where: SIBA Campus\r\n\r\n💡 Why Choose Our Program?\r\n\r\nPart-Time Flexibility: Perfect for busy schedules!\r\nExpert Instructors: Learn from the best in the field.\r\nComprehensive Curriculum: Tailored for beginners.\r\nHSK Exam Prep: Get ready to ace the HSK Level 03 exam!\r\n🌐 Connect, Communicate, Conquer!\r\n\r\n🔗 Secure Your Spot Today and start your journey towards mastering Chinese! Limited seats available.\r\n\r\n📲 For more information, visit our website or contact us at [Contact Information].', 'event_images/qmx9q7j5XfOqbFSPVuyCh3xkDYjrKvTQqVwC4sGw.webp', '2025-12-30', NULL, 'KDU', 1, '2025-07-02 02:53:27', '2026-02-01 18:11:06', 3, 1, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -461,9 +459,9 @@ INSERT INTO `events` (`id`, `event_title`, `event_description`, `event_image`, `
 --
 
 CREATE TABLE `event_user_declines` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `user_id` bigint(20) UNSIGNED NOT NULL,
-  `event_id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `user_id` bigint UNSIGNED NOT NULL,
+  `event_id` bigint UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -475,9 +473,9 @@ CREATE TABLE `event_user_declines` (
 --
 
 CREATE TABLE `event_user_interests` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `user_id` bigint(20) UNSIGNED NOT NULL,
-  `event_id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `user_id` bigint UNSIGNED NOT NULL,
+  `event_id` bigint UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -497,9 +495,9 @@ INSERT INTO `event_user_interests` (`id`, `user_id`, `event_id`, `created_at`, `
 --
 
 CREATE TABLE `event_views` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `user_id` bigint(20) UNSIGNED NOT NULL,
-  `event_id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `user_id` bigint UNSIGNED NOT NULL,
+  `event_id` bigint UNSIGNED NOT NULL,
   `viewed_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
@@ -513,8 +511,8 @@ INSERT INTO `event_views` (`id`, `user_id`, `event_id`, `viewed_at`, `created_at
 (3, 2, 11, '2025-08-05 09:08:36', '2025-08-05 09:08:36', '2025-08-05 09:08:36'),
 (4, 7, 11, '2025-12-25 09:40:46', '2025-12-25 09:40:46', '2025-12-25 09:40:46'),
 (5, 7, 9, '2025-12-29 13:02:46', '2025-12-29 13:02:46', '2025-12-29 13:02:46'),
-(6, 7, 7, '2025-12-29 14:19:23', '2025-12-29 14:19:23', '2025-12-29 14:19:23'),
-(7, 2, 9, '2025-12-31 12:16:28', '2025-12-31 12:16:28', '2025-12-31 12:16:28');
+(7, 2, 9, '2025-12-31 12:16:28', '2025-12-31 12:16:28', '2025-12-31 12:16:28'),
+(8, 12, 11, '2026-02-01 18:11:06', '2026-02-01 18:11:06', '2026-02-01 18:11:06');
 
 -- --------------------------------------------------------
 
@@ -523,13 +521,13 @@ INSERT INTO `event_views` (`id`, `user_id`, `event_id`, `viewed_at`, `created_at
 --
 
 CREATE TABLE `failed_jobs` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `uuid` varchar(255) NOT NULL,
-  `connection` text NOT NULL,
-  `queue` text NOT NULL,
-  `payload` longtext NOT NULL,
-  `exception` longtext NOT NULL,
-  `failed_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `id` bigint UNSIGNED NOT NULL,
+  `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `connection` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `queue` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `exception` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `failed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -539,9 +537,9 @@ CREATE TABLE `failed_jobs` (
 --
 
 CREATE TABLE `followers` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `user_id` bigint(20) UNSIGNED NOT NULL,
-  `institute_id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `user_id` bigint UNSIGNED NOT NULL,
+  `institute_id` bigint UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -561,42 +559,43 @@ INSERT INTO `followers` (`id`, `user_id`, `institute_id`, `created_at`, `updated
 --
 
 CREATE TABLE `institutes` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `institute_name` varchar(255) NOT NULL,
-  `location` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `stripe_customer_id` varchar(255) DEFAULT NULL,
-  `contact_number` varchar(255) NOT NULL,
-  `gov_register_number` varchar(255) NOT NULL,
-  `profile_photo` varchar(255) DEFAULT NULL,
-  `cover_photo` varchar(255) DEFAULT NULL,
-  `bio` varchar(255) DEFAULT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `institute_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `location` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `stripe_customer_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contact_number` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `gov_register_number` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `profile_photo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cover_photo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `bio` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `status` enum('unapproved','approved') NOT NULL DEFAULT 'unapproved',
-  `user_id` bigint(20) UNSIGNED DEFAULT NULL,
-  `is_premium` tinyint(1) NOT NULL DEFAULT 0,
+  `status` enum('unapproved','approved') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'unapproved',
+  `user_id` bigint UNSIGNED DEFAULT NULL,
+  `is_premium` tinyint(1) NOT NULL DEFAULT '0',
   `premium_expires_at` timestamp NULL DEFAULT NULL,
-  `website` varchar(255) DEFAULT NULL,
-  `followers_count` int(10) UNSIGNED NOT NULL DEFAULT 0,
-  `reviews_enabled` tinyint(1) NOT NULL DEFAULT 0,
-  `followers_enabled` tinyint(1) NOT NULL DEFAULT 0,
+  `website` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `followers_count` int UNSIGNED NOT NULL DEFAULT '0',
+  `reviews_enabled` tinyint(1) NOT NULL DEFAULT '0',
+  `followers_enabled` tinyint(1) NOT NULL DEFAULT '0',
   `trial_expires_at` timestamp NULL DEFAULT NULL,
-  `trial_status` enum('not_used','active','expired','cancelled') NOT NULL DEFAULT 'not_used',
-  `profile_views` bigint(20) UNSIGNED NOT NULL DEFAULT 0
+  `trial_cancelled_at` timestamp NULL DEFAULT NULL,
+  `trial_status` enum('not_used','active','expired','cancelled') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'not_used',
+  `profile_views` bigint UNSIGNED NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `institutes`
 --
 
-INSERT INTO `institutes` (`id`, `institute_name`, `location`, `email`, `stripe_customer_id`, `contact_number`, `gov_register_number`, `profile_photo`, `cover_photo`, `bio`, `created_at`, `updated_at`, `status`, `user_id`, `is_premium`, `premium_expires_at`, `website`, `followers_count`, `reviews_enabled`, `followers_enabled`, `trial_expires_at`, `trial_status`, `profile_views`) VALUES
-(1, 'ABC University', 'Colombo, Sri Lanka', 'pixelplay0279@gmail.com', NULL, '0112567999', 'UGC/SG/2009/10/10', 'institute_photos/QkUqpodKr34ZLlNSgRI7p2PXKbgL2SzNObgp4rEt.png', 'institute_covers/497IiHdGX07jDxZp5cNpdWJO3v5jgLRhjpKgyDgl.png', 'Welcome to UniAds Sri Lanka', '2025-06-26 03:52:46', '2026-01-01 15:21:29', 'approved', 2, 1, '2026-01-31 15:21:29', 'https://uniads.ac.lk/', 100, 1, 1, '2026-01-31 15:21:29', 'active', 32),
-(4, 'Lanka college', 'Kandy', 'kpbandara111@gmail.com', NULL, '0788888888', '111112', 'institute_photos/FVtumK61mSvmlFRA1FKSkYuTPmMHJhSpQEPsVsZW.jpg', NULL, NULL, '2025-07-10 13:24:26', '2025-08-31 13:53:35', 'approved', 11, 0, NULL, 'https://www.isuru.com/', 0, 0, 0, NULL, 'not_used', 0),
-(5, 'ABC Higher National Institute Sri Lanka', 'Colombo, Sri Lanka', 'abc@gmail.com', NULL, '0761880279', 'UGC/SG/2009/10/10', 'institute_photos/Y2m9ZfVy3HiKkaj01ElaR7qGd4E6FCD1n3QC4lEY.png', 'institute_covers/NctVIZssoLSotUZYtqqhTiJTnTCcdZt4e8GJtZHJ.png', 'Welcome to ABC Higher National Institute', '2025-07-11 15:04:24', '2025-12-19 04:57:07', 'approved', 12, 0, NULL, 'https://abcnew.ac.lk/', 1, 1, 1, NULL, 'not_used', 8),
-(6, 'Sri Lanka International Buddhist Academy', 'Pallekale, Kandy, Sri Lanka', 'siba@gmail.com', NULL, '+94 71 244 5000', 'UGC/SG/2009/10/07', 'profile_photos/Bg5SW5hxGq091qTfBefT2CVs5DRi5tyMowUwjSyv.png', NULL, NULL, '2025-07-11 15:16:16', '2025-12-20 00:56:17', 'approved', 13, 0, NULL, 'https://sibacampus.lk/', 0, 0, 0, NULL, 'not_used', 4),
-(7, 'SLIIT', 'Battaramulla, Colombo, Sri Lanka', 'sliit.edun@gmail.com', NULL, '0112567999', 'UGC/SM/2009/10/06', NULL, NULL, NULL, '2025-08-31 12:51:24', '2025-08-31 12:51:24', 'approved', 17, 0, NULL, 'https://sliit.ac.lk/', 0, 0, 0, NULL, 'not_used', 0),
-(8, 'Cinec Campus', 'Colombo, Sri Lanka', 'cinec2@gmail.com', NULL, '0112567999', 'UGC/SM/2009/10/06', NULL, NULL, NULL, '2025-12-28 03:59:51', '2025-12-28 03:59:51', 'unapproved', 19, 0, NULL, 'https://cinec.ac.lk/', 0, 0, 0, NULL, 'not_used', 0);
+INSERT INTO `institutes` (`id`, `institute_name`, `location`, `email`, `stripe_customer_id`, `contact_number`, `gov_register_number`, `profile_photo`, `cover_photo`, `bio`, `created_at`, `updated_at`, `status`, `user_id`, `is_premium`, `premium_expires_at`, `website`, `followers_count`, `reviews_enabled`, `followers_enabled`, `trial_expires_at`, `trial_cancelled_at`, `trial_status`, `profile_views`) VALUES
+(1, 'ABC University', 'Colombo, Sri Lanka', 'pixelplay0279@gmail.com', NULL, '0112567999', 'UGC/SG/2009/10/10', 'institute_photos/KVHGS9XDDkoGAmOi0nM4fc3Vk4dvfwEuFjQI2Oz0.png', 'institute_covers/BuDDXhf7UytziMCF0MfNvTtKWPPXnjRsAiw5bHAo.png', 'Welcome to UniAds Sri Lanka', '2025-06-26 03:52:46', '2026-02-01 10:51:34', 'approved', 2, 1, '2026-03-03 15:47:10', 'https://uniads.ac.lk/', 100, 1, 1, '2026-01-31 15:21:29', NULL, 'expired', 32),
+(4, 'Lanka college', 'Kandy', 'kpbandara111@gmail.com', NULL, '0788888888', '111112', 'institute_photos/FVtumK61mSvmlFRA1FKSkYuTPmMHJhSpQEPsVsZW.jpg', NULL, NULL, '2025-07-10 13:24:26', '2025-08-31 13:53:35', 'approved', 11, 0, NULL, 'https://www.isuru.com/', 0, 0, 0, NULL, NULL, 'not_used', 0),
+(5, 'ABC Higher National Institute SL', 'Colombo, Sri Lanka', 'abc@gmail.com', NULL, '0761880279', 'UGC/SG/2009/10/10', 'institute_photos/Y2m9ZfVy3HiKkaj01ElaR7qGd4E6FCD1n3QC4lEY.png', 'institute_covers/NctVIZssoLSotUZYtqqhTiJTnTCcdZt4e8GJtZHJ.png', 'Welcome to ABC Higher National Institute', '2025-07-11 15:04:24', '2026-02-01 19:11:34', 'unapproved', 12, 0, NULL, 'https://abcnew.ac.lk/', 1, 1, 1, NULL, NULL, 'not_used', 8),
+(6, 'Sri Lanka International Buddhist Academy', 'Pallekale, Kandy, Sri Lanka', 'siba@gmail.com', NULL, '+94 71 244 5000', 'UGC/SG/2009/10/07', 'profile_photos/Bg5SW5hxGq091qTfBefT2CVs5DRi5tyMowUwjSyv.png', NULL, NULL, '2025-07-11 15:16:16', '2025-12-20 00:56:17', 'approved', 13, 0, NULL, 'https://sibacampus.lk/', 0, 0, 0, NULL, NULL, 'not_used', 4),
+(7, 'SLIIT', 'Battaramulla, Colombo, Sri Lanka', 'sliit.edun@gmail.com', NULL, '0112567999', 'UGC/SM/2009/10/06', NULL, NULL, NULL, '2025-08-31 12:51:24', '2026-02-01 08:06:52', 'unapproved', 17, 0, NULL, 'https://sliit.ac.lk/', 0, 0, 0, NULL, NULL, 'not_used', 0),
+(8, 'Cinec Campus', 'Colombo, Sri Lanka', 'cinec2@gmail.com', NULL, '0112567999', 'UGC/SM/2009/10/06', NULL, NULL, NULL, '2025-12-28 03:59:51', '2026-02-01 08:10:28', 'unapproved', 19, 0, NULL, 'https://cinec.ac.lk/', 0, 0, 0, NULL, NULL, 'not_used', 0);
 
 -- --------------------------------------------------------
 
@@ -605,9 +604,9 @@ INSERT INTO `institutes` (`id`, `institute_name`, `location`, `email`, `stripe_c
 --
 
 CREATE TABLE `institute_gallery` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `institute_id` bigint(20) UNSIGNED NOT NULL,
-  `image_path` varchar(255) NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `institute_id` bigint UNSIGNED NOT NULL,
+  `image_path` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -617,7 +616,6 @@ CREATE TABLE `institute_gallery` (
 --
 
 INSERT INTO `institute_gallery` (`id`, `institute_id`, `image_path`, `created_at`, `updated_at`) VALUES
-(6, 1, 'institute_gallery/ImapNEyG7IwUcXRz5LHZnESgAHOISiNkrAsGmuKa.jpg', '2025-07-01 09:15:38', '2025-07-01 09:15:38'),
 (7, 1, 'institute_gallery/1al0qxMfp2VPHO1X8Wj4105T3QX8T9t1dFImy9Iw.jpg', '2025-07-02 09:50:53', '2025-07-02 09:50:53'),
 (8, 1, 'institute_gallery/r3jIMtsq9gLlvv45scrB8DsuJ18wRX54BtejdVoQ.png', '2025-07-11 13:31:33', '2025-07-11 13:31:33'),
 (9, 1, 'institute_gallery/uLrAfsBxEltcTmetwZ67chkqikUcxc2WIcWFgHR3.jpg', '2025-08-24 01:34:52', '2025-08-24 01:34:52');
@@ -629,11 +627,11 @@ INSERT INTO `institute_gallery` (`id`, `institute_id`, `image_path`, `created_at
 --
 
 CREATE TABLE `institute_profile_views` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `institute_id` bigint(20) UNSIGNED NOT NULL,
-  `user_id` bigint(20) UNSIGNED DEFAULT NULL,
-  `ip_address` varchar(255) DEFAULT NULL,
-  `viewed_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `id` bigint UNSIGNED NOT NULL,
+  `institute_id` bigint UNSIGNED NOT NULL,
+  `user_id` bigint UNSIGNED DEFAULT NULL,
+  `ip_address` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `viewed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -693,9 +691,9 @@ INSERT INTO `institute_profile_views` (`id`, `institute_id`, `user_id`, `ip_addr
 --
 
 CREATE TABLE `likes` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `post_id` bigint(20) UNSIGNED NOT NULL,
-  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `post_id` bigint UNSIGNED NOT NULL,
+  `user_id` bigint UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -725,10 +723,10 @@ INSERT INTO `likes` (`id`, `post_id`, `user_id`, `created_at`, `updated_at`) VAL
 --
 
 CREATE TABLE `messages` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `chat_id` bigint(20) UNSIGNED NOT NULL,
-  `sender_id` bigint(20) UNSIGNED NOT NULL,
-  `message` text NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `chat_id` bigint UNSIGNED NOT NULL,
+  `sender_id` bigint UNSIGNED NOT NULL,
+  `message` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -740,9 +738,9 @@ CREATE TABLE `messages` (
 --
 
 CREATE TABLE `migrations` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `migration` varchar(255) NOT NULL,
-  `batch` int(11) NOT NULL
+  `id` int UNSIGNED NOT NULL,
+  `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `batch` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -806,7 +804,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (54, '2025_10_20_134221_add_report_fields_to_ratings_table', 30),
 (55, '2025_10_29_042244_create_saved_posts_table', 31),
 (56, '2025_12_22_162102_add_profile_fields_to_users_table', 32),
-(57, '2025_12_29_184241_create_event_user_interests_table', 33);
+(57, '2025_12_29_184241_create_event_user_interests_table', 33),
+(58, '2026_02_01_192340_add_trial_cancelled_at_to_institutes_table', 34);
 
 -- --------------------------------------------------------
 
@@ -815,12 +814,12 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 --
 
 CREATE TABLE `notifications` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `title` varchar(255) NOT NULL,
-  `message` text NOT NULL,
-  `type` varchar(255) NOT NULL,
-  `created_by` bigint(20) UNSIGNED NOT NULL,
-  `institute_id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `message` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_by` bigint UNSIGNED NOT NULL,
+  `institute_id` bigint UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -862,8 +861,8 @@ INSERT INTO `notifications` (`id`, `title`, `message`, `type`, `created_by`, `in
 --
 
 CREATE TABLE `password_reset_tokens` (
-  `email` varchar(255) NOT NULL,
-  `token` varchar(255) NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -874,12 +873,12 @@ CREATE TABLE `password_reset_tokens` (
 --
 
 CREATE TABLE `personal_access_tokens` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `tokenable_type` varchar(255) NOT NULL,
-  `tokenable_id` bigint(20) UNSIGNED NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `token` varchar(64) NOT NULL,
-  `abilities` text DEFAULT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `tokenable_type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tokenable_id` bigint UNSIGNED NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `abilities` text COLLATE utf8mb4_unicode_ci,
   `last_used_at` timestamp NULL DEFAULT NULL,
   `expires_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
@@ -907,7 +906,10 @@ INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `n
 (14, 'App\\Models\\User', 3, 'auth_token', '97fde8a9618d4079201c15dfb9507122baac985d28d405e61753a0219299aa4d', '[\"*\"]', '2025-12-25 00:40:03', NULL, '2025-12-25 00:40:02', '2025-12-25 00:40:03'),
 (15, 'App\\Models\\User', 7, 'auth_token', 'f8bc440fd5f7640464c900ef45ef9bcc04e6b4ab7efba0afd5ce60eefb9821be', '[\"*\"]', '2025-12-25 00:41:10', NULL, '2025-12-25 00:41:09', '2025-12-25 00:41:10'),
 (16, 'App\\Models\\User', 7, 'auth_token', '954e0bba00eb6c094398be8b300854a093a69c6f3a1402c24042eddd56f2dd25', '[\"*\"]', '2026-01-02 13:39:57', NULL, '2025-12-25 01:05:01', '2026-01-02 13:39:57'),
-(17, 'App\\Models\\User', 2, 'auth_token', '6cfaca7ab889a8e94d6b07a2af1b3feb18b4a0f352a91b7b40d7e76370ac469f', '[\"*\"]', NULL, NULL, '2025-12-25 01:21:07', '2025-12-25 01:21:07');
+(17, 'App\\Models\\User', 2, 'auth_token', '6cfaca7ab889a8e94d6b07a2af1b3feb18b4a0f352a91b7b40d7e76370ac469f', '[\"*\"]', NULL, NULL, '2025-12-25 01:21:07', '2025-12-25 01:21:07'),
+(18, 'App\\Models\\User', 2, 'auth-token', '8c00f6bbfc856785acef6705887570b419430bf95b082b10db1758172f206d3b', '[\"*\"]', '2026-02-01 10:18:24', NULL, '2026-01-31 19:26:36', '2026-02-01 10:18:24'),
+(19, 'App\\Models\\User', 3, 'auth-token', 'c3446d581f323a15fae8de2c5c2a6e4a33a65eaec4eb6902b8bfb15605e45753', '[\"*\"]', '2026-02-01 19:32:52', NULL, '2026-01-31 19:26:36', '2026-02-01 19:32:52'),
+(20, 'App\\Models\\User', 12, 'auth-token', 'dfd28612655435434449cade2c0e01834d52eacd389579b6578ea469d09e389f', '[\"*\"]', '2026-02-01 19:32:22', NULL, '2026-02-01 10:19:47', '2026-02-01 19:32:22');
 
 -- --------------------------------------------------------
 
@@ -916,24 +918,24 @@ INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `n
 --
 
 CREATE TABLE `posts` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `institute_id` bigint(20) UNSIGNED DEFAULT NULL,
-  `title` varchar(255) NOT NULL,
-  `description` text NOT NULL,
-  `small_description` varchar(255) NOT NULL,
-  `image` varchar(255) NOT NULL,
-  `course_name` varchar(255) NOT NULL,
-  `course_type` varchar(255) NOT NULL,
-  `location` varchar(255) NOT NULL,
-  `duration` varchar(255) NOT NULL,
-  `course_format` varchar(255) NOT NULL,
-  `attendance_type` varchar(255) NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `institute_id` bigint UNSIGNED DEFAULT NULL,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `small_description` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `image` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `course_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `course_type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `location` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `duration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `course_format` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `attendance_type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `likes_count` int(11) NOT NULL DEFAULT 0,
-  `view_count` bigint(20) UNSIGNED NOT NULL DEFAULT 0,
-  `status` varchar(255) NOT NULL DEFAULT 'active',
-  `is_boosted` tinyint(1) NOT NULL DEFAULT 0,
+  `likes_count` int NOT NULL DEFAULT '0',
+  `view_count` bigint UNSIGNED NOT NULL DEFAULT '0',
+  `status` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `is_boosted` tinyint(1) NOT NULL DEFAULT '0',
   `boost_expires_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -945,8 +947,8 @@ INSERT INTO `posts` (`id`, `institute_id`, `title`, `description`, `small_descri
 (1, 1, 'Post no 1', 'Are you ready to elevate your passion for Kandyan Dance to new heights? Join the most highly demanded degree program in Sri Lanka designed for aspiring professional dancers and performers in the traditional art of Kandyan Dance!\r\n\r\nThis exclusive degree offers you the chance to train under expert guidance, master the techniques, and preserve the cultural heritage of this iconic dance form. But with limited seats available, competition is fierce—only the best will be selected!\r\n\r\n🎯 Entry Requirements:\r\nPass in Dancing at GCE O/Ls\r\n3 passes in GCE A/Ls in the Aesthetic Stream, with Dancing as a subject\r\nSelection Process: Given the overwhelming demand for this program, applicants must complete the following:\r\n✅ A comprehensive Written Test\r\n✅ A Performance Assessment to showcase your skills\r\n✅ A Medical Test to ensure physical fitness\r\nWhy Choose Us?\r\n🎭 Sri Lanka’s most sought-after program in Kandyan Dance\r\n🎓 Academic excellence paired with artistic mastery\r\n🌟 Be part of a prestigious tradition, where you can shape your future as a professional dancer\r\n🎯 Course Content Highlights:\r\nKandyan Dance\r\nKandyan Drumming & Hewisi Vadana\r\nUdakki & Pantheru Dance\r\nCreative Dance & Choreography\r\nLow-Country Dance & Sabaragamu\r\nKathak Dance & Bharatanatyam\r\nFolk Music (Practical)\r\nBali Ritualistic Dance\r\nAdvanced Event Management\r\nTheatre Design & Technology\r\nAdvanced Drama & Theatre\r\nStage Performance\r\nTeaching and Learning Methods & Many more….\r\n\r\n🌟 This program is designed to shape you into a professional dancer, choreographer, performing arts instructor, and cultural ambassador while equipping you with skills beyond the stage. Don\'t miss out on this once-in-a-lifetime opportunity!\r\nClick the link below to register now and secure your spot. The journey to becoming a master of Kandyan Dance starts here.\r\n\r\n🔗Register Now - https://forms.gle/ztyVANFx57iZSKqf7\r\nFor Registrations, click the link below\r\n077-200 9 600 | 0727844844 | 0812421693\r\n\r\n🕒 Act fast! Limited seats available—apply today to make your mark in the world of Kandyan Dance!', '🎓🌟 Enroll in the Most Prestigious Bachelor of Performing Arts (Honors) Degree in Kandyan Dance! 🌟🎓', 'post_images/IawQHrJMSdNjUAN3du7NXTBgDnVEifQ7qehj5Na6.jpg', 'Bachelor of Arts (BA – General)', 'Bachelor\'s Degree', 'Kandy', '4 Year', 'Full-time', 'In-person', '2025-06-26 10:59:28', '2026-01-07 13:02:37', 3, 5, 'active', 0, NULL),
 (2, 1, 'Diploma In English 3', '🎓✨ Unlock New Horizons with Our Diploma in Chinese at SIBA Campus! ✨🎓\r\n\r\n🌟 Dive into a New Language, Embrace a New Culture! 🌟\r\n\r\nAre you ready to embark on an exciting journey into the world of Chinese language and culture? Join our Diploma in Chinese program, designed for beginners and aspiring learners aiming to excel in the HSK Level 03 exam!\r\n\r\nCourse Details:\r\n🕘 When: Saturdays \r\n🕙 Time: 9:00 AM - 12:00 PM \r\n📍 Where: SIBA Campus\r\n\r\n💡 Why Choose Our Program?\r\n\r\nPart-Time Flexibility: Perfect for busy schedules!\r\nExpert Instructors: Learn from the best in the field.\r\nComprehensive Curriculum: Tailored for beginners.\r\nHSK Exam Prep: Get ready to ace the HSK Level 03 exam!\r\n🌐 Connect, Communicate, Conquer!\r\n\r\n🔗 Secure Your Spot Today and start your journey towards mastering Chinese! Limited seats available.\r\n\r\n📲 For more information, visit our website or contact us at [Contact Information].\r\n\r\n📚✨ SIBA Campus – Your Gateway to the World! ✨📚\r\n\r\nContact us for more details\r\n077-200 9 600 | 0727844844 | 0812421693\r\n\r\n#DiplomaInChinese #Lea', '🎓✨ Unlock New Horizons with Our Diploma in Chinese at SIBA Campus! ✨🎓\r\n\r\n🌟 Dive into a New Language, Embrace a New Culture! 🌟', 'post_images/KFQ6DiVwTTtcOZXqCkusfE3T6LgPWsXtvSt4APND.jpg', 'Bachelor of Engineering (Mechatronic)', 'Master\'s Degree', 'Kandy', '1 Year', 'Full-time', 'Flexible', '2025-06-29 11:53:54', '2025-12-15 23:54:17', 2, 2, 'active', 0, NULL),
 (9, 1, 'Diploma In Kandyan Dance', '🎓🌟 Enroll in the Most Prestigious Bachelor of Performing Arts (Honors) Degree in Kandyan Dance! 🌟🎓\r\n\r\nAre you ready to elevate your passion for Kandyan Dance to new heights? Join the most highly demanded degree program in Sri Lanka designed for aspiring professional dancers and performers in the traditional art of Kandyan Dance!\r\n\r\nThis exclusive degree offers you the chance to train under expert guidance, master the techniques, and preserve the cultural heritage of this iconic dance form. But with limited seats available, competition is fierce—only the best will be selected!\r\n\r\n🎯 Entry Requirements:\r\nPass in Dancing at GCE O/Ls\r\n3 passes in GCE A/Ls in the Aesthetic Stream, with Dancing as a subject\r\nSelection Process: Given the overwhelming demand for this program, applicants must complete the following:\r\n✅ A comprehensive Written Test\r\n✅ A Performance Assessment to showcase your skills\r\n✅ A Medical Test to ensure physical fitness\r\nWhy Choose Us?\r\n🎭 Sri Lanka’s most sought-after program in Kandyan Dance\r\n🎓 Academic excellence paired with artistic mastery\r\n🌟 Be part of a prestigious tradition, where you can shape your future as a professional dancer\r\n🎯 Course Content Highlights:\r\nKandyan Dance\r\nKandyan Drumming & Hewisi Vadana\r\nUdakki & Pantheru Dance\r\nCreative Dance & Choreography\r\nLow-Country Dance & Sabaragamu\r\nKathak Dance & Bharatanatyam\r\nFolk Music (Practical)\r\nBali Ritualistic Dance\r\nAdvanced Event Management\r\nTheatre Design & Technology\r\nAdvanced Drama & Theatre\r\nStage Performance\r\nTeaching and Learning Methods & Many more….\r\n\r\n🌟 This program is designed to shape you into a professional dancer, choreographer, performing arts instructor, and cultural ambassador while equipping you with skills beyond the stage. Don\'t miss out on this once-in-a-lifetime opportunity!\r\nClick the link below to register now and secure your spot. The journey to becoming a master of Kandyan Dance starts here.\r\n\r\n🔗Register Now - https://forms.gle/ztyVANFx57iZSKqf7\r\nFor Registrations, click the link below\r\n077-200 9 600 | 0727844844 | 0812421693\r\n\r\n🕒 Act fast! Limited seats available—apply today to make your mark in the world of Kandyan Dance!', '🎓🌟 Enroll in the Most Prestigious Bachelor of Performing Arts (Honors) Degree in Kandyan Dance! 🌟🎓', 'post_images/0PCvI8BdJdc3PX3CckZUgCzABMnW4EZWlQPwqtCw.jpg', 'Bachelor of Science (BSc – General, Special, Honours)', 'Bachelor\'s Degree', 'Colombo', '6 Months', 'Full-time', 'In-person', '2025-07-01 10:15:46', '2026-01-07 13:09:50', 3, 4, 'active', 0, NULL),
-(11, 1, 'Diploma In English 2', '🎓 𝐒𝐡𝐚𝐫𝐩𝐞𝐧 𝐘𝐨𝐮𝐫 𝐒𝐤𝐢𝐥𝐥𝐬, 𝐄𝐦𝐩𝐨𝐰𝐞𝐫 𝐘𝐨𝐮𝐫 𝐅𝐮𝐭𝐮𝐫𝐞! 🌟\r\n\r\nUnlock your potential with the English Diploma at SIBA Campus! Our comprehensive weekday program offers an authentic learning environment with individual attention to help you thrive.\r\n\r\n📅 Join us every Wednesday, Thursday, and Friday from 8:30 AM to 12:30 PM.\r\n\r\nMaster essential skills in:\r\n✨𝑃𝑢𝑏𝑙𝑖𝑐 𝑆𝑝𝑒𝑎𝑘𝑖𝑛𝑔\r\n✨𝐵𝑢𝑠𝑖𝑛𝑒𝑠𝑠 𝐶𝑜𝑚𝑚𝑢𝑛𝑖𝑐𝑎𝑡𝑖𝑜𝑛\r\n✨𝐴𝑑𝑣𝑎𝑛𝑐𝑒𝑑 𝑊𝑟𝑖𝑡𝑖𝑛𝑔\r\n✨𝑇𝑒𝑙𝑒𝑝ℎ𝑜𝑛𝑒 𝐸𝑡𝑖𝑞𝑢𝑒𝑡𝑡𝑒\r\n✨𝐼𝑛𝑡𝑒𝑟𝑣𝑖𝑒𝑤 𝑇𝑒𝑐ℎ𝑛𝑖𝑞𝑢𝑒𝑠\r\n✨𝐶𝑟𝑒𝑎𝑡𝑖𝑣𝑒 𝑊𝑟𝑖𝑡𝑖𝑛𝑔\r\n\r\nPrepare to express yourself confidently and build a successful career in any field. Embrace your journey of growth with us at SIBA!\r\n\r\n👉 Enroll today! https://siba.edu.lk/onlineRegister\r\n☎081 2421693 / 072 7844844 /  ⁨077 200 9600', '🎓 𝐒𝐡𝐚𝐫𝐩𝐞𝐧 𝐘𝐨𝐮𝐫 𝐒𝐤𝐢𝐥𝐥𝐬, 𝐄𝐦𝐩𝐨𝐰𝐞𝐫 𝐘𝐨𝐮𝐫 𝐅𝐮𝐭𝐮𝐫𝐞! 🌟\r\n\r\nUnlock your potential with the English Diploma at SIBA Campus! Our comprehensive weekday program offers an authentic', 'post_images/bEWcWgt292YtmuhgaSkc2lvR4bvNeIYOQ4Mm5qBO.jpg', 'Bachelor of Applied Sciences', 'Bachelor\'s Degree', 'Kandy', '6 Months', 'Self-paced', 'Flexible', '2025-07-11 13:30:28', '2026-01-07 13:26:46', 4, 6, 'active', 0, NULL),
-(13, 1, 'Software', 'Software Engineering\r\n\r\n🎓 𝐒𝐡𝐚𝐫𝐩𝐞𝐧 𝐘𝐨𝐮𝐫 𝐒𝐤𝐢𝐥𝐥𝐬, 𝐄𝐦𝐩𝐨𝐰𝐞𝐫 𝐘𝐨𝐮𝐫 𝐅𝐮𝐭𝐮𝐫𝐞! 🌟\r\n\r\nUnlock your potential with the English Diploma at SIBA Campus! Our comprehensive weekday program offers an authentic learning environment with individual attention to help you thrive.\r\n\r\n📅 Join us every Wednesday, Thursday, and Friday from 8:30 AM to 12:30 PM.\r\n\r\nMaster essential skills in:\r\n✨𝑃𝑢𝑏𝑙𝑖𝑐 𝑆𝑝𝑒𝑎𝑘𝑖𝑛𝑔\r\n✨𝐵𝑢𝑠𝑖𝑛𝑒𝑠𝑠 𝐶𝑜𝑚𝑚𝑢𝑛𝑖𝑐𝑎𝑡𝑖𝑜𝑛\r\n✨𝐴𝑑𝑣𝑎𝑛𝑐𝑒𝑑 𝑊𝑟𝑖𝑡𝑖𝑛𝑔\r\n✨𝑇𝑒𝑙𝑒𝑝ℎ𝑜𝑛𝑒 𝐸𝑡𝑖𝑞𝑢𝑒𝑡𝑡𝑒\r\n✨𝐼𝑛𝑡𝑒𝑟𝑣𝑖𝑒𝑤 𝑇𝑒𝑐ℎ𝑛𝑖𝑞𝑢𝑒𝑠\r\n✨𝐶𝑟𝑒𝑎𝑡𝑖𝑣𝑒 𝑊𝑟𝑖𝑡𝑖𝑛𝑔\r\n\r\nPrepare to express yourself confidently and build a successful career in any field. Embrace your journey of growth with us at SIBA!\r\n\r\n👉 Enroll today! https://siba.edu.lk/onlineRegister\r\n☎081 2421693 / 072 7844844 /  ⁨077 200 9600', 'Bachelor of Science in Software Engineering with UniAds', 'post_images/s34ho84vv9pxuCvre3AQ2aiOriOGcBZG1Jw6B3zS.jpg', 'Bachelor of Software Engineering', 'Bachelor\'s Degree', 'Colombo, Kandy', '3 Year', 'Full-time', 'In-person', '2025-12-20 03:14:19', '2026-01-07 13:05:42', 0, 3, 'active', 0, NULL);
+(11, 1, 'Diploma In English 2', '🎓 𝐒𝐡𝐚𝐫𝐩𝐞𝐧 𝐘𝐨𝐮𝐫 𝐒𝐤𝐢𝐥𝐥𝐬, 𝐄𝐦𝐩𝐨𝐰𝐞𝐫 𝐘𝐨𝐮𝐫 𝐅𝐮𝐭𝐮𝐫𝐞! 🌟\r\n\r\nUnlock your potential with the English Diploma at SIBA Campus! Our comprehensive weekday program offers an authentic learning environment with individual attention to help you thrive.\r\n\r\n📅 Join us every Wednesday, Thursday, and Friday from 8:30 AM to 12:30 PM.\r\n\r\nMaster essential skills in:\r\n✨𝑃𝑢𝑏𝑙𝑖𝑐 𝑆𝑝𝑒𝑎𝑘𝑖𝑛𝑔\r\n✨𝐵𝑢𝑠𝑖𝑛𝑒𝑠𝑠 𝐶𝑜𝑚𝑚𝑢𝑛𝑖𝑐𝑎𝑡𝑖𝑜𝑛\r\n✨𝐴𝑑𝑣𝑎𝑛𝑐𝑒𝑑 𝑊𝑟𝑖𝑡𝑖𝑛𝑔\r\n✨𝑇𝑒𝑙𝑒𝑝ℎ𝑜𝑛𝑒 𝐸𝑡𝑖𝑞𝑢𝑒𝑡𝑡𝑒\r\n✨𝐼𝑛𝑡𝑒𝑟𝑣𝑖𝑒𝑤 𝑇𝑒𝑐ℎ𝑛𝑖𝑞𝑢𝑒𝑠\r\n✨𝐶𝑟𝑒𝑎𝑡𝑖𝑣𝑒 𝑊𝑟𝑖𝑡𝑖𝑛𝑔\r\n\r\nPrepare to express yourself confidently and build a successful career in any field. Embrace your journey of growth with us at SIBA!\r\n\r\n👉 Enroll today! https://siba.edu.lk/onlineRegister\r\n☎081 2421693 / 072 7844844 /  ⁨077 200 9600', '🎓 𝐒𝐡𝐚𝐫𝐩𝐞𝐧 𝐘𝐨𝐮𝐫 𝐒𝐤𝐢𝐥𝐥𝐬, 𝐄𝐦𝐩𝐨𝐰𝐞𝐫 𝐘𝐨𝐮𝐫 𝐅𝐮𝐭𝐮𝐫𝐞! 🌟\r\n\r\nUnlock your potential with the English Diploma at SIBA Campus! Our comprehensive weekday program offers an authentic', 'post_images/bEWcWgt292YtmuhgaSkc2lvR4bvNeIYOQ4Mm5qBO.jpg', 'Bachelor of Applied Sciences', 'Bachelor\'s Degree', 'Kandy', '6 Months', 'Self-paced', 'Flexible', '2025-07-11 13:30:28', '2026-02-01 19:06:35', 4, 8, 'inactive', 0, NULL),
+(13, 1, 'Software', 'Software Engineering\r\n\r\n🎓 𝐒𝐡𝐚𝐫𝐩𝐞𝐧 𝐘𝐨𝐮𝐫 𝐒𝐤𝐢𝐥𝐥𝐬, 𝐄𝐦𝐩𝐨𝐰𝐞𝐫 𝐘𝐨𝐮𝐫 𝐅𝐮𝐭𝐮𝐫𝐞! 🌟\r\n\r\nUnlock your potential with the English Diploma at SIBA Campus! Our comprehensive weekday program offers an authentic learning environment with individual attention to help you thrive.\r\n\r\n📅 Join us every Wednesday, Thursday, and Friday from 8:30 AM to 12:30 PM.\r\n\r\nMaster essential skills in:\r\n✨𝑃𝑢𝑏𝑙𝑖𝑐 𝑆𝑝𝑒𝑎𝑘𝑖𝑛𝑔\r\n✨𝐵𝑢𝑠𝑖𝑛𝑒𝑠𝑠 𝐶𝑜𝑚𝑚𝑢𝑛𝑖𝑐𝑎𝑡𝑖𝑜𝑛\r\n✨𝐴𝑑𝑣𝑎𝑛𝑐𝑒𝑑 𝑊𝑟𝑖𝑡𝑖𝑛𝑔\r\n✨𝑇𝑒𝑙𝑒𝑝ℎ𝑜𝑛𝑒 𝐸𝑡𝑖𝑞𝑢𝑒𝑡𝑡𝑒\r\n✨𝐼𝑛𝑡𝑒𝑟𝑣𝑖𝑒𝑤 𝑇𝑒𝑐ℎ𝑛𝑖𝑞𝑢𝑒𝑠\r\n✨𝐶𝑟𝑒𝑎𝑡𝑖𝑣𝑒 𝑊𝑟𝑖𝑡𝑖𝑛𝑔\r\n\r\nPrepare to express yourself confidently and build a successful career in any field. Embrace your journey of growth with us at SIBA!\r\n\r\n👉 Enroll today! https://siba.edu.lk/onlineRegister\r\n☎081 2421693 / 072 7844844 /  ⁨077 200 9600', 'Bachelor of Science in Software Engineering with UniAds', 'post_images/s34ho84vv9pxuCvre3AQ2aiOriOGcBZG1Jw6B3zS.jpg', 'Bachelor of Software Engineering', 'Bachelor\'s Degree', 'Colombo, Kandy', '3 Year', 'Full-time', 'In-person', '2025-12-20 03:14:19', '2026-02-01 16:24:23', 0, 4, 'inactive', 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -955,9 +957,9 @@ INSERT INTO `posts` (`id`, `institute_id`, `title`, `description`, `small_descri
 --
 
 CREATE TABLE `post_views` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `user_id` bigint(20) UNSIGNED NOT NULL,
-  `post_id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `user_id` bigint UNSIGNED NOT NULL,
+  `post_id` bigint UNSIGNED NOT NULL,
   `viewed_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
@@ -968,7 +970,10 @@ CREATE TABLE `post_views` (
 --
 
 INSERT INTO `post_views` (`id`, `user_id`, `post_id`, `viewed_at`, `created_at`, `updated_at`) VALUES
-(24, 7, 11, '2026-01-07 13:26:46', '2026-01-07 13:26:46', '2026-01-07 13:26:46');
+(24, 7, 11, '2026-01-07 13:26:46', '2026-01-07 13:26:46', '2026-01-07 13:26:46'),
+(25, 12, 11, '2026-02-01 13:37:57', '2026-02-01 13:37:57', '2026-02-01 13:37:57'),
+(26, 12, 11, '2026-02-01 13:37:57', '2026-02-01 13:37:57', '2026-02-01 13:37:57'),
+(27, 12, 13, '2026-02-01 16:16:13', '2026-02-01 16:16:13', '2026-02-01 16:16:13');
 
 -- --------------------------------------------------------
 
@@ -977,10 +982,10 @@ INSERT INTO `post_views` (`id`, `user_id`, `post_id`, `viewed_at`, `created_at`,
 --
 
 CREATE TABLE `privacy_policy` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `title` varchar(255) NOT NULL,
-  `content` longtext NOT NULL,
-  `order_index` int(11) NOT NULL DEFAULT 0,
+  `id` bigint UNSIGNED NOT NULL,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `content` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `order_index` int NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1008,13 +1013,13 @@ INSERT INTO `privacy_policy` (`id`, `title`, `content`, `order_index`, `created_
 --
 
 CREATE TABLE `ratings` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `user_id` bigint(20) UNSIGNED NOT NULL,
-  `institute_id` bigint(20) UNSIGNED NOT NULL,
-  `rating` tinyint(3) UNSIGNED NOT NULL,
-  `comment` text DEFAULT NULL,
-  `is_reported` tinyint(1) NOT NULL DEFAULT 0,
-  `report_reason` text DEFAULT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `user_id` bigint UNSIGNED NOT NULL,
+  `institute_id` bigint UNSIGNED NOT NULL,
+  `rating` tinyint UNSIGNED NOT NULL,
+  `comment` text COLLATE utf8mb4_unicode_ci,
+  `is_reported` tinyint(1) NOT NULL DEFAULT '0',
+  `report_reason` text COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1036,10 +1041,10 @@ INSERT INTO `ratings` (`id`, `user_id`, `institute_id`, `rating`, `comment`, `is
 --
 
 CREATE TABLE `refund_policy` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `title` varchar(255) NOT NULL,
-  `content` longtext NOT NULL,
-  `order_index` int(11) NOT NULL DEFAULT 0,
+  `id` bigint UNSIGNED NOT NULL,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `content` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `order_index` int NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1062,9 +1067,9 @@ INSERT INTO `refund_policy` (`id`, `title`, `content`, `order_index`, `created_a
 --
 
 CREATE TABLE `saved_posts` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `student_id` bigint(20) UNSIGNED NOT NULL,
-  `post_id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `student_id` bigint UNSIGNED NOT NULL,
+  `post_id` bigint UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1085,18 +1090,26 @@ INSERT INTO `saved_posts` (`id`, `student_id`, `post_id`, `created_at`, `updated
 --
 
 CREATE TABLE `subscriptions` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `institute_id` bigint(20) UNSIGNED NOT NULL,
-  `gateway_subscription_id` varchar(255) DEFAULT NULL,
-  `plan` enum('monthly','annual','trial') NOT NULL,
-  `is_trial` tinyint(1) NOT NULL DEFAULT 0,
-  `status` enum('active','cancelled','expired') NOT NULL DEFAULT 'active',
+  `id` bigint UNSIGNED NOT NULL,
+  `institute_id` bigint UNSIGNED NOT NULL,
+  `gateway_subscription_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `plan` enum('monthly','annual','trial') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `is_trial` tinyint(1) NOT NULL DEFAULT '0',
+  `status` enum('active','cancelled','expired') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
   `started_at` date NOT NULL,
   `ends_at` date NOT NULL,
   `cancelled_at` date DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `subscriptions`
+--
+
+INSERT INTO `subscriptions` (`id`, `institute_id`, `gateway_subscription_id`, `plan`, `is_trial`, `status`, `started_at`, `ends_at`, `cancelled_at`, `created_at`, `updated_at`) VALUES
+(15, 1, 'SUB-1-1769926708', 'monthly', 0, 'active', '2026-02-01', '2026-03-03', NULL, '2026-02-01 06:19:12', '2026-02-01 06:19:12'),
+(16, 5, 'SUB-5-1769973069', 'monthly', 0, 'active', '2026-02-01', '2026-03-03', NULL, '2026-02-01 19:11:34', '2026-02-01 19:11:34');
 
 -- --------------------------------------------------------
 
@@ -1105,10 +1118,10 @@ CREATE TABLE `subscriptions` (
 --
 
 CREATE TABLE `terms_and_conditions` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `title` varchar(255) NOT NULL,
-  `content` longtext NOT NULL,
-  `order_index` int(11) NOT NULL DEFAULT 0,
+  `id` bigint UNSIGNED NOT NULL,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `content` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `order_index` int NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1136,20 +1149,20 @@ INSERT INTO `terms_and_conditions` (`id`, `title`, `content`, `order_index`, `cr
 --
 
 CREATE TABLE `users` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `gender` enum('Male','Female') DEFAULT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `gender` enum('Male','Female') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `birthday` date DEFAULT NULL,
-  `district` varchar(255) DEFAULT NULL,
-  `education_level` varchar(255) DEFAULT NULL,
-  `email` varchar(255) NOT NULL,
+  `district` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `education_level` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `email_verified_at` timestamp NULL DEFAULT NULL,
-  `password` varchar(255) NOT NULL,
-  `remember_token` varchar(100) DEFAULT NULL,
+  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `role` varchar(255) NOT NULL DEFAULT 'User',
-  `profile_picture` varchar(255) DEFAULT NULL
+  `role` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'User',
+  `profile_picture` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -1157,14 +1170,14 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `gender`, `birthday`, `district`, `education_level`, `email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`, `role`, `profile_picture`) VALUES
-(2, 'UniAds', NULL, NULL, NULL, NULL, 'pixelplay0279@gmail.com', NULL, '$2y$12$9lovBOWG.1x12FJLpjroceMHhF3liLUqsAho738ok5Lvmclh6iQa6', NULL, '2025-06-26 03:52:46', '2025-08-26 15:29:20', 'Institute', 'institute_photos/QkUqpodKr34ZLlNSgRI7p2PXKbgL2SzNObgp4rEt.png'),
+(2, 'ABC University', NULL, NULL, NULL, NULL, 'pixelplay0279@gmail.com', NULL, '$2y$12$9lovBOWG.1x12FJLpjroceMHhF3liLUqsAho738ok5Lvmclh6iQa6', NULL, '2025-06-26 03:52:46', '2026-01-31 19:29:34', 'Institute', 'institute_photos/KVHGS9XDDkoGAmOi0nM4fc3Vk4dvfwEuFjQI2Oz0.png'),
 (3, 'Max Saman Kumara', NULL, NULL, NULL, NULL, 'samankumara@gmail.com', NULL, '$2y$12$VoeWvgLWllJws8I1tMjF4uEH5AzMIzYD51owzZhoYZn0PNTMBpJMO', NULL, '2025-06-28 13:39:16', '2025-12-05 14:11:03', 'Admin', 'profile_pictures/WmY2XtcDTkK5xv0FDRDBIksrf9kGVIW9lu7Eqnsp.png'),
 (4, 'Sri Lanka International Buddhist Academy', NULL, NULL, NULL, NULL, 'sibacampus@gmail.com', NULL, '$2y$12$VyxRoHjUl2Zp9hiRiMlZnOM6Pl2Hh7MLQJrbpYx.J1xqjXi6ZabTu', NULL, '2025-06-29 13:33:18', '2025-06-29 13:35:14', 'Institute', 'institute_photos/apPxq0QDz6Qabal9VAxnymP6XowXdOBkyxAjGCNX.jpg'),
 (7, 'Isuru M Dasanayake', 'Male', '2000-07-12', 'Kurunegala', 'Undergraduate', 'isurumadhuranga279@gmail.com', NULL, '$2y$12$1HkXruL/fHkkJ0kuW8VP1.b/8C8B7TxAH8fYwPzPv9T3RSVjs.A7G', NULL, '2025-07-10 01:13:31', '2026-01-06 12:52:04', 'User', NULL),
 (8, 'Esala', NULL, NULL, NULL, NULL, 'chathurasenavirathne711@gmail.com', NULL, '$2y$12$rh4zIvBaTshf.qqrt0hkduuIG23j9C7DGIIpeh9dtvZDYPxHxfKhC', NULL, '2025-07-10 13:11:23', '2025-07-10 13:22:43', 'User', 'profile_pictures/BEEiXgV6RBIHA7CtUB7HR6gr08XXh9EUjFKAaHZB.jpg'),
 (9, 'Test', NULL, NULL, NULL, NULL, 'test@gmail.com', NULL, '$2y$12$fXxcnBjrI7bc50BNLGCi6.FfYzqwN6E6RSvKu9tZngVMRLkrsQ7d6', NULL, '2025-07-10 13:14:57', '2025-08-28 10:50:31', 'Admin', NULL),
 (11, 'Lanka college', NULL, NULL, NULL, NULL, 'kpbandara111@gmail.com', NULL, '$2y$12$Yz2xOxetC2LgckTShDnGvOarG7bz9Fb9aDYMF7JW6/0pfchP.wBu.', NULL, '2025-07-10 13:24:26', '2025-07-10 13:27:43', 'Institute', 'institute_photos/FVtumK61mSvmlFRA1FKSkYuTPmMHJhSpQEPsVsZW.jpg'),
-(12, 'ABC Higher National Institute Sri Lanka', NULL, NULL, NULL, NULL, 'abc@gmail.com', NULL, '$2y$12$YMo6nAQAjHgpHkOuNk1X/e0mJiotXott5WytieM2b.WD8iFZe8yU2', NULL, '2025-07-11 15:04:24', '2025-07-25 04:22:30', 'Institute', 'institute_photos/Y2m9ZfVy3HiKkaj01ElaR7qGd4E6FCD1n3QC4lEY.png'),
+(12, 'ABC Higher National Institute SL', NULL, NULL, NULL, NULL, 'abc@gmail.com', NULL, '$2y$12$YMo6nAQAjHgpHkOuNk1X/e0mJiotXott5WytieM2b.WD8iFZe8yU2', NULL, '2025-07-11 15:04:24', '2026-02-01 10:20:54', 'Institute', 'institute_photos/Y2m9ZfVy3HiKkaj01ElaR7qGd4E6FCD1n3QC4lEY.png'),
 (13, 'Sri Lanka International Buddhist Academy', NULL, NULL, NULL, NULL, 'siba@gmail.com', NULL, '$2y$12$tj6w9S9XmSH.2hC9JWCMvOessc7tOSiI1cvkgj1xvh0bYyzb/4nKu', NULL, '2025-07-11 15:16:16', '2025-07-11 15:16:16', 'Institute', NULL),
 (14, 'thilinavimukthi', NULL, NULL, NULL, NULL, 'thilina@gmail.com', NULL, '$2y$12$WSmrTl0rkubqaG4k5zZE5Oe2AsMUf5vcy89ithRo84g48ZSjj5zQC', NULL, '2025-08-31 12:45:38', '2025-08-31 12:45:38', 'User', NULL),
 (15, 'Kothalawala', NULL, NULL, NULL, NULL, 'koth@gmail.com', NULL, '$2y$12$B4tuXYKoqlmZpOdDtFoHsOwc6aMvf1MDoxrSoKozREdhZiaRb3/U6', NULL, '2025-08-31 12:46:03', '2025-08-31 12:46:03', 'User', NULL),
@@ -1388,163 +1401,163 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `about_sections`
 --
 ALTER TABLE `about_sections`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `apply_cases`
 --
 ALTER TABLE `apply_cases`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=486;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=487;
 
 --
 -- AUTO_INCREMENT for table `chats`
 --
 ALTER TABLE `chats`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `events`
 --
 ALTER TABLE `events`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `event_user_declines`
 --
 ALTER TABLE `event_user_declines`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `event_user_interests`
 --
 ALTER TABLE `event_user_interests`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `event_views`
 --
 ALTER TABLE `event_views`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `failed_jobs`
 --
 ALTER TABLE `failed_jobs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `followers`
 --
 ALTER TABLE `followers`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT for table `institutes`
 --
 ALTER TABLE `institutes`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `institute_gallery`
 --
 ALTER TABLE `institute_gallery`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `institute_profile_views`
 --
 ALTER TABLE `institute_profile_views`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
 
 --
 -- AUTO_INCREMENT for table `likes`
 --
 ALTER TABLE `likes`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
 
 --
 -- AUTO_INCREMENT for table `messages`
 --
 ALTER TABLE `messages`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 
 --
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `personal_access_tokens`
 --
 ALTER TABLE `personal_access_tokens`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `posts`
 --
 ALTER TABLE `posts`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `post_views`
 --
 ALTER TABLE `post_views`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `privacy_policy`
 --
 ALTER TABLE `privacy_policy`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `ratings`
 --
 ALTER TABLE `ratings`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `refund_policy`
 --
 ALTER TABLE `refund_policy`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `saved_posts`
 --
 ALTER TABLE `saved_posts`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
 
 --
 -- AUTO_INCREMENT for table `subscriptions`
 --
 ALTER TABLE `subscriptions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `terms_and_conditions`
 --
 ALTER TABLE `terms_and_conditions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- Constraints for dumped tables

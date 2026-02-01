@@ -361,7 +361,7 @@ const PricingPage = () => {
                                             onClick={handleStartTrial}
                                             disabled={submitting}
                                         >
-                                            {submitting ? 'Initiating...' : 'Start Free Trial'}
+                                            {submitting ? 'Processing...' : 'Start Free Trial'}
                                         </button>
                                     </div>
                                 )}
