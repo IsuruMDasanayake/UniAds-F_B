@@ -59,7 +59,7 @@ const SubscriptionManagement = () => {
                     <div className="summary-icon gold"><Gift size={24} /></div>
                     <div className="summary-content">
                         <span className="summary-label">Premium Plans</span>
-                        <span className="summary-value">{subscriptions.filter(s => s.plan_name.includes('Premium')).length}</span>
+                        <span className="summary-value">{subscriptions.filter(s => s.plan_name?.includes('Premium')).length}</span>
                     </div>
                 </div>
             </div>
@@ -122,7 +122,7 @@ const SubscriptionManagement = () => {
                                                 {sub.plan_name}
                                             </span>
                                         </td>
-                                        <td>Rs. {sub.price.toLocaleString()}</td>
+                                        <td>Rs. {(sub.price || 0).toLocaleString()}</td>
                                         <td>{sub.duration_months} Months</td>
                                         <td>
                                             <div className="expiry-cell">

@@ -377,7 +377,7 @@ const PricingPage = () => {
                                 {status === 'subscribe' && (
                                     <div className="w-full">
                                         {institute?.trial_status === 'expired' && (
-                                            <div className="mb-4 text-red-500 font-bold text-center text-sm">
+                                            <div className="trial-expired-msg">
                                                 Your free trial has ended.
                                             </div>
                                         )}

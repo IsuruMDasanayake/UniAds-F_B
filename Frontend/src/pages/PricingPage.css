@@ -308,6 +308,14 @@
     border: 1px solid var(--c-success);
 }
 
+.trial-expired-msg {
+    color: var(--c-accent);
+    font-weight: 700;
+    text-align: center;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
 /* Status Alert */
 .status-box {
     background: var(--c-success-soft);
