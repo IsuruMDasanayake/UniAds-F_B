@@ -394,4 +394,53 @@ class SubscriptionController extends Controller
     {
         return redirect('/pricing');
     }
+
+    // ==========================================
+    // API METHODS FOR ADMIN DASHBOARD
+    // ==========================================
+
+    public function apiAdminIndex()
+    {
+        $subscriptions = Subscription::with('institute')->orderBy('created_at', 'desc')->get();
+        return response()->json($subscriptions);
+    }
+
+    public function apiToggleStatus(Request $request, $id)
+    {
+        $subscription = Subscription::findOrFail($id);
+
+        // Admin manually changing status (Active, Cancelled, Expired)
+        $newStatus = $request->input('status');
+
+        if (in_array($newStatus, ['active', 'cancelled', 'expired'])) {
+            $subscription->status = $newStatus;
+
+            // Sync with institute status
+            $institute = Institute::find($subscription->institute_id);
+            if ($institute) {
+                if ($newStatus === 'active') {
+                    $institute->is_premium = true;
+                    // Ensure expiry is valid if not set - but subscription usually has ends_at
+                    if (!$institute->premium_expires_at || $institute->premium_expires_at < now()) {
+                        $institute->premium_expires_at = $subscription->ends_at ?? now()->addDays(30);
+                    }
+                } elseif ($newStatus === 'cancelled' || $newStatus === 'expired') {
+                    // institute premium status might remain until expiry, or strictly follow this toggle?
+                    // Admin overriding implies immediate action usually.
+                    // But subscription logic usually dictates service until period end.
+                    // If Admin marks as Cancelled, let's respect subscription logic (cancelled_at), but if Expired, then revoke.
+
+                    if ($newStatus === 'expired') {
+                        $institute->is_premium = false;
+                    }
+                }
+                $institute->save();
+            }
+
+            $subscription->save();
+            return response()->json(['success' => true, 'message' => 'Subscription status updated', 'status' => $subscription->status]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Invalid status'], 400);
+    }
 }

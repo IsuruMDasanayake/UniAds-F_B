@@ -112,4 +112,14 @@ class RatingsController extends Controller
         $rating->delete();
         return back()->with('success', 'Review deleted successfully.');
     }
+
+    // ==========================================
+    // API METHODS FOR ADMIN DASHBOARD
+    // ==========================================
+
+    public function apiAdminIndex()
+    {
+        $ratings = Rating::with(['user', 'institute'])->orderBy('created_at', 'desc')->get();
+        return response()->json($ratings);
+    }
 }

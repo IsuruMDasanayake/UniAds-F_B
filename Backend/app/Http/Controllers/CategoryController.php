@@ -116,4 +116,52 @@ class CategoryController extends Controller
 
         return view('categories.edit', compact('category'));
     }
+
+    // ==========================================
+    // API METHODS FOR ADMIN DASHBOARD
+    // ==========================================
+
+    public function apiAdminIndex()
+    {
+        $categories = Category::all();
+        return response()->json($categories);
+    }
+
+    public function apiStore(Request $request)
+    {
+        $validated = $request->validate([
+            'main_category' => 'required|string',
+            'name' => 'required|string',
+            'icon' => 'nullable|string',
+        ]);
+
+        $category = Category::create($validated);
+
+        return response()->json(['success' => true, 'message' => 'Category added successfully!', 'category' => $category]);
+    }
+
+    public function apiUpdate(Request $request, $id)
+    {
+        $category = Category::findOrFail($id);
+
+        $request->validate([
+            'main_category' => 'required|string',
+            'name' => 'required|string',
+            'icon' => 'required|string',
+        ]);
+
+        $category->update([
+            'main_category' => $request->main_category,
+            'name' => $request->name,
+            'icon' => $request->icon,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Category updated successfully!', 'category' => $category]);
+    }
+
+    public function apiDestroy($id)
+    {
+        Category::findOrFail($id)->delete();
+        return response()->json(['success' => true, 'message' => 'Category deleted successfully!']);
+    }
 }

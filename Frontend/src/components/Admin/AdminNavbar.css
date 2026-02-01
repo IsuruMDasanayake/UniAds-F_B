@@ -1,0 +1,172 @@
+.admin-navbar-scope.admin-navbar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: var(--admin-sidebar-width);
+    height: var(--admin-navbar-height);
+    padding: 0 2rem;
+    background: rgba(15, 23, 42, 0.5);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 999;
+    transition: left 0.3s ease;
+}
+
+.admin-navbar-scope .navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.admin-navbar-scope .mobile-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+}
+
+.admin-navbar-scope .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+
+.admin-navbar-scope .bc-parent {
+    color: var(--admin-text-muted);
+}
+
+.admin-navbar-scope .bc-separator {
+    color: var(--admin-text-muted);
+    opacity: 0.5;
+}
+
+.admin-navbar-scope .bc-current {
+    color: #fff;
+    font-weight: 600;
+}
+
+.admin-navbar-scope .navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.admin-navbar-scope .search-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.admin-navbar-scope .search-bar input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 8px 12px 8px 36px;
+    color: #fff;
+    width: 250px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.admin-navbar-scope .search-bar input:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--admin-primary);
+    width: 300px;
+}
+
+.admin-navbar-scope .search-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--admin-text-muted);
+}
+
+.admin-navbar-scope .navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.admin-navbar-scope .action-btn {
+    background: transparent;
+    border: none;
+    color: var(--admin-text-muted);
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.admin-navbar-scope .action-btn:hover {
+    color: #fff;
+}
+
+.admin-navbar-scope .notification-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    background: #ef4444;
+    border-radius: 50%;
+    border: 2px solid var(--admin-bg-dark);
+}
+
+.admin-navbar-scope .user-profile-summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-left: 1.5rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-navbar-scope .user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.admin-navbar-scope .user-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.admin-navbar-scope .user-role {
+    font-size: 0.75rem;
+    color: var(--admin-text-muted);
+}
+
+.admin-navbar-scope .user-avatar {
+    width: 36px;
+    height: 36px;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--admin-primary);
+}
+
+@media (max-width: 1024px) {
+    .admin-navbar-scope.admin-navbar {
+        left: 0;
+        padding: 0 1rem;
+    }
+
+    .admin-navbar-scope .mobile-toggle {
+        display: block;
+    }
+
+    .admin-navbar-scope .search-bar {
+        display: none;
+    }
+}

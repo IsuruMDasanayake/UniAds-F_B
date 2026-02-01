@@ -10,6 +10,8 @@ use App\Models\Institute;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -220,8 +222,8 @@ class PostController extends Controller
             $post = Post::findOrFail($id);
             $user = Auth::user();
 
-            // Check if user belongs to this institute
-            if ($user->role !== 'Institute' || !$user->institute || $user->institute->id != $post->institute_id) {
+            // Check if user belongs to this institute OR is Admin
+            if ($user->role !== 'Admin' && ($user->role !== 'Institute' || !$user->institute || $user->institute->id != $post->institute_id)) {
                 return response()->json(['message' => 'Unauthorized'], 403);
             }
 
@@ -293,12 +295,12 @@ class PostController extends Controller
             ->select('posts.*')
             ->addSelect(DB::raw("
             (
-                CASE 
-                    WHEN institutes.is_premium = 1 
-                        AND posts.created_at >= NOW() - INTERVAL 10 DAY 
-                    THEN 2 
-                    ELSE 0 
-                END 
+                CASE
+                    WHEN institutes.is_premium = 1
+                        AND posts.created_at >= NOW() - INTERVAL 10 DAY
+                    THEN 2
+                    ELSE 0
+                END
                 + institutes.followers_count * 0.01
             ) as priority
         "))
@@ -338,12 +340,12 @@ class PostController extends Controller
             ->select('posts.*')
             ->addSelect(DB::raw("
             (
-                CASE 
-                    WHEN institutes.is_premium = 1 
-                        AND posts.created_at >= NOW() - INTERVAL 10 DAY 
-                    THEN 2 
-                    ELSE 0 
-                END 
+                CASE
+                    WHEN institutes.is_premium = 1
+                        AND posts.created_at >= NOW() - INTERVAL 10 DAY
+                    THEN 2
+                    ELSE 0
+                END
                 + institutes.followers_count * 0.01
             ) as priority
         "))
@@ -569,12 +571,33 @@ class PostController extends Controller
             ->latest()
             ->paginate(10);
 
-        $posts->getCollection()->transform(function ($post) use ($user) {
+        // Apply user-specific liked and saved status
+        $userId = $user ? $user->id : null;
+        $posts->through(function ($post) use ($userId, $user) {
             $post->is_liked_by_user = $user ? $post->likes()->where('user_id', $user->id)->exists() : false;
             $post->is_saved_by_user = ($user && $user->role === 'User') ? $user->savedPosts()->where('post_id', $post->id)->exists() : false;
             return $post;
         });
 
         return response()->json($posts);
+    }
+
+    // ==========================================
+    // API METHODS FOR ADMIN DASHBOARD
+    // ==========================================
+
+    public function apiAdminIndex()
+    {
+        $posts = Post::with('institute')->latest()->get();
+        return response()->json($posts);
+    }
+
+    public function apiToggleStatus($id)
+    {
+        $post = Post::findOrFail($id);
+        $post->status = $post->status === 'active' ? 'inactive' : 'active';
+        $post->save();
+
+        return response()->json(['success' => true, 'message' => 'Post status updated', 'status' => $post->status]);
     }
 }

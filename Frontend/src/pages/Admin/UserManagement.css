@@ -1,0 +1,90 @@
+.admin-user-scope .add-user-btn {
+    background: var(--admin-primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.admin-user-scope .add-user-btn:hover {
+    background: var(--admin-primary-dark);
+    transform: translateY(-2px);
+}
+
+.admin-user-scope .user-cell {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.admin-user-scope .user-avatar-sm {
+    width: 36px;
+    height: 36px;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--admin-primary);
+}
+
+.admin-user-scope .user-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-user-scope .user-name-text {
+    font-weight: 600;
+    color: #fff;
+}
+
+.admin-user-scope .user-email-text {
+    font-size: 0.8rem;
+    color: var(--admin-text-muted);
+}
+
+.admin-user-scope .role-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.admin-user-scope .role-badge.admin {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+}
+
+.admin-user-scope .role-badge.institute {
+    background: rgba(139, 92, 246, 0.15);
+    color: #8b5cf6;
+}
+
+.admin-user-scope .role-badge.user {
+    background: rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
+}
+
+.admin-user-scope .status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+}
+
+.admin-user-scope .status-indicator.active {
+    color: #10b981;
+}
+
+.admin-user-scope .actions-cell {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}

@@ -15,6 +15,7 @@ use App\Models\Post;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 
 
@@ -190,9 +191,18 @@ class EventController extends Controller
 
 
 
+
     public function destroy($id)
     {
         $event = Event::findOrFail($id);
+        $user = Auth::user();
+
+        // Authorization: Admin OR Owner
+        if ($user->role !== 'Admin') {
+            if ($user->role !== 'Institute' || !$user->institute || $event->institute_id !== $user->institute->id) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+        }
 
         // Delete the associated image file if it exists
         if ($event->event_image && Storage::exists('public/' . $event->event_image)) {
@@ -204,6 +214,27 @@ class EventController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Event deleted successfully.']);
     }
+
+    // ==========================================
+    // API METHODS FOR ADMIN DASHBOARD
+    // ==========================================
+
+    public function apiAdminIndex()
+    {
+        $events = Event::with('institute')->orderBy('created_at', 'desc')->get();
+        return response()->json($events);
+    }
+
+    public function apiToggleStatus($id)
+    {
+        $event = Event::findOrFail($id);
+        $event->is_active = !$event->is_active;
+        $event->save();
+
+        return response()->json(['success' => true, 'is_active' => $event->is_active]);
+    }
+
+
 
 
     // Mark an event as interested by the user
@@ -325,7 +356,7 @@ class EventController extends Controller
         $userId = Auth::id();
 
         $query = Event::with(['institute'])
-            ->where('event_date', '>=', now())
+            ->whereDate('event_date', '>=', Carbon::today())
             ->where('is_active', true);
 
         if ($userId) {
@@ -336,10 +367,11 @@ class EventController extends Controller
         $events = $query->orderBy('event_date', 'asc')
             ->paginate(12);
 
-        // Check if the user is interested in each event
-        $events->through(function ($event) use ($userId) {
-            $event->is_interested = $userId ? EventUserInterest::where('user_id', $userId)
+        // Transformation on the collection to avoid Paginator::through issues if any
+        $events->getCollection()->transform(function ($event) use ($userId) {
+            $event->is_interested = $userId ? DB::table('event_user_interests')
                 ->where('event_id', $event->id)
+                ->where('user_id', $userId)
                 ->exists() : false;
             return $event;
         });

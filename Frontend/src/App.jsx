@@ -1,7 +1,6 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
 import { LoginPage, RegisterPage, ForgotPasswordPage, ResetPasswordPage, InstituteRegisterPage } from './pages/Auth';
-import AdminDashboard from './pages/AdminDashboard';
 import InstituteDashboard from './pages/InstituteDashboard';
 import SavedPostsPage from './pages/SavedPostsPage';
 import InstitutionsPage from './pages/InstitutionsPage';
@@ -13,6 +12,20 @@ import PricingPage from './pages/PricingPage';
 import SearchResultsPage from './pages/SearchResultsPage';
 import ProfileWrapper from './components/ProfileWrapper';
 import MainProfilePage from './pages/InstituteProfile/MainProfilePage';
+
+// Admin Components
+import AdminLayout from './components/Admin/AdminLayout';
+import AdminRoute from './components/Admin/AdminRoute';
+import AdminDashboard from './pages/Admin/AdminDashboard';
+import UserManagement from './pages/Admin/UserManagement';
+import InstituteManagement from './pages/Admin/InstituteManagement';
+import CategoryManagement from './pages/Admin/CategoryManagement';
+import PostManagement from './pages/Admin/PostManagement';
+import EventManagement from './pages/Admin/EventManagement';
+import SubscriptionManagement from './pages/Admin/SubscriptionManagement';
+import PolicyManagement from './pages/Admin/PolicyManagement';
+import RatingManagement from './pages/Admin/RatingManagement';
+
 import './App.css';
 
 function App() {
@@ -27,7 +40,6 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/institutionprofileadd" element={<InstituteRegisterPage />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/institute/dashboard" element={<InstituteDashboard />} />
           <Route path="/saved-posts" element={<SavedPostsPage />} />
           <Route path="/institutions" element={<InstitutionsPage />} />
@@ -49,6 +61,26 @@ function App() {
           <Route path="/institutions/:id/courses" element={<MainProfilePage />} />
           <Route path="/institutions/:id/contact" element={<MainProfilePage />} />
           <Route path="/institutions/:id/events" element={<MainProfilePage />} />
+
+          {/* Admin Routes - Wrapped in Layout and Protected */}
+          <Route path="/admin/*" element={
+            <AdminRoute>
+              <AdminLayout>
+                <Routes>
+                  <Route path="dashboard" element={<AdminDashboard />} />
+                  <Route path="users" element={<UserManagement />} />
+                  <Route path="institutes" element={<InstituteManagement />} />
+                  <Route path="categories" element={<CategoryManagement />} />
+                  <Route path="posts" element={<PostManagement />} />
+                  <Route path="events" element={<EventManagement />} />
+                  <Route path="subscriptions" element={<SubscriptionManagement />} />
+                  <Route path="ratings" element={<RatingManagement />} />
+                  <Route path="policies" element={<PolicyManagement />} />
+                  <Route path="*" element={<Navigate to="dashboard" replace />} />
+                </Routes>
+              </AdminLayout>
+            </AdminRoute>
+          } />
         </Routes>
       </div>
     </Router>

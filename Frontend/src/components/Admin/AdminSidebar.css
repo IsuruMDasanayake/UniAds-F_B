@@ -1,0 +1,149 @@
+.admin-sidebar-scope.admin-sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--admin-sidebar-width);
+    background: var(--admin-bg-side);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+}
+
+.admin-sidebar-scope .sidebar-brand {
+    height: var(--admin-navbar-height);
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.admin-sidebar-scope .brand-logo {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--admin-primary), #8b5cf6);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: white;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.admin-sidebar-scope .brand-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(to right, #fff, #94a3b8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.admin-sidebar-scope .sidebar-nav {
+    flex: 1;
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+}
+
+.admin-sidebar-scope .nav-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+    border-radius: 12px;
+    color: var(--admin-text-muted);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-sidebar-scope .nav-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.admin-sidebar-scope .nav-item.active {
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--admin-primary);
+    font-weight: 600;
+}
+
+.admin-sidebar-scope .nav-item.active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 15%;
+    height: 70%;
+    width: 4px;
+    background: var(--admin-primary);
+    border-radius: 0 4px 4px 0;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+.admin-sidebar-scope .nav-icon {
+    flex-shrink: 0;
+}
+
+.admin-sidebar-scope .nav-text {
+    font-size: 0.95rem;
+}
+
+.admin-sidebar-scope .sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.admin-sidebar-scope .logout-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+    border-radius: 12px;
+    color: #ef4444;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    gap: 12px;
+    text-align: left;
+}
+
+.admin-sidebar-scope .logout-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* Scrollbar styling for sidebar */
+.admin-sidebar-scope .sidebar-nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+.admin-sidebar-scope .sidebar-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.admin-sidebar-scope .sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+@media (max-width: 1024px) {
+    .admin-sidebar-scope.admin-sidebar {
+        transform: translateX(-100%);
+    }
+
+    .admin-sidebar-scope.admin-sidebar.open {
+        transform: translateX(0);
+    }
+}

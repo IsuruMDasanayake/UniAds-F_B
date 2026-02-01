@@ -1,0 +1,82 @@
+.admin-institute-scope .institute-cell {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.admin-institute-scope .inst-avatar {
+    width: 36px;
+    height: 36px;
+    background: rgba(139, 92, 246, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8b5cf6;
+}
+
+.admin-institute-scope .inst-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-institute-scope .inst-name-text {
+    font-weight: 600;
+    color: #fff;
+}
+
+.admin-institute-scope .inst-email-text {
+    font-size: 0.8rem;
+    color: var(--admin-text-muted);
+}
+
+.admin-institute-scope .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.admin-institute-scope .status-pill.approved {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+}
+
+.admin-institute-scope .status-pill.unapproved {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+}
+
+.admin-institute-scope .premium-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--admin-text-muted);
+}
+
+.admin-institute-scope .premium-toggle.premium {
+    background: rgba(234, 179, 8, 0.1);
+    color: #eab308;
+    border-color: rgba(234, 179, 8, 0.2);
+}
+
+.admin-institute-scope .premium-toggle:hover {
+    transform: scale(1.05);
+}
+
+.admin-institute-scope .actions-cell {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}

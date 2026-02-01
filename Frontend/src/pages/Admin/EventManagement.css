@@ -1,0 +1,46 @@
+.admin-event-scope .event-cell {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.admin-event-scope .event-icon-box {
+    width: 40px;
+    height: 40px;
+    background: rgba(245, 158, 11, 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f59e0b;
+}
+
+.admin-event-scope .event-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-event-scope .event-title-text {
+    font-weight: 600;
+    color: #fff;
+}
+
+.admin-event-scope .event-loc-text {
+    font-size: 0.75rem;
+    color: var(--admin-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.admin-event-scope .date-cell {
+    font-size: 0.85rem;
+    color: #fff;
+}
+
+.admin-event-scope .event-time-text {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--admin-text-muted);
+}

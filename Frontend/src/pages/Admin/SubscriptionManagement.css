@@ -1,0 +1,108 @@
+.admin-subscription-scope .subscription-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+}
+
+.admin-subscription-scope .summary-card {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.5rem;
+}
+
+.admin-subscription-scope .summary-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-subscription-scope .summary-icon.platinum {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.admin-subscription-scope .summary-icon.gold {
+    background: rgba(234, 179, 8, 0.1);
+    color: #eab308;
+}
+
+.admin-subscription-scope .summary-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-subscription-scope .summary-label {
+    font-size: 0.85rem;
+    color: var(--admin-text-muted);
+}
+
+.admin-subscription-scope .summary-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.admin-subscription-scope .subscriber-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.admin-subscription-scope .sub-avatar {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--admin-text-muted);
+}
+
+.admin-subscription-scope .sub-name {
+    display: block;
+    font-weight: 600;
+    color: #fff;
+    font-size: 0.9rem;
+}
+
+.admin-subscription-scope .sub-email {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--admin-text-muted);
+}
+
+.admin-subscription-scope .plan-badge {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.admin-subscription-scope .plan-badge.premium {
+    background: rgba(139, 92, 246, 0.2);
+    color: #8b5cf6;
+}
+
+.admin-subscription-scope .plan-badge.gold {
+    background: rgba(234, 179, 8, 0.2);
+    color: #eab308;
+}
+
+.admin-subscription-scope .plan-badge.regular {
+    background: rgba(148, 163, 184, 0.2);
+    color: #94a3b8;
+}
+
+.admin-subscription-scope .expiry-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+}

@@ -746,4 +746,73 @@ class InstituteController extends Controller
 
         return response()->json(['message' => 'About info deleted successfully']);
     }
+
+    // ==========================================
+    // API METHODS FOR ADMIN DASHBOARD
+    // ==========================================
+
+    public function apiAdminIndex()
+    {
+        $institutes = Institute::orderBy('created_at', 'desc')->get();
+        return response()->json($institutes);
+    }
+
+    public function apiApprove($id)
+    {
+        $institute = Institute::findOrFail($id);
+        $institute->status = 'approved';
+        $institute->save();
+
+        return response()->json(['success' => true, 'message' => 'Institute approved successfully']);
+    }
+
+    public function apiTogglePremium(Request $request, $id)
+    {
+        $institute = Institute::findOrFail($id);
+
+        $institute->is_premium = !$institute->is_premium;
+
+        if ($institute->is_premium) {
+            // Set default expiry to 1 month if not provided or just enable it
+            // If request has expiry, use it.
+            if ($request->has('expires_at')) {
+                $institute->premium_expires_at = $request->expires_at;
+            } else {
+                // Default logic if enabling without specific date: maybe null (forever) or set 30 days
+                // For toggle, let's just enable. If admin wants specific date, they use update.
+                // Or maybe default to null (active indefinitely until changed) if not set.
+            }
+        } else {
+            $institute->premium_expires_at = null;
+        }
+
+        $institute->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Premium status updated',
+            'is_premium' => $institute->is_premium
+        ]);
+    }
+
+    public function apiAdminUpdate(Request $request, $id)
+    {
+        $institute = Institute::findOrFail($id);
+
+        $validatedData = $request->validate([
+            'institute_name' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'email' => 'required|email|unique:institutes,email,' . $id,
+            'contact_number' => 'required|string|max:15',
+            'gov_register_number' => 'required|string|max:255',
+            'website' => 'nullable|url',
+            'bio' => 'nullable|string',
+            'is_premium' => 'boolean',
+            'premium_expires_at' => 'nullable|date',
+        ]);
+
+        $institute->update($validatedData);
+
+        return response()->json(['success' => true, 'message' => 'Institute updated successfully', 'institute' => $institute]);
+    }
 }

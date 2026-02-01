@@ -1,0 +1,131 @@
+.admin-category-scope .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.admin-category-scope .category-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+}
+
+.admin-category-scope .category-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-3px);
+}
+
+.admin-category-scope .cat-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.admin-category-scope .cat-icon-box {
+    width: 40px;
+    height: 40px;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--admin-primary);
+}
+
+.admin-category-scope .cat-name {
+    font-weight: 600;
+    color: #fff;
+}
+
+.admin-category-scope .cat-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.admin-category-scope .add-category-btn {
+    background: linear-gradient(135deg, var(--admin-primary), #8b5cf6);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.admin-category-scope .add-category-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+}
+
+.admin-category-scope .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 1.5rem;
+}
+
+.admin-category-scope .modal-content {
+    width: 100%;
+    max-width: 450px;
+}
+
+.admin-category-scope .modal-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: #fff;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.admin-category-scope .modal-input:focus {
+    border-color: var(--admin-primary);
+}
+
+.admin-category-scope .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.admin-category-scope .btn-cancel {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.admin-category-scope .btn-save {
+    background: var(--admin-primary);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.admin-category-scope .block {
+    display: block;
+}

@@ -1,0 +1,120 @@
+.admin-policy-scope .policy-container {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.admin-policy-scope .tabs-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+}
+
+.admin-policy-scope .tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    color: var(--admin-text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    font-weight: 500;
+}
+
+.admin-policy-scope .tab-btn.active {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--admin-primary);
+}
+
+.admin-policy-scope .tab-btn:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.admin-policy-scope .content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-policy-scope .add-section-btn {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    padding: 8px 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.admin-policy-scope .policy-item-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+}
+
+.admin-policy-scope .item-title {
+    display: block;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.admin-policy-scope .item-preview {
+    font-size: 0.75rem;
+    color: var(--admin-text-muted);
+}
+
+.admin-policy-scope .policy-editor-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.admin-policy-scope .editor-modal {
+    width: 100%;
+    max-width: 800px;
+}
+
+.admin-policy-scope .editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-policy-scope .modal-textarea {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: #fff;
+    outline: none;
+    resize: vertical;
+}
+
+@media (max-width: 992px) {
+    .admin-policy-scope .policy-container {
+        grid-template-columns: 1fr;
+    }
+}

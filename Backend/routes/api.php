@@ -134,3 +134,62 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/institutes/{id}/rate', [\App\Http\Controllers\RatingsController::class, 'apiRate']);
     Route::delete('/reviews/{id}', [\App\Http\Controllers\RatingsController::class, 'apiDelete']);
 });
+
+// Admin Dashboard Routes
+Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
+    // Dashboard Stats
+    Route::get('/dashboard', [\App\Http\Controllers\BackendController::class, 'apiDashboard']);
+
+    // User Management
+    Route::get('/users', [\App\Http\Controllers\BackendController::class, 'apiIndex']);
+    Route::post('/users', [\App\Http\Controllers\BackendController::class, 'apiStore']);
+    Route::put('/users/{id}', [\App\Http\Controllers\BackendController::class, 'apiUpdate']);
+    Route::delete('/users/{id}', [\App\Http\Controllers\BackendController::class, 'apiDestroy']);
+
+    // Institute Management
+    Route::get('/institutes', [\App\Http\Controllers\InstituteController::class, 'apiAdminIndex']);
+    Route::post('/institutes/{id}/approve', [\App\Http\Controllers\InstituteController::class, 'apiApprove']);
+    Route::post('/institutes/{id}/toggle-premium', [\App\Http\Controllers\InstituteController::class, 'apiTogglePremium']);
+    Route::put('/institutes/{id}', [\App\Http\Controllers\InstituteController::class, 'apiAdminUpdate']);
+    Route::delete('/institutes/{id}', [\App\Http\Controllers\InstituteController::class, 'destroy']); // Reuse existing destroy if compatible or make new apiDestroy
+
+    // Category Management
+    Route::get('/categories', [\App\Http\Controllers\CategoryController::class, 'apiAdminIndex']);
+    Route::post('/categories', [\App\Http\Controllers\CategoryController::class, 'apiStore']);
+    Route::put('/categories/{id}', [\App\Http\Controllers\CategoryController::class, 'apiUpdate']);
+    Route::delete('/categories/{id}', [\App\Http\Controllers\CategoryController::class, 'destroy']);
+
+    // Post Management
+    Route::get('/posts', [\App\Http\Controllers\PostController::class, 'apiAdminIndex']);
+    Route::post('/posts/{id}/toggle-status', [\App\Http\Controllers\PostController::class, 'apiToggleStatus']);
+    Route::delete('/posts/{id}', [\App\Http\Controllers\PostController::class, 'apiDestroy']);
+
+    // Event Management
+    Route::get('/events', [\App\Http\Controllers\EventController::class, 'apiAdminIndex']);
+    Route::post('/events/{id}/toggle-status', [\App\Http\Controllers\EventController::class, 'apiToggleStatus']);
+    Route::delete('/events/{id}', [\App\Http\Controllers\EventController::class, 'destroy']);
+
+    // Subscriptions
+    Route::get('/subscriptions', [\App\Http\Controllers\SubscriptionController::class, 'apiAdminIndex']);
+    Route::patch('/subscriptions/{id}/status', [\App\Http\Controllers\SubscriptionController::class, 'apiToggleStatus']);
+
+    // Ratings
+    Route::get('/ratings', [\App\Http\Controllers\RatingsController::class, 'apiAdminIndex']);
+    Route::delete('/ratings/{id}', [\App\Http\Controllers\RatingsController::class, 'apiDelete']);
+
+    // Policies
+    Route::get('/privacy-policy', [\App\Http\Controllers\PrivacyPolicyController::class, 'apiIndex']);
+    Route::post('/privacy-policy', [\App\Http\Controllers\PrivacyPolicyController::class, 'apiStore']);
+    Route::put('/privacy-policy/{id}', [\App\Http\Controllers\PrivacyPolicyController::class, 'apiUpdate']);
+    Route::delete('/privacy-policy/{id}', [\App\Http\Controllers\PrivacyPolicyController::class, 'apiDestroy']);
+
+    Route::get('/terms', [\App\Http\Controllers\TermsAndConditionsController::class, 'apiIndex']);
+    Route::post('/terms', [\App\Http\Controllers\TermsAndConditionsController::class, 'apiStore']);
+    Route::put('/terms/{id}', [\App\Http\Controllers\TermsAndConditionsController::class, 'apiUpdate']);
+    Route::delete('/terms/{id}', [\App\Http\Controllers\TermsAndConditionsController::class, 'apiDestroy']);
+
+    Route::get('/refund-policy', [\App\Http\Controllers\RefundPolicyController::class, 'apiIndex']);
+    Route::post('/refund-policy', [\App\Http\Controllers\RefundPolicyController::class, 'apiStore']);
+    Route::put('/refund-policy/{id}', [\App\Http\Controllers\RefundPolicyController::class, 'apiUpdate']);
+    Route::delete('/refund-policy/{id}', [\App\Http\Controllers\RefundPolicyController::class, 'apiDestroy']);
+});

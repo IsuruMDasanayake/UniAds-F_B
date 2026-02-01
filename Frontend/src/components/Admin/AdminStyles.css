@@ -1,0 +1,367 @@
+:root {
+    --admin-sidebar-width: 280px;
+    --admin-navbar-height: 70px;
+
+    /* Colors - Premium Blue/Slate/Modern Palette */
+    --admin-primary: #3b82f6;
+    --admin-primary-dark: #2563eb;
+    --admin-bg-dark: #0f172a;
+    --admin-bg-side: rgba(30, 41, 59, 0.7);
+    --admin-card-bg: rgba(255, 255, 255, 0.05);
+    --admin-glass-border: rgba(255, 255, 255, 0.1);
+    --admin-text-main: #f8fafc;
+    --admin-text-muted: #94a3b8;
+
+    /* Glassmorphism Presets */
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-blur: blur(12px);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-glass-card {
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    background-clip: padding-box;
+    border-radius: 16px;
+    border: var(--admin-glass-border);
+    box-shadow: var(--glass-shadow);
+    transition: all 0.3s ease;
+}
+
+.admin-glass-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.admin-page-container {
+    min-height: 100vh;
+    background-color: var(--admin-bg-dark);
+    background-image:
+        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, rgba(139, 92, 246, 0.1) 0, transparent 50%);
+    color: var(--admin-text-main);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.admin-content {
+    padding: 2rem;
+    margin-left: var(--admin-sidebar-width);
+    margin-top: var(--admin-navbar-height);
+    transition: margin 0.3s ease;
+}
+
+@media (max-width: 1024px) {
+    .admin-content {
+        margin-left: 0;
+        padding: 1.5rem;
+    }
+}
+
+/* Scoped Utility Classes */
+.admin-page-container .mb-8 {
+    margin-bottom: 2rem;
+}
+
+.admin-page-container .mt-8 {
+    margin-top: 2rem;
+}
+
+.admin-page-container .mb-6 {
+    margin-bottom: 1.5rem;
+}
+
+.admin-page-container .mb-4 {
+    margin-bottom: 1rem;
+}
+
+.admin-page-container .p-6 {
+    padding: 1.5rem;
+}
+
+.admin-page-container .text-2xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
+}
+
+.admin-page-container .text-lg {
+    font-size: 1.125rem;
+}
+
+.admin-page-container .text-sm {
+    font-size: 0.875rem;
+}
+
+.admin-page-container .font-bold {
+    font-weight: 700;
+}
+
+.admin-page-container .font-semibold {
+    font-weight: 600;
+}
+
+.admin-page-container .text-muted {
+    color: var(--admin-text-muted);
+}
+
+/* Common Admin Elements */
+.admin-page-container .loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid rgba(59, 130, 246, 0.1);
+    border-bottom-color: var(--admin-primary);
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Common Admin Layout Components */
+.admin-page-container .table-container {
+    overflow: hidden;
+}
+
+.admin-page-container .table-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.admin-page-container .search-box {
+    position: relative;
+    flex: 1;
+}
+
+.admin-page-container .search-box input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 10px 12px 10px 40px;
+    color: #fff;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.admin-page-container .search-box input:focus {
+    border-color: var(--admin-primary);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.admin-page-container .search-box .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--admin-text-muted);
+}
+
+.admin-page-container .filter-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.admin-page-container .filter-box select {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 10px 32px 10px 40px;
+    color: #fff;
+    cursor: pointer;
+    appearance: none;
+    outline: none;
+}
+
+.admin-page-container .filter-box .filter-icon {
+    position: absolute;
+    left: 14px;
+    color: var(--admin-text-muted);
+    pointer-events: none;
+}
+
+.admin-page-container .responsive-table {
+    overflow-x: auto;
+}
+
+.admin-page-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-page-container th {
+    text-align: left;
+    padding: 1.25rem 1.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--admin-text-muted);
+    background: rgba(255, 255, 255, 0.02);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.admin-page-container td {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    vertical-align: middle;
+}
+
+.admin-page-container tr:hover td {
+    background: rgba(255, 255, 255, 0.01);
+}
+
+.admin-page-container .icon-btn,
+.admin-page-container .cat-action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--admin-text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.admin-page-container .icon-btn:hover,
+.admin-page-container .cat-action-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.admin-page-container .icon-btn.edit:hover {
+    color: #3b82f6;
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.admin-page-container .icon-btn.delete:hover {
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.admin-page-container .action-btn-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    white-space: nowrap;
+}
+
+.admin-page-container .action-btn-sm:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.admin-page-container .action-btn-sm.approve,
+.admin-page-container .action-btn-sm.activate {
+    border-color: rgba(16, 185, 129, 0.3);
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.admin-page-container .action-btn-sm.approve:hover,
+.admin-page-container .action-btn-sm.activate:hover {
+    background: rgba(16, 185, 129, 0.2);
+}
+
+.admin-page-container .action-btn-sm.deactivate,
+.admin-page-container .action-btn-sm.delete {
+    border-color: rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.admin-page-container .action-btn-sm.deactivate:hover,
+.admin-page-container .action-btn-sm.delete:hover {
+    background: rgba(239, 68, 68, 0.2);
+}
+
+.admin-page-container .action-btn-sm.view {
+    border-color: rgba(59, 130, 246, 0.3);
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.admin-page-container .action-btn-sm.view:hover {
+    background: rgba(59, 130, 246, 0.2);
+}
+
+.admin-page-container .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.admin-page-container .status-pill.active,
+.admin-page-container .status-pill.approved,
+.admin-page-container .status-pill.visible {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+}
+
+.admin-page-container .status-pill.inactive,
+.admin-page-container .status-pill.unapproved,
+.admin-page-container .status-pill.hidden {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+}
+
+.admin-page-container .status-pill.danger,
+.admin-page-container .status-pill.rejected {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+/* Helpers */
+.admin-page-container .text-center {
+    text-align: center;
+}
+
+.admin-page-container .mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.admin-page-container .p-12 {
+    padding: 3rem;
+}
+
+.admin-page-container .p-8 {
+    padding: 2rem;
+}
+
+@media (max-width: 768px) {
+    .admin-page-container .table-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

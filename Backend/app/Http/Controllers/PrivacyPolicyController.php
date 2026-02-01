@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Controllers;
+
 use App\Models\PrivacyPolicy;
 
 use Illuminate\Http\Request;
@@ -37,7 +39,7 @@ class PrivacyPolicyController extends Controller
 
         PrivacyPolicy::create([
             'title' => $request->title,
-            'content' => $request->content,
+            'content' => $request->input('content'),
             'order_index' => $request->order_index ?? 0,
         ]);
 
@@ -56,7 +58,7 @@ class PrivacyPolicyController extends Controller
         $policy = PrivacyPolicy::findOrFail($id);
         $policy->update([
             'title' => $request->title,
-            'content' => $request->content,
+            'content' => $request->input('content'),
             'order_index' => $request->order_index ?? 0,
         ]);
 
@@ -87,4 +89,57 @@ class PrivacyPolicyController extends Controller
     }
 
 
+
+    // ==========================================
+    // API METHODS FOR ADMIN DASHBOARD
+    // ==========================================
+
+    public function apiIndex()
+    {
+        $privacyPolicySections = PrivacyPolicy::orderBy('order_index')->get();
+        return response()->json($privacyPolicySections);
+    }
+
+    public function apiStore(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'order_index' => 'nullable|integer',
+        ]);
+
+        $policy = PrivacyPolicy::create([
+            'title' => $request->title,
+            'content' => $request->input('content'),
+            'order_index' => $request->order_index ?? 0,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Privacy policy section added successfully.', 'data' => $policy]);
+    }
+
+    public function apiUpdate(Request $request, $id)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'order_index' => 'nullable|integer',
+        ]);
+
+        $policy = PrivacyPolicy::findOrFail($id);
+        $policy->update([
+            'title' => $request->title,
+            'content' => $request->input('content'),
+            'order_index' => $request->order_index ?? 0,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Privacy policy section updated successfully.', 'data' => $policy]);
+    }
+
+    public function apiDestroy($id)
+    {
+        $policy = PrivacyPolicy::findOrFail($id);
+        $policy->delete();
+
+        return response()->json(['success' => true, 'message' => 'Privacy policy section deleted successfully.']);
+    }
 }
