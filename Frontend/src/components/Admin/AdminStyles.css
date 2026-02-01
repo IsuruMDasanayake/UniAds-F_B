@@ -6,7 +6,7 @@
     --admin-primary: #3b82f6;
     --admin-primary-dark: #2563eb;
     --admin-bg-dark: #0f172a;
-    --admin-bg-side: rgba(30, 41, 59, 0.7);
+    --admin-bg-side: #0f172a;
     --admin-card-bg: rgba(255, 255, 255, 0.05);
     --admin-glass-border: rgba(255, 255, 255, 0.1);
     --admin-text-main: #f8fafc;
@@ -30,10 +30,9 @@
     transition: all 0.3s ease;
 }
 
-.admin-glass-card:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.2);
-}
+
+/* Hover effect removed as per user request */
+
 
 .admin-page-container {
     min-height: 100vh;
@@ -83,6 +82,7 @@
 .admin-page-container .text-2xl {
     font-size: 1.5rem;
     line-height: 2rem;
+    margin-top: -1rem;
 }
 
 .admin-page-container .text-lg {
@@ -95,10 +95,14 @@
 
 .admin-page-container .font-bold {
     font-weight: 700;
+    color: var(--admin-text-main);
+    font-size: 1.7rem;
 }
 
 .admin-page-container .font-semibold {
     font-weight: 600;
+    color: var(--admin-text-main);
+    margin-bottom: 0.5rem;
 }
 
 .admin-page-container .text-muted {
@@ -233,43 +237,70 @@
     align-items: center;
     justify-content: center;
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     color: var(--admin-text-muted);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+}
+
+.admin-page-container .icon-btn.edit,
+.admin-page-container .cat-action-btn.edit {
+    border-color: rgba(59, 130, 246, 0.3);
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.admin-page-container .icon-btn.delete,
+.admin-page-container .cat-action-btn.delete {
+    border-color: rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
 }
 
 .admin-page-container .icon-btn:hover,
 .admin-page-container .cat-action-btn:hover {
-    color: #fff;
     background: rgba(255, 255, 255, 0.1);
+
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
-.admin-page-container .icon-btn.edit:hover {
-    color: #3b82f6;
-    border-color: rgba(59, 130, 246, 0.3);
+.admin-page-container .icon-btn.edit:hover,
+.admin-page-container .cat-action-btn.edit:hover {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.5);
 }
 
-.admin-page-container .icon-btn.delete:hover {
-    color: #ef4444;
-    border-color: rgba(239, 68, 68, 0.3);
+.admin-page-container .icon-btn.delete:hover,
+.admin-page-container .cat-action-btn.delete:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+.admin-page-container .icon-btn:disabled,
+.admin-page-container .cat-action-btn:disabled,
+.admin-page-container .icon-btn.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.3);
 }
 
 .admin-page-container .action-btn-sm {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    font-weight: 500;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
     text-decoration: none;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(255, 255, 255, 0.05);
     color: #fff;
-    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .admin-page-container .action-btn-sm:hover {
@@ -278,25 +309,37 @@
 
 .admin-page-container .action-btn-sm.approve,
 .admin-page-container .action-btn-sm.activate {
-    border-color: rgba(16, 185, 129, 0.3);
-    background: rgba(16, 185, 129, 0.1);
-    color: #10b981;
+    border-color: rgba(34, 197, 94, 0.3);
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
 }
 
 .admin-page-container .action-btn-sm.approve:hover,
 .admin-page-container .action-btn-sm.activate:hover {
-    background: rgba(16, 185, 129, 0.2);
+    background: rgba(34, 197, 94, 0.2);
+}
+
+.admin-page-container .action-btn-sm.view {
+    border-color: rgba(59, 130, 246, 0.3);
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.admin-page-container .action-btn-sm.view:hover {
+    background: rgba(59, 130, 246, 0.2);
 }
 
 .admin-page-container .action-btn-sm.deactivate,
-.admin-page-container .action-btn-sm.delete {
+.admin-page-container .action-btn-sm.delete,
+.admin-page-container .action-btn-sm.unapprove {
     border-color: rgba(239, 68, 68, 0.3);
     background: rgba(239, 68, 68, 0.1);
     color: #ef4444;
 }
 
 .admin-page-container .action-btn-sm.deactivate:hover,
-.admin-page-container .action-btn-sm.delete:hover {
+.admin-page-container .action-btn-sm.delete:hover,
+.admin-page-container .action-btn-sm.unapprove:hover {
     background: rgba(239, 68, 68, 0.2);
 }
 

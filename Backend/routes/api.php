@@ -149,6 +149,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     // Institute Management
     Route::get('/institutes', [\App\Http\Controllers\InstituteController::class, 'apiAdminIndex']);
     Route::post('/institutes/{id}/approve', [\App\Http\Controllers\InstituteController::class, 'apiApprove']);
+    Route::post('/institutes/{id}/unapprove', [\App\Http\Controllers\InstituteController::class, 'apiUnapprove']);
     Route::post('/institutes/{id}/toggle-premium', [\App\Http\Controllers\InstituteController::class, 'apiTogglePremium']);
     Route::put('/institutes/{id}', [\App\Http\Controllers\InstituteController::class, 'apiAdminUpdate']);
     Route::delete('/institutes/{id}', [\App\Http\Controllers\InstituteController::class, 'destroy']); // Reuse existing destroy if compatible or make new apiDestroy

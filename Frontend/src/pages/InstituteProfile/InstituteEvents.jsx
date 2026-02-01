@@ -24,6 +24,27 @@ const InstituteEvents = ({ events, isOwner, onEventsUpdate, isSidebar }) => {
         setLocalEvents(events || []);
     }, [events]);
 
+    const sortedEvents = React.useMemo(() => {
+        if (!localEvents) return [];
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        return [...localEvents].sort((a, b) => {
+            const dateA = new Date(a.event_date);
+            const dateB = new Date(b.event_date);
+            const isExpiredA = dateA < now;
+            const isExpiredB = dateB < now;
+
+            if (isExpiredA !== isExpiredB) {
+                return isExpiredA ? 1 : -1; // Active first
+            }
+
+            // Both active: sort by date ASC (soonest first)
+            // Both expired: sort by date DESC (most recently expired first)
+            return isExpiredA ? dateB - dateA : dateA - dateB;
+        });
+    }, [localEvents]);
+
     const handleEditClick = (event, e) => {
         e.stopPropagation();
         setSelectedEvent(event);
@@ -112,75 +133,83 @@ const InstituteEvents = ({ events, isOwner, onEventsUpdate, isSidebar }) => {
             </div>
 
             <div className={`events-grid ${isSidebar ? 'is-sidebar' : ''}`}>
-                {localEvents && localEvents.length > 0 ? (
-                    localEvents.map((event) => (
-                        <div
-                            key={event.id}
-                            className="institute-event-card clickable-card"
-                            onClick={() => handleEventClick(event)}
-                            style={{ cursor: 'pointer' }}
-                        >
-                            <div className="event-image-container">
-                                <img
-                                    src={event.event_image ? getStorageUrl(event.event_image) : 'https://via.placeholder.com/400x300?text=No+Event+Image'}
-                                    alt={event.event_title}
-                                    className="event-card-img"
-                                />
-                                <div className="event-date-badge">
-                                    <span className="event-day">{new Date(event.event_date).getDate()}</span>
-                                    <span className="event-month">{new Date(event.event_date).toLocaleString('default', { month: 'short' })}</span>
+                {sortedEvents && sortedEvents.length > 0 ? (
+                    sortedEvents.map((event) => {
+                        const isExpired = new Date(event.event_date) < new Date().setHours(0, 0, 0, 0);
+                        return (
+                            <div
+                                key={event.id}
+                                className={`institute-event-card clickable-card ${isExpired ? 'is-expired' : ''}`}
+                                onClick={() => handleEventClick(event)}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                <div className="event-image-container">
+                                    <img
+                                        src={event.event_image ? getStorageUrl(event.event_image) : 'https://via.placeholder.com/400x300?text=No+Event+Image'}
+                                        alt={event.event_title}
+                                        className="event-card-img"
+                                    />
+                                    <div className="event-date-badge">
+                                        <span className="event-day">{new Date(event.event_date).getDate()}</span>
+                                        <span className="event-month">{new Date(event.event_date).toLocaleString('default', { month: 'short' })}</span>
+                                    </div>
+                                    {isExpired && (
+                                        <div className="event-status-overlay">
+                                            <span className="status-label">PASSED</span>
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
 
-                            <div className="event-content">
-                                <h4 className="event-title" title={event.event_title || event.title}>
-                                    {event.event_title || event.title}
-                                </h4>
+                                <div className="event-content">
+                                    <h4 className="event-title" title={event.event_title || event.title}>
+                                        {event.event_title || event.title}
+                                    </h4>
 
-                                <div className="event-meta">
-                                    <div className="meta-item">
-                                        <Calendar size={14} className="meta-icon" />
-                                        <span>{formatDate(event.event_date)}</span>
+                                    <div className="event-meta">
+                                        <div className="meta-item">
+                                            <Calendar size={14} className="meta-icon" />
+                                            <span>{formatDate(event.event_date)}</span>
+                                        </div>
+                                        <div className="meta-item">
+                                            <MapPin size={14} className="meta-icon" />
+                                            <span>{event.main_location}</span>
+                                        </div>
+                                        <div className="meta-item">
+                                            <MapPin size={14} className="meta-icon" />
+                                            <span>{event.sub_location}</span>
+                                        </div>
                                     </div>
-                                    <div className="meta-item">
-                                        <MapPin size={14} className="meta-icon" />
-                                        <span>{event.main_location}</span>
-                                    </div>
-                                    <div className="meta-item">
-                                        <MapPin size={14} className="meta-icon" />
-                                        <span>{event.sub_location}</span>
-                                    </div>
-                                </div>
-                                {/* Description Preview Removed */}
+                                    {/* Description Preview Removed */}
 
-                                {isOwner && (
-                                    <div className="event-actions-bar">
-                                        <button
-                                            className="action-btn-sm edit-btn"
-                                            onClick={(e) => handleEditClick(event, e)}
-                                            title="Edit Event"
-                                        >
-                                            <Edit2 size={16} />
-                                        </button>
-                                        <button
-                                            className="action-btn-sm delete-btn"
-                                            onClick={(e) => handleDeleteClick(event, e)}
-                                            title="Delete Event"
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
-                                )}
+                                    {isOwner && (
+                                        <div className="event-actions-bar">
+                                            <button
+                                                className="action-btn-sm edit-btn"
+                                                onClick={(e) => handleEditClick(event, e)}
+                                                title="Edit Event"
+                                            >
+                                                <Edit2 size={16} />
+                                            </button>
+                                            <button
+                                                className="action-btn-sm delete-btn"
+                                                onClick={(e) => handleDeleteClick(event, e)}
+                                                title="Delete Event"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    )}
 
-                                {/* <div className="event-footer-stats" style={{ marginTop: 'auto', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem', color: '#64748b' }}>
+                                    {/* <div className="event-footer-stats" style={{ marginTop: 'auto', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem', color: '#64748b' }}>
                                     <span>{event.view_count || 0} Views</span>
                                     <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#3b82f6', fontWeight: '500' }}>
                                         Details <ArrowRight size={14} />
                                     </span>
                                 </div> */}
+                                </div>
                             </div>
-                        </div>
-                    ))
+                        );
+                    })
                 ) : (
                     <div className="no-events-placeholder">
                         <Calendar size={48} className="text-gray-300 mb-2" />

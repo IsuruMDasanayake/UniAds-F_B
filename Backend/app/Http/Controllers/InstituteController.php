@@ -11,6 +11,9 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\InstituteApprovedMail;
+use App\Mail\InstituteUnapprovedMail;
 use App\Models\InstituteProfileView;
 
 class InstituteController extends Controller
@@ -763,7 +766,35 @@ class InstituteController extends Controller
         $institute->status = 'approved';
         $institute->save();
 
+        // Send Approval Email
+        try {
+            if ($institute->email) {
+                Mail::to($institute->email)->send(new InstituteApprovedMail($institute));
+            }
+        } catch (\Exception $e) {
+            // Log error but don't fail the request
+            \Illuminate\Support\Facades\Log::error('Failed to send approval email: ' . $e->getMessage());
+        }
+
         return response()->json(['success' => true, 'message' => 'Institute approved successfully']);
+    }
+
+    public function apiUnapprove($id)
+    {
+        $institute = Institute::findOrFail($id);
+        $institute->status = 'unapproved';
+        $institute->save();
+
+        // Send Unapproval Email
+        try {
+            if ($institute->email) {
+                Mail::to($institute->email)->send(new InstituteUnapprovedMail($institute));
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send unapproval email: ' . $e->getMessage());
+        }
+
+        return response()->json(['success' => true, 'message' => 'Institute unapproved successfully']);
     }
 
     public function apiTogglePremium(Request $request, $id)

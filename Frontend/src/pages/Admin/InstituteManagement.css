@@ -1,7 +1,16 @@
 .admin-institute-scope .institute-cell {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.75rem;
+}
+
+.admin-institute-scope td {
+    padding: 0.75rem 1rem !important;
+}
+
+.admin-institute-scope th {
+    padding: 0.75rem 1rem !important;
+    white-space: nowrap;
 }
 
 .admin-institute-scope .inst-avatar {
@@ -13,6 +22,15 @@
     align-items: center;
     justify-content: center;
     color: #8b5cf6;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.admin-institute-scope .inst-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
 }
 
 .admin-institute-scope .inst-meta {
@@ -50,7 +68,7 @@
     color: #f59e0b;
 }
 
-.admin-institute-scope .premium-toggle {
+.admin-institute-scope .premium-badge {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -58,25 +76,55 @@
     border-radius: 10px;
     font-size: 0.75rem;
     font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
     border: 1px solid transparent;
     background: rgba(255, 255, 255, 0.05);
     color: var(--admin-text-muted);
 }
 
-.admin-institute-scope .premium-toggle.premium {
+.admin-institute-scope .premium-badge.premium {
     background: rgba(234, 179, 8, 0.1);
     color: #eab308;
     border-color: rgba(234, 179, 8, 0.2);
-}
-
-.admin-institute-scope .premium-toggle:hover {
-    transform: scale(1.05);
 }
 
 .admin-institute-scope .actions-cell {
     display: flex;
     justify-content: center;
     gap: 10px;
+}
+
+.admin-institute-scope .visit-link {
+    color: #3b82f6;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.admin-institute-scope .visit-link:hover {
+    color: #60a5fa;
+    text-decoration: underline;
+}
+
+.admin-institute-scope .loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(59, 130, 246, 0.1);
+    border-radius: 50%;
+    border-top-color: #3b82f6;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.admin-institute-scope select option {
+    background-color: #0f172a;
+    color: #fff;
 }

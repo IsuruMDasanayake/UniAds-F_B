@@ -66,41 +66,71 @@ class CategoryController extends Controller
             'icon' => 'nullable|string',
         ]);
 
-        Category::create($validated);
+        $category = Category::create($validated);
+
+        if ($request->wantsJson()) {
+            return response()->json($category, 201);
+        }
 
         return redirect()->back()->with('success', 'Category added successfully!');
     }
 
     // Delete a category
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        Category::findOrFail($id)->delete();
-        return redirect()->back()->with('success', 'Category deleted successfully!');
+        try {
+            $category = Category::findOrFail($id);
+            $category->delete();
+
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'Category deleted successfully!'], 200);
+            }
+
+            return redirect()->back()->with('success', 'Category deleted successfully!');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'Category not found.'], 404);
+            }
+            return redirect()->back()->with('error', 'Category not found.');
+        } catch (\Exception $e) {
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'Failed to delete category. It may have associated content.'], 500);
+            }
+            return redirect()->back()->with('error', 'Failed to delete category.');
+        }
     }
-
-
-
 
     // Update Category
     public function update(Request $request, $id)
     {
-        $category = Category::findOrFail($id);
+        try {
+            $category = Category::findOrFail($id);
 
-        // Validate the incoming data
-        $request->validate([
-            'main_category' => 'required|string',
-            'name' => 'required|string',
-            'icon' => 'required|string',
-        ]);
+            // Validate the incoming data
+            $request->validate([
+                'main_category' => 'required|string',
+                'name' => 'required|string',
+                'icon' => 'required|string',
+            ]);
 
-        // Update the category in the database
-        $category->update([
-            'main_category' => $request->main_category,
-            'name' => $request->name,
-            'icon' => $request->icon,
-        ]);
+            // Update the category in the database
+            $category->update([
+                'main_category' => $request->main_category,
+                'name' => $request->name,
+                'icon' => $request->icon,
+            ]);
 
-        return redirect()->route('admin.categories')->with('success', 'Category updated successfully!');
+            if ($request->wantsJson()) {
+                return response()->json($category, 200);
+            }
+
+            return redirect()->back()->with('success', 'Category updated successfully!');
+        } catch (\Exception $e) {
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'Failed to update category.'], 500);
+            }
+            return redirect()->back()->with('error', 'Failed to update category.');
+        }
     }
 
 
@@ -124,6 +154,32 @@ class CategoryController extends Controller
     public function apiAdminIndex()
     {
         $categories = Category::all();
+
+        // Match main_category to Post table columns
+        $columnMapping = [
+            'Course Type' => 'course_type',
+            'Location' => 'location',
+            'Duration' => 'duration',
+            'Course Format' => 'course_format',
+            'Attendance Type' => 'attendance_type',
+            'Courses' => 'course_name'
+        ];
+
+        foreach ($categories as $category) {
+            $column = $columnMapping[$category->main_category] ?? null;
+
+            if ($column) {
+                if ($column === 'location') {
+                    // Location is often a comma-separated string in this DB
+                    $category->posts_count = \App\Models\Post::where($column, 'LIKE', '%' . $category->name . '%')->count();
+                } else {
+                    $category->posts_count = \App\Models\Post::where($column, $category->name)->count();
+                }
+            } else {
+                $category->posts_count = 0;
+            }
+        }
+
         return response()->json($categories);
     }
 

@@ -1,15 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import {
-    Search,
-    Filter,
-    CheckCircle,
-    XCircle,
-    ExternalLink,
-    Crown,
-    AlertCircle,
-    Building2
-} from 'lucide-react';
+import { Search, Filter, Shield, MoreVertical, Building2, CheckCircle, XCircle, AlertCircle, Eye, Crown } from 'lucide-react';
 import axiosClient from '../../lib/axios';
+import ActionConfirmModal from '../../components/Modals/ActionConfirmModal';
 import './InstituteManagement.css';
 
 const InstituteManagement = () => {
@@ -17,6 +9,18 @@ const InstituteManagement = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
+
+    // Confirmation Modal State
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        type: 'success', // 'success' | 'danger'
+        title: '',
+        message: '',
+        confirmText: '',
+        instituteId: null,
+        action: null // 'approve' | 'unapprove'
+    });
+    const [isProcessingAction, setIsProcessingAction] = useState(false);
 
     useEffect(() => {
         fetchInstitutes();
@@ -34,14 +38,66 @@ const InstituteManagement = () => {
         }
     };
 
-    const handleApprove = async (id) => {
-        try {
-            await axiosClient.post(`/api/admin/institutes/${id}/approve`);
-            setInstitutes(institutes.map(inst =>
-                inst.id === id ? { ...inst, status: 'approved' } : inst
-            ));
-        } catch (error) {
-            console.error('Error approving institute:', error);
+    const handleApprove = (id) => {
+        setConfirmModal({
+            isOpen: true,
+            type: 'success',
+            title: 'Approve Institute',
+            message: 'Are you sure you want to approve this institute? They will gain access to the platform.',
+            confirmText: 'Yes, Approve',
+            instituteId: id,
+            action: 'approve'
+        });
+    };
+
+    const handleUnapprove = (id) => {
+        setConfirmModal({
+            isOpen: true,
+            type: 'danger',
+            title: 'Unapprove Institute',
+            message: 'Are you sure you want to unapprove this institute? Their access will be revoked immediately.',
+            confirmText: 'Yes, Unapprove',
+            instituteId: id,
+            action: 'unapprove'
+        });
+    };
+
+    const executeConfirmation = () => {
+        const { instituteId, action } = confirmModal;
+        if (!instituteId || !action) return;
+
+        setIsProcessingAction(true);
+
+        if (action === 'approve') {
+            axiosClient.post(`/api/admin/institutes/${instituteId}/approve`)
+                .then(() => {
+                    setInstitutes(institutes.map(inst =>
+                        inst.id === instituteId ? { ...inst, status: 'approved' } : inst
+                    ));
+                    setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                })
+                .catch(err => {
+                    console.error('Error approving institute:', err);
+                    alert('Failed to approve institute');
+                })
+                .finally(() => {
+                    setIsProcessingAction(false);
+                });
+        } else if (action === 'unapprove') {
+            axiosClient.post(`/api/admin/institutes/${instituteId}/unapprove`)
+                .then(() => {
+                    setInstitutes(institutes.map(inst =>
+                        inst.id === instituteId ? { ...inst, status: 'unapproved' } : inst
+                    ));
+                    setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                })
+                .catch(err => {
+                    console.error('Error unapproving institute:', err);
+                    alert('Failed to unapprove institute');
+                })
+                .finally(() => {
+                    setIsProcessingAction(false);
+                });
         }
     };
 
@@ -57,7 +113,7 @@ const InstituteManagement = () => {
     };
 
     const filteredInstitutes = institutes.filter(inst => {
-        const nameMatch = (inst.name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+        const nameMatch = (inst.institute_name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
         const emailMatch = (inst.email?.toLowerCase() || '').includes(searchTerm.toLowerCase());
         const matchesSearch = nameMatch || emailMatch;
         const matchesStatus = statusFilter === 'All' || inst.status === statusFilter.toLowerCase();
@@ -101,6 +157,9 @@ const InstituteManagement = () => {
                             <tr>
                                 <th>Institute</th>
                                 <th>Location</th>
+                                <th>Website</th>
+                                <th>Contact No.</th>
+                                <th>Gov. Reg. No</th>
                                 <th>Status</th>
                                 <th>Tier</th>
                                 <th className="text-center">Actions</th>
@@ -109,14 +168,16 @@ const InstituteManagement = () => {
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan="5" className="text-center p-12">
-                                        <div className="loader mx-auto mb-4"></div>
-                                        <p className="text-muted">Loading institutes...</p>
+                                    <td colSpan="8" className="text-center p-12">
+                                        <div className="flex flex-col items-center justify-center space-y-4">
+                                            <div className="loading-spinner"></div>
+                                            <p className="text-muted text-sm animate-pulse">Loading institutes...</p>
+                                        </div>
                                     </td>
                                 </tr>
                             ) : filteredInstitutes.length === 0 ? (
                                 <tr>
-                                    <td colSpan="5" className="text-center p-12">
+                                    <td colSpan="8" className="text-center p-12">
                                         <p className="text-muted">No institutes found.</p>
                                     </td>
                                 </tr>
@@ -126,15 +187,41 @@ const InstituteManagement = () => {
                                         <td>
                                             <div className="institute-cell">
                                                 <div className="inst-avatar">
-                                                    <Building2 size={18} />
+                                                    {inst.profile_photo ? (
+                                                        <img
+                                                            src={`http://localhost:8000/storage/${inst.profile_photo}`}
+                                                            alt={inst.institute_name}
+                                                            className="inst-photo"
+                                                            onError={(e) => {
+                                                                e.target.style.display = 'none';
+                                                                e.target.nextSibling.style.display = 'block';
+                                                            }}
+                                                        />
+                                                    ) : null}
+                                                    <Building2
+                                                        size={18}
+                                                        className="placeholder-icon"
+                                                        style={{ display: inst.profile_photo ? 'none' : 'block' }}
+                                                    />
                                                 </div>
                                                 <div className="inst-meta">
-                                                    <span className="inst-name-text">{inst.name}</span>
+                                                    <span className="inst-name-text">{inst.institute_name}</span>
                                                     <span className="inst-email-text">{inst.email}</span>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>{inst.city || 'Not specified'}</td>
+                                        <td>{inst.location || 'Not specified'}</td>
+                                        <td>
+                                            {inst.website ? (
+                                                <a href={inst.website} target="_blank" rel="noopener noreferrer" className="visit-link">
+                                                    Visit
+                                                </a>
+                                            ) : (
+                                                <span className="text-muted text-sm">-</span>
+                                            )}
+                                        </td>
+                                        <td className="text-sm font-mono">{inst.contact_number || '-'}</td>
+                                        <td className="text-sm font-mono">{inst.gov_register_number || '-'}</td>
                                         <td>
                                             <span className={`status-pill ${(inst.status || '').toLowerCase()}`}>
                                                 {inst.status === 'approved' ? <CheckCircle size={14} /> : <AlertCircle size={14} />}
@@ -142,14 +229,12 @@ const InstituteManagement = () => {
                                             </span>
                                         </td>
                                         <td>
-                                            <button
-                                                className={`premium-toggle ${inst.is_premium ? 'premium' : 'basic'}`}
-                                                onClick={() => handleTogglePremium(inst.id)}
-                                                title={inst.is_premium ? 'Downgrade to Basic' : 'Upgrade to Premium'}
+                                            <span
+                                                className={`premium-badge ${inst.is_premium ? 'premium' : 'basic'}`}
                                             >
                                                 <Crown size={14} />
-                                                {inst.is_premium ? 'Premium' : 'Basic'}
-                                            </button>
+                                                {inst.is_premium ? '' : ''}
+                                            </span>
                                         </td>
                                         <td>
                                             <div className="actions-cell">
@@ -159,7 +244,16 @@ const InstituteManagement = () => {
                                                         title="Approve Institute"
                                                         onClick={() => handleApprove(inst.id)}
                                                     >
-                                                        <CheckCircle size={16} /> Approve
+                                                        <CheckCircle size={18} />
+                                                    </button>
+                                                )}
+                                                {inst.status === 'approved' && (
+                                                    <button
+                                                        className="action-btn-sm unapprove"
+                                                        title="Unapprove Institute"
+                                                        onClick={() => handleUnapprove(inst.id)}
+                                                    >
+                                                        <XCircle size={18} />
                                                     </button>
                                                 )}
                                                 <a
@@ -169,7 +263,7 @@ const InstituteManagement = () => {
                                                     className="action-btn-sm view"
                                                     title="View Public Profile"
                                                 >
-                                                    <ExternalLink size={16} /> View
+                                                    <Eye size={18} />
                                                 </a>
                                             </div>
                                         </td>
@@ -180,6 +274,17 @@ const InstituteManagement = () => {
                     </table>
                 </div>
             </div>
+            {/* Confirmation Modal */}
+            <ActionConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={executeConfirmation}
+                isProcessing={isProcessingAction}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                confirmText={confirmModal.confirmText}
+                type={confirmModal.type}
+            />
         </div>
     );
 };

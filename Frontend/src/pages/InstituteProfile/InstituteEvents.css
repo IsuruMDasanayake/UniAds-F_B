@@ -203,6 +203,50 @@
     transform: translateY(-2px);
 }
 
+/* Expired Event Styling */
+.institute-event-card.is-expired {
+    opacity: 0.7;
+}
+
+.institute-event-card.is-expired .event-image-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.4);
+    z-index: 1;
+}
+
+.event-status-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.status-label {
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 4px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    transform: rotate(-12deg);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 2px solid white;
+}
+
+.institute-event-card.is-expired .event-title,
+.institute-event-card.is-expired .meta-item {
+    color: #94a3b8;
+}
+
 /* Empty State */
 .no-events-placeholder {
     grid-column: 1 / -1;

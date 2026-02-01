@@ -9,10 +9,168 @@ import {
     User as UserIcon,
     Filter,
     Check,
-    X
+    X,
+    AlertTriangle
 } from 'lucide-react';
 import axiosClient from '../../lib/axios';
+import ActionConfirmModal from '../../components/Modals/ActionConfirmModal';
 import './UserManagement.css';
+
+const UserModal = ({ show, onClose, mode, userData, onSave }) => {
+    // ... (UserModal component code remains unchanged) ...
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        role: 'User',
+        password: '',
+        confirmPassword: ''
+    });
+    const [errors, setErrors] = useState({});
+    const [saving, setSaving] = useState(false);
+
+    useEffect(() => {
+        if (userData && mode === 'edit') {
+            setFormData({
+                name: userData.name || '',
+                email: userData.email || '',
+                role: userData.role || 'User',
+                password: '',
+                confirmPassword: ''
+            });
+        } else {
+            setFormData({
+                name: '',
+                email: '',
+                role: 'User',
+                password: '',
+                confirmPassword: ''
+            });
+        }
+        setErrors({});
+    }, [userData, mode, show]);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+        if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
+    };
+
+    const validate = () => {
+        const newErrors = {};
+        if (!formData.name.trim()) newErrors.name = 'Name is required';
+        if (!formData.email.trim()) newErrors.email = 'Email is required';
+        if (mode === 'add') {
+            if (!formData.password) newErrors.password = 'Password is required';
+            if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
+            if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
+        }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!validate()) return;
+
+        setSaving(true);
+        try {
+            await onSave(formData);
+            onClose();
+        } catch (error) {
+            console.error(error);
+            setErrors({ submit: error.response?.data?.message || 'An error occurred' });
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    if (!show) return null;
+
+    return (
+        <div className="user-modal-overlay">
+            <div className="user-modal-content admin-glass-card">
+                <div className="modal-header">
+                    <h2>{mode === 'add' ? 'Add New User' : 'Edit User'}</h2>
+                    <button className="close-btn" onClick={onClose}><X size={20} /></button>
+                </div>
+
+                {errors.submit && <div className="error-alert">{errors.submit}</div>}
+
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label>Full Name</label>
+                        <input
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            placeholder="Enter full name"
+                            className={errors.name ? 'error' : ''}
+                        />
+                        {errors.name && <span className="error-text">{errors.name}</span>}
+                    </div>
+
+                    <div className="form-group">
+                        <label>Email Address</label>
+                        <input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            placeholder="Enter email address"
+                            className={errors.email ? 'error' : ''}
+                        />
+                        {errors.email && <span className="error-text">{errors.email}</span>}
+                    </div>
+
+                    <div className="form-group">
+                        <label>Role</label>
+                        <select name="role" value={formData.role} onChange={handleChange}>
+                            <option value="User">Regular User</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
+
+                    {mode === 'add' && (
+                        <>
+                            <div className="form-group">
+                                <label>Password</label>
+                                <input
+                                    type="password"
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    placeholder="Enter password"
+                                    className={errors.password ? 'error' : ''}
+                                />
+                                {errors.password && <span className="error-text">{errors.password}</span>}
+                            </div>
+                            <div className="form-group">
+                                <label>Confirm Password</label>
+                                <input
+                                    type="password"
+                                    name="confirmPassword"
+                                    value={formData.confirmPassword}
+                                    onChange={handleChange}
+                                    placeholder="Confirm password"
+                                    className={errors.confirmPassword ? 'error' : ''}
+                                />
+                                {errors.confirmPassword && <span className="error-text">{errors.confirmPassword}</span>}
+                            </div>
+                        </>
+                    )}
+
+                    <div className="modal-actions">
+                        <button type="button" className="cancel-btn" onClick={onClose}>Cancel</button>
+                        <button type="submit" className="submit-btn" disabled={saving}>
+                            {saving ? 'Saving...' : (mode === 'add' ? 'Create User' : 'Update User')}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
@@ -20,7 +178,16 @@ const UserManagement = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [roleFilter, setRoleFilter] = useState('All');
     const [showModal, setShowModal] = useState(false);
+    const [modalMode, setModalMode] = useState('add'); // 'add' or 'edit'
     const [selectedUser, setSelectedUser] = useState(null);
+
+    // Delete Confirmation State
+    const [deleteModal, setDeleteModal] = useState({
+        isOpen: false,
+        userId: null,
+        userName: ''
+    });
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         fetchUsers();
@@ -38,6 +205,34 @@ const UserManagement = () => {
         }
     };
 
+    const handleAddUser = () => {
+        setModalMode('add');
+        setSelectedUser(null);
+        setShowModal(true);
+    };
+
+    const handleEditUser = (user) => {
+        setModalMode('edit');
+        setSelectedUser(user);
+        setShowModal(true);
+    };
+
+    const handleSaveUser = async (formData) => {
+        if (modalMode === 'add') {
+            const response = await axiosClient.post('/api/admin/users', formData);
+            if (response.data.success) {
+                setUsers([...users, response.data.user]);
+                // Re-fetch to be sure or just append
+                fetchUsers();
+            }
+        } else {
+            const response = await axiosClient.put(`/api/admin/users/${selectedUser.id}`, formData);
+            if (response.data.success) {
+                setUsers(users.map(u => u.id === selectedUser.id ? response.data.user : u));
+            }
+        }
+    };
+
     const filteredUsers = users.filter(user => {
         const nameMatch = (user.name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
         const emailMatch = (user.email?.toLowerCase() || '').includes(searchTerm.toLowerCase());
@@ -46,14 +241,27 @@ const UserManagement = () => {
         return matchesSearch && matchesRole;
     });
 
-    const handleDelete = async (userId) => {
-        if (window.confirm('Are you sure you want to delete this user?')) {
-            try {
-                await axiosClient.delete(`/api/admin/users/${userId}`);
-                setUsers(users.filter(u => u.id !== userId));
-            } catch (error) {
-                console.error('Error deleting user:', error);
-            }
+    const handleDeleteClick = (user) => {
+        setDeleteModal({
+            isOpen: true,
+            userId: user.id,
+            userName: user.name
+        });
+    };
+
+    const confirmDelete = async () => {
+        if (!deleteModal.userId) return;
+
+        setIsDeleting(true);
+        try {
+            await axiosClient.delete(`/api/admin/users/${deleteModal.userId}`);
+            setUsers(users.filter(u => u.id !== deleteModal.userId));
+            setDeleteModal({ isOpen: false, userId: null, userName: '' });
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            alert('Failed to delete user');
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -64,7 +272,7 @@ const UserManagement = () => {
                     <h1 className="text-2xl font-bold">User Management</h1>
                     <p className="text-muted">Manage system users and their permissions</p>
                 </div>
-                <button className="add-user-btn" onClick={() => { setSelectedUser(null); setShowModal(true); }}>
+                <button className="add-user-btn" onClick={handleAddUser}>
                     <UserPlus size={20} />
                     <span>Add New User</span>
                 </button>
@@ -87,7 +295,6 @@ const UserManagement = () => {
                         <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
                             <option value="All">All Roles</option>
                             <option value="Admin">Admin</option>
-                            <option value="Institute">Institute</option>
                             <option value="User">Regular User</option>
                         </select>
                     </div>
@@ -145,13 +352,19 @@ const UserManagement = () => {
                                         <td>{new Date(user.created_at).toLocaleDateString()}</td>
                                         <td>
                                             <div className="actions-cell">
-                                                <button className="icon-btn edit" title="Edit User">
+                                                <button
+                                                    className={`icon-btn edit ${user.role === 'Institute' ? 'disabled' : ''}`}
+                                                    title={user.role === 'Institute' ? "Editing disabled for Institute users" : "Edit User"}
+                                                    onClick={() => handleEditUser(user)}
+                                                    disabled={user.role === 'Institute'}
+                                                >
                                                     <Edit2 size={16} />
                                                 </button>
                                                 <button
-                                                    className="icon-btn delete"
-                                                    title="Delete User"
-                                                    onClick={() => handleDelete(user.id)}
+                                                    className={`icon-btn delete ${user.role === 'Institute' ? 'disabled' : ''}`}
+                                                    title={user.role === 'Institute' ? "Deletion disabled for Institute users" : "Delete User"}
+                                                    onClick={() => handleDeleteClick(user)}
+                                                    disabled={user.role === 'Institute'}
                                                 >
                                                     <Trash2 size={16} />
                                                 </button>
@@ -164,6 +377,26 @@ const UserManagement = () => {
                     </table>
                 </div>
             </div>
+
+            <UserModal
+                show={showModal}
+                onClose={() => setShowModal(false)}
+                mode={modalMode}
+                userData={selectedUser}
+                onSave={handleSaveUser}
+            />
+
+            <ActionConfirmModal
+                isOpen={deleteModal.isOpen}
+                onClose={() => setDeleteModal({ isOpen: false, userId: null, userName: '' })}
+                onConfirm={confirmDelete}
+                isProcessing={isDeleting}
+                title="Delete User"
+                message={`Are you sure you want to delete ${deleteModal.userName}? This action cannot be undone.`}
+                confirmText="Yes, Delete"
+                cancelText="Cancel"
+                type="danger"
+            />
         </div>
     );
 };

@@ -195,6 +195,7 @@
     line-height: 1.8;
     font-size: 1.05rem;
     margin-bottom: 30px;
+    white-space: pre-wrap !important;
 }
 
 .modal-sticky-footer {

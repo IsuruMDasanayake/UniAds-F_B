@@ -43,9 +43,11 @@ const AdminDashboard = () => {
 
     if (loading) {
         return (
-            <div className="admin-loading-container">
-                <div className="loader"></div>
-                <span>Preparing your dashboard...</span>
+            <div className="admin-dashboard-scope">
+                <div className="admin-loading-container">
+                    <div className="loader"></div>
+                    <span>Preparing your dashboard...</span>
+                </div>
             </div>
         );
     }

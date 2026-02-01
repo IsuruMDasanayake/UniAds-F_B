@@ -18,33 +18,21 @@
     height: var(--admin-navbar-height);
     display: flex;
     align-items: center;
-    padding: 0 1.5rem;
-    gap: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.admin-sidebar-scope .brand-logo {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, var(--admin-primary), #8b5cf6);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
     justify-content: center;
-    font-weight: 800;
-    font-size: 1.2rem;
-    color: white;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    padding: 0;
+    width: 100%;
+    gap: 12px;
+    border-bottom: 2px solid var(--admin-primary);
+    box-sizing: border-box;
+    margin-top: -15px;
 }
 
-.admin-sidebar-scope .brand-name {
-    font-size: 1.25rem;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    background: linear-gradient(to right, #fff, #94a3b8);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+.admin-sidebar-scope .sidebar-logo-img {
+    height: 30px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+
 }
 
 .admin-sidebar-scope .sidebar-nav {
@@ -145,5 +133,11 @@
 
     .admin-sidebar-scope.admin-sidebar.open {
         transform: translateX(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-sidebar-scope .sidebar-brand {
+        margin-top: -8px;
     }
 }

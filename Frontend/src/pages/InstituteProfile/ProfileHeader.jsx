@@ -7,6 +7,7 @@ import EditProfileModal from './modals/EditProfileModal';
 import AddPostModal from './modals/AddPostModal';
 import AddEventModal from './modals/AddEventModal';
 import ReviewsModal from './modals/ReviewsModal';
+import AccessDeniedModal from '../../components/Modals/AccessDeniedModal';
 
 const ProfileHeader = ({
     institute,
@@ -26,6 +27,7 @@ const ProfileHeader = ({
     const [showAddPost, setShowAddPost] = useState(false);
     const [showAddEvent, setShowAddEvent] = useState(false);
     const [showReviews, setShowReviews] = useState(false);
+    const [showAccessDenied, setShowAccessDenied] = useState(false);
 
     // Helpers
     const isPremium = institute.is_premium == 1 &&
@@ -42,12 +44,12 @@ const ProfileHeader = ({
 
     const handleAddPostClick = () => {
         if (isApproved) setShowAddPost(true);
-        else alert("🔒 Your account is pending approval. You cannot create post or events yet.");
+        else setShowAccessDenied(true);
     };
 
     const handleAddEventClick = () => {
         if (isApproved) setShowAddEvent(true);
-        else alert("🔒 Your account is pending approval. You cannot create post or events yet.");
+        else setShowAccessDenied(true);
     };
 
     const renderStars = () => {
@@ -236,6 +238,11 @@ const ProfileHeader = ({
                     onClose={() => setShowReviews(false)}
                 />
             )}
+
+            <AccessDeniedModal
+                isOpen={showAccessDenied}
+                onClose={() => setShowAccessDenied(false)}
+            />
         </div>
     );
 };

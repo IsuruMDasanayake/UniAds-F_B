@@ -21,7 +21,10 @@ class FrontendController extends Controller
 
     public function feed()
     {
-        $posts = Post::with('institute')->latest()->paginate(3);
+        $posts = Post::with('institute')
+            ->where('status', 'active')
+            ->latest()
+            ->paginate(3);
 
         $categories = Category::whereIn('main_category', [
             "Course Type  - Bachelor's Degree",
@@ -76,6 +79,7 @@ class FrontendController extends Controller
     public function feedApi()
     {
         $posts = Post::with(['institute', 'likes'])
+            ->where('status', 'active')
             ->latest()
             ->paginate(10);
 

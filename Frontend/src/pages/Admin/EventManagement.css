@@ -1,18 +1,106 @@
+.admin-event-scope .table-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.admin-event-scope .search-box {
+    position: relative;
+    flex: 1;
+    min-width: 250px;
+}
+
+.admin-event-scope .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--admin-text-muted);
+    pointer-events: none;
+}
+
+.admin-event-scope .search-box input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 10px 10px 10px 40px;
+    color: #fff;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.admin-event-scope .search-box input:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--admin-primary);
+}
+
+.admin-event-scope .filter-box {
+    position: relative;
+    min-width: 200px;
+}
+
+.admin-event-scope .filter-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--admin-text-muted);
+    pointer-events: none;
+}
+
+.admin-event-scope .admin-select {
+    width: 100%;
+    padding: 10px 10px 10px 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #fff;
+    outline: none;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.admin-event-scope .admin-select:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--admin-primary);
+}
+
+.admin-event-scope .admin-select option {
+    background: #0f172a;
+    color: #fff;
+}
+
 .admin-event-scope .event-cell {
     display: flex;
     align-items: center;
     gap: 1rem;
 }
 
-.admin-event-scope .event-icon-box {
-    width: 40px;
-    height: 40px;
-    background: rgba(245, 158, 11, 0.1);
-    border-radius: 10px;
+.admin-event-scope .event-img-box {
+    width: 45px;
+    height: 45px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #f59e0b;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-event-scope .event-table-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.admin-event-scope .event-image-placeholder {
+    color: var(--admin-primary);
+    opacity: 0.5;
 }
 
 .admin-event-scope .event-meta {
@@ -33,14 +121,189 @@
     gap: 4px;
 }
 
-.admin-event-scope .date-cell {
-    font-size: 0.85rem;
-    color: #fff;
+.admin-event-scope .metrics-cell {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
 }
 
-.admin-event-scope .event-time-text {
+.admin-event-scope .actions-cell {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.admin-event-scope .metric-item {
     display: flex;
     align-items: center;
     gap: 6px;
     color: var(--admin-text-muted);
+    font-size: 0.85rem;
+}
+
+.admin-event-scope .metric-item span {
+    color: #fff;
+}
+
+/* Details Modal */
+.admin-event-scope .status-pill {
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.admin-event-scope .status-pill.active {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.admin-event-scope .status-pill.inactive {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.admin-event-scope .status-pill.expired {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.event-details-modal .modal-content {
+    max-width: 900px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #0f172a !important;
+    /* Deep navy background like image 1 */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.event-details-modal .modal-header {
+    padding: 24px 32px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.event-details-modal .modal-header h2 {
+    font-size: 1.5rem;
+    color: #fff;
+    font-weight: 700;
+}
+
+.event-details-modal .close-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.event-details-modal .close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.event-details-grid {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 32px;
+}
+
+.event-details-image img {
+    width: 100%;
+    aspect-ratio: 3/4;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.event-details-image .image-placeholder {
+    width: 100%;
+    aspect-ratio: 3/4;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--admin-text-muted);
+}
+
+.event-details-info .event-title {
+    margin-top: 0;
+    margin-bottom: 24px;
+    font-size: 2rem;
+    color: #fff;
+}
+
+.event-details-info .info-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.95rem;
+}
+
+.event-details-info .info-row span {
+    color: #fff;
+}
+
+.event-metrics-summary {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.event-metrics-summary .metric {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.event-description-section {
+    margin-top: 32px;
+}
+
+.event-description-section .section-label {
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 12px;
+    display: block;
+}
+
+.event-description-section .description-content {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    font-size: 1.05rem;
+    padding: 0;
+    background: transparent;
+}
+
+.pre-wrap {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+@media (max-width: 768px) {
+    .event-details-grid {
+        grid-template-columns: 1fr;
+    }
 }

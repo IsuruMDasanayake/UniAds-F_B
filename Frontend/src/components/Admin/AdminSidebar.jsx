@@ -36,8 +36,7 @@ const AdminSidebar = ({ isOpen }) => {
     return (
         <div className={`admin-sidebar admin-sidebar-scope ${isOpen ? 'open' : ''}`}>
             <div className="sidebar-brand">
-                <span className="brand-logo">UA</span>
-                <span className="brand-name">UniAds Admin</span>
+                <img src="/images/logoN.png" alt="UniAds Admin" className="sidebar-logo-img" />
             </div>
 
             <nav className="sidebar-nav">
