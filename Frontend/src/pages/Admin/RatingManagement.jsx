@@ -71,15 +71,22 @@ const RatingManagement = () => {
         }
     };
 
-    const filteredRatings = ratings.filter(r => {
-        const matchesSearch = (r.user?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-            (r.institute?.institute_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-            (r.comment?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+    const filteredRatings = ratings
+        .filter(r => {
+            const matchesSearch = (r.user?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+                (r.institute?.institute_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+                (r.comment?.toLowerCase() || '').includes(searchTerm.toLowerCase());
 
-        const matchesInstitute = selectedInstitute === 'all' || r.institute_id === parseInt(selectedInstitute);
+            const matchesInstitute = selectedInstitute === 'all' || r.institute_id === parseInt(selectedInstitute);
 
-        return matchesSearch && matchesInstitute;
-    });
+            return matchesSearch && matchesInstitute;
+        })
+        .sort((a, b) => {
+            if (b.is_reported !== a.is_reported) {
+                return b.is_reported ? 1 : -1;
+            }
+            return new Date(b.created_at) - new Date(a.created_at);
+        });
 
     const renderStars = (rating) => {
         return Array(5).fill(0).map((_, i) => (
@@ -156,7 +163,7 @@ const RatingManagement = () => {
                                 </tr>
                             ) : (
                                 filteredRatings.map((rating) => (
-                                    <tr key={rating.id}>                                      
+                                    <tr key={rating.id}>
                                         <td>
                                             <div className="user-info-sm">
                                                 <User size={14} className="text-muted" />
