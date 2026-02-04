@@ -135,6 +135,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/reviews/{id}', [\App\Http\Controllers\RatingsController::class, 'apiDelete']);
 });
 
+// Public Policy Routes
+Route::get('/policies/{type}', [\App\Http\Controllers\PolicyController::class, 'apiIndex']);
+
 // Admin Dashboard Routes
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
     // Dashboard Stats

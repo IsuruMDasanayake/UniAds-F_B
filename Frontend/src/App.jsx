@@ -12,6 +12,9 @@ import PricingPage from './pages/PricingPage';
 import SearchResultsPage from './pages/SearchResultsPage';
 import ProfileWrapper from './components/ProfileWrapper';
 import MainProfilePage from './pages/InstituteProfile/MainProfilePage';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsConditions from './pages/TermsConditions';
+import RefundPolicy from './pages/RefundPolicy';
 
 // Admin Components
 import AdminLayout from './components/Admin/AdminLayout';
@@ -55,6 +58,10 @@ function App() {
           <Route path="/profile/courses" element={<ProfileWrapper />} />
           <Route path="/profile/contact" element={<ProfileWrapper />} />
           <Route path="/profile/events" element={<ProfileWrapper />} />
+
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-conditions" element={<TermsConditions />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
 
           <Route path="/institutions/:id/profile" element={<MainProfilePage />} />
           <Route path="/institutions/:id/about" element={<MainProfilePage />} />

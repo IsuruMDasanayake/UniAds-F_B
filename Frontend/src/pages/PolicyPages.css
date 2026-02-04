@@ -1,0 +1,139 @@
+/* ==========================================================================
+   Policy Pages Styles (Privacy, Terms, Refund)
+   ========================================================================== */
+
+.policy-page-layout {
+    display: flex;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+    gap: 30px;
+    min-height: 80vh;
+}
+
+.policy-sidebar {
+    flex: 0 0 280px;
+    background: white;
+    border-radius: var(--c-radius-md);
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 60px;
+    height: fit-content;
+    border: 1px solid var(--c-border);
+    
+}
+
+.policy-sidebar h2 {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    color: var(--c-text-heading);
+    border-bottom: 2px solid var(--c-border);
+    padding-bottom: 12px;
+}
+
+.policy-sidebar ul {
+    list-style: none;
+}
+
+.policy-sidebar ul li {
+    margin-bottom: 12px;
+}
+
+.policy-sidebar ul li a {
+    text-decoration: none;
+    color: var(--c-text-body);
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    display: block;
+    padding: 4px 0;
+}
+
+.policy-sidebar ul li a:hover {
+    color: var(--c-primary);
+    transform: translateX(5px);
+}
+
+.policy-content {
+    flex: 1;
+    background: white;
+    border-radius: var(--c-radius-md);
+    padding: 40px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--c-border);
+}
+
+.policy-content .last-updated {
+    display: block;
+    text-align: right;
+    font-size: 0.85rem;
+    color: var(--c-text-muted);
+    margin-bottom: 20px;
+}
+
+.policy-content h1 {
+    text-align: center;
+    color: var(--c-primary);
+    margin-bottom: 48px;
+    font-size: 2.5rem;
+    font-weight: 800;
+}
+
+.policy-section {
+    margin-bottom: 40px;
+    scroll-margin-top: 100px;
+}
+
+.policy-section h2 {
+    color: var(--c-text-heading);
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    border-left: 4px solid var(--c-primary);
+    padding-left: 15px;
+}
+
+.policy-section p {
+    line-height: 1.8;
+    color: var(--c-text-body);
+    margin-bottom: 1.5rem;
+    text-align: justify;
+    white-space: pre-wrap;
+}
+
+.policy-loading {
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+}
+
+.policy-loading p {
+    margin-top: 1rem;
+    color: var(--c-text-muted);
+    font-weight: 600;
+}
+
+@media (max-width: 992px) {
+    .policy-page-layout {
+        flex-direction: column;
+        margin: 20px auto;
+    }
+
+    .policy-sidebar {
+        flex: none;
+        position: static;
+        margin-bottom: 20px;
+    }
+
+    .policy-content {
+        padding: 24px;
+    }
+
+    .policy-content h1 {
+        font-size: 2rem;
+        margin-bottom: 32px;
+    }
+}

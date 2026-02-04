@@ -75,7 +75,7 @@ const ApplyNowModal = ({ isOpen, onClose, courseTitle, form, onChange, onSubmit,
                                     required
                                 />
                                 <label htmlFor="consent">
-                                    Yes, I agree to share my details with the institute and acknowledge UniAds' Privacy Policy & Terms.
+                                    Yes, I agree to share my details with the institute and acknowledge UniAds' <Link to="/privacy-policy">Privacy Policy</Link> & <Link to="/terms-of-service">Terms & Conditions</Link>.
                                 </label>
                             </div>
                             <button type="submit" className="submit-application" disabled={isSubmitting}>

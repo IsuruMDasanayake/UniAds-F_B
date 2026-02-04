@@ -200,9 +200,9 @@ const HomePage = () => {
                         <p>Discover. Decide. Succeed.</p>
                     </div>
                     <div className="home-footer-links">
-                        <a href="/privacy-policy">Privacy Policy</a>
-                        <a href="/terms-conditions">Terms & Conditions</a>
-                        <a href="/refund-policy">Refund Policy</a>
+                        <a href="/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+                        <a href="/terms-conditions" target="_blank" rel="noopener noreferrer">Terms & Conditions</a>
+                        <a href="/refund-policy" target="_blank" rel="noopener noreferrer">Refund Policy</a>
                         <a href="mailto:support@uniads.com">Contact Us</a>
                     </div>
                     <div className="home-footer-social">
@@ -211,7 +211,7 @@ const HomePage = () => {
                     </div>
                 </div>
                 <div className="home-footer-bottom">
-                    <p>&copy; 2025 UniAds V1.0. All Rights Reserved.</p>
+                    <p>&copy; {new Date().getFullYear()} UniAds V1.0. All Rights Reserved.</p>
                 </div>
             </footer>
         </div>

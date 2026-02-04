@@ -357,6 +357,11 @@
     justify-content: space-between;
 }
 
+.home-contact-info h3 {
+    color: var(--c-text-inverse);
+    margin-bottom: 30px;
+}
+
 .home-contact-item {
     display: flex;
     align-items: center;
@@ -402,6 +407,7 @@
 
 .home-form-group {
     margin-bottom: 20px;
+    margin-top: 20px;
 }
 
 .home-form-group label {
