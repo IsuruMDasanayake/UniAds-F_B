@@ -183,7 +183,7 @@ const PolicyManagement = () => {
                                             policies.sort((a, b) => a.order_index - b.order_index).map(p => (
                                                 <tr key={p.id}>
                                                     <td>{p.id}</td>
-                                                    <td className="font-semibold">{p.title}</td>
+                                                    <td className="text-sm">{p.title}</td>
                                                     <td>
                                                         <div className="policy-content-cell">
                                                             <div className={`content-text ${expandedSections[p.id] ? 'expanded' : 'truncated'}`}>

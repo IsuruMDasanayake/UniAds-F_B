@@ -224,13 +224,23 @@ class ProfileController extends Controller
             $institute->update($request->only(['institute_name', 'location', 'bio']));
             $institute->save();
         } else {
-            $request->validate([
+            $rules = [
                 'name' => 'required|string|max:255',
                 'gender' => 'required|in:Male,Female',
                 'birthday' => 'required|date|before_or_equal:today',
                 'district' => 'required|string',
                 'education_level' => 'required|string',
-            ]);
+            ];
+
+            // Relax validation for Admin role
+            if ($user->role === 'Admin') {
+                $rules['gender'] = 'nullable|in:Male,Female';
+                $rules['birthday'] = 'nullable|date|before_or_equal:today';
+                $rules['district'] = 'nullable|string';
+                $rules['education_level'] = 'nullable|string';
+            }
+
+            $request->validate($rules);
 
             $user->update($request->only(['name', 'gender', 'birthday', 'district', 'education_level']));
             $user->save();
