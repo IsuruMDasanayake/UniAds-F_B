@@ -327,7 +327,7 @@ const PostManagement = () => {
                 title="Delete Post"
                 message={`Are you sure you want to delete "${deleteModal.title}"? This action cannot be undone.`}
                 confirmText="Delete"
-                variant="danger"
+                type="danger"
                 isLoading={isDeleting}
             />
         </div>

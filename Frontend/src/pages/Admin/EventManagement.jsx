@@ -346,6 +346,7 @@ const EventManagement = () => {
                 message={`Are you sure you want to delete "${deleteModal.title}"? This action cannot be undone.`}
                 isLoading={isDeleting}
                 type="danger"
+                confirmText="Delete"
             />
         </div>
     );
