@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Institute;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PostController;
@@ -21,9 +22,7 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\PostBoostController;
 use App\Http\Controllers\FrontendController;
-use App\Http\Controllers\PrivacyPolicyController;
-use App\Http\Controllers\TermsAndConditionsController;
-use App\Http\Controllers\RefundPolicyController;
+use App\Http\Controllers\PolicyController;
 use App\Http\Controllers\RatingsController;
 use App\Http\Controllers\SavedPostController;
 
@@ -38,6 +37,7 @@ use App\Http\Controllers\SavedPostController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
 require __DIR__ . '/auth.php';
 
 Route::post('/upload-test', function (\Illuminate\Http\Request $request) {
@@ -259,7 +259,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/stripe/success', [SubscriptionController::class, 'success'])->name('stripe.success');
     Route::post('/cancel-subscription', [SubscriptionController::class, 'cancelSubscription'])->name('subscription.cancel');
     Route::post('/trial/cancel', [SubscriptionController::class, 'cancelTrial'])->name('trial.cancel');
-
 });
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
 
@@ -321,28 +320,28 @@ Route::post('/institute/delete-multi-image', [AboutSectionController::class, 'de
 
 
 // Privacy Policy Routes
-Route::get('/admin/privacy-policy', [PrivacyPolicyController::class, 'index'])->name('admin.privacy_policy');
-Route::post('/admin/privacy-policy', [PrivacyPolicyController::class, 'store'])->name('privacy_policy.store');
-Route::put('/admin/privacy-policy/{id}', [PrivacyPolicyController::class, 'update'])->name('privacy_policy.update');
-Route::delete('/admin/privacy-policy/{id}', [PrivacyPolicyController::class, 'destroy'])->name('privacy_policy.destroy');
+// Route::get('/admin/privacy-policy', [PolicyController::class, 'adminIndex'])->defaults('type', 'privacy')->name('admin.privacy_policy');
+// Route::post('/admin/privacy-policy', [PolicyController::class, 'store'])->name('privacy_policy.store');
+// Route::put('/admin/privacy-policy/{id}', [PolicyController::class, 'update'])->name('privacy_policy.update');
+// Route::delete('/admin/privacy-policy/{id}', [PolicyController::class, 'destroy'])->name('privacy_policy.destroy');
 // Frontend privacy policy page
-Route::get('/privacy-policy', [PrivacyPolicyController::class, 'show'])->name('privacy.policy');
+Route::get('/privacy-policy', [PolicyController::class, 'showPrivacy'])->name('privacy.policy');
 
 // Terms and Conditions Routes
-Route::get('/admin/terms', [TermsAndConditionsController::class, 'index'])->name('admin.terms');
-Route::post('/admin/terms', [TermsAndConditionsController::class, 'store'])->name('terms.store');
-Route::put('/admin/terms/{id}', [TermsAndConditionsController::class, 'update'])->name('terms.update');
-Route::delete('/admin/terms/{id}', [TermsAndConditionsController::class, 'destroy'])->name('terms.destroy');
+// Route::get('/admin/terms', [PolicyController::class, 'adminIndex'])->defaults('type', 'terms')->name('admin.terms');
+// Route::post('/admin/terms', [PolicyController::class, 'store'])->name('terms.store');
+// Route::put('/admin/terms/{id}', [PolicyController::class, 'update'])->name('terms.update');
+// Route::delete('/admin/terms/{id}', [PolicyController::class, 'destroy'])->name('terms.destroy');
 // Frontend
-Route::get('/terms-conditions', [TermsAndConditionsController::class, 'show'])->name('terms.show');
+Route::get('/terms-conditions', [PolicyController::class, 'showTerms'])->name('terms.show');
 
 // Refund Policy Routes
-Route::get('/admin/refund-policy', [RefundPolicyController::class, 'index'])->name('admin.refund_policy');
-Route::post('/admin/refund-policy', [RefundPolicyController::class, 'store'])->name('refund_policy.store');
-Route::put('/admin/refund-policy/{id}', [RefundPolicyController::class, 'update'])->name('refund_policy.update');
-Route::delete('/admin/refund-policy/{id}', [RefundPolicyController::class, 'destroy'])->name('refund_policy.destroy');
+// Route::get('/admin/refund-policy', [PolicyController::class, 'adminIndex'])->defaults('type', 'refund')->name('admin.refund_policy');
+// Route::post('/admin/refund-policy', [PolicyController::class, 'store'])->name('refund_policy.store');
+// Route::put('/admin/refund-policy/{id}', [PolicyController::class, 'update'])->name('refund_policy.update');
+// Route::delete('/admin/refund-policy/{id}', [PolicyController::class, 'destroy'])->name('refund_policy.destroy');
 // Frontend refund policy page
-Route::get('/refund-policy', [RefundPolicyController::class, 'show'])->name('refund.policy');
+Route::get('/refund-policy', [PolicyController::class, 'showRefund'])->name('refund.policy');
 
 
 // Ratings in Admin

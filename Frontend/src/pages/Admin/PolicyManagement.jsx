@@ -8,8 +8,11 @@ import {
     Trash2,
     ChevronRight,
     ShieldCheck,
-    Layout
+    Layout,
+    X,
+    Edit2
 } from 'lucide-react';
+import ActionConfirmModal from '../../components/Modals/ActionConfirmModal';
 import axiosClient from '../../lib/axios';
 import './PolicyManagement.css';
 
@@ -18,6 +21,13 @@ const PolicyManagement = () => {
     const [policies, setPolicies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPolicy, setCurrentPolicy] = useState(null);
+    const [expandedSections, setExpandedSections] = useState({});
+
+    // Modal States
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [sectionToDelete, setSectionToDelete] = useState(null);
+    const [isProcessing, setIsProcessing] = useState(false);
 
     useEffect(() => {
         fetchPolicies();
@@ -43,35 +53,65 @@ const PolicyManagement = () => {
         if (!currentPolicy) return;
 
         try {
+            setIsProcessing(true);
             const endpoint = activeTab === 'privacy' ? '/api/admin/policies/privacy' :
                 activeTab === 'terms' ? '/api/admin/policies/terms' :
                     '/api/admin/policies/refund';
 
             if (currentPolicy.id) {
-                await axiosClient.put(`${endpoint}/${currentPolicy.id}`, currentPolicy);
-                setPolicies(policies.map(p => p.id === currentPolicy.id ? currentPolicy : p));
+                const resp = await axiosClient.put(`${endpoint}/${currentPolicy.id}`, currentPolicy);
+                setPolicies(policies.map(p => p.id === currentPolicy.id ? resp.data.data || currentPolicy : p));
             } else {
                 const resp = await axiosClient.post(endpoint, currentPolicy);
                 setPolicies([...policies, resp.data.data]);
             }
+            setIsEditModalOpen(false);
             setCurrentPolicy(null);
         } catch (error) {
             console.error('Error saving policy item:', error);
+        } finally {
+            setIsProcessing(false);
         }
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Delete this policy section?')) {
-            try {
-                const endpoint = activeTab === 'privacy' ? '/api/admin/policies/privacy' :
-                    activeTab === 'terms' ? '/api/admin/policies/terms' :
-                        '/api/admin/policies/refund';
-                await axiosClient.delete(`${endpoint}/${id}`);
-                setPolicies(policies.filter(p => p.id !== id));
-            } catch (error) {
-                console.error('Error deleting policy item:', error);
-            }
+    const confirmDelete = async () => {
+        if (!sectionToDelete) return;
+
+        try {
+            setIsProcessing(true);
+            const endpoint = activeTab === 'privacy' ? '/api/admin/policies/privacy' :
+                activeTab === 'terms' ? '/api/admin/policies/terms' :
+                    '/api/admin/policies/refund';
+            await axiosClient.delete(`${endpoint}/${sectionToDelete}`);
+            setPolicies(policies.filter(p => p.id !== sectionToDelete));
+            setIsDeleteModalOpen(false);
+        } catch (error) {
+            console.error('Error deleting policy item:', error);
+        } finally {
+            setIsProcessing(false);
+            setSectionToDelete(null);
         }
+    };
+
+    const toggleSection = (id) => {
+        setExpandedSections(prev => ({
+            ...prev,
+            [id]: !prev[id]
+        }));
+    };
+
+    const openEditModal = (policy = null) => {
+        if (policy) {
+            setCurrentPolicy({ ...policy });
+        } else {
+            setCurrentPolicy({ title: '', content: '', order_index: (policies.length > 0 ? Math.max(...policies.map(p => p.order_index)) + 1 : 1) });
+        }
+        setIsEditModalOpen(true);
+    };
+
+    const openDeleteModal = (id) => {
+        setSectionToDelete(id);
+        setIsDeleteModalOpen(true);
     };
 
     return (
@@ -110,10 +150,10 @@ const PolicyManagement = () => {
                 <div className="policy-content">
                     <div className="admin-glass-card p-6">
                         <div className="content-header mb-6">
-                            <h3 className="text-lg font-bold capitalize">
-                                {activeTab.replace('-', ' ')} Sections
+                            <h3 className="text-lg font-bold">
+                                {activeTab === 'privacy' ? 'Privacy Policy' : activeTab === 'terms' ? 'Terms & Conditions' : 'Refund Policy'} Sections
                             </h3>
-                            <button className="add-section-btn" onClick={() => setCurrentPolicy({ title: '', content: '', order_index: 0 })}>
+                            <button className="add-section-btn" onClick={() => openEditModal()}>
                                 <Plus size={16} /> Add Section
                             </button>
                         </div>
@@ -123,68 +163,138 @@ const PolicyManagement = () => {
                                 <div className="loader mx-auto"></div>
                             </div>
                         ) : (
-                            <div className="sections-list">
-                                {policies.length === 0 && !currentPolicy && (
-                                    <p className="text-muted text-center p-8">No sections defined yet.</p>
-                                )}
-
-                                {policies.map(p => (
-                                    <div key={p.id} className="policy-item-card mb-4">
-                                        <div className="item-info">
-                                            <span className="item-title">{p.title}</span>
-                                            <p className="item-preview">{p.content.substring(0, 80)}...</p>
-                                        </div>
-                                        <div className="item-actions">
-                                            <button className="icon-btn edit" onClick={() => setCurrentPolicy(p)}>
-                                                <ChevronRight size={18} />
-                                            </button>
-                                            <button className="icon-btn delete" onClick={() => handleDelete(p.id)}>
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
+                            <div className="responsive-table">
+                                <table className="table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Title</th>
+                                            <th>Content</th>
+                                            <th>Order</th>
+                                            <th className="text-center">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {policies.length === 0 ? (
+                                            <tr>
+                                                <td colSpan="5" className="text-center p-12 text-muted">No sections defined yet.</td>
+                                            </tr>
+                                        ) : (
+                                            policies.sort((a, b) => a.order_index - b.order_index).map(p => (
+                                                <tr key={p.id}>
+                                                    <td>{p.id}</td>
+                                                    <td className="font-semibold">{p.title}</td>
+                                                    <td>
+                                                        <div className="policy-content-cell">
+                                                            <div className={`content-text ${expandedSections[p.id] ? 'expanded' : 'truncated'}`}>
+                                                                {p.content}
+                                                            </div>
+                                                            <button
+                                                                className="toggle-text-btn"
+                                                                onClick={() => toggleSection(p.id)}
+                                                            >
+                                                                {expandedSections[p.id] ? 'See Less' : 'See More'}
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                    <td>{p.order_index}</td>
+                                                    <td>
+                                                        <div className="actions-cell">
+                                                            <button className="icon-btn edit" title="Edit Section" onClick={() => openEditModal(p)}>
+                                                                <Edit2 size={18} />
+                                                            </button>
+                                                            <button className="icon-btn delete" title="Delete Section" onClick={() => openDeleteModal(p.id)}>
+                                                                <Trash2 size={18} />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
                             </div>
                         )}
                     </div>
                 </div>
+            </div>
 
-                {currentPolicy && (
-                    <div className="policy-editor-overlay">
-                        <div className="admin-glass-card editor-modal p-8">
-                            <div className="editor-header mb-6">
-                                <h2 className="text-xl font-bold">{currentPolicy.id ? 'Edit Section' : 'New Section'}</h2>
-                                <button className="close-btn" onClick={() => setCurrentPolicy(null)}><X size={20} /></button>
-                            </div>
-                            <form onSubmit={handleSave}>
-                                <div className="form-group mb-4">
-                                    <label>Section Title</label>
-                                    <input
-                                        type="text"
-                                        className="modal-input"
-                                        value={currentPolicy.title}
-                                        onChange={e => setCurrentPolicy({ ...currentPolicy, title: e.target.value })}
-                                        required
-                                    />
+            {/* Add/Edit Modal */}
+            {isEditModalOpen && currentPolicy && (
+                <div className="modal-overlay" onClick={() => setIsEditModalOpen(false)}>
+                    <div className="modal-content policy-modal" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header-section">
+                            <h2>{currentPolicy.id ? 'Edit Policy Section' : 'Add New Section'}</h2>
+                            <button className="modal-close" onClick={() => setIsEditModalOpen(false)}>&times;</button>
+                        </div>
+                        <div className="modal-body-section">
+                            <form onSubmit={handleSave} className="flex flex-col h-full">
+                                <div className="modal-body-scroll flex-1 overflow-y-auto pr-2">
+                                    <div className="form-group mb-4">
+                                        <label className="modal-label">Section Title</label>
+                                        <input
+                                            type="text"
+                                            className="modal-input"
+                                            placeholder="e.g., Information Collection"
+                                            value={currentPolicy.title}
+                                            onChange={e => setCurrentPolicy({ ...currentPolicy, title: e.target.value })}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="form-group mb-4 flex-1 flex flex-col">
+                                        <label className="modal-label">Content</label>
+                                        <textarea
+                                            className="modal-textarea"
+                                            placeholder="Enter full section content..."
+                                            rows="10"
+                                            value={currentPolicy.content}
+                                            onChange={e => setCurrentPolicy({ ...currentPolicy, content: e.target.value })}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="form-group mb-4">
+                                        <label className="modal-label">Order Index</label>
+                                        <input
+                                            type="number"
+                                            className="modal-input"
+                                            value={currentPolicy.order_index}
+                                            onChange={e => setCurrentPolicy({ ...currentPolicy, order_index: parseInt(e.target.value) || 0 })}
+                                            required
+                                        />
+                                    </div>
                                 </div>
-                                <div className="form-group mb-6">
-                                    <label>Content</label>
-                                    <textarea
-                                        className="modal-textarea"
-                                        rows="10"
-                                        value={currentPolicy.content}
-                                        onChange={e => setCurrentPolicy({ ...currentPolicy, content: e.target.value })}
-                                        required
-                                    />
-                                </div>
-                                <div className="modal-footer">
-                                    <button type="submit" className="btn-save"><Save size={18} /> Save Section</button>
+                                <div className="modal-actions">
+                                    <button
+                                        type="button"
+                                        className="cancel-btn"
+                                        onClick={() => setIsEditModalOpen(false)}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="submit-btn"
+                                        disabled={isProcessing}
+                                    >
+                                        {isProcessing ? 'Saving...' : currentPolicy.id ? 'Save Changes' : 'Add Section'}
+                                    </button>
                                 </div>
                             </form>
                         </div>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
+
+            <ActionConfirmModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={confirmDelete}
+                isProcessing={isProcessing}
+                title="Delete Policy Section"
+                message="Are you sure you want to delete this section? This action cannot be undone."
+                confirmText="Yes, Delete Section"
+                type="danger"
+            />
         </div>
     );
 };

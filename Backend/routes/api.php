@@ -179,18 +179,9 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::delete('/ratings/{id}', [\App\Http\Controllers\RatingsController::class, 'apiDelete']);
 
     // Policies
-    Route::get('/privacy-policy', [\App\Http\Controllers\PrivacyPolicyController::class, 'apiIndex']);
-    Route::post('/privacy-policy', [\App\Http\Controllers\PrivacyPolicyController::class, 'apiStore']);
-    Route::put('/privacy-policy/{id}', [\App\Http\Controllers\PrivacyPolicyController::class, 'apiUpdate']);
-    Route::delete('/privacy-policy/{id}', [\App\Http\Controllers\PrivacyPolicyController::class, 'apiDestroy']);
-
-    Route::get('/terms', [\App\Http\Controllers\TermsAndConditionsController::class, 'apiIndex']);
-    Route::post('/terms', [\App\Http\Controllers\TermsAndConditionsController::class, 'apiStore']);
-    Route::put('/terms/{id}', [\App\Http\Controllers\TermsAndConditionsController::class, 'apiUpdate']);
-    Route::delete('/terms/{id}', [\App\Http\Controllers\TermsAndConditionsController::class, 'apiDestroy']);
-
-    Route::get('/refund-policy', [\App\Http\Controllers\RefundPolicyController::class, 'apiIndex']);
-    Route::post('/refund-policy', [\App\Http\Controllers\RefundPolicyController::class, 'apiStore']);
-    Route::put('/refund-policy/{id}', [\App\Http\Controllers\RefundPolicyController::class, 'apiUpdate']);
-    Route::delete('/refund-policy/{id}', [\App\Http\Controllers\RefundPolicyController::class, 'apiDestroy']);
+    // Unified Policy Management Routes
+    Route::get('/policies/{type}', [\App\Http\Controllers\PolicyController::class, 'apiIndex']);
+    Route::post('/policies/{type}', [\App\Http\Controllers\PolicyController::class, 'apiStore']);
+    Route::put('/policies/{type}/{id}', [\App\Http\Controllers\PolicyController::class, 'apiUpdate']);
+    Route::delete('/policies/{type}/{id}', [\App\Http\Controllers\PolicyController::class, 'apiDestroy']);
 });

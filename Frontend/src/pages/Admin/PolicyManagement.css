@@ -54,54 +54,139 @@
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
+    transition: all 0.2s;
 }
 
-.admin-policy-scope .policy-item-card {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    padding: 1rem 1.5rem;
+.admin-policy-scope .add-section-btn:hover {
+    background: rgba(16, 185, 129, 0.2);
+    transform: translateY(-1px);
 }
 
-.admin-policy-scope .item-title {
-    display: block;
-    font-weight: 600;
-    color: #fff;
-    margin-bottom: 4px;
+/* Content Truncation */
+.admin-policy-scope .policy-content-cell {
+    max-width: 400px;
 }
 
-.admin-policy-scope .item-preview {
-    font-size: 0.75rem;
+.admin-policy-scope .content-text {
+    font-size: 0.85rem;
     color: var(--admin-text-muted);
+    line-height: 1.5;
 }
 
-.admin-policy-scope .policy-editor-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.7);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
-    z-index: 3000;
+.admin-policy-scope .content-text.truncated {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.admin-policy-scope .content-text.expanded {
+    display: block;
+    white-space: pre-wrap;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.admin-policy-scope .toggle-text-btn {
+    background: transparent;
+    border: none;
+    color: var(--admin-primary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 0;
+    margin-top: 4px;
+}
+
+.admin-policy-scope .toggle-text-btn:hover {
+    text-decoration: underline;
+}
+
+/* Modal Styles Refinement */
+.admin-policy-scope .policy-modal {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 80px -12px rgba(0, 0, 0, 0.6);
+    max-width: 600px;
+    width: 95%;
+    border-radius: 16px;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
+    flex-direction: column;
 }
 
-.admin-policy-scope .editor-modal {
-    width: 100%;
-    max-width: 800px;
-}
-
-.admin-policy-scope .editor-header {
+.admin-policy-scope .modal-header-section {
+    padding: 2rem 2.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
+.admin-policy-scope .modal-header-section h2 {
+    font-size: 1.5rem;
+    color: #fff;
+    font-weight: 700;
+}
+
+.admin-policy-scope .modal-close {
+    background: transparent;
+    border: none;
+    color: var(--admin-text-muted);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.admin-policy-scope .modal-close:hover {
+    color: #fff;
+    background: transparent;
+}
+
+/* Modal Body & Form Layout */
+.admin-policy-scope .modal-body-section {
+    padding: 24px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.admin-policy-scope .modal-body-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 8px;
+    /* Space for scrollbar */
+}
+
+/* Scrollbar styling for modal content */
+.admin-policy-scope .modal-body-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.admin-policy-scope .modal-body-scroll::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.admin-policy-scope .modal-body-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.admin-policy-scope .modal-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--admin-text-muted);
+    margin-bottom: 8px;
+}
+
+.admin-policy-scope .modal-input,
 .admin-policy-scope .modal-textarea {
     width: 100%;
     background: rgba(255, 255, 255, 0.05);
@@ -110,7 +195,62 @@
     padding: 12px 14px;
     color: #fff;
     outline: none;
+    transition: all 0.2s;
+    margin-bottom: 2px;
+}
+
+.admin-policy-scope .modal-input:focus,
+.admin-policy-scope .modal-textarea:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--admin-primary);
+}
+
+.admin-policy-scope .modal-textarea {
+    min-height: 200px;
     resize: vertical;
+}
+
+.admin-policy-scope .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+/* Icon Buttons Section */
+.admin-policy-scope .actions-cell {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.admin-policy-scope .icon-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--admin-text-muted);
+}
+
+.admin-policy-scope .icon-btn.edit:hover {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.admin-policy-scope .icon-btn.delete:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
 }
 
 @media (max-width: 992px) {
