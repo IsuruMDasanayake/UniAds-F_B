@@ -115,6 +115,7 @@
 /* Glassmorphism Card Logic */
 .admin-subscription-scope .institute-card {
     background: rgba(255, 255, 255, 0.03);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
@@ -344,4 +345,73 @@
 .admin-subscription-scope .status-pill.cancelled {
     background: rgba(239, 68, 68, 0.1);
     color: #ef4444;
+}
+
+/* Filter Styles */
+.admin-subscription-scope .filter-box {
+    position: relative;
+    min-width: 200px;
+}
+
+.admin-subscription-scope .filter-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--admin-text-muted);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.admin-subscription-scope .admin-select {
+    width: 100%;
+    padding: 10px 10px 10px 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #fff;
+    outline: none;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.admin-subscription-scope .admin-select:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: #3b82f6;
+}
+
+.admin-subscription-scope .admin-select option {
+    background: #0f172a;
+    color: #fff;
+}
+
+/* Search Box refinement for flex layout */
+.admin-subscription-scope .search-box {
+    position: relative;
+}
+
+.admin-subscription-scope .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--admin-text-muted);
+    pointer-events: none;
+}
+
+.admin-subscription-scope .search-box input {
+    width: 100%;
+    padding: 10px 10px 10px 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #fff;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.admin-subscription-scope .search-box input:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: #3b82f6;
 }

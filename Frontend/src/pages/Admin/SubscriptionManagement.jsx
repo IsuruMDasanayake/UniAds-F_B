@@ -7,7 +7,8 @@ import {
     Gift,
     Clock,
     ArrowUpRight,
-    ShieldCheck
+    ShieldCheck,
+    Filter
 } from 'lucide-react';
 import ActionConfirmModal from '../../components/Modals/ActionConfirmModal';
 import axiosClient from '../../lib/axios';
@@ -18,6 +19,7 @@ const SubscriptionManagement = () => {
     const [subscriptions, setSubscriptions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [filterType, setFilterType] = useState('all');
 
     // Status Toggle State
     const [statusModalOpen, setStatusModalOpen] = useState(false);
@@ -99,7 +101,17 @@ const SubscriptionManagement = () => {
         }
     });
 
-    const activeInstitutes = Object.values(institutesMap).filter(inst => inst.hasActive);
+    const activeInstitutes = Object.values(institutesMap).filter(inst => {
+        if (!inst.hasActive) return false;
+
+        if (filterType === 'subscriptions') {
+            return inst.primaryStatus === 'Subscription Active';
+        }
+        if (filterType === 'trials') {
+            return inst.primaryStatus === 'Trial Active';
+        }
+        return true;
+    });
 
     // Filter by search
     const filteredInstitutes = activeInstitutes.filter(inst =>
@@ -138,8 +150,8 @@ const SubscriptionManagement = () => {
                 </div>
             </div>
 
-            <div className="table-controls p-0 mb-6 bg-transparent border-0">
-                <div className="search-box w-full max-w-md">
+            <div className="table-controls p-0 mb-6 bg-transparent border-0 flex justify-between items-center gap-4">
+                <div className="search-box flex-1 max-w-md">
                     <Search size={18} className="search-icon" />
                     <input
                         type="text"
@@ -147,6 +159,18 @@ const SubscriptionManagement = () => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
+                </div>
+                <div className="filter-box">
+                    <Filter size={18} className="filter-icon" />
+                    <select
+                        className="admin-select"
+                        value={filterType}
+                        onChange={(e) => setFilterType(e.target.value)}
+                    >
+                        <option value="all">All Plans</option>
+                        <option value="subscriptions">Subscriptions</option>
+                        <option value="trials">Free Trials</option>
+                    </select>
                 </div>
             </div>
 
