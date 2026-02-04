@@ -284,7 +284,7 @@
 @media (max-width: 768px) {
     #institute-profile-posts-wrapper .post-card {
         flex-direction: column;
-        min-height: auto;
+        min-height: 500px;
     }
 
     #institute-profile-posts-wrapper .post-image-container {
