@@ -37,45 +37,49 @@ const PolicyBase = ({ title, type }) => {
 
     if (loading) {
         return (
-            <div className="policy-loading">
-                <div className="ui-loader loader-blk">
-                    <svg viewBox="22 22 44 44" className="multiColor-loader">
-                        <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="3.6" className="loader-circle loader-circle-animation"></circle>
-                    </svg>
+            <div className="policy-page-root">
+                <div className="policy-loading">
+                    <div className="ui-loader loader-blk">
+                        <svg viewBox="22 22 44 44" className="multiColor-loader">
+                            <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="3.6" className="loader-circle loader-circle-animation"></circle>
+                        </svg>
+                    </div>
+                    <p>Loading Policies...</p>
                 </div>
-                <p>Loading Policies...</p>
             </div>
         );
     }
 
     return (
-        <div className="policy-page-layout">
-            <aside className="policy-sidebar">
-                <h2>Table of Content</h2>
-                <ul>
-                    {sections.map(section => (
-                        <li key={section.id}>
-                            <a href={`#section-${section.id}`}>{section.title}</a>
-                        </li>
-                    ))}
-                </ul>
-            </aside>
+        <div className="policy-page-root">
+            <div className="policy-page-layout">
+                <aside className="policy-sidebar">
+                    <h2>Table of Content</h2>
+                    <ul>
+                        {sections.map(section => (
+                            <li key={section.id}>
+                                <a href={`#section-${section.id}`}>{section.title}</a>
+                            </li>
+                        ))}
+                    </ul>
+                </aside>
 
-            <main className="policy-content">
-                {lastUpdated && <span className="last-updated">Last Updated: {lastUpdated}</span>}
-                <h1>{title}</h1>
+                <main className="policy-content">
+                    {lastUpdated && <span className="last-updated">Last Updated: {lastUpdated}</span>}
+                    <h1>{title}</h1>
 
-                {sections.length === 0 ? (
-                    <p className="text-center">No policy content available yet.</p>
-                ) : (
-                    sections.map(section => (
-                        <section key={section.id} id={`section-${section.id}`} className="policy-section">
-                            <h2>{section.title}</h2>
-                            <p>{section.content}</p>
-                        </section>
-                    ))
-                )}
-            </main>
+                    {sections.length === 0 ? (
+                        <p className="text-center">No policy content available yet.</p>
+                    ) : (
+                        sections.map(section => (
+                            <section key={section.id} id={`section-${section.id}`} className="policy-section">
+                                <h2>{section.title}</h2>
+                                <p>{section.content}</p>
+                            </section>
+                        ))
+                    )}
+                </main>
+            </div>
         </div>
     );
 };
