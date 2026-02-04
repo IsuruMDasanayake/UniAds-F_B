@@ -6,8 +6,11 @@ import {
     MessageCircle,
     User,
     Building2,
-    AlertTriangle
+    AlertTriangle,
+    Filter,
+    X
 } from 'lucide-react';
+import ActionConfirmModal from '../../components/Modals/ActionConfirmModal';
 import axiosClient from '../../lib/axios';
 import './RatingManagement.css';
 
@@ -15,10 +18,27 @@ const RatingManagement = () => {
     const [ratings, setRatings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [institutes, setInstitutes] = useState([]);
+    const [selectedInstitute, setSelectedInstitute] = useState('all');
+
+    // Deletion Modal State
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [ratingToDelete, setRatingToDelete] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         fetchRatings();
+        fetchInstitutes();
     }, []);
+
+    const fetchInstitutes = async () => {
+        try {
+            const response = await axiosClient.get('/api/institutions');
+            setInstitutes(response.data);
+        } catch (error) {
+            console.error('Error fetching institutes:', error);
+        }
+    };
 
     const fetchRatings = async () => {
         try {
@@ -32,22 +52,34 @@ const RatingManagement = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to remove this rating?')) {
-            try {
-                await axiosClient.delete(`/api/admin/ratings/${id}`);
-                setRatings(ratings.filter(r => r.id !== id));
-            } catch (error) {
-                console.error('Error deleting rating:', error);
-            }
+    const handleDeleteClick = (id) => {
+        setRatingToDelete(id);
+        setDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        try {
+            setIsDeleting(true);
+            await axiosClient.delete(`/api/admin/ratings/${ratingToDelete}`);
+            setRatings(ratings.filter(r => r.id !== ratingToDelete));
+            setDeleteModalOpen(false);
+        } catch (error) {
+            console.error('Error deleting rating:', error);
+        } finally {
+            setIsDeleting(false);
+            setRatingToDelete(null);
         }
     };
 
-    const filteredRatings = ratings.filter(r =>
-        (r.user?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-        (r.institute?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-        (r.comment?.toLowerCase() || '').includes(searchTerm.toLowerCase())
-    );
+    const filteredRatings = ratings.filter(r => {
+        const matchesSearch = (r.user?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+            (r.institute?.institute_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+            (r.comment?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+
+        const matchesInstitute = selectedInstitute === 'all' || r.institute_id === parseInt(selectedInstitute);
+
+        return matchesSearch && matchesInstitute;
+    });
 
     const renderStars = (rating) => {
         return Array(5).fill(0).map((_, i) => (
@@ -69,57 +101,66 @@ const RatingManagement = () => {
                 </div>
             </div>
 
-            <div className="admin-glass-card table-container">
-                <div className="table-controls p-6">
-                    <div className="search-box">
-                        <Search size={18} className="search-icon" />
-                        <input
-                            type="text"
-                            placeholder="Search by user, institute or comment..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
+            <div className="table-controls p-0 mb-6 bg-transparent border-0 flex justify-between items-center gap-4">
+                <div className="search-box flex-1 max-w-md">
+                    <Search size={18} className="search-icon" />
+                    <input
+                        type="text"
+                        placeholder="Search by user, institute or comment..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
                 </div>
+                <div className="filter-box">
+                    <Filter size={18} className="filter-icon" />
+                    <select
+                        className="admin-select"
+                        value={selectedInstitute}
+                        onChange={(e) => setSelectedInstitute(e.target.value)}
+                    >
+                        <option value="all">All Institutes</option>
+                        {institutes.map(inst => (
+                            <option key={inst.id} value={inst.id}>{inst.institute_name}</option>
+                        ))}
+                    </select>
+                </div>
+            </div>
 
+            <div className="admin-glass-card table-container">
                 <div className="responsive-table">
                     <table>
                         <thead>
                             <tr>
                                 <th>User</th>
-                                <th>Institute</th>
                                 <th>Rating</th>
                                 <th>Comment</th>
-                                <th className="text-center">Actions</th>
+                                <th>Institute</th>
+                                <th>Posted At</th>
+                                <th>Reason</th>
+                                <th className="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan="5" className="text-center p-12">
+                                    <td colSpan="8" className="text-center p-12">
                                         <div className="loader mx-auto mb-4"></div>
                                         <p className="text-muted">Loading ratings...</p>
                                     </td>
                                 </tr>
                             ) : filteredRatings.length === 0 ? (
                                 <tr>
-                                    <td colSpan="5" className="text-center p-12">
+                                    <td colSpan="8" className="text-center p-12">
                                         <p className="text-muted">No ratings found.</p>
                                     </td>
                                 </tr>
                             ) : (
                                 filteredRatings.map((rating) => (
-                                    <tr key={rating.id}>
+                                    <tr key={rating.id}>                                      
                                         <td>
                                             <div className="user-info-sm">
                                                 <User size={14} className="text-muted" />
                                                 <span>{rating.user?.name || 'Anonymous'}</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className="inst-info-sm">
-                                                <Building2 size={14} className="text-muted" />
-                                                <span>{rating.institute?.name || '-'}</span>
                                             </div>
                                         </td>
                                         <td>
@@ -133,11 +174,24 @@ const RatingManagement = () => {
                                             </div>
                                         </td>
                                         <td>
+                                            <div className="inst-info-sm">
+                                                <Building2 size={14} className="text-muted" />
+                                                <span>{rating.institute?.institute_name || '-'}</span>
+                                            </div>
+                                        </td>
+                                        <td>{rating.created_at ? new Date(rating.created_at).toLocaleDateString() : '-'}</td>
+                                        <td>
+                                            <span className={rating.is_reported ? 'reason-reported' : 'reason-none'}>
+                                                {rating.report_reason || '—'}
+                                            </span>
+                                        </td>
+                                        <td>
                                             <div className="actions-cell">
                                                 <button
-                                                    className="icon-btn delete"
-                                                    title="Remove Review"
-                                                    onClick={() => handleDelete(rating.id)}
+                                                    className={`icon-btn delete ${!rating.is_reported ? 'disabled' : ''}`}
+                                                    title={rating.is_reported ? "Remove Review" : "Only reported reviews can be deleted"}
+                                                    onClick={() => rating.is_reported && handleDeleteClick(rating.id)}
+                                                    disabled={!rating.is_reported}
                                                 >
                                                     <Trash2 size={16} />
                                                 </button>
@@ -150,6 +204,17 @@ const RatingManagement = () => {
                     </table>
                 </div>
             </div>
+
+            <ActionConfirmModal
+                isOpen={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                onConfirm={confirmDelete}
+                isProcessing={isDeleting}
+                title="Delete Reported Review"
+                message="Are you sure you want to permanently delete this reported review? This action cannot be undone."
+                confirmText="Yes, Delete Review"
+                type="danger"
+            />
         </div>
     );
 };
