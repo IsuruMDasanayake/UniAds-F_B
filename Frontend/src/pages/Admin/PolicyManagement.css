@@ -62,6 +62,11 @@
     transform: translateY(-1px);
 }
 
+.admin-policy-scope .policy-content {
+    min-width: 0;
+    /* Crucial for grid/flex items to allow children to overflow correctly */
+}
+
 /* Content Truncation */
 .admin-policy-scope .policy-content-cell {
     max-width: 400px;
@@ -255,6 +260,45 @@
 
 @media (max-width: 992px) {
     .admin-policy-scope .policy-container {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-policy-scope .policy-content-cell {
+        min-width: 300px;
+    }
+
+    .admin-policy-scope .content-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+
+    .admin-policy-scope .tabs-card {
+        width: 100% !important;
+    }
+
+    .admin-policy-scope .add-section-btn {
+        width: 100% !important;
+        justify-content: center;
+    }
+
+    .admin-policy-scope .policy-content {
+        width: 100% !important;
+        overflow: hidden;
+        /* Prevent visual leakage */
+    }
+
+    .admin-policy-scope .responsive-table {
+        margin: 0 -1.5rem;
+        /* Allow table to touch edges on mobile if needed */
+        padding: 0 1.5rem 1rem 1.5rem;
+    }
+
+    .admin-policy-scope .responsive-table table {
+        min-width: 800px;
+        /* Force overflow within the wrapper */
     }
 }

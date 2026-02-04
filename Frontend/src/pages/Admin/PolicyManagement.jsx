@@ -148,7 +148,7 @@ const PolicyManagement = () => {
                 </div>
 
                 <div className="policy-content">
-                    <div className="admin-glass-card p-6">
+                    <div className="admin-glass-card table-container p-6">
                         <div className="content-header mb-6">
                             <h3 className="text-lg font-bold">
                                 {activeTab === 'privacy' ? 'Privacy Policy' : activeTab === 'terms' ? 'Terms & Conditions' : 'Refund Policy'} Sections
