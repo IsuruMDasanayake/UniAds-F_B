@@ -12,7 +12,7 @@ const AdminLayout = ({ children }) => {
 
     return (
         <div className="admin-page-container">
-            <AdminSidebar isOpen={isSidebarOpen} />
+            <AdminSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
             <div className={`admin-main ${isSidebarOpen ? 'sidebar-open' : ''}`}>
                 <AdminNavbar toggleSidebar={toggleSidebar} />

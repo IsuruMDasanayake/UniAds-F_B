@@ -20,6 +20,14 @@
     justify-content: center;
 }
 
+.admin-dashboard-scope h2 {
+    color: var(--admin-text-main);
+}
+
+.admin-dashboard-scope p {
+    color: var(--admin-text-muted);
+}
+
 .admin-dashboard-scope .stat-content {
     display: flex;
     flex-direction: column;

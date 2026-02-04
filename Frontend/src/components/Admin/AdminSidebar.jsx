@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import './AdminSidebar.css';
 
-const AdminSidebar = ({ isOpen }) => {
+const AdminSidebar = ({ isOpen, setIsOpen }) => {
     const menuItems = [
         { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
         { name: 'Users', path: '/admin/users', icon: Users },
@@ -26,6 +26,13 @@ const AdminSidebar = ({ isOpen }) => {
         { name: 'Ratings', path: '/admin/ratings', icon: Star },
         { name: 'Policies', path: '/admin/policies', icon: ShieldCheck },
     ];
+
+    const handleItemClick = () => {
+        // Auto-hide sidebar on mobile (max-width 1024px)
+        if (window.innerWidth <= 1024) {
+            setIsOpen(false);
+        }
+    };
 
     const handleLogout = () => {
         localStorage.removeItem('ACCESS_TOKEN');
@@ -45,6 +52,7 @@ const AdminSidebar = ({ isOpen }) => {
                         key={item.path}
                         to={item.path}
                         className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+                        onClick={handleItemClick}
                     >
                         <item.icon size={20} className="nav-icon" />
                         <span className="nav-text">{item.name}</span>

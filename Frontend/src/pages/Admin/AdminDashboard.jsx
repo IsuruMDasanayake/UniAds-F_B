@@ -79,8 +79,8 @@ const AdminDashboard = () => {
     return (
         <div className="admin-dashboard-page admin-dashboard-scope">
             <div className="dashboard-header mb-8">
-                <h1 className="text-2xl font-bold">System Analytics</h1>
-                <p className="text-muted">30-day performance overview</p>
+                <h2>System Analytics</h2>
+                <p>30-day performance overview</p>
             </div>
 
             <div className="stats-grid">
