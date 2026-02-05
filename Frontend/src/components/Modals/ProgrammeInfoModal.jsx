@@ -31,6 +31,34 @@ const ProgrammeInfoModal = ({ course, isOpen, onClose, onApply, onMoreInfo, user
                                 alt={course.title}
                                 className="programme-info-modal-img"
                             />
+
+                            <div className="programme-info-modal-attributes">
+                                <div className="programme-info-modal-attr-item">
+                                    <span className="programme-info-modal-attr-label">Course Name:</span>
+                                    <span className="programme-info-modal-attr-value">{course.course_name || 'N/A'}</span>
+                                </div>
+                                <div className="programme-info-modal-attr-item">
+                                    <span className="programme-info-modal-attr-label">Course Type:</span>
+                                    <span className="programme-info-modal-attr-value">{course.course_type || 'N/A'}</span>
+                                </div>
+                                <div className="programme-info-modal-attr-item">
+                                    <span className="programme-info-modal-attr-label">Location:</span>
+                                    <span className="programme-info-modal-attr-value">{course.location || 'N/A'}</span>
+                                </div>
+                                <div className="programme-info-modal-attr-item">
+                                    <span className="programme-info-modal-attr-label">Duration:</span>
+                                    <span className="programme-info-modal-attr-value">{course.duration || 'N/A'}</span>
+                                </div>
+                                <div className="programme-info-modal-attr-item">
+                                    <span className="programme-info-modal-attr-label">Format:</span>
+                                    <span className="programme-info-modal-attr-value">{course.course_format || 'N/A'}</span>
+                                </div>
+                                <div className="programme-info-modal-attr-item">
+                                    <span className="programme-info-modal-attr-label">Attendance:</span>
+                                    <span className="programme-info-modal-attr-value">{course.attendance_type || 'N/A'}</span>
+                                </div>
+                            </div>
+
                             <div className="programme-info-modal-body">
                                 <p className="programme-info-modal-desc">{course.description}</p>
                             </div>
