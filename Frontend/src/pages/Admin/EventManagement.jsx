@@ -27,7 +27,9 @@ const EventManagement = () => {
     const [institutes, setInstitutes] = useState([]);
     const [selectedInstitute, setSelectedInstitute] = useState('');
     const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null, title: '' });
+    const [toggleModal, setToggleModal] = useState({ isOpen: false, id: null, title: '', isActive: false });
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isToggling, setIsToggling] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
 
@@ -59,14 +61,28 @@ const EventManagement = () => {
         }
     };
 
-    const handleToggleStatus = async (id) => {
+    const handleToggleClick = (event) => {
+        setToggleModal({
+            isOpen: true,
+            id: event.id,
+            title: event.event_title,
+            isActive: event.is_active
+        });
+    };
+
+    const confirmToggleStatus = async () => {
+        if (!toggleModal.id) return;
+        setIsToggling(true);
         try {
-            const resp = await axiosClient.post(`/api/admin/events/${id}/toggle-status`);
+            const resp = await axiosClient.post(`/api/admin/events/${toggleModal.id}/toggle-status`);
             setEvents(events.map(e =>
-                e.id === id ? { ...e, is_active: resp.data.is_active } : e
+                e.id === toggleModal.id ? { ...e, is_active: resp.data.is_active } : e
             ));
+            setToggleModal({ isOpen: false, id: null, title: '', isActive: false });
         } catch (error) {
             console.error('Error toggling event status:', error);
+        } finally {
+            setIsToggling(false);
         }
     };
 
@@ -241,7 +257,7 @@ const EventManagement = () => {
                                                 <button
                                                     className={`action-btn-sm ${event.is_active ? 'activate' : 'deactivate'}`}
                                                     title={event.is_active ? 'Hide Event' : 'Show Event'}
-                                                    onClick={(e) => { e.stopPropagation(); handleToggleStatus(event.id); }}
+                                                    onClick={(e) => { e.stopPropagation(); handleToggleClick(event); }}
                                                 >
                                                     {event.is_active ? <Eye size={16} /> : <EyeOff size={16} />}
                                                 </button>
@@ -341,11 +357,22 @@ const EventManagement = () => {
                 isOpen={deleteModal.isOpen}
                 onClose={() => setDeleteModal({ isOpen: false, id: null, title: '' })}
                 onConfirm={confirmDelete}
+                isProcessing={isDeleting}
                 title="Delete Event"
                 message={`Are you sure you want to delete "${deleteModal.title}"? This action cannot be undone.`}
-                isLoading={isDeleting}
+                confirmText="Yes, Delete Event"
                 type="danger"
-                confirmText="Delete"
+            />
+
+            <ActionConfirmModal
+                isOpen={toggleModal.isOpen}
+                onClose={() => setToggleModal({ isOpen: false, id: null, title: '', isActive: false })}
+                onConfirm={confirmToggleStatus}
+                isProcessing={isToggling}
+                title={toggleModal.isActive ? 'Hide Event' : 'Show Event'}
+                message={`Are you sure you want to ${toggleModal.isActive ? 'hide' : 'show'} the event "${toggleModal.title}"?`}
+                confirmText={toggleModal.isActive ? 'Yes, Hide' : 'Yes, Show'}
+                type={toggleModal.isActive ? 'danger' : 'success'}
             />
         </div>
     );

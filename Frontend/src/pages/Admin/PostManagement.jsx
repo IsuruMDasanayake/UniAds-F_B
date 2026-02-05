@@ -25,6 +25,8 @@ const PostManagement = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null, title: '' });
+    const [toggleModal, setToggleModal] = useState({ isOpen: false, id: null, title: '', currentStatus: '' });
+    const [isToggling, setIsToggling] = useState(false);
     const [selectedPost, setSelectedPost] = useState(null);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [institutes, setInstitutes] = useState([]);
@@ -58,14 +60,28 @@ const PostManagement = () => {
         }
     };
 
-    const handleToggleStatus = async (id) => {
+    const handleToggleClick = (post) => {
+        setToggleModal({
+            isOpen: true,
+            id: post.id,
+            title: post.title,
+            currentStatus: post.status
+        });
+    };
+
+    const confirmToggleStatus = async () => {
+        if (!toggleModal.id) return;
+        setIsToggling(true);
         try {
-            const resp = await axiosClient.post(`/api/admin/posts/${id}/toggle-status`);
+            const resp = await axiosClient.post(`/api/admin/posts/${toggleModal.id}/toggle-status`);
             setPosts(posts.map(p =>
-                p.id === id ? { ...p, status: resp.data.status } : p
+                p.id === toggleModal.id ? { ...p, status: resp.data.status } : p
             ));
+            setToggleModal({ isOpen: false, id: null, title: '', currentStatus: '' });
         } catch (error) {
             console.error('Error toggling post status:', error);
+        } finally {
+            setIsToggling(false);
         }
     };
 
@@ -211,7 +227,7 @@ const PostManagement = () => {
                                                 <button
                                                     className={`action-btn-sm ${post.status === 'active' ? 'activate' : 'deactivate'}`}
                                                     title={post.status === 'active' ? 'Deactivate Post' : 'Activate Post'}
-                                                    onClick={(e) => { e.stopPropagation(); handleToggleStatus(post.id); }}
+                                                    onClick={(e) => { e.stopPropagation(); handleToggleClick(post); }}
                                                 >
                                                     {post.status === 'active' ? <Eye size={16} /> : <EyeOff size={16} />}
                                                 </button>
@@ -321,13 +337,24 @@ const PostManagement = () => {
 
             <ActionConfirmModal
                 isOpen={deleteModal.isOpen}
-                onClose={() => setDeleteModal({ ...deleteModal, isOpen: false })}
+                onClose={() => setDeleteModal({ isOpen: false, id: null, title: '' })}
                 onConfirm={confirmDelete}
+                isProcessing={isDeleting}
                 title="Delete Post"
                 message={`Are you sure you want to delete "${deleteModal.title}"? This action cannot be undone.`}
-                confirmText="Delete"
+                confirmText="Yes, Delete Post"
                 type="danger"
-                isLoading={isDeleting}
+            />
+
+            <ActionConfirmModal
+                isOpen={toggleModal.isOpen}
+                onClose={() => setToggleModal({ isOpen: false, id: null, title: '', currentStatus: '' })}
+                onConfirm={confirmToggleStatus}
+                isProcessing={isToggling}
+                title={toggleModal.currentStatus === 'active' ? 'Deactivate Post' : 'Activate Post'}
+                message={`Are you sure you want to ${toggleModal.currentStatus === 'active' ? 'deactivate' : 'activate'} the post "${toggleModal.title}"?`}
+                confirmText={toggleModal.currentStatus === 'active' ? 'Yes, Deactivate' : 'Yes, Activate'}
+                type={toggleModal.currentStatus === 'active' ? 'danger' : 'success'}
             />
         </div>
     );

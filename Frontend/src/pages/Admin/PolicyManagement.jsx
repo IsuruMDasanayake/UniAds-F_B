@@ -221,59 +221,58 @@ const PolicyManagement = () => {
 
             {/* Add/Edit Modal */}
             {isEditModalOpen && currentPolicy && (
-                <div className="modal-overlay" onClick={() => setIsEditModalOpen(false)}>
-                    <div className="modal-content policy-modal" onClick={e => e.stopPropagation()}>
-                        <div className="modal-header-section">
+                <div className="policy-mgmt-modal-overlay" onClick={() => setIsEditModalOpen(false)}>
+                    <div className="policy-mgmt-modal-content" onClick={e => e.stopPropagation()}>
+                        <div className="policy-mgmt-modal-header">
                             <h2>{currentPolicy.id ? 'Edit Policy Section' : 'Add New Section'}</h2>
-                            <button className="modal-close" onClick={() => setIsEditModalOpen(false)}>&times;</button>
+                            <button className="policy-mgmt-modal-close" onClick={() => setIsEditModalOpen(false)}>
+                                <X size={20} />
+                            </button>
                         </div>
-                        <div className="modal-body-section">
+                        <div className="policy-mgmt-modal-body">
                             <form onSubmit={handleSave} className="flex flex-col h-full">
-                                <div className="modal-body-scroll flex-1 overflow-y-auto pr-2">
-                                    <div className="form-group mb-4">
-                                        <label className="modal-label">Section Title</label>
-                                        <input
-                                            type="text"
-                                            className="modal-input"
-                                            placeholder="e.g., Information Collection"
-                                            value={currentPolicy.title}
-                                            onChange={e => setCurrentPolicy({ ...currentPolicy, title: e.target.value })}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="form-group mb-4 flex-1 flex flex-col">
-                                        <label className="modal-label">Content</label>
-                                        <textarea
-                                            className="modal-textarea"
-                                            placeholder="Enter full section content..."
-                                            rows="10"
-                                            value={currentPolicy.content}
-                                            onChange={e => setCurrentPolicy({ ...currentPolicy, content: e.target.value })}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="form-group mb-4">
-                                        <label className="modal-label">Order Index</label>
-                                        <input
-                                            type="number"
-                                            className="modal-input"
-                                            value={currentPolicy.order_index}
-                                            onChange={e => setCurrentPolicy({ ...currentPolicy, order_index: parseInt(e.target.value) || 0 })}
-                                            required
-                                        />
-                                    </div>
+                                <div className="policy-mgmt-form-group">
+                                    <label className="policy-mgmt-modal-label">Section Title</label>
+                                    <input
+                                        type="text"
+                                        className="policy-mgmt-modal-input"
+                                        placeholder="e.g., Information Collection"
+                                        value={currentPolicy.title}
+                                        onChange={e => setCurrentPolicy({ ...currentPolicy, title: e.target.value })}
+                                        required
+                                    />
                                 </div>
-                                <div className="modal-actions">
+                                <div className="policy-mgmt-form-group flex-1 flex flex-col">
+                                    <label className="policy-mgmt-modal-label">Content</label>
+                                    <textarea
+                                        className="policy-mgmt-modal-textarea"
+                                        placeholder="Enter full section content..."
+                                        value={currentPolicy.content}
+                                        onChange={e => setCurrentPolicy({ ...currentPolicy, content: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                                <div className="policy-mgmt-form-group">
+                                    <label className="policy-mgmt-modal-label">Order Index</label>
+                                    <input
+                                        type="number"
+                                        className="policy-mgmt-modal-input"
+                                        value={currentPolicy.order_index}
+                                        onChange={e => setCurrentPolicy({ ...currentPolicy, order_index: parseInt(e.target.value) || 0 })}
+                                        required
+                                    />
+                                </div>
+                                <div className="policy-mgmt-modal-actions">
                                     <button
                                         type="button"
-                                        className="cancel-btn"
+                                        className="policy-mgmt-cancel-btn"
                                         onClick={() => setIsEditModalOpen(false)}
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="submit"
-                                        className="submit-btn"
+                                        className="policy-mgmt-submit-btn"
                                         disabled={isProcessing}
                                     >
                                         {isProcessing ? 'Saving...' : currentPolicy.id ? 'Save Changes' : 'Add Section'}
