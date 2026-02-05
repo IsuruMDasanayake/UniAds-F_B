@@ -8,34 +8,45 @@ const ProgrammeInfoModal = ({ course, isOpen, onClose, onApply, onMoreInfo, user
     return (
         <AnimatePresence>
             {isOpen && course && (
-                <div className="courses-modal-overlay" onClick={onClose}>
+                <div className="programme-info-modal-overlay" onClick={onClose}>
                     <motion.div
-                        className="courses-modal-content"
+                        className="programme-info-modal-content"
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0.9, opacity: 0 }}
                         onClick={e => e.stopPropagation()}
                     >
-                        <button className="modal-close-trigger" onClick={onClose}><X size={24} /></button>
-                        <img
-                            src={course.image ? getStorageUrl(course.image) : getStorageUrl(course.image_path) || '/images/default-course.jpg'}
-                            alt={course.title}
-                            className="modal-img"
-                        />
-                        <div className="modal-body">
-                            <h2>{course.title}</h2>
-                            <p className="modal-desc">{course.description}</p>
-                            {userRole === 'User' && (
-                                <div className="modal-footer">
-                                    <button className="apply-btn" onClick={onApply}>
-                                        Apply Now <Send size={18} />
-                                    </button>
-                                    <button className="info-btn" onClick={onMoreInfo}>
-                                        Get More Info <Info size={18} />
-                                    </button>
-                                </div>
-                            )}
+                        {/* Fixed Header */}
+                        <div className="programme-info-modal-header">
+                            <h2 className="programme-info-modal-title">{course.title}</h2>
+                            <button className="programme-info-modal-close" onClick={onClose}>
+                                <X size={24} />
+                            </button>
                         </div>
+
+                        {/* Scrollable Content */}
+                        <div className="programme-info-modal-scroll">
+                            <img
+                                src={course.image ? getStorageUrl(course.image) : getStorageUrl(course.image_path) || '/images/default-course.jpg'}
+                                alt={course.title}
+                                className="programme-info-modal-img"
+                            />
+                            <div className="programme-info-modal-body">
+                                <p className="programme-info-modal-desc">{course.description}</p>
+                            </div>
+                        </div>
+
+                        {/* Fixed Footer */}
+                        {userRole === 'User' && (
+                            <div className="programme-info-modal-footer">
+                                <button className="programme-info-apply-btn" onClick={onApply}>
+                                    Apply Now <Send size={18} />
+                                </button>
+                                <button className="programme-info-info-btn" onClick={onMoreInfo}>
+                                    Get More Info <Info size={18} />
+                                </button>
+                            </div>
+                        )}
                     </motion.div>
                 </div>
             )}

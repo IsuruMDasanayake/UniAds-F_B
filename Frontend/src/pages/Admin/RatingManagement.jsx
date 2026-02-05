@@ -166,7 +166,6 @@ const RatingManagement = () => {
                                     <tr key={rating.id}>
                                         <td>
                                             <div className="user-info-sm">
-                                                <User size={14} className="text-muted" />
                                                 <span>{rating.user?.name || 'Anonymous'}</span>
                                             </div>
                                         </td>
@@ -182,7 +181,6 @@ const RatingManagement = () => {
                                         </td>
                                         <td>
                                             <div className="inst-info-sm">
-                                                <Building2 size={14} className="text-muted" />
                                                 <span>{rating.institute?.institute_name || '-'}</span>
                                             </div>
                                         </td>

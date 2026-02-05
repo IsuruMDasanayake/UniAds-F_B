@@ -90,7 +90,7 @@
 .form-group {
     display: flex;
     flex-direction: column;
-    
+
 }
 
 .form-group label {
@@ -106,8 +106,8 @@
     padding: 0.6rem 0.8rem;
     /* Compact padding */
     border-radius: 10px;
-    border: 1px solid #e2e8f0;
-    background: #f8fafc;
+    border: 1px solid #e2e8f0 !important;
+    background: #f8fafc !important;
     font-family: inherit;
     font-size: 0.85rem;
     /* Smaller font */
@@ -127,7 +127,7 @@
     border-color: var(--c-primary);
     background: white;
     outline: none;
-    
+
 }
 
 .consent-group {
@@ -156,33 +156,74 @@
     line-height: 1.3;
 }
 
-.submit-application {
-    background: var(--c-dark);
-    color: white;
-    border: none;
-    padding: 0.8rem;
-    /* Compact button */
-    border-radius: 10px;
+.consent-group label a {
+    color: #3b82f6;
+    text-decoration: none;
     font-weight: 600;
-    font-size: 0.95rem;
-    cursor: pointer;
-    margin-top: 0.5rem;
-    transition: all 0.3s;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-shrink: 0;
+    transition: color 0.2s;
+}
+
+.consent-group label a:hover {
+    color: #2563eb;
+    text-decoration: underline;
+}
+
+.submit-application {
+    background: var(--c-accent) !important;
+    color: white !important;
+    padding: 1rem 2.5rem !important;
+    border-radius: 20px !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(29, 55, 92, 0.3) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    font-family: 'Poppins', sans-serif !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 20px;
+    height: 45px;
+    border-radius: 15px !important;
+}
+
+.submit-application:hover:not(:disabled)::before {
+    left: 100%;
+}
+
+.submit-application::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent);
+    transition: 0.5s;
 }
 
 .submit-application:hover:not(:disabled) {
-    background: #1e293b;
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px -3px rgba(15, 23, 42, 0.2);
+    box-shadow: 0 8px 25px rgba(228, 42, 25, 0.12) !important;
+}
+
+.submit-application:active:not(:disabled) {
+    transform: translateY(0);
 }
 
 .submit-application:disabled {
-    opacity: 0.7;
-    cursor: wait;
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
 }
 
 /* Alerts CSS for messages inside modal if needed */

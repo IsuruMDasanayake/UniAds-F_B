@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2 } from 'lucide-react';
 import './ApplyNowModal.css';
@@ -75,7 +76,7 @@ const ApplyNowModal = ({ isOpen, onClose, courseTitle, form, onChange, onSubmit,
                                     required
                                 />
                                 <label htmlFor="consent">
-                                    Yes, I agree to share my details with the institute and acknowledge UniAds' <Link to="/privacy-policy">Privacy Policy</Link> & <Link to="/terms-of-service">Terms & Conditions</Link>.
+                                    Yes, I agree to share my details with the institute and acknowledge UniAds' <Link to="/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</Link> & <Link to="/terms-conditions" target="_blank" rel="noopener noreferrer">Terms & Conditions</Link>.
                                 </label>
                             </div>
                             <button type="submit" className="submit-application" disabled={isSubmitting}>
