@@ -186,7 +186,6 @@ const PostManagement = () => {
                                         </td>
                                         <td>
                                             <div className="inst-cell">
-                                                <Building2 size={14} className="text-muted" />
                                                 <span>
                                                     {post.institute?.institute_name || (post.institute_id ? `Unknown ID: ${post.institute_id}` : 'Admin')}
                                                 </span>
@@ -235,85 +234,85 @@ const PostManagement = () => {
 
             {/* Post Details Modal */}
             {showDetailsModal && selectedPost && (
-                <div className="post-details-modal-overlay" onClick={() => setShowDetailsModal(false)}>
-                    <div className="post-details-modal-content" onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
+                <div className="post-mgmt-details-overlay" onClick={() => setShowDetailsModal(false)}>
+                    <div className="post-mgmt-details-content" onClick={e => e.stopPropagation()}>
+                        <div className="post-mgmt-details-header">
                             <h2>Post Details</h2>
-                            <button className="close-btn" onClick={() => setShowDetailsModal(false)}>
+                            <button className="post-mgmt-details-close-btn" onClick={() => setShowDetailsModal(false)}>
                                 <X size={20} />
                             </button>
                         </div>
-                        <div className="modal-body">
-                            <div className="post-details-grid">
-                                <div className="post-image-section">
+                        <div className="post-mgmt-details-body">
+                            <div className="post-mgmt-details-grid">
+                                <div className="post-mgmt-details-image-section">
                                     {selectedPost.image ? (
                                         <img src={`${API_BASE_URL}/storage/${selectedPost.image}`} alt={selectedPost.title} />
                                     ) : (
-                                        <div className="no-image-placeholder">
+                                        <div className="post-mgmt-details-no-image">
                                             <FileText size={48} />
                                             <span>No Image</span>
                                         </div>
                                     )}
                                 </div>
-                                <div className="post-info-section">
+                                <div className="post-mgmt-details-info-section">
                                     <h3 className="post-title">{selectedPost.title}</h3>
-                                    <div className="info-meta">
-                                        <span className="info-item">
+                                    <div className="post-mgmt-details-meta">
+                                        <span className="post-mgmt-details-meta-item">
                                             <Building2 size={16} /> {selectedPost.institute?.institute_name || (selectedPost.institute_id ? `Unknown ID: ${selectedPost.institute_id}` : 'Admin')}
                                         </span>
-                                        <span className="info-item">
+                                        <span className="post-mgmt-details-meta-item">
                                             <Clock size={16} /> {new Date(selectedPost.created_at).toLocaleDateString()}
                                         </span>
                                     </div>
 
-                                    <div className="details-tags">
+                                    <div className="post-mgmt-details-tags">
                                         <span className={`status-pill ${selectedPost.status}`}>
                                             {selectedPost.status === 'active' ? 'Active' : 'Inactive'}
                                         </span>
-                                        <span className="tag-item">
+                                        <span className="post-mgmt-details-tag">
                                             <Heart size={14} className="fill-red-500 text-red-500" /> {selectedPost.likes_count || 0} Likes
                                         </span>
-                                        <span className="tag-item">
+                                        <span className="post-mgmt-details-tag">
                                             <Eye size={14} /> {selectedPost.view_count || 0} Views
                                         </span>
                                     </div>
 
-                                    <div className="description-box">
-                                        <h4>Small Description</h4>
+                                    <div className="post-mgmt-details-description-sm">
+                                        <div className="post-mgmt-details-label">Small Description</div>
                                         <p>{selectedPost.small_description}</p>
                                     </div>
 
-                                    <div className="post-attributes">
-                                        <div className="attr-item">
-                                            <span className="attr-label">Course Name:</span>
-                                            <span className="attr-value">{selectedPost.course_name}</span>
+                                    <div className="post-mgmt-details-attributes">
+                                        <div className="post-mgmt-details-attr-item">
+                                            <span className="post-mgmt-details-attr-label">Course Name:</span>
+                                            <span className="post-mgmt-details-attr-value">{selectedPost.course_name}</span>
                                         </div>
-                                        <div className="attr-item">
-                                            <span className="attr-label">Course Type:</span>
-                                            <span className="attr-value">{selectedPost.course_type}</span>
+                                        <div className="post-mgmt-details-attr-item">
+                                            <span className="post-mgmt-details-attr-label">Course Type:</span>
+                                            <span className="post-mgmt-details-attr-value">{selectedPost.course_type}</span>
                                         </div>
-                                        <div className="attr-item">
-                                            <span className="attr-label">Location:</span>
-                                            <span className="attr-value">{selectedPost.location}</span>
+                                        <div className="post-mgmt-details-attr-item">
+                                            <span className="post-mgmt-details-attr-label">Location:</span>
+                                            <span className="post-mgmt-details-attr-value">{selectedPost.location}</span>
                                         </div>
-                                        <div className="attr-item">
-                                            <span className="attr-label">Duration:</span>
-                                            <span className="attr-value">{selectedPost.duration}</span>
+                                        <div className="post-mgmt-details-attr-item">
+                                            <span className="post-mgmt-details-attr-label">Duration:</span>
+                                            <span className="post-mgmt-details-attr-value">{selectedPost.duration}</span>
                                         </div>
-                                        <div className="attr-item">
-                                            <span className="attr-label">Format:</span>
-                                            <span className="attr-value">{selectedPost.course_format}</span>
+                                        <div className="post-mgmt-details-attr-item">
+                                            <span className="post-mgmt-details-attr-label">Format:</span>
+                                            <span className="post-mgmt-details-attr-value">{selectedPost.course_format}</span>
                                         </div>
-                                        <div className="attr-item">
-                                            <span className="attr-label">Attendance:</span>
-                                            <span className="attr-value">{selectedPost.attendance_type}</span>
+                                        <div className="post-mgmt-details-attr-item">
+                                            <span className="post-mgmt-details-attr-label">Attendance:</span>
+                                            <span className="post-mgmt-details-attr-value">{selectedPost.attendance_type}</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div className="full-description mt-6">
-                                <h4>Full Description</h4>
-                                <div className="description-content" dangerouslySetInnerHTML={{ __html: selectedPost.description }}></div>
+                            <div className="post-mgmt-details-full-desc mt-6">
+                                <div className="post-mgmt-details-label">Full Description</div>
+                                <div className="post-mgmt-details-desc-content" dangerouslySetInnerHTML={{ __html: selectedPost.description }}></div>
                             </div>
                         </div>
                     </div>

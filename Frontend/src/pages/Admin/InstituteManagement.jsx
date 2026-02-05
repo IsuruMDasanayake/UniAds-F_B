@@ -283,6 +283,7 @@ const InstituteManagement = () => {
                 title={confirmModal.title}
                 message={confirmModal.message}
                 confirmText={confirmModal.confirmText}
+                cancelText="Cancel"
                 type={confirmModal.type}
             />
         </div>

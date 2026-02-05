@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
+import './ActionConfirmModal.css';
 
 const ActionConfirmModal = ({
     isOpen,
@@ -40,9 +41,9 @@ const ActionConfirmModal = ({
     return createPortal(
         <AnimatePresence>
             {isOpen && (
-                <div className="user-modal-overlay"> {/* Reusing the overlay class from UserManagement.css or similar global style */}
+                <div className="action-confirm-modal-overlay">
                     <motion.div
-                        className="user-modal-content" // Reusing the content class
+                        className="action-confirm-modal-content"
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0.9, opacity: 0 }}

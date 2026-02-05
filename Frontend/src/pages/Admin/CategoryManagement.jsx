@@ -122,16 +122,16 @@ const CategoryModal = ({ show, onClose, mode, categoryData, onSave }) => {
     if (!show) return null;
 
     return (
-        <div className="category-modal-overlay">
-            <div className="category-modal-content admin-glass-card">
-                <div className="modal-header">
+        <div className="cat-mgmt-modal-overlay">
+            <div className="cat-mgmt-modal-content admin-glass-card">
+                <div className="cat-mgmt-modal-header">
                     <h2>{mode === 'add' ? 'Add New Category' : 'Edit Category'}</h2>
-                    <button className="close-btn" onClick={onClose}><X size={20} /></button>
+                    <button className="cat-mgmt-close-btn" onClick={onClose}><X size={20} /></button>
                 </div>
 
                 <form onSubmit={handleSubmit}>
-                    <div className="modal-body-scroll">
-                        <div className="form-group">
+                    <div className="cat-mgmt-modal-body-scroll">
+                        <div className="cat-mgmt-form-group">
                             <label>Main Category</label>
                             <select
                                 value={formData.main_category}
@@ -146,45 +146,42 @@ const CategoryModal = ({ show, onClose, mode, categoryData, onSave }) => {
                             </select>
                         </div>
 
-                        <div className="form-group">
+                        <div className="cat-mgmt-form-group">
                             <label>Category Name</label>
                             <input
                                 type="text"
+                                placeholder="Enter category name"
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                placeholder="Enter category name"
                                 required
                             />
                         </div>
 
-                        <div className="form-group">
+                        <div className="cat-mgmt-form-group">
                             <label>Select Icon</label>
-
-                            <div className="icon-selection-controls">
-                                <div className="icon-search-wrapper mb-3">
-
+                            <div className="cat-mgmt-icon-selection-controls">
+                                <div className="cat-mgmt-icon-search-wrapper">
+                                    <Search className="cat-mgmt-search-icon-pos" size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--admin-text-muted)', pointerEvents: 'none' }} />
                                     <input
                                         type="text"
                                         placeholder="Search icons..."
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="icon-search"
+                                        className="cat-mgmt-icon-search"
                                     />
                                 </div>
-
-                                <div className="icon-preview-box">
-                                    <div className="selected-icon-preview">
+                                <div className="cat-mgmt-icon-preview-box">
+                                    <div className="cat-mgmt-selected-icon-preview">
                                         <i className={formData.icon}></i>
-                                        {/* <span>Selected</span> */}
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="icon-grid">
+                            <div className="cat-mgmt-icon-grid">
                                 {filteredIcons.map((icon) => (
                                     <div
                                         key={icon}
-                                        className={`icon-item ${formData.icon === icon ? 'selected' : ''}`}
+                                        className={`cat-mgmt-icon-item ${formData.icon === icon ? 'selected' : ''}`}
                                         onClick={() => setFormData({ ...formData, icon })}
                                         title={icon}
                                     >
@@ -195,9 +192,9 @@ const CategoryModal = ({ show, onClose, mode, categoryData, onSave }) => {
                         </div>
                     </div>
 
-                    <div className="modal-actions">
-                        <button type="button" className="cancel-btn" onClick={onClose}>Cancel</button>
-                        <button type="submit" className="submit-btn" disabled={saving}>
+                    <div className="cat-mgmt-modal-actions">
+                        <button type="button" className="cat-mgmt-cancel-btn" onClick={onClose}>Cancel</button>
+                        <button type="submit" className="cat-mgmt-submit-btn" disabled={saving}>
                             {saving ? 'Saving...' : (mode === 'add' ? 'Create Category' : 'Update Category')}
                         </button>
                     </div>

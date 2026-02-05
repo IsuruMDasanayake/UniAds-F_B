@@ -87,17 +87,17 @@ const UserModal = ({ show, onClose, mode, userData, onSave }) => {
     if (!show) return null;
 
     return (
-        <div className="user-modal-overlay">
-            <div className="user-modal-content admin-glass-card">
-                <div className="modal-header">
+        <div className="user-mgmt-modal-overlay">
+            <div className="user-mgmt-modal-content admin-glass-card">
+                <div className="user-mgmt-modal-header">
                     <h2>{mode === 'add' ? 'Add New User' : 'Edit User'}</h2>
-                    <button className="close-btn" onClick={onClose}><X size={20} /></button>
+                    <button className="user-mgmt-close-btn" onClick={onClose}><X size={20} /></button>
                 </div>
 
-                {errors.submit && <div className="error-alert">{errors.submit}</div>}
+                {errors.submit && <div className="user-mgmt-error-alert">{errors.submit}</div>}
 
                 <form onSubmit={handleSubmit}>
-                    <div className="form-group">
+                    <div className="user-mgmt-form-group">
                         <label>Full Name</label>
                         <input
                             type="text"
@@ -107,10 +107,10 @@ const UserModal = ({ show, onClose, mode, userData, onSave }) => {
                             placeholder="Enter full name"
                             className={errors.name ? 'error' : ''}
                         />
-                        {errors.name && <span className="error-text">{errors.name}</span>}
+                        {errors.name && <span className="user-mgmt-error-text">{errors.name}</span>}
                     </div>
 
-                    <div className="form-group">
+                    <div className="user-mgmt-form-group">
                         <label>Email Address</label>
                         <input
                             type="email"
@@ -120,10 +120,10 @@ const UserModal = ({ show, onClose, mode, userData, onSave }) => {
                             placeholder="Enter email address"
                             className={errors.email ? 'error' : ''}
                         />
-                        {errors.email && <span className="error-text">{errors.email}</span>}
+                        {errors.email && <span className="user-mgmt-error-text">{errors.email}</span>}
                     </div>
 
-                    <div className="form-group">
+                    <div className="user-mgmt-form-group">
                         <label>Role</label>
                         <select name="role" value={formData.role} onChange={handleChange}>
                             <option value="User">Regular User</option>
@@ -133,7 +133,7 @@ const UserModal = ({ show, onClose, mode, userData, onSave }) => {
 
                     {mode === 'add' && (
                         <>
-                            <div className="form-group">
+                            <div className="user-mgmt-form-group">
                                 <label>Password</label>
                                 <input
                                     type="password"
@@ -143,9 +143,9 @@ const UserModal = ({ show, onClose, mode, userData, onSave }) => {
                                     placeholder="Enter password"
                                     className={errors.password ? 'error' : ''}
                                 />
-                                {errors.password && <span className="error-text">{errors.password}</span>}
+                                {errors.password && <span className="user-mgmt-error-text">{errors.password}</span>}
                             </div>
-                            <div className="form-group">
+                            <div className="user-mgmt-form-group">
                                 <label>Confirm Password</label>
                                 <input
                                     type="password"
@@ -155,14 +155,14 @@ const UserModal = ({ show, onClose, mode, userData, onSave }) => {
                                     placeholder="Confirm password"
                                     className={errors.confirmPassword ? 'error' : ''}
                                 />
-                                {errors.confirmPassword && <span className="error-text">{errors.confirmPassword}</span>}
+                                {errors.confirmPassword && <span className="user-mgmt-error-text">{errors.confirmPassword}</span>}
                             </div>
                         </>
                     )}
 
-                    <div className="modal-actions">
-                        <button type="button" className="cancel-btn" onClick={onClose}>Cancel</button>
-                        <button type="submit" className="submit-btn" disabled={saving}>
+                    <div className="user-mgmt-modal-actions">
+                        <button type="button" className="user-mgmt-cancel-btn" onClick={onClose}>Cancel</button>
+                        <button type="submit" className="user-mgmt-submit-btn" disabled={saving}>
                             {saving ? 'Saving...' : (mode === 'add' ? 'Create User' : 'Update User')}
                         </button>
                     </div>

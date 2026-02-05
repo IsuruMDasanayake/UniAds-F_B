@@ -197,7 +197,6 @@ const EventManagement = () => {
                                         </td>
                                         <td>
                                             <div className="inst-cell">
-                                                <Building2 size={14} className="text-muted" />
                                                 <span>{event.institute?.institute_name || (event.institute_id ? `Unknown ID: ${event.institute_id}` : 'Admin')}</span>
                                             </div>
                                         </td>
@@ -265,44 +264,44 @@ const EventManagement = () => {
 
             {/* Details Modal */}
             {showDetailsModal && selectedEvent && (
-                <div className="modal-overlay event-details-modal" onClick={() => setShowDetailsModal(false)}>
-                    <div className="modal-content glass-effect" onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h2 className="text-xl font-bold">Event Details</h2>
-                            <button className="close-btn" onClick={() => setShowDetailsModal(false)}>
+                <div className="event-mgmt-details-overlay" onClick={() => setShowDetailsModal(false)}>
+                    <div className="event-mgmt-details-content" onClick={e => e.stopPropagation()}>
+                        <div className="event-mgmt-details-header">
+                            <h2>Event Details</h2>
+                            <button className="event-mgmt-details-close-btn" onClick={() => setShowDetailsModal(false)}>
                                 <X size={20} />
                             </button>
                         </div>
-                        <div className="modal-body p-6">
-                            <div className="event-details-grid">
-                                <div className="event-details-image">
+                        <div className="event-mgmt-details-body">
+                            <div className="event-mgmt-details-grid">
+                                <div className="event-mgmt-details-image">
                                     {selectedEvent.event_image ? (
                                         <img
                                             src={`${API_BASE_URL}/storage/${selectedEvent.event_image}`}
                                             alt={selectedEvent.event_title}
                                         />
                                     ) : (
-                                        <div className="image-placeholder">No Image Available</div>
+                                        <div className="event-mgmt-details-no-image">No Image Available</div>
                                     )}
                                 </div>
-                                <div className="event-details-info">
-                                    <h3 className="event-title text-2xl font-bold mb-4">{selectedEvent.event_title}</h3>
+                                <div className="event-mgmt-details-info">
+                                    <h3 className="event-title">{selectedEvent.event_title}</h3>
 
-                                    <div className="info-row">
+                                    <div className="event-mgmt-details-row">
                                         <Building2 size={18} />
                                         <span>{selectedEvent.institute?.institute_name || (selectedEvent.institute_id ? `Unknown ID: ${selectedEvent.institute_id}` : 'Admin')}</span>
                                     </div>
 
-                                    <div className="info-row">
+                                    <div className="event-mgmt-details-row">
                                         <Calendar size={18} />
                                         <span>{new Date(selectedEvent.event_date).toLocaleDateString()}</span>
                                     </div>
 
-                                    <div className="info-row">
+                                    <div className="event-mgmt-details-row">
                                         <MapPin size={18} />
                                         <span>{selectedEvent.main_location} </span>
                                     </div>
-                                    <div className="info-row">
+                                    <div className="event-mgmt-details-row">
                                         <Activity size={18} />
                                         <span className={`status-pill ${selectedEvent.is_active ? 'active' : 'inactive'}`}>
                                             {selectedEvent.is_active ? 'Visible' : 'Expired'}
@@ -310,16 +309,16 @@ const EventManagement = () => {
                                     </div>
 
 
-                                    <div className="event-metrics-summary mt-6">
-                                        <div className="metric">
+                                    <div className="event-mgmt-details-metrics">
+                                        <div className="event-mgmt-details-metric-item">
                                             <Eye size={18} />
                                             <span>{selectedEvent.view_count || 0} Views</span>
                                         </div>
-                                        <div className="metric">
+                                        <div className="event-mgmt-details-metric-item">
                                             <Heart size={18} />
                                             <span>{selectedEvent.interested_count || 0} Interests</span>
                                         </div>
-                                        <div className="metric">
+                                        <div className="event-mgmt-details-metric-item">
                                             <ThumbsDown size={18} />
                                             <span>{selectedEvent.decline_count || 0} Declines</span>
                                         </div>
@@ -327,9 +326,9 @@ const EventManagement = () => {
                                 </div>
                             </div>
 
-                            <div className="event-description-section mt-8">
-                                <span className="section-label">Description</span>
-                                <div className="description-content pre-wrap">
+                            <div className="event-mgmt-details-desc-section">
+                                <span className="event-mgmt-details-label">Description</span>
+                                <div className="event-mgmt-details-desc-content">
                                     {selectedEvent.event_description}
                                 </div>
                             </div>

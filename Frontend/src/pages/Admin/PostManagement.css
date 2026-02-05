@@ -16,6 +16,11 @@
     color: var(--admin-text-muted);
 }
 
+.admin-post-scope .admin-select option {
+    background: #0f172a;
+    color: #fff;
+}
+
 .admin-post-scope .post-thumbnail img {
     width: 100%;
     height: 100%;
@@ -111,36 +116,37 @@
     fill: #ef4444;
 }
 
-/* Modal Styles */
-.post-details-modal-overlay {
+/* Post Details Modal Scoped Styles */
+.post-mgmt-details-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.7);
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 2000;
-    padding: 2rem;
+    z-index: 9999;
+    animation: fadeIn 0.2s ease;
 }
 
-.post-details-modal-content {
-    background: #0f172a;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
+.post-mgmt-details-content {
     width: 100%;
     max-width: 900px;
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
     max-height: 90vh;
     overflow-y: auto;
     position: relative;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.3s ease;
 }
 
-.post-details-modal-content .modal-header {
+.post-mgmt-details-header {
     padding: 1.5rem 2rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
@@ -152,104 +158,52 @@
     z-index: 10;
 }
 
-.admin-post-scope .table-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-}
-
-.admin-post-scope .search-box {
-    position: relative;
-    flex: 1;
-    min-width: 250px;
-}
-
-.admin-post-scope .search-icon {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--admin-text-muted);
-    pointer-events: none;
-}
-
-.admin-post-scope .search-box input {
-    width: 100%;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    padding: 10px 10px 10px 40px;
+.post-mgmt-details-header h2 {
+    font-size: 1.5rem;
     color: #fff;
-    outline: none;
-    transition: all 0.2s ease;
+    margin: 0;
+    font-weight: 700;
 }
 
-.admin-post-scope .search-box input:focus {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--admin-primary);
-}
-
-.admin-post-scope .filter-box {
-    position: relative;
-    min-width: 200px;
-}
-
-.admin-post-scope .filter-icon {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
+.post-mgmt-details-close-btn {
+    background: transparent;
+    border: none;
     color: var(--admin-text-muted);
-    pointer-events: none;
-}
-
-.admin-post-scope .admin-select {
-    width: 100%;
-    padding: 10px 10px 10px 40px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    color: #fff;
-    outline: none;
-    appearance: none;
     cursor: pointer;
-    transition: all 0.2s ease;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.admin-post-scope .admin-select:focus {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--admin-primary);
-}
-
-.admin-post-scope .admin-select option {
-    background: #0f172a;
+.post-mgmt-details-close-btn:hover {
     color: #fff;
+    background: rgba(255, 255, 255, 0.1);
 }
 
-.post-details-modal-content .modal-body {
+.post-mgmt-details-body {
     padding: 2rem;
 }
 
-.post-details-grid {
+.post-mgmt-details-grid {
     display: grid;
     grid-template-columns: 350px 1fr;
-    gap: 2rem;
+    gap: 2.5rem;
 }
 
-.post-image-section img {
+.post-mgmt-details-image-section img {
     width: 100%;
     border-radius: 12px;
     object-fit: cover;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    margin-top: -2rem;
 }
 
-.no-image-placeholder {
+.post-mgmt-details-no-image {
     width: 100%;
     aspect-ratio: 4/3;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.03);
     border-radius: 12px;
     display: flex;
     flex-direction: column;
@@ -257,117 +211,113 @@
     justify-content: center;
     color: var(--admin-text-muted);
     gap: 1rem;
+    border: 1px dashed rgba(255, 255, 255, 0.1);
 }
 
-.post-info-section .post-title {
-    font-size: 1.5rem;
+.post-mgmt-details-info-section .post-title {
+    font-size: 1.8rem;
     font-weight: 700;
-    margin-bottom: 0.5rem;
-    margin-top: -1.5rem;
+    margin-bottom: 1rem;
     color: #fff;
+    line-height: 1.3;
 }
 
-.info-meta {
+.post-mgmt-details-meta {
     display: flex;
+    flex-wrap: wrap;
     gap: 1.5rem;
     margin-bottom: 1.5rem;
     color: var(--admin-text-muted);
     font-size: 0.9rem;
 }
 
-.info-item {
+.post-mgmt-details-meta-item {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
-.details-tags {
+.post-mgmt-details-tags {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     margin-bottom: 2rem;
 }
 
-.tag-item {
+.post-mgmt-details-tag {
     background: rgba(255, 255, 255, 0.05);
-    padding: 6px 12px;
+    padding: 6px 14px;
     border-radius: 8px;
     font-size: 0.85rem;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    color: #cbd5e1;
 }
 
-.description-box h4,
-.post-attributes h4,
-.full-description h4 {
-    color: #94a3b8;
-    font-size: 0.8rem;
+.post-mgmt-details-label {
+    color: #64748b;
+    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: 0.5rem;
+    font-weight: 600;
 }
 
-.description-box p {
+.post-mgmt-details-description-sm p {
     color: #cbd5e1;
     line-height: 1.6;
     margin-bottom: 1.5rem;
     white-space: pre-wrap;
+    word-break: break-word;
 }
 
-.post-attributes {
+.post-mgmt-details-attributes {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    background: rgba(255, 255, 255, 0.03);
+    gap: 1.25rem;
+    background: rgba(255, 255, 255, 0.02);
     padding: 1.5rem;
     border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.attr-item {
+.post-mgmt-details-attr-item {
     display: flex;
     flex-direction: column;
+    gap: 4px;
 }
 
-.attr-label {
+.post-mgmt-details-attr-label {
     font-size: 0.75rem;
     color: var(--admin-text-muted);
 }
 
-.attr-value {
+.post-mgmt-details-attr-value {
     font-weight: 500;
     color: #e2e8f0;
 }
 
-.full-description {
-    margin-top: 1.5rem;
+.post-mgmt-details-full-desc {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.full-description .description-content {
-    color: #cbd5e1;
+.post-mgmt-details-desc-content {
+    color: #94a3b8;
     line-height: 1.8;
     white-space: pre-wrap;
-}
-
-.close-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: none;
-    color: #fff;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-}
-
-.close-btn:hover {
-    background: rgba(239, 68, 68, 0.2);
-    color: #ef4444;
+    word-break: break-word;
 }
 
 @media (max-width: 768px) {
-    .post-details-grid {
+    .post-mgmt-details-grid {
         grid-template-columns: 1fr;
+    }
+
+    .post-mgmt-details-content {
+        width: 95%;
+        margin: 1rem;
     }
 }
