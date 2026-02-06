@@ -165,7 +165,7 @@ const AdminSettings = () => {
 
     if (loading) {
         return (
-            <div className="admin-settings-page admin-dashboard-scope">
+            <div className="admin-settings-page admin-dashboard-scope" id="admin-settings-container">
                 <div className="admin-loading-container">
                     <div className="loader"></div>
                     <span>Loading settings...</span>
@@ -175,7 +175,7 @@ const AdminSettings = () => {
     }
 
     return (
-        <div className="admin-settings-page admin-dashboard-scope">
+        <div className="admin-settings-page admin-dashboard-scope" id="admin-settings-container">
             <div className="settings-header">
                 <div className="header-content">
                     <Settings size={32} />
