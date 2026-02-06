@@ -8,9 +8,11 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import axiosClient from '../lib/axios';
 import { getStorageUrl } from '../lib/config';
+import { useSettings } from '../context/SettingsContext';
 import './Navbar.css';
 
 function Navbar({ user }) {
+    const { settings } = useSettings();
     const navigate = useNavigate();
     const location = useLocation();
     const searchRef = useRef(null);
@@ -140,7 +142,7 @@ function Navbar({ user }) {
                 <div className="navbar-wrapper">
                     <div className="navbar-logo">
                         <Link to="/feed">
-                            <img src="/images/logo.png" alt="UniAds" className="navbar-logo-img" />
+                            <img src={settings.logo_url || "/images/logo.png"} alt={settings.site_name} className="navbar-logo-img" />
                         </Link>
                     </div>
 

@@ -3,10 +3,13 @@ import { motion } from 'framer-motion';
 import { Eye, EyeOff, ArrowLeft, Building2, Check } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axiosClient from '../../lib/axios';
+import { useSettings } from '../../context/SettingsContext';
+import AccessDeniedModal from '../../components/Modals/AccessDeniedModal';
 import './InstituteRegisterPage.css';
 
 const InstituteRegisterPage = () => {
     const navigate = useNavigate();
+    const { settings } = useSettings();
     const [formData, setFormData] = useState({
         institute_name: '',
         email: '',
@@ -22,6 +25,7 @@ const InstituteRegisterPage = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
+    const [showAccessModal, setShowAccessModal] = useState(false);
     const [passwordStrength, setPasswordStrength] = useState('');
     const [liveValidation, setLiveValidation] = useState({
         contact: '',
@@ -122,6 +126,11 @@ const InstituteRegisterPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors({});
+
+        if (!settings.allow_institute_registration) {
+            setShowAccessModal(true);
+            return;
+        }
 
         // Comprehensive validation
         const validationErrors = {};
@@ -452,6 +461,13 @@ const InstituteRegisterPage = () => {
                     </form>
                 </div>
             </motion.div>
+
+            <AccessDeniedModal
+                isOpen={showAccessModal}
+                onClose={() => setShowAccessModal(false)}
+                title="Registration Disabled"
+                message="Institute registrations are currently disabled by the administrator. Please contact support if you need assistance."
+            />
         </div>
     );
 };

@@ -138,7 +138,7 @@
     border-radius: 8px;
     font-size: 0.9rem;
     transition: all 0.3s ease;
-    background-color: white;
+    background-color: white !important;
     color: var(--c-dark);
     height: 40px;
 }

@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axiosClient from '../../lib/axios';
+import { useSettings } from '../../context/SettingsContext';
+import AccessDeniedModal from '../../components/Modals/AccessDeniedModal';
 import './RegisterPage.css';
 
 const districts = [
@@ -19,6 +21,7 @@ const educationLevels = [
 
 const RegisterPage = () => {
     const navigate = useNavigate();
+    const { settings } = useSettings();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -35,6 +38,7 @@ const RegisterPage = () => {
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [passwordStrength, setPasswordStrength] = useState('');
+    const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', message: '' });
 
     // Calculate password strength
     const calculatePasswordStrength = (pass) => {
@@ -82,6 +86,15 @@ const RegisterPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors({});
+
+        if (!settings.allow_user_registration) {
+            setModalConfig({
+                isOpen: true,
+                title: "Registration Disabled",
+                message: "New registrations are currently disabled by the administrator. Please contact support if you need assistance."
+            });
+            return;
+        }
 
         // Comprehensive validation
         const validationErrors = {};
@@ -166,8 +179,8 @@ const RegisterPage = () => {
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ duration: 0.6 }}
             >
-                <img src="/images/logo.png" alt="UniAds" className="auth-brand-logo" />
-                <h1 className="auth-welcome-title">Join UniAds</h1>
+                <img src={settings.logo_url || "/images/logo.png"} alt={settings.site_name} className="auth-brand-logo" />
+                <h1 className="auth-welcome-title">Join {settings.site_name}</h1>
                 <p className="auth-description">
                     Create an account to start your educational journey. Access exclusive resources and connect with top institutes.
                 </p>
@@ -369,16 +382,45 @@ const RegisterPage = () => {
 
                     <div className="institute-section-bottom">
                         <p className="institute-quote">&quot;Are you an Institute?&quot;</p>
-                        <Link to="/institutionprofileadd" className="institute-btn-bottom">
+                        <Link
+                            to="/institutionprofileadd"
+                            className="institute-btn-bottom"
+                            onClick={(e) => {
+                                if (!settings.allow_institute_registration) {
+                                    e.preventDefault();
+                                    setModalConfig({
+                                        isOpen: true,
+                                        title: "Registration Disabled",
+                                        message: "Institute registrations are currently disabled by the administrator. Please contact support if you need assistance."
+                                    });
+                                }
+                            }}
+                        >
                             INSTITUTE REGISTRATION
                         </Link>
                     </div>
 
                     <div className="auth-footer compact-footer">
-                        <p>Already have an account? <Link to="/login">Log in here</Link></p>
+                        <p>Already have an account? <Link to="/login" onClick={(e) => {
+                            if (!settings.allow_login) {
+                                e.preventDefault();
+                                setModalConfig({
+                                    isOpen: true,
+                                    title: "Login Disabled",
+                                    message: "Login functionality is currently disabled by the administrator. Please try again later."
+                                });
+                            }
+                        }}>Log in here</Link></p>
                     </div>
                 </div>
             </motion.div>
+
+            <AccessDeniedModal
+                isOpen={modalConfig.isOpen}
+                onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
+                title={modalConfig.title}
+                message={modalConfig.message}
+            />
         </div>
     );
 };

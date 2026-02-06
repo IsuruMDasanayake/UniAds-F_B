@@ -10,6 +10,7 @@ import {
 import { AnimatePresence } from 'framer-motion';
 import axiosClient from '../lib/axios';
 import { getStorageUrl } from '../lib/config';
+import { useSettings } from '../context/SettingsContext';
 import Navbar from '../components/Navbar';
 import ProgrammeInfoModal from '../components/Modals/ProgrammeInfoModal';
 import ApplyNowModal from '../components/Modals/ApplyNowModal';
@@ -17,6 +18,7 @@ import MoreInfoModal from '../components/Modals/MoreInfoModal';
 import './FeedPage.css';
 
 function FeedPage() {
+    const { settings } = useSettings();
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -384,7 +386,7 @@ function FeedPage() {
                             >
                                 <div className="post-image">
                                     <img
-                                        src={post.image ? getStorageUrl(post.image) : '/images/logo.png'}
+                                        src={post.image ? getStorageUrl(post.image) : (settings.logo_url || '/images/logo.png')}
                                         alt={post.title}
                                     />
                                 </div>
@@ -395,7 +397,7 @@ function FeedPage() {
                                             className="institute-link"
                                         >
                                             <img
-                                                src={post.institute?.profile_photo ? getStorageUrl(post.institute.profile_photo) : '/images/logo.png'}
+                                                src={post.institute?.profile_photo ? getStorageUrl(post.institute.profile_photo) : (settings.logo_url || '/images/logo.png')}
                                                 alt={post.institute?.institute_name}
                                                 className="institute-avatar"
                                             />
@@ -502,7 +504,7 @@ function FeedPage() {
                                             >
                                                 <div className="event-banner">
                                                     <img
-                                                        src={event.event_image ? getStorageUrl(event.event_image) : '/images/logo.png'}
+                                                        src={event.event_image ? getStorageUrl(event.event_image) : (settings.logo_url || '/images/logo.png')}
                                                         alt={event.event_title}
                                                     />
                                                     <button

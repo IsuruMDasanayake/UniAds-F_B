@@ -3,9 +3,12 @@ import { motion } from 'framer-motion';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import axiosClient from '../../lib/axios';
+import { useSettings } from '../../context/SettingsContext';
+import AccessDeniedModal from '../../components/Modals/AccessDeniedModal';
 import './ResetPasswordPage.css';
 
 const ResetPasswordPage = () => {
+    const { settings } = useSettings();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -18,6 +21,7 @@ const ResetPasswordPage = () => {
     const [success, setSuccess] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [passwordStrength, setPasswordStrength] = useState('');
+    const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', message: '' });
 
     // Calculate password strength
     const calculatePasswordStrength = (pass) => {
@@ -120,7 +124,7 @@ const ResetPasswordPage = () => {
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ duration: 0.6 }}
             >
-                <img src="/images/logo.png" alt="UniAds" className="auth-brand-logo" />
+                <img src={settings.logo_url || "/images/logo.png"} alt={settings.site_name} className="auth-brand-logo" />
                 <h1 className="auth-welcome-title">Reset Password</h1>
                 <p className="auth-description">
                     Secure your account by entering the reset code from your email and creating a new strong password.
@@ -239,10 +243,26 @@ const ResetPasswordPage = () => {
                     </form>
 
                     <div className="auth-footer">
-                        <p>Remember your password? <Link to="/login">Log in here</Link></p>
+                        <p>Remember your password? <Link to="/login" onClick={(e) => {
+                            if (!settings.allow_login) {
+                                e.preventDefault();
+                                setModalConfig({
+                                    isOpen: true,
+                                    title: "Login Disabled",
+                                    message: "Login functionality is currently disabled by the administrator. Please try again later."
+                                });
+                            }
+                        }}>Log in here</Link></p>
                     </div>
                 </div>
             </motion.div>
+
+            <AccessDeniedModal
+                isOpen={modalConfig.isOpen}
+                onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
+                title={modalConfig.title}
+                message={modalConfig.message}
+            />
         </div>
     );
 };

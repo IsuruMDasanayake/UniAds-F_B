@@ -3,14 +3,18 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Mail } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axiosClient from '../../lib/axios';
+import { useSettings } from '../../context/SettingsContext';
+import AccessDeniedModal from '../../components/Modals/AccessDeniedModal';
 import './ForgotPasswordPage.css';
 
 const ForgotPasswordPage = () => {
+    const { settings } = useSettings();
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', message: '' });
 
     // Email validation
     const isValidEmail = (email) => {
@@ -78,7 +82,20 @@ const ForgotPasswordPage = () => {
     return (
         <div className="forgot-auth-container">
 
-            <Link to="/login" className="back-home-floating">
+            <Link
+                to="/login"
+                className="back-home-floating"
+                onClick={(e) => {
+                    if (!settings.allow_login) {
+                        e.preventDefault();
+                        setModalConfig({
+                            isOpen: true,
+                            title: "Login Disabled",
+                            message: "Login functionality is currently disabled by the administrator. Please try again later."
+                        });
+                    }
+                }}
+            >
                 <ArrowLeft size={20} /> <span className="back-text">Back to Login </span>
             </Link>
 
@@ -89,7 +106,7 @@ const ForgotPasswordPage = () => {
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ duration: 0.6 }}
             >
-                <img src="/images/logo.png" alt="UniAds" className="auth-brand-logo" />
+                <img src={settings.logo_url || "/images/logo.png"} alt={settings.site_name} className="auth-brand-logo" />
                 <h1 className="auth-welcome-title">Forgot Password?</h1>
                 <p className="auth-description">
                     Don&apos;t worry, it happens to the best of us. Enter your email address and we&apos;ll send you a reset code to recover your account.
@@ -146,11 +163,36 @@ const ForgotPasswordPage = () => {
                     </form>
 
                     <div className="auth-footer">
-                        <p>Remember your password? <Link to="/login">Log in here</Link></p>
-                        <p>New to UniAds? <Link to="/register">Register here</Link></p>
+                        <p>Remember your password? <Link to="/login" onClick={(e) => {
+                            if (!settings.allow_login) {
+                                e.preventDefault();
+                                setModalConfig({
+                                    isOpen: true,
+                                    title: "Login Disabled",
+                                    message: "Login functionality is currently disabled by the administrator. Please try again later."
+                                });
+                            }
+                        }}>Log in here</Link></p>
+                        <p>New to UniAds? <Link to="/register" onClick={(e) => {
+                            if (!settings.allow_user_registration) {
+                                e.preventDefault();
+                                setModalConfig({
+                                    isOpen: true,
+                                    title: "Registration Disabled",
+                                    message: "New registrations are currently disabled by the administrator. Please contact support if you need assistance."
+                                });
+                            }
+                        }}>Register here</Link></p>
                     </div>
                 </div>
             </motion.div>
+
+            <AccessDeniedModal
+                isOpen={modalConfig.isOpen}
+                onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
+                title={modalConfig.title}
+                message={modalConfig.message}
+            />
         </div>
     );
 };

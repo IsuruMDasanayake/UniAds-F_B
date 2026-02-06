@@ -138,7 +138,11 @@ Route::middleware('auth:sanctum')->group(function () {
 // Public Policy Routes
 Route::get('/policies/{type}', [\App\Http\Controllers\PolicyController::class, 'apiIndex']);
 
+// Platform Settings (Public)
+Route::get('/settings/public', [\App\Http\Controllers\PlatformSettingsController::class, 'publicIndex']);
+
 // Admin Dashboard Routes
+
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
     // Dashboard Stats
     Route::get('/dashboard', [\App\Http\Controllers\BackendController::class, 'apiDashboard']);
@@ -187,4 +191,8 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::post('/policies/{type}', [\App\Http\Controllers\PolicyController::class, 'apiStore']);
     Route::put('/policies/{type}/{id}', [\App\Http\Controllers\PolicyController::class, 'apiUpdate']);
     Route::delete('/policies/{type}/{id}', [\App\Http\Controllers\PolicyController::class, 'apiDestroy']);
+
+    // Platform Settings
+    Route::get('/settings', [\App\Http\Controllers\PlatformSettingsController::class, 'index']);
+    Route::post('/settings', [\App\Http\Controllers\PlatformSettingsController::class, 'update']);
 });

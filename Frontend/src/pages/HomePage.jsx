@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { BACKEND_URL } from '../lib/config';
+import { useSettings } from '../context/SettingsContext';
+import AccessDeniedModal from '../components/Modals/AccessDeniedModal';
 import './HomePage.css';
 
 const slides = [
@@ -16,8 +18,10 @@ const slides = [
 
 const HomePage = () => {
     const navigate = useNavigate();
+    const { settings } = useSettings();
     const [currentSlide, setCurrentSlide] = useState(0);
     const [menuOpen, setMenuOpen] = useState(false);
+    const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', message: '' });
 
     // Redirect authenticated users
     useEffect(() => {
@@ -48,13 +52,34 @@ const HomePage = () => {
         return () => clearInterval(interval);
     }, []);
 
+    const handleAuthClick = (e, path, type) => {
+        if (type === 'login' && !settings.allow_login) {
+            e.preventDefault();
+            setModalConfig({
+                isOpen: true,
+                title: "Login Disabled",
+                message: "Login functionality is currently disabled by the administrator. Please try again later."
+            });
+            return;
+        }
+        if (type === 'register' && !settings.allow_user_registration) {
+            e.preventDefault();
+            setModalConfig({
+                isOpen: true,
+                title: "Registration Disabled",
+                message: "New registrations are currently disabled by the administrator. Please contact support if you need assistance."
+            });
+            return;
+        }
+    };
+
     return (
         <div className="home-page-container">
             {/* Header */}
             <header className="home-header">
                 <div className="home-header-left">
                     <Link to="/" className="home-logo">
-                        <img src="/images/logo.png" alt="UniAds Logo" className="logo-img" />
+                        <img src={settings.logo_url || "/images/logo.png"} alt={`${settings.site_name} Logo`} className="logo-img" />
                     </Link>
                     <div className="home-hamburger" onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }}>
                         <span></span>
@@ -72,8 +97,8 @@ const HomePage = () => {
 
                     {/* Login/Register Buttons */}
                     <div className="home-auth-buttons">
-                        <Link to="/login" className="home-login-btn">Login</Link>
-                        <Link to="/register" className="home-register-btn">Register</Link>
+                        <Link to="/login" className="home-login-btn" onClick={(e) => handleAuthClick(e, '/login', 'login')}>Login</Link>
+                        <Link to="/register" className="home-register-btn" onClick={(e) => handleAuthClick(e, '/register', 'register')}>Register</Link>
                     </div>
                 </div>
             </header>
@@ -93,9 +118,9 @@ const HomePage = () => {
                 <div className="home-hero-content-container">
                     <div className="home-square-box">
                         <div className="home-hero-content">
-                            <h1>Empowering Education with UniAds</h1>
-                            <p>Your gateway to higher education in Sri Lanka. Explore, connect, and unlock your future.</p>
-                            <Link to="/login" className="home-cta-btn">Discover More</Link>
+                            <h1>Empowering Education with {settings.site_name}</h1>
+                            <p>{settings.tagline || 'Your gateway to higher education in Sri Lanka. Explore, connect, and unlock your future.'}</p>
+                            <Link to="/login" className="home-cta-btn" onClick={(e) => handleAuthClick(e, '/login', 'login')}>Discover More</Link>
                         </div>
                     </div>
                 </div>
@@ -160,9 +185,9 @@ const HomePage = () => {
                         <div className="home-contact-info">
                             <div>
                                 <h3>Contact Information</h3>
-                                <div className="home-contact-item"><i className="fas fa-map-marker-alt"></i> SIBA Campus, Kandy, Sri Lanka</div>
-                                <div className="home-contact-item"><i className="fas fa-envelope"></i> support@uniads.com</div>
-                                <div className="home-contact-item"><i className="fas fa-phone"></i> +94 77 230 0279</div>
+                                <div className="home-contact-item"><i className="fas fa-map-marker-alt"></i> Kandy, Sri Lanka</div>
+                                <div className="home-contact-item"><i className="fas fa-envelope"></i> {settings.contact_email || ''}</div>
+                                <div className="home-contact-item"><i className="fas fa-phone"></i> {settings.support_phone || ''}</div>
                             </div>
 
                             <div className="home-social-links">
@@ -196,14 +221,14 @@ const HomePage = () => {
             <footer className="home-footer">
                 <div className="home-footer-container">
                     <div className="home-footer-brand">
-                        <img src="/images/logo.png" alt="UniAds Logo" className="footer-logo-img" />
-                        <p>Discover. Decide. Succeed.</p>
+                        <img src={settings.logo_url || "/images/logo.png"} alt={`${settings.site_name} Logo`} className="footer-logo-img" />
+                        <p>{settings.tagline || 'Discover. Decide. Succeed.'}</p>
                     </div>
                     <div className="home-footer-links">
                         <a href="/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
                         <a href="/terms-conditions" target="_blank" rel="noopener noreferrer">Terms & Conditions</a>
                         <a href="/refund-policy" target="_blank" rel="noopener noreferrer">Refund Policy</a>
-                        <a href="mailto:support@uniads.com">Contact Us</a>
+                        <a href={`mailto:${settings.contact_email || 'support@uniads.com'}`}>Contact Us</a>
                     </div>
                     <div className="home-footer-social">
                         <a href="https://wa.me/94772300279" target="_blank"><i className="fab fa-whatsapp"></i></a>
@@ -214,6 +239,13 @@ const HomePage = () => {
                     <p>&copy; {new Date().getFullYear()} UniAds V1.0. All Rights Reserved.</p>
                 </div>
             </footer>
+
+            <AccessDeniedModal
+                isOpen={modalConfig.isOpen}
+                onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
+                title={modalConfig.title}
+                message={modalConfig.message}
+            />
         </div>
     );
 };

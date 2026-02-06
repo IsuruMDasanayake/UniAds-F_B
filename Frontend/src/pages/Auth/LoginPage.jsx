@@ -3,15 +3,19 @@ import { motion } from 'framer-motion';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axiosClient from '../../lib/axios'; // Import configured axios
+import { useSettings } from '../../context/SettingsContext';
+import AccessDeniedModal from '../../components/Modals/AccessDeniedModal';
 import './LoginPage.css';
 
 const LoginPage = () => {
     const navigate = useNavigate();
+    const { settings } = useSettings();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', message: '' });
 
     // Email validation
     const isValidEmail = (email) => {
@@ -24,6 +28,15 @@ const LoginPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
+
+        if (!settings.allow_login) {
+            setModalConfig({
+                isOpen: true,
+                title: "Login Disabled",
+                message: "Login functionality is currently disabled by the administrator. Please try again later."
+            });
+            return;
+        }
 
         // Validate email format
         if (!isValidEmail(email)) {
@@ -85,7 +98,7 @@ const LoginPage = () => {
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ duration: 0.6 }}
             >
-                {/* <img src="/images/logo.png" alt="UniAds" className="auth-brand-logo" /> */}
+                <img src={settings.logo_url || "/images/logo.png"} alt={settings.site_name} className="auth-brand-logo" />
                 <h1 className="auth-welcome-title">Welcome Back!</h1>
                 <p className="auth-description">
                     Log in to continue exploring educational opportunities, managing your profile, and connecting with institutions.
@@ -157,10 +170,26 @@ const LoginPage = () => {
                     </form>
 
                     <div className="auth-footer">
-                        <p>Don&apos;t have an account? <Link to="/register">Register here</Link></p>
+                        <p>Don&apos;t have an account? <Link to="/register" onClick={(e) => {
+                            if (!settings.allow_user_registration) {
+                                e.preventDefault();
+                                setModalConfig({
+                                    isOpen: true,
+                                    title: "Registration Disabled",
+                                    message: "New registrations are currently disabled by the administrator. Please contact support if you need assistance."
+                                });
+                            }
+                        }}>Register here</Link></p>
                     </div>
                 </div>
             </motion.div>
+
+            <AccessDeniedModal
+                isOpen={modalConfig.isOpen}
+                onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
+                title={modalConfig.title}
+                message={modalConfig.message}
+            />
         </div>
     );
 };

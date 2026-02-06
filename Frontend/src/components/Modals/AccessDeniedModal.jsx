@@ -4,7 +4,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Lock } from 'lucide-react';
 import './AccessDeniedModal.css';
 
-const AccessDeniedModal = ({ isOpen, onClose }) => {
+const AccessDeniedModal = ({
+    isOpen,
+    onClose,
+    title = "Access Restricted",
+    message = (
+        <>
+            Your account is currently <strong>pending approval</strong>.
+            <br />
+            You cannot create posts or events until your institute account is verified and approved by an administrator.
+        </>
+    )
+}) => {
     if (!isOpen) return null;
 
     return createPortal(
@@ -26,12 +37,10 @@ const AccessDeniedModal = ({ isOpen, onClose }) => {
                             <Lock size={32} />
                         </div>
 
-                        <h2>Access Restricted</h2>
-                        <p>
-                            Your account is currently <strong>pending approval</strong>.
-                            <br />
-                            You cannot create posts or events until your institute account is verified and approved by an administrator.
-                        </p>
+                        <h2>{title}</h2>
+                        <div className="modal-body-text">
+                            {message}
+                        </div>
 
                         <button className="primary-btn" onClick={onClose}>
                             Got it

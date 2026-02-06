@@ -12,6 +12,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { getStorageUrl } from '../lib/config';
+import { useSettings } from '../context/SettingsContext';
 
 const districts = [
     "Colombo", "Gampaha", "Kalutara", "Kandy", "Matale", "Nuwara Eliya",
@@ -26,6 +27,7 @@ const educationLevels = [
 ];
 
 const UserProfilePage = () => {
+    const { settings } = useSettings();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [profileData, setProfileData] = useState(null);
@@ -469,7 +471,7 @@ const UserProfilePage = () => {
                                             <Link key={post.id} to={`/feed`} className="saved-post-link no-underline color-inherit">
                                                 <div className="flex gap-4 p-3 border rounded-xl hover:bg-gray-50 transition cursor-pointer">
                                                     <img
-                                                        src={post.image ? getStorageUrl(post.image) : '/images/logo.png'}
+                                                        src={post.image ? getStorageUrl(post.image) : (settings.logo_url || '/images/logo.png')}
                                                         className="w-20 h-20 rounded-lg object-cover"
                                                         alt={post.title}
                                                     />
