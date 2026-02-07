@@ -176,13 +176,10 @@ const AdminSettings = () => {
 
     return (
         <div className="admin-settings-page admin-dashboard-scope" id="admin-settings-container">
-            <div className="settings-header">
-                <div className="header-content">
-                    <Settings size={32} />
-                    <div>
-                        <h2>Platform Settings</h2>
-                        <p>Manage system-wide configuration and preferences</p>
-                    </div>
+            <div className="page-header mb-8">
+                <div className="header-text">
+                    <h1 className="text-2xl font-bold">Platform Settings</h1>
+                    <p className="text-muted">Manage system-wide configuration and preferences</p>
                 </div>
             </div>
 
