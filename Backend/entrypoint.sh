@@ -22,10 +22,14 @@ until php artisan db:monitor; do
   sleep 2
 done
 
-# Run migrations
+# Run Migrations
 echo "Running migrations..."
 php artisan migrate --force
 
-# Path to the php-fpm executable
+# Run Mail Template Seeder
+echo "Seeding Mail Templates..."
+php artisan db:seed --class=MailTemplateSeeder --force
+
+# Start PHP-FPM
 echo "Starting PHP-FPM..."
-exec php-fpm
+php-fpm

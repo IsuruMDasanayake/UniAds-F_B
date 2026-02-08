@@ -9,7 +9,8 @@ import {
     CheckCircle,
     AlertCircle,
     X,
-    Loader
+    Loader,
+    FileText
 } from 'lucide-react';
 import axiosClient from '../../lib/axios';
 import UserFilters from '../../components/Admin/UserFilters';
@@ -40,10 +41,42 @@ const BroadcastMailPage = () => {
     const [countLoading, setCountLoading] = useState(false);
     const [historyLoading, setHistoryLoading] = useState(false);
 
+    // Template state
+    const [templates, setTemplates] = useState([]);
+    const [selectedTemplate, setSelectedTemplate] = useState('');
+
     // Fetch history on mount
     useEffect(() => {
         fetchHistory();
     }, []);
+
+    // Fetch templates when target type changes
+    useEffect(() => {
+        fetchTemplates();
+        setSelectedTemplate('');
+    }, [targetType]);
+
+    const fetchTemplates = async () => {
+        try {
+            const response = await axiosClient.get(`/api/admin/mail-templates?target_type=${targetType}`);
+            setTemplates(response.data);
+        } catch (error) {
+            console.error('Error fetching templates:', error);
+        }
+    };
+
+    const handleTemplateChange = (e) => {
+        const templateId = e.target.value;
+        setSelectedTemplate(templateId);
+
+        if (templateId === '') return;
+
+        const template = templates.find(t => t.id === parseInt(templateId));
+        if (template) {
+            setTitle(template.subject);
+            setMessage(template.body);
+        }
+    };
 
     // Update recipient count when filters change
     useEffect(() => {
@@ -251,6 +284,25 @@ const BroadcastMailPage = () => {
                             <strong> {recipientCount}</strong>
                         )}
                     </span>
+                </div>
+
+                {/* Template Selector */}
+                <div className="form-group">
+                    <label>Select Template <span className="text-muted text-xs font-normal ml-2">(Optional)</span></label>
+                    <div className="relative">
+                        <select
+                            className="template-select w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white outline-none focus:border-blue-500 transition-colors"
+                            value={selectedTemplate}
+                            onChange={handleTemplateChange}
+                        >
+                            <option value="">Select a template...</option>
+                            {templates.map(template => (
+                                <option key={template.id} value={template.id}>
+                                    {template.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
                 {/* Title Input */}

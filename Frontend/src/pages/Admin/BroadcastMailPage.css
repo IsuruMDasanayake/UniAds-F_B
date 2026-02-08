@@ -633,3 +633,11 @@
         min-width: 600px;
     }
 }
+
+/* Template Selector Dropdown */
+.template-select option {
+    background-color: #0f172a;
+    /* Dark background matching the theme */
+    color: #fff;
+    padding: 10px;
+}
