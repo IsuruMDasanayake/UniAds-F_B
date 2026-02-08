@@ -31,6 +31,7 @@ import RatingManagement from './pages/Admin/RatingManagement';
 import AdminSettings from './pages/Admin/AdminSettings';
 import ReportsPage from './pages/Admin/ReportsPage';
 import BroadcastMailPage from './pages/Admin/BroadcastMailPage';
+import ApplicationsPage from './pages/Admin/ApplicationsPage';
 
 import { SettingsProvider } from './context/SettingsContext';
 
@@ -92,6 +93,7 @@ function App() {
                     <Route path="settings" element={<AdminSettings />} />
                     <Route path="reports" element={<ReportsPage />} />
                     <Route path="broadcast-mail" element={<BroadcastMailPage />} />
+                    <Route path="applications" element={<ApplicationsPage />} />
                     <Route path="*" element={<Navigate to="dashboard" replace />} />
                   </Routes>
                 </AdminLayout>

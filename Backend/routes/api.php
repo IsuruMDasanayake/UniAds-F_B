@@ -34,6 +34,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\BroadcastMailController;
+use App\Http\Controllers\ApplicationController;
 
 // Authentication routes with rate limiting (5 attempts per minute per IP)
 Route::middleware('throttle:auth')->group(function () {
@@ -217,4 +218,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::post('/broadcast-mail/preview', [BroadcastMailController::class, 'previewRecipients']);
     Route::post('/broadcast-mail/send', [BroadcastMailController::class, 'sendMail']);
     Route::get('/broadcast-mail/history', [BroadcastMailController::class, 'getHistory']);
+
+    // Application Management
+    Route::get('/applications', [ApplicationController::class, 'apiIndex']);
 });

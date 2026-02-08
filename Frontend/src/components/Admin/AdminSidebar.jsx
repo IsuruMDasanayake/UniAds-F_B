@@ -29,6 +29,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
         { name: 'Ratings', path: '/admin/ratings', icon: Star },
         { name: 'Policies', path: '/admin/policies', icon: ShieldCheck },
         { name: 'Broadcast Mail', path: '/admin/broadcast-mail', icon: Mail },
+        { name: 'Applications', path: '/admin/applications', icon: FileText },
         { name: 'Reports', path: '/admin/reports', icon: FileDown },
         { name: 'Settings', path: '/admin/settings', icon: Settings },
     ];
