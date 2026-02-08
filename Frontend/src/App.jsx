@@ -30,6 +30,7 @@ import PolicyManagement from './pages/Admin/PolicyManagement';
 import RatingManagement from './pages/Admin/RatingManagement';
 import AdminSettings from './pages/Admin/AdminSettings';
 import ReportsPage from './pages/Admin/ReportsPage';
+import BroadcastMailPage from './pages/Admin/BroadcastMailPage';
 
 import { SettingsProvider } from './context/SettingsContext';
 
@@ -90,6 +91,7 @@ function App() {
                     <Route path="policies" element={<PolicyManagement />} />
                     <Route path="settings" element={<AdminSettings />} />
                     <Route path="reports" element={<ReportsPage />} />
+                    <Route path="broadcast-mail" element={<BroadcastMailPage />} />
                     <Route path="*" element={<Navigate to="dashboard" replace />} />
                   </Routes>
                 </AdminLayout>

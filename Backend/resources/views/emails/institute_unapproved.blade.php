@@ -80,7 +80,14 @@
 
     <div class="container">
         <div class="logo-container">
-            <img src="{{ $message->embed(public_path('images/logo.png')) }}" alt="UniAds Logo" class="logo">
+            @php
+                $settings = \App\Models\PlatformSetting::getInstance();
+                $logoPath = public_path('images/logo.png');
+                if ($settings->logo_path && file_exists(public_path('storage/' . $settings->logo_path))) {
+                    $logoPath = public_path('storage/' . $settings->logo_path);
+                }
+            @endphp
+            <img src="{{ $message->embed($logoPath) }}" alt="{{ $settings->site_name }}" class="logo">
         </div>
 
         <h2>Account Status Update</h2>

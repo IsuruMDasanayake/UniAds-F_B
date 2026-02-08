@@ -1,0 +1,532 @@
+/* Filter Components Shared Styles - Scoped */
+
+.broadcast-filter-components {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(390px, 1fr));
+    gap: 1rem;
+    align-items: start;
+}
+
+/* Single Email and Institute Select Section */
+.broadcast-filter-components .bfc-single-email-section,
+.broadcast-filter-components .bfc-institute-select-section {
+    grid-column: 1 / -1;
+}
+
+.broadcast-filter-components .bfc-single-email-section {
+    background: rgba(228, 42, 25, 0.05);
+    border: 1px solid rgba(228, 42, 25, 0.2);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.broadcast-filter-components .bfc-filter-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    margin-bottom: 0.75rem;
+}
+
+.broadcast-filter-components .bfc-email-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.broadcast-filter-components .bfc-email-input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: #e42a19;
+    box-shadow: 0 0 0 3px rgba(228, 42, 25, 0.1);
+}
+
+.broadcast-filter-components .bfc-filter-hint {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    font-style: italic;
+}
+
+/* Filter Section */
+.broadcast-filter-components .bfc-filter-section {
+    position: relative;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    transition: all 0.2s;
+}
+
+.broadcast-filter-components .bfc-filter-section:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.broadcast-filter-components .bfc-filter-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    background: none;
+    border: none;
+    color: #e2e8f0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.broadcast-filter-components .bfc-filter-header:hover {
+    color: #fff;
+}
+
+.broadcast-filter-components .bfc-filter-header span {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.broadcast-filter-components .bfc-selected-badge {
+    padding: 0.25rem 0.75rem;
+    background: linear-gradient(135deg, #e42a19 0%, #c41e0f 100%);
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+}
+
+.broadcast-filter-components .bfc-filter-content {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    animation: bfcSlideDown 0.2s ease;
+    min-width: 300px;
+}
+
+@keyframes bfcSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Checkbox Styles */
+.broadcast-filter-components .bfc-checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.broadcast-filter-components .bfc-checkbox-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.broadcast-filter-components .bfc-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #e2e8f0;
+    font-size: 0.9rem;
+}
+
+.broadcast-filter-components .bfc-checkbox-label:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.broadcast-filter-components .bfc-checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #e42a19;
+}
+
+.broadcast-filter-components .bfc-checkbox-label span {
+    flex: 1;
+}
+
+/* Institute List Specific */
+.broadcast-filter-components .bfc-search-box {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.broadcast-filter-components .bfc-search-box svg {
+    color: #94a3b8;
+}
+
+.broadcast-filter-components .bfc-search-box input {
+    flex: 1;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.broadcast-filter-components .bfc-institute-list {
+    max-height: 400px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.broadcast-filter-components .bfc-institute-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.broadcast-filter-components .bfc-institute-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.broadcast-filter-components .bfc-institute-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.broadcast-filter-components .bfc-institute-name {
+    font-weight: 600;
+    color: #fff;
+}
+
+.broadcast-filter-components .bfc-institute-email {
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+
+.broadcast-filter-components .bfc-institute-badges {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.broadcast-filter-components .bfc-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.broadcast-filter-components .bfc-premium-badge {
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    color: #fbbf24;
+}
+
+.broadcast-filter-components .bfc-status-badge {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #60a5fa;
+}
+
+.broadcast-filter-components .bfc-status-badge.approved {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: #6ee7b7;
+}
+
+.broadcast-filter-components .bfc-loading-text,
+.broadcast-filter-components .bfc-no-results {
+    text-align: center;
+    color: #64748b;
+    padding: 2rem;
+}
+
+/* Modal Styles */
+.bfc-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: bfcFadeIn 0.2s ease;
+}
+
+@keyframes bfcFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.bfc-modal-content {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: bfcSlideUp 0.3s ease;
+}
+
+@keyframes bfcSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.bfc-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bfc-modal-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+}
+
+.bfc-close-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.bfc-close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.bfc-modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+.bfc-loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 3rem;
+    color: #94a3b8;
+}
+
+.bfc-spin {
+    animation: bfcSpin 1s linear infinite;
+}
+
+@keyframes bfcSpin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.bfc-preview-count {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: rgba(228, 42, 25, 0.1);
+    border: 1px solid rgba(228, 42, 25, 0.3);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.bfc-preview-count svg {
+    color: #e42a19;
+}
+
+.bfc-preview-count h4 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+}
+
+.bfc-preview-count p {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    margin: 0;
+}
+
+.bfc-preview-list h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    margin-bottom: 1rem;
+}
+
+.bfc-preview-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.bfc-recipient-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.bfc-recipient-info strong {
+    color: #fff;
+    font-size: 0.95rem;
+}
+
+.bfc-recipient-email {
+    color: #94a3b8;
+    font-size: 0.85rem;
+}
+
+.bfc-location-badge {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #60a5fa;
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.bfc-modal-footer {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bfc-btn-primary,
+.bfc-btn-secondary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.bfc-btn-primary {
+    background: linear-gradient(135deg, #e42a19 0%, #c41e0f 100%);
+    color: white;
+}
+
+.bfc-btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(228, 42, 25, 0.3);
+}
+
+.bfc-btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.bfc-btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bfc-btn-secondary:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.bfc-no-data {
+    text-align: center;
+    color: #64748b;
+    padding: 3rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .broadcast-filter-components .bfc-checkbox-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+
+    .broadcast-filter-components .bfc-institute-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .broadcast-filter-components .bfc-institute-badges {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
