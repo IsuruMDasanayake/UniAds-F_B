@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\EventController;
@@ -25,6 +26,13 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\InstituteController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\BackendController;
+use App\Http\Controllers\RatingsController;
+use App\Http\Controllers\PolicyController;
+use App\Http\Controllers\PlatformSettingsController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\GalleryController;
+use App\Http\Controllers\ExportController;
 
 // Authentication routes with rate limiting (5 attempts per minute per IP)
 Route::middleware('throttle:auth')->group(function () {
@@ -34,8 +42,8 @@ Route::middleware('throttle:auth')->group(function () {
 });
 
 // Password Reset API routes (no auth required)
-Route::post('/password/forgot', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'apiSendResetCode']);
-Route::post('/password/reset', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'apiResetPassword']);
+Route::post('/password/forgot', [ForgotPasswordController::class, 'apiSendResetCode']);
+Route::post('/password/reset', [ForgotPasswordController::class, 'apiResetPassword']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     $user = $request->user();
@@ -122,77 +130,82 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/institutions/{id}/follow', [InstituteController::class, 'toggleFollow']);
 
     // Institute Contact
-    Route::post('/institutions/{id}/contact', [App\Http\Controllers\ContactController::class, 'apiSendContactMessage']);
+    Route::post('/institutions/{id}/contact', [ContactController::class, 'apiSendContactMessage']);
 
     // Gallery API
-    Route::get('/institutions/{id}/gallery', [\App\Http\Controllers\GalleryController::class, 'index']);
-    Route::post('/institute/gallery/store/{id}', [\App\Http\Controllers\GalleryController::class, 'store']);
-    Route::delete('/institute/gallery/{id}', [\App\Http\Controllers\GalleryController::class, 'destroy']);
+    Route::get('/institutions/{id}/gallery', [GalleryController::class, 'index']);
+    Route::post('/institute/gallery/store/{id}', [GalleryController::class, 'store']);
+    Route::delete('/institute/gallery/{id}', [GalleryController::class, 'destroy']);
 
     // Ratings & Reviews
-    Route::get('/institutes/{id}/ratings', [\App\Http\Controllers\RatingsController::class, 'apiIndex']);
-    Route::post('/institutes/{id}/rate', [\App\Http\Controllers\RatingsController::class, 'apiRate']);
-    Route::delete('/reviews/{id}', [\App\Http\Controllers\RatingsController::class, 'apiDelete']);
+    Route::get('/institutes/{id}/ratings', [RatingsController::class, 'apiIndex']);
+    Route::post('/institutes/{id}/rate', [RatingsController::class, 'apiRate']);
+    Route::delete('/reviews/{id}', [RatingsController::class, 'apiDelete']);
 });
 
 // Public Policy Routes
-Route::get('/policies/{type}', [\App\Http\Controllers\PolicyController::class, 'apiIndex']);
+Route::get('/policies/{type}', [PolicyController::class, 'apiIndex']);
 
 // Platform Settings (Public)
-Route::get('/settings/public', [\App\Http\Controllers\PlatformSettingsController::class, 'publicIndex']);
+Route::get('/settings/public', [PlatformSettingsController::class, 'publicIndex']);
 
 // Admin Dashboard Routes
 
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
     // Dashboard Stats
-    Route::get('/dashboard', [\App\Http\Controllers\BackendController::class, 'apiDashboard']);
+    Route::get('/dashboard', [BackendController::class, 'apiDashboard']);
 
     // User Management
-    Route::get('/users', [\App\Http\Controllers\BackendController::class, 'apiIndex']);
-    Route::post('/users', [\App\Http\Controllers\BackendController::class, 'apiStore']);
-    Route::put('/users/{id}', [\App\Http\Controllers\BackendController::class, 'apiUpdate']);
-    Route::delete('/users/{id}', [\App\Http\Controllers\BackendController::class, 'apiDestroy']);
+    Route::get('/users', [BackendController::class, 'apiIndex']);
+    Route::post('/users', [BackendController::class, 'apiStore']);
+    Route::put('/users/{id}', [BackendController::class, 'apiUpdate']);
+    Route::delete('/users/{id}', [BackendController::class, 'apiDestroy']);
 
     // Institute Management
-    Route::get('/institutes', [\App\Http\Controllers\InstituteController::class, 'apiAdminIndex']);
-    Route::post('/institutes/{id}/approve', [\App\Http\Controllers\InstituteController::class, 'apiApprove']);
-    Route::post('/institutes/{id}/unapprove', [\App\Http\Controllers\InstituteController::class, 'apiUnapprove']);
-    Route::post('/institutes/{id}/toggle-premium', [\App\Http\Controllers\InstituteController::class, 'apiTogglePremium']);
-    Route::put('/institutes/{id}', [\App\Http\Controllers\InstituteController::class, 'apiAdminUpdate']);
-    Route::delete('/institutes/{id}', [\App\Http\Controllers\InstituteController::class, 'destroy']); // Reuse existing destroy if compatible or make new apiDestroy
+    Route::get('/institutes', [InstituteController::class, 'apiAdminIndex']);
+    Route::post('/institutes/{id}/approve', [InstituteController::class, 'apiApprove']);
+    Route::post('/institutes/{id}/unapprove', [InstituteController::class, 'apiUnapprove']);
+    Route::post('/institutes/{id}/toggle-premium', [InstituteController::class, 'apiTogglePremium']);
+    Route::put('/institutes/{id}', [InstituteController::class, 'apiAdminUpdate']);
+    Route::delete('/institutes/{id}', [InstituteController::class, 'destroy']);
 
     // Category Management
-    Route::get('/categories', [\App\Http\Controllers\CategoryController::class, 'apiAdminIndex']);
-    Route::post('/categories', [\App\Http\Controllers\CategoryController::class, 'apiStore']);
-    Route::put('/categories/{id}', [\App\Http\Controllers\CategoryController::class, 'apiUpdate']);
-    Route::delete('/categories/{id}', [\App\Http\Controllers\CategoryController::class, 'destroy']);
+    Route::get('/categories', [CategoryController::class, 'apiAdminIndex']);
+    Route::post('/categories', [CategoryController::class, 'apiStore']);
+    Route::put('/categories/{id}', [CategoryController::class, 'apiUpdate']);
+    Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
 
     // Post Management
-    Route::get('/posts', [\App\Http\Controllers\PostController::class, 'apiAdminIndex']);
-    Route::post('/posts/{id}/toggle-status', [\App\Http\Controllers\PostController::class, 'apiToggleStatus']);
-    Route::delete('/posts/{id}', [\App\Http\Controllers\PostController::class, 'apiDestroy']);
+    Route::get('/posts', [PostController::class, 'apiAdminIndex']);
+    Route::post('/posts/{id}/toggle-status', [PostController::class, 'apiToggleStatus']);
+    Route::delete('/posts/{id}', [PostController::class, 'apiDestroy']);
 
     // Event Management
-    Route::get('/events', [\App\Http\Controllers\EventController::class, 'apiAdminIndex']);
-    Route::post('/events/{id}/toggle-status', [\App\Http\Controllers\EventController::class, 'apiToggleStatus']);
-    Route::delete('/events/{id}', [\App\Http\Controllers\EventController::class, 'destroy']);
+    Route::get('/events', [EventController::class, 'apiAdminIndex']);
+    Route::post('/events/{id}/toggle-status', [EventController::class, 'apiToggleStatus']);
+    Route::delete('/events/{id}', [EventController::class, 'destroy']);
 
     // Subscriptions
-    Route::get('/subscriptions', [\App\Http\Controllers\SubscriptionController::class, 'apiAdminIndex']);
-    Route::patch('/subscriptions/{id}/status', [\App\Http\Controllers\SubscriptionController::class, 'apiToggleStatus']);
+    Route::get('/subscriptions', [SubscriptionController::class, 'apiAdminIndex']);
+    Route::patch('/subscriptions/{id}/status', [SubscriptionController::class, 'apiToggleStatus']);
 
     // Ratings
-    Route::get('/ratings', [\App\Http\Controllers\RatingsController::class, 'apiAdminIndex']);
-    Route::delete('/ratings/{id}', [\App\Http\Controllers\RatingsController::class, 'apiDelete']);
+    Route::get('/ratings', [RatingsController::class, 'apiAdminIndex']);
+    Route::delete('/ratings/{id}', [RatingsController::class, 'apiDelete']);
 
     // Policies
     // Unified Policy Management Routes
-    Route::get('/policies/{type}', [\App\Http\Controllers\PolicyController::class, 'apiIndex']);
-    Route::post('/policies/{type}', [\App\Http\Controllers\PolicyController::class, 'apiStore']);
-    Route::put('/policies/{type}/{id}', [\App\Http\Controllers\PolicyController::class, 'apiUpdate']);
-    Route::delete('/policies/{type}/{id}', [\App\Http\Controllers\PolicyController::class, 'apiDestroy']);
+    Route::get('/policies/{type}', [PolicyController::class, 'apiIndex']);
+    Route::post('/policies/{type}', [PolicyController::class, 'apiStore']);
+    Route::put('/policies/{type}/{id}', [PolicyController::class, 'apiUpdate']);
+    Route::delete('/policies/{type}/{id}', [PolicyController::class, 'apiDestroy']);
 
     // Platform Settings
-    Route::get('/settings', [\App\Http\Controllers\PlatformSettingsController::class, 'index']);
-    Route::post('/settings', [\App\Http\Controllers\PlatformSettingsController::class, 'update']);
+    Route::get('/settings', [PlatformSettingsController::class, 'index']);
+    Route::post('/settings', [PlatformSettingsController::class, 'update']);
+
+    // Export Reports
+    Route::get('/export/users', [ExportController::class, 'exportUsers']);
+    Route::get('/export/institutes', [ExportController::class, 'exportInstitutes']);
+    Route::get('/export/applications', [ExportController::class, 'exportApplications']);
 });

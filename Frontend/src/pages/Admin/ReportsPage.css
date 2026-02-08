@@ -1,0 +1,203 @@
+.admin-reports-scope {
+    padding: 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.reports-header {
+    margin-bottom: 2.5rem;
+}
+
+.header-content h1 {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.reports-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.report-row-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 2rem;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    transition: all 0.2s ease;
+}
+
+.report-row-card:hover {
+    background: rgba(15, 23, 42, 0.6);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.report-main-info {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex: 1;
+}
+
+.report-icon-container {
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-color);
+}
+
+.report-text-content h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0 0 0.25rem 0;
+}
+
+.report-text-content p {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    margin: 0;
+}
+
+.report-controls {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.date-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0.4rem 0.75rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.date-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.date-input-wrapper svg {
+    position: absolute;
+    left: 0.6rem;
+    color: #64748b;
+    pointer-events: none;
+}
+
+.date-input-wrapper input {
+    background: transparent;
+    border: none;
+    color: #fff;
+    padding: 0.4rem 0.4rem 0.4rem 2.25rem;
+    font-size: 0.85rem;
+    outline: none;
+    width: 140px;
+}
+
+.date-input-wrapper input::-webkit-calendar-picker-indicator {
+    filter: invert(0.8);
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+.date-separator {
+    color: #475569;
+}
+
+.report-export-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    font-size: 0.85rem;
+    min-width: 160px;
+    justify-content: center;
+    color: #fff;
+}
+
+.report-export-btn.users {
+    background: var(--admin-primary, #3b82f6);
+}
+
+.report-export-btn.institutes {
+    background: #10b981;
+}
+
+.report-export-btn.applications {
+    background: #f59e0b;
+}
+
+.report-export-btn:hover:not(:disabled) {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+.report-export-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 1100px) {
+    .report-row-card {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.5rem;
+    }
+
+    .report-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .date-filter-group {
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 600px) {
+    .date-filter-group {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .date-separator {
+        display: none;
+    }
+
+    .date-input-wrapper input {
+        width: 100%;
+    }
+}

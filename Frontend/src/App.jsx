@@ -29,6 +29,7 @@ import SubscriptionManagement from './pages/Admin/SubscriptionManagement';
 import PolicyManagement from './pages/Admin/PolicyManagement';
 import RatingManagement from './pages/Admin/RatingManagement';
 import AdminSettings from './pages/Admin/AdminSettings';
+import ReportsPage from './pages/Admin/ReportsPage';
 
 import { SettingsProvider } from './context/SettingsContext';
 
@@ -88,6 +89,7 @@ function App() {
                     <Route path="ratings" element={<RatingManagement />} />
                     <Route path="policies" element={<PolicyManagement />} />
                     <Route path="settings" element={<AdminSettings />} />
+                    <Route path="reports" element={<ReportsPage />} />
                     <Route path="*" element={<Navigate to="dashboard" replace />} />
                   </Routes>
                 </AdminLayout>

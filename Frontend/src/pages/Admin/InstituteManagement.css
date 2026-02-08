@@ -6,11 +6,13 @@
 
 .admin-institute-scope td {
     padding: 0.75rem 1rem !important;
+    justify-content: center;    
 }
 
 .admin-institute-scope th {
     padding: 0.75rem 1rem !important;
     white-space: nowrap;
+    text-align: center;
 }
 
 .admin-institute-scope .inst-avatar {

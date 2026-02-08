@@ -160,6 +160,7 @@ const InstituteManagement = () => {
                                 <th>Website</th>
                                 <th>Contact No.</th>
                                 <th>Gov. Reg. No</th>
+                                <th>Followers</th>
                                 <th>Status</th>
                                 <th>Tier</th>
                                 <th className="text-center">Actions</th>
@@ -222,6 +223,7 @@ const InstituteManagement = () => {
                                         </td>
                                         <td className="text-sm font-mono">{inst.contact_number || '-'}</td>
                                         <td className="text-sm font-mono">{inst.gov_register_number || '-'}</td>
+                                        <td className="text-sm font-semibold" style={{ textAlign: 'center' }}>{inst.followers_count || 0}</td>
                                         <td>
                                             <span className={`status-pill ${(inst.status || '').toLowerCase()}`}>
                                                 {inst.status === 'approved' ? <CheckCircle size={14} /> : <AlertCircle size={14} />}

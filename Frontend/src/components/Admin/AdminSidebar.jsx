@@ -11,6 +11,7 @@ import {
     Star,
     ShieldCheck,
     Settings,
+    FileDown,
     LogOut
 } from 'lucide-react';
 import './AdminSidebar.css';
@@ -26,6 +27,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
         { name: 'Subscriptions', path: '/admin/subscriptions', icon: CreditCard },
         { name: 'Ratings', path: '/admin/ratings', icon: Star },
         { name: 'Policies', path: '/admin/policies', icon: ShieldCheck },
+        { name: 'Reports', path: '/admin/reports', icon: FileDown },
         { name: 'Settings', path: '/admin/settings', icon: Settings },
     ];
 
