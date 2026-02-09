@@ -126,9 +126,7 @@
             Hello {{ $recipientName }},
         </div>
 
-        <div class="content">
-            {{ $mailMessage }}
-        </div>
+        <div class="content">{{ $mailMessage }}</div>
 
         <div class="divider"></div>
 
@@ -139,7 +137,7 @@
 
             <div class="social-links">
                 <a href="http://localhost:3000">Visit Website</a> •
-                
+
             </div>
 
             <div class="footer-brand">
