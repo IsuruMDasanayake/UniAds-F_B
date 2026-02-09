@@ -139,7 +139,7 @@
 
             <div class="social-links">
                 <a href="http://localhost:3000">Visit Website</a> •
-                <a href="mailto:support@uniads.lk">Contact Support</a>
+                
             </div>
 
             <div class="footer-brand">

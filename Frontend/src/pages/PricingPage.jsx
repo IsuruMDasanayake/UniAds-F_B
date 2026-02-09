@@ -9,7 +9,6 @@ import './PricingPage.css';
 
 const PricingPage = () => {
     const navigate = useNavigate();
-    const navigate = useNavigate();
     const location = useLocation();
     const { settings } = useSettings();
 

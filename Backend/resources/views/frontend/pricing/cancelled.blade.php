@@ -140,7 +140,6 @@
         <p><strong>Need Help?</strong></p>
         <p>If you face any issues or have questions, please contact the UniAds support team:</p>
         <ul style="margin-left:20px;">
-            <li>Email: <a href="mailto:support@uniads.lk">support@uniads.lk</a></li>
             <li>WhatsApp: <a href="https://wa.me/94772300279" target="_blank">+94 77 230 0279</a></li>
         </ul>
     </div>
