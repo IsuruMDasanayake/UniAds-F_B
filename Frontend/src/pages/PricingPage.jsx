@@ -3,12 +3,15 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import axiosClient from '../lib/axios';
 import { CheckCircle, AlertCircle, Rocket, Shield, BarChart2, Users, Star, Facebook, Layout, Loader, ArrowLeft, ChevronDown, Sparkles, X, AlertTriangle, ShieldAlert } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSettings } from '../context/SettingsContext';
 import Navbar from '../components/Navbar';
 import './PricingPage.css';
 
 const PricingPage = () => {
     const navigate = useNavigate();
+    const navigate = useNavigate();
     const location = useLocation();
+    const { settings } = useSettings();
 
     const [loading, setLoading] = useState(true);
     const [pricingData, setPricingData] = useState(null);
@@ -245,7 +248,7 @@ const PricingPage = () => {
                             <ul className="contact-list">
                                 <li>
                                     <Star size={18} className="text-yellow-500" />
-                                    <span>Contact support at <a href="mailto:support@uniads.lk">support@uniads.lk</a></span>
+                                    <span>Contact support at <a href={`mailto:${settings?.contact_email || 'uniads.lk@gmail.com'}`}>{settings?.contact_email || 'uniads.lk@gmail.com'}</a></span>
                                 </li>
                                 <li>
                                     <Star size={18} className="text-green-500" />
