@@ -70,7 +70,7 @@ class ContactController extends Controller
         ];
 
         Mail::send('emails.general_contact', $mailData, function ($mail) use ($request) {
-            $mail->to('isurumadhuranga279@gmail.com')
+            $mail->to('uniads.lk@gmail.com')
                 ->subject('New Contact Message from ' . $request->name)
                 ->from($request->email, $request->name);
         });
