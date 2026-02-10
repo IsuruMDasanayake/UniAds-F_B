@@ -72,8 +72,19 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        // Get the current user's role
-        $userRole = Auth::user()?->role;
+        $user = Auth::user();
+        $userRole = $user?->role;
+        $userName = $user?->name;
+
+        // Log Admin Logout
+        if ($userRole === 'Admin' && $user) {
+            AdminActivityLogger::log(
+                'Logged Out',
+                'User',
+                $user->id,
+                "Administrator {$userName} logged out of the dashboard."
+            );
+        }
 
         // Log out the current user
         Auth::logout();
