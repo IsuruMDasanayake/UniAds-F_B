@@ -42,6 +42,7 @@
     flex-direction: column;
     gap: 8px;
     overflow-y: auto;
+    margin-bottom: -0.5rem;
 }
 
 .admin-sidebar-scope .nav-item {
@@ -89,7 +90,7 @@
 }
 
 .admin-sidebar-scope .sidebar-footer {
-    padding: 1rem;
+    padding: 0.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 

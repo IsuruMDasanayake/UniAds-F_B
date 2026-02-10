@@ -106,12 +106,19 @@ const InstituteFilters = ({ filters, onFilterChange, selectedInstitutes, onInsti
                                             checked={selectedInstitutes.includes(institute.id)}
                                             onChange={() => handleInstituteToggle(institute.id)}
                                         />
+                                        <div className="bfc-institute-avatar">
+                                            {institute.profile_photo ? (
+                                                <img src={institute.profile_photo} alt="" className="bfc-avatar-img" />
+                                            ) : (
+                                                <Building2 size={16} />
+                                            )}
+                                        </div>
                                         <div className="bfc-institute-info">
                                             <span className="bfc-institute-name">{institute.name}</span>
                                             <span className="bfc-institute-email">{institute.email}</span>
                                         </div>
                                         <div className="bfc-institute-badges">
-                                            {institute.is_premium && (
+                                            {!!institute.is_premium && (
                                                 <span className="bfc-badge bfc-premium-badge">Premium</span>
                                             )}
                                             <span className={`bfc-badge bfc-status-badge ${institute.status}`}>

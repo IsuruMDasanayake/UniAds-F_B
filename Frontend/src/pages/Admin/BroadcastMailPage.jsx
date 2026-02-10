@@ -214,16 +214,6 @@ const BroadcastMailPage = () => {
                 </div>
             </div>
 
-            {/* Notification */}
-            {notification && (
-                <div className={`notification ${notification.type}`}>
-                    {notification.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
-                    <span>{notification.message}</span>
-                    <button onClick={() => setNotification(null)}>
-                        <X size={16} />
-                    </button>
-                </div>
-            )}
 
             {/* Send Mail Form */}
             <div className="admin-glass-card form-card">
@@ -383,6 +373,17 @@ const BroadcastMailPage = () => {
                             </button>
                         </div>
                     </div>
+                </div>
+            )}
+
+            {/* Notification */}
+            {notification && (
+                <div className={`notification ${notification.type}`}>
+                    {notification.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
+                    <span>{notification.message}</span>
+                    <button onClick={() => setNotification(null)}>
+                        <X size={16} />
+                    </button>
                 </div>
             )}
 

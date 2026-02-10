@@ -74,9 +74,15 @@ class BroadcastMailController extends Controller
      */
     public function getInstituteList()
     {
-        $institutes = Institute::select('id', 'institute_name as name', 'email', 'status', 'is_premium')
+        $institutes = Institute::select('id', 'institute_name as name', 'email', 'status', 'is_premium', 'profile_photo')
             ->orderBy('institute_name')
-            ->get();
+            ->get()
+            ->map(function ($inst) {
+                if ($inst->profile_photo) {
+                    $inst->profile_photo = url('/storage/' . $inst->profile_photo);
+                }
+                return $inst;
+            });
 
         return response()->json($institutes);
     }
@@ -139,7 +145,8 @@ class BroadcastMailController extends Controller
                             'id' => $user->id,
                             'name' => $user->name,
                             'email' => $user->email,
-                            'district' => $user->district
+                            'district' => $user->district,
+                            'avatar' => $user->profile_picture ? url('/storage/' . $user->profile_picture) : null
                         ]]
                     ]);
                 }
@@ -156,7 +163,8 @@ class BroadcastMailController extends Controller
                     'id' => $inst->id,
                     'name' => $inst->institute_name,
                     'email' => $inst->email,
-                    'location' => $inst->location
+                    'location' => $inst->location,
+                    'avatar' => $inst->profile_photo ? url('/storage/' . $inst->profile_photo) : null
                 ];
             });
 
@@ -176,14 +184,16 @@ class BroadcastMailController extends Controller
                     'id' => $recipient->id,
                     'name' => $recipient->name,
                     'email' => $recipient->email,
-                    'district' => $recipient->district
+                    'district' => $recipient->district,
+                    'avatar' => $recipient->profile_picture ? url('/storage/' . $recipient->profile_picture) : null
                 ];
             } else {
                 return [
                     'id' => $recipient->id,
                     'name' => $recipient->institute_name,
                     'email' => $recipient->email,
-                    'location' => $recipient->location
+                    'location' => $recipient->location,
+                    'avatar' => $recipient->profile_photo ? url('/storage/' . $recipient->profile_photo) : null
                 ];
             }
         });

@@ -36,9 +36,20 @@ const RecipientPreviewModal = ({ show, onClose, onConfirm, previewData, loading,
                                     <h4>Sample Recipients (First 10)</h4>
                                     {previewData.sample.map((recipient, idx) => (
                                         <div key={idx} className="bfc-preview-item">
-                                            <div className="bfc-recipient-info">
-                                                <strong>{recipient.name}</strong>
-                                                <span className="bfc-recipient-email">{recipient.email}</span>
+                                            <div className="bfc-pair-group">
+                                                <div className="bfc-recipient-avatar">
+                                                    {recipient.avatar ? (
+                                                        <img src={recipient.avatar} alt="" className="bfc-avatar-img" />
+                                                    ) : targetType === 'users' ? (
+                                                        <Users size={16} />
+                                                    ) : (
+                                                        <Building2 size={16} />
+                                                    )}
+                                                </div>
+                                                <div className="bfc-recipient-info">
+                                                    <strong>{recipient.name}</strong>
+                                                    <span className="bfc-recipient-email">{recipient.email}</span>
+                                                </div>
                                             </div>
                                             {(recipient.district || recipient.location) && (
                                                 <span className="bfc-location-badge">
