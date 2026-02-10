@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
+use App\Services\AdminActivityLogger;
+
 class AuthenticatedSessionController extends Controller
 {
     /**
@@ -38,6 +40,16 @@ class AuthenticatedSessionController extends Controller
         }
 
         $user = Auth::user();
+
+        // Log Admin Login
+        if ($user->role === 'Admin') {
+            AdminActivityLogger::log(
+                'Logged In',
+                'User',
+                $user->id,
+                "Administrator {$user->name} logged into the system."
+            );
+        }
 
         // Regenerate session for security (prevents session fixation)
         $request->session()->regenerate();
