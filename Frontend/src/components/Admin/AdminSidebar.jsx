@@ -14,13 +14,30 @@ import {
     Settings,
     FileDown,
     Mail,
+    ChevronDown,
     LogOut,
-    History
+    History,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import './AdminSidebar.css';
 
 const AdminSidebar = ({ isOpen, setIsOpen }) => {
     const [unreadCount, setUnreadCount] = useState(0);
+    const [expandedGroups, setExpandedGroups] = useState({
+        'DASHBOARD': true,
+        'USER & CONTENT': true,
+        'COMMUNICATION': true,
+        'OPERATIONS': true,
+        'REPORTS & LOGS': true,
+        'SYSTEM': true
+    });
+
+    const toggleGroup = (groupName) => {
+        setExpandedGroups(prev => ({
+            ...prev,
+            [groupName]: !prev[groupName]
+        }));
+    };
 
     const fetchUnreadCount = async () => {
         try {
@@ -33,31 +50,59 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
 
     useEffect(() => {
         fetchUnreadCount();
-        // Refresh count every minute
         const interval = setInterval(fetchUnreadCount, 60000);
         return () => clearInterval(interval);
     }, []);
 
-    const menuItems = [
-        { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
-        { name: 'Users', path: '/admin/users', icon: Users },
-        { name: 'Institutes', path: '/admin/institutes', icon: Building2 },
-        { name: 'Categories', path: '/admin/categories', icon: Layers },
-        { name: 'Posts', path: '/admin/posts', icon: FileText },
-        { name: 'Events', path: '/admin/events', icon: Calendar },
-        { name: 'Subscriptions', path: '/admin/subscriptions', icon: CreditCard },
-        { name: 'Ratings', path: '/admin/ratings', icon: Star },
-        { name: 'Policies', path: '/admin/policies', icon: ShieldCheck },
-        { name: 'Inbox', path: '/admin/inbox', icon: Mail, badge: unreadCount },
-        { name: 'Broadcast Mail', path: '/admin/broadcast-mail', icon: Mail },
-        { name: 'Applications', path: '/admin/applications', icon: FileText },
-        { name: 'Reports', path: '/admin/reports', icon: FileDown },
-        { name: 'Activity Log', path: '/admin/activity-logs', icon: History },
-        { name: 'Settings', path: '/admin/settings', icon: Settings },
+    const menuGroups = [
+        {
+            group: 'DASHBOARD',
+            items: [
+                { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
+            ]
+        },
+        {
+            group: 'USER & CONTENT',
+            items: [
+                { name: 'Users', path: '/admin/users', icon: Users },
+                { name: 'Institutes', path: '/admin/institutes', icon: Building2 },
+                { name: 'Categories', path: '/admin/categories', icon: Layers },
+                { name: 'Posts', path: '/admin/posts', icon: FileText },
+                { name: 'Events', path: '/admin/events', icon: Calendar },
+                { name: 'Ratings', path: '/admin/ratings', icon: Star },
+                { name: 'Policies', path: '/admin/policies', icon: ShieldCheck },
+            ]
+        },
+        {
+            group: 'COMMUNICATION',
+            items: [
+                { name: 'Inbox', path: '/admin/inbox', icon: Mail, badge: unreadCount },
+                { name: 'Broadcast Mail', path: '/admin/broadcast-mail', icon: Mail },
+            ]
+        },
+        {
+            group: 'OPERATIONS',
+            items: [
+                { name: 'Subscriptions', path: '/admin/subscriptions', icon: CreditCard },
+                { name: 'Applications', path: '/admin/applications', icon: FileText },
+            ]
+        },
+        {
+            group: 'REPORTS & LOGS',
+            items: [
+                { name: 'Reports', path: '/admin/reports', icon: FileDown },
+                { name: 'Activity Logs', path: '/admin/activity-logs', icon: History },
+            ]
+        },
+        {
+            group: 'SYSTEM',
+            items: [
+                { name: 'Platform Settings', path: '/admin/settings', icon: Settings },
+            ]
+        }
     ];
 
     const handleItemClick = () => {
-        // Auto-hide sidebar on mobile (max-width 1024px)
         if (window.innerWidth <= 1024) {
             setIsOpen(false);
         }
@@ -76,19 +121,46 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
             </div>
 
             <nav className="sidebar-nav">
-                {menuItems.map((item) => (
-                    <NavLink
-                        key={item.path}
-                        to={item.path}
-                        className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-                        onClick={handleItemClick}
-                    >
-                        <item.icon size={20} className="nav-icon" />
-                        <span className="nav-text">{item.name}</span>
-                        {item.badge > 0 && (
-                            <span className="nav-badge">{item.badge > 99 ? '99+' : item.badge}</span>
-                        )}
-                    </NavLink>
+                {menuGroups.map((group) => (
+                    <div key={group.group} className="nav-group">
+                        <button
+                            className="nav-group-header"
+                            onClick={() => toggleGroup(group.group)}
+                        >
+                            <span className="nav-group-label">{group.group}</span>
+                            <ChevronDown
+                                size={14}
+                                className={`group-chevron ${expandedGroups[group.group] ? 'expanded' : ''}`}
+                            />
+                        </button>
+
+                        <AnimatePresence initial={false}>
+                            {expandedGroups[group.group] && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                                    className="group-items-container"
+                                >
+                                    {group.items.map((item) => (
+                                        <NavLink
+                                            key={item.path}
+                                            to={item.path}
+                                            className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+                                            onClick={handleItemClick}
+                                        >
+                                            <item.icon size={18} className="nav-icon" />
+                                            <span className="nav-text">{item.name}</span>
+                                            {item.badge > 0 && (
+                                                <span className="nav-badge">{item.badge > 99 ? '99+' : item.badge}</span>
+                                            )}
+                                        </NavLink>
+                                    ))}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
                 ))}
             </nav>
 

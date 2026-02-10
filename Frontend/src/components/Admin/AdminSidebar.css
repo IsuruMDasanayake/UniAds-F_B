@@ -40,9 +40,60 @@
     padding: 1.5rem 1rem;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 20px;
     overflow-y: auto;
     margin-bottom: -0.5rem;
+}
+
+.admin-sidebar-scope .nav-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.admin-sidebar-scope .nav-group-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+    margin-bottom: 8px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.admin-sidebar-scope .nav-group-header:hover .nav-group-label {
+    opacity: 1;
+}
+
+.admin-sidebar-scope .nav-group-label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--admin-primary);
+    letter-spacing: 0.12em;
+    opacity: 0.6;
+    text-transform: uppercase;
+    transition: opacity 0.2s ease;
+}
+
+.admin-sidebar-scope .group-chevron {
+    color: var(--admin-primary);
+    opacity: 0.4;
+    transition: transform 0.3s ease, opacity 0.2s ease;
+}
+
+.admin-sidebar-scope .group-chevron.expanded {
+    transform: rotate(180deg);
+    opacity: 0.8;
+}
+
+.admin-sidebar-scope .group-items-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow: hidden;
 }
 
 .admin-sidebar-scope .nav-item {
