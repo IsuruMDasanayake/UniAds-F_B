@@ -102,4 +102,29 @@ class AuthenticatedSessionController extends Controller
         // Redirect other users to the default login page
         return redirect('/')->with('message', 'Logged out successfully.');
     }
+
+    /**
+     * Destroy an authenticated session via API.
+     */
+    public function apiLogout(Request $request)
+    {
+        $user = Auth::user();
+
+        // Log Admin Logout
+        if ($user && $user->role === 'Admin') {
+            AdminActivityLogger::log(
+                'Logged Out',
+                'User',
+                $user->id,
+                "Administrator {$user->name} logged out of the dashboard."
+            );
+        }
+
+        // Standard Laravel logout logic for API/Sanctum
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return response()->json(['message' => 'Logged out successfully']);
+    }
 }

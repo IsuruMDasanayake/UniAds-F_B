@@ -67,12 +67,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // API Logout route
-Route::middleware('auth:sanctum')->post('/logout', function (Request $request) {
-    Auth::guard('web')->logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-    return response()->json(['message' => 'Logged out successfully']);
-});
+Route::middleware('auth:sanctum')->post('/logout', [AuthenticatedSessionController::class, 'apiLogout']);
 
 // Feed API endpoints
 Route::middleware('auth:sanctum')->group(function () {
