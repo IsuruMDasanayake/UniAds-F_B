@@ -1,0 +1,513 @@
+/* Scoped Admin Inbox Styles */
+.admin-inbox-scope {
+    padding: 1rem;
+    height: calc(100vh - 80px);
+    /* Adjust based on navbar height */
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-inbox-scope .inbox-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+.admin-inbox-scope .inbox-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+    background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.admin-inbox-scope .inbox-subtitle {
+    color: var(--admin-text-muted, #94a3b8);
+    margin: 0.5rem 0 0 0;
+    font-size: 0.9rem;
+}
+
+.admin-inbox-scope .inbox-refresh-btn {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    color: var(--admin-primary, #3b82f6);
+    padding: 0.6rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-inbox-scope .inbox-refresh-btn:hover {
+    background: rgba(59, 130, 246, 0.2);
+    transform: rotate(30deg);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.admin-inbox-scope .inbox-layout {
+    display: flex;
+    gap: 1.5rem;
+    flex: 1;
+    min-height: 0;
+    /* Important for flex child with overflow */
+}
+
+/* List Side */
+.admin-inbox-scope .inbox-list-side {
+    flex: 0 0 400px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+
+.admin-inbox-scope .inbox-controls {
+    padding: 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.admin-inbox-scope .inbox-search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.admin-inbox-scope .inbox-search-box input {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 0.7rem 1rem 0.7rem 2.5rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.admin-inbox-scope .inbox-search-box input:focus {
+    border-color: var(--admin-primary, #3b82f6);
+    background: rgba(15, 23, 42, 0.6);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.admin-inbox-scope .inbox-search-icon {
+    position: absolute;
+    left: 1rem;
+    color: #64748b;
+}
+
+.admin-inbox-scope .inbox-filter-select {
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 0.6rem 1rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    outline: none;
+    cursor: pointer;
+}
+
+.admin-inbox-scope .inbox-filter-select option {
+    background: #0f172a;
+    color: #fff;
+}
+
+.admin-inbox-scope .emails-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+
+.admin-inbox-scope .emails-scroll-area::-webkit-scrollbar {
+    width: 6px;
+}
+
+.admin-inbox-scope .emails-scroll-area::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.admin-inbox-scope .email-card {
+    padding: 1.25rem;
+    border-radius: 12px;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    position: relative;
+}
+
+.admin-inbox-scope .email-card:hover {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.admin-inbox-scope .email-card.active {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.2);
+}
+
+.admin-inbox-scope .email-card.is-unread {
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.admin-inbox-scope .email-card.is-unread .unread-dot {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    width: 8px;
+    height: 8px;
+    background: #ef4444;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+
+.admin-inbox-scope .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem;
+}
+
+.admin-inbox-scope .sender-label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #f1f5f9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 70%;
+}
+
+.admin-inbox-scope .date-label {
+    font-size: 0.75rem;
+    color: var(--admin-text-muted, #94a3b8);
+}
+
+.admin-inbox-scope .subject-label {
+    font-size: 0.85rem;
+    color: #cbd5e1;
+    margin-bottom: 0.25rem;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-inbox-scope .preview-text {
+    font-size: 0.8rem;
+    color: var(--admin-text-muted, #94a3b8);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0;
+}
+
+.admin-inbox-scope .card-content-wrapper {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.admin-inbox-scope .sender-avatar-sm {
+    flex: 0 0 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    margin-top: 0.2rem;
+}
+
+.admin-inbox-scope .card-text-content {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Detail Side */
+.admin-inbox-scope .inbox-detail-side {
+    flex: 1;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.admin-inbox-scope .detail-top-bar {
+    padding: 1.25rem 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-inbox-scope .close-detail-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #cbd5e1;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.admin-inbox-scope .close-detail-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.admin-inbox-scope .detail-delete-btn {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.admin-inbox-scope .detail-delete-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    transform: translateY(-1px);
+}
+
+.admin-inbox-scope .detail-scroll-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2.5rem;
+    margin-top: -1rem;
+}
+
+.admin-inbox-scope .detail-subject-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    line-height: 1.3;
+    color: white;
+}
+
+.admin-inbox-scope .detail-sender-info {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.admin-inbox-scope .sender-avatar-large {
+    width: 54px;
+    height: 54px;
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-inbox-scope .avatar-img-round {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 2;
+    border-radius: inherit;
+}
+
+.admin-inbox-scope .avatar-letter {
+    position: relative;
+    z-index: 1;
+}
+
+.admin-inbox-scope .sender-meta-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-inbox-scope .sender-full-text {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #f8fafc;
+}
+
+.admin-inbox-scope .received-time-text {
+    font-size: 0.85rem;
+    color: var(--admin-text-muted, #94a3b8);
+}
+
+.admin-inbox-scope .email-message-body {
+    line-height: 1.8;
+    color: #e2e8f0;
+    font-size: 1rem;
+}
+
+.admin-inbox-scope .email-message-body p {
+    margin-bottom: 1.25rem;
+}
+
+/* Pagination */
+.admin-inbox-scope .inbox-pagination {
+    padding: 1.25rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(15, 23, 42, 0.3);
+}
+
+.admin-inbox-scope .pagination-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.admin-inbox-scope .pagination-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.admin-inbox-scope .pagination-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.admin-inbox-scope .pagination-info {
+    font-size: 0.85rem;
+    color: var(--admin-text-muted, #94a3b8);
+}
+
+/* States */
+.admin-inbox-scope .inbox-loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--admin-text-muted, #94a3b8);
+    gap: 1rem;
+}
+
+.admin-inbox-scope .inbox-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--admin-text-muted, #94a3b8);
+    gap: 1.5rem;
+    padding: 2rem;
+    text-align: center;
+}
+
+.admin-inbox-scope .spin-animation {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Tablet / Mobile Overrides */
+@media (max-width: 1200px) {
+    .admin-inbox-scope .inbox-list-side {
+        flex: 0 0 320px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .admin-inbox-scope .inbox-layout {
+        position: relative;
+    }
+
+    .admin-inbox-scope .inbox-list-side {
+        flex: 1;
+    }
+
+    /* Hide list when an email is selected on mobile */
+    .admin-inbox-scope .inbox-layout.has-selection .inbox-list-side {
+        display: none;
+    }
+
+    /* Hide detail side when NO email is selected on mobile */
+    .admin-inbox-scope .inbox-layout:not(.has-selection) .inbox-detail-side {
+        display: none;
+    }
+
+    .admin-inbox-scope .inbox-detail-side {
+        position: relative;
+        flex: 1;
+        width: 100%;
+        border-radius: 16px;
+        min-height: 500px;
+    }
+}
+
+@media (max-width: 640px) {
+    .admin-inbox-scope {
+        padding: 1rem;
+    }
+
+    .admin-inbox-scope .inbox-page-header {
+        padding: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .admin-inbox-scope .inbox-refresh-btn {
+        align-self: flex-end;
+    }
+}

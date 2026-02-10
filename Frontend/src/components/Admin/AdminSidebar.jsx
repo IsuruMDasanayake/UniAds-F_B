@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
+import axiosClient from '../../lib/axios';
 import {
     LayoutDashboard,
     Users,
@@ -18,6 +19,24 @@ import {
 import './AdminSidebar.css';
 
 const AdminSidebar = ({ isOpen, setIsOpen }) => {
+    const [unreadCount, setUnreadCount] = useState(0);
+
+    const fetchUnreadCount = async () => {
+        try {
+            const response = await axiosClient.get('/api/admin/inbox/unread-count');
+            setUnreadCount(response.data.count);
+        } catch (error) {
+            console.error('Error fetching unread count', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchUnreadCount();
+        // Refresh count every minute
+        const interval = setInterval(fetchUnreadCount, 60000);
+        return () => clearInterval(interval);
+    }, []);
+
     const menuItems = [
         { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
         { name: 'Users', path: '/admin/users', icon: Users },
@@ -28,6 +47,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
         { name: 'Subscriptions', path: '/admin/subscriptions', icon: CreditCard },
         { name: 'Ratings', path: '/admin/ratings', icon: Star },
         { name: 'Policies', path: '/admin/policies', icon: ShieldCheck },
+        { name: 'Inbox', path: '/admin/inbox', icon: Mail, badge: unreadCount },
         { name: 'Broadcast Mail', path: '/admin/broadcast-mail', icon: Mail },
         { name: 'Applications', path: '/admin/applications', icon: FileText },
         { name: 'Reports', path: '/admin/reports', icon: FileDown },
@@ -63,6 +83,9 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
                     >
                         <item.icon size={20} className="nav-icon" />
                         <span className="nav-text">{item.name}</span>
+                        {item.badge > 0 && (
+                            <span className="nav-badge">{item.badge > 99 ? '99+' : item.badge}</span>
+                        )}
                     </NavLink>
                 ))}
             </nav>

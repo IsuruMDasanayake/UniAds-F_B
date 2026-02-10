@@ -4,23 +4,18 @@
 # ===============================
 FROM php:8.2-fpm
 
-# System dependencies
+# System dependencies + docker-php-extension-installer
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+
 RUN apt-get update && apt-get install -y \
     git \
     curl \
     unzip \
     zip \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    libzip-dev \
-    libjpeg62-turbo-dev \
-    libfreetype6-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# PHP extensions (MySQL included)
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install \
+# Install PHP extensions
+RUN install-php-extensions \
     pdo \
     pdo_mysql \
     mbstring \
@@ -28,7 +23,19 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     pcntl \
     bcmath \
     gd \
-    zip
+    zip \
+    imap \
+    intl \
+    xml \
+    curl \
+    iconv \
+    dom \
+    fileinfo \
+    tokenizer \
+    xmlwriter \
+    ctype
+
+RUN php -v && php -m
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -48,7 +55,8 @@ RUN composer install \
     --no-dev \
     --optimize-autoloader \
     --no-interaction \
-    --prefer-dist
+    --prefer-dist \
+    --ignore-platform-reqs
 
 # Fix permissions
 RUN chown -R www-data:www-data /var/www \

@@ -15,7 +15,8 @@
         "maatwebsite/excel": "^3.1",
         "maennchen/zipstream-php": "~3.1.0",
         "pusher/pusher-php-server": "^7.2",
-        "stripe/stripe-php": "^16.6"
+        "stripe/stripe-php": "^16.6",
+        "webklex/laravel-imap": "^6.2"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

@@ -11,17 +11,18 @@ class Kernel extends ConsoleKernel
      * Define the application's command schedule.
      */
     protected function schedule(Schedule $schedule)
-{
-    $schedule->command('events:delete-past')->daily();
-    $schedule->command('analytics:cleanup')->daily();
-}
+    {
+        $schedule->command('events:delete-past')->daily();
+        $schedule->command('analytics:cleanup')->daily();
+        $schedule->command('emails:fetch')->everyFiveMinutes();
+    }
 
     /**
      * Register the commands for the application.
      */
     protected function commands(): void
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

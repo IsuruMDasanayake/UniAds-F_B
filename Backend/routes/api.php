@@ -28,6 +28,7 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BackendController;
 use App\Http\Controllers\RatingsController;
+use App\Http\Controllers\InboxController;
 use App\Http\Controllers\PolicyController;
 use App\Http\Controllers\PlatformSettingsController;
 use App\Http\Controllers\ContactController;
@@ -223,4 +224,12 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
 
     // Application Management
     Route::get('/applications', [ApplicationController::class, 'apiIndex']);
+
+    // Inbox
+    Route::get('/inbox', [InboxController::class, 'index']);
+    Route::post('/inbox/sync', [InboxController::class, 'sync']);
+    Route::get('/inbox/unread-count', [InboxController::class, 'unreadCount']);
+    Route::get('/inbox/{id}', [InboxController::class, 'show']);
+    Route::patch('/inbox/{id}/read', [InboxController::class, 'markAsRead']);
+    Route::delete('/inbox/{id}', [InboxController::class, 'destroy']);
 });
