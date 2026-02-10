@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Category;
+use App\Services\AdminActivityLogger;
 
 
 class CategoryController extends Controller
@@ -68,6 +69,13 @@ class CategoryController extends Controller
 
         $category = Category::create($validated);
 
+        AdminActivityLogger::log(
+            'Created Category',
+            'Category',
+            $category->id,
+            auth()->user()->name . " created a new category \"{$category->name}\" ({$category->main_category})"
+        );
+
         if ($request->wantsJson()) {
             return response()->json($category, 201);
         }
@@ -80,7 +88,16 @@ class CategoryController extends Controller
     {
         try {
             $category = Category::findOrFail($id);
+            $categoryName = $category->name;
+            $categoryId = $category->id;
             $category->delete();
+
+            AdminActivityLogger::log(
+                'Deleted Category',
+                'Category',
+                $categoryId,
+                auth()->user()->name . " deleted category \"{$categoryName}\""
+            );
 
             if ($request->wantsJson()) {
                 return response()->json(['message' => 'Category deleted successfully!'], 200);
@@ -119,6 +136,13 @@ class CategoryController extends Controller
                 'name' => $request->name,
                 'icon' => $request->icon,
             ]);
+
+            AdminActivityLogger::log(
+                'Updated Category',
+                'Category',
+                $category->id,
+                auth()->user()->name . " updated category \"{$category->name}\""
+            );
 
             if ($request->wantsJson()) {
                 return response()->json($category, 200);
@@ -212,12 +236,30 @@ class CategoryController extends Controller
             'icon' => $request->icon,
         ]);
 
+        AdminActivityLogger::log(
+            'Updated Category',
+            'Category',
+            $category->id,
+            auth()->user()->name . " updated category \"{$category->name}\" via API"
+        );
+
         return response()->json(['success' => true, 'message' => 'Category updated successfully!', 'category' => $category]);
     }
 
     public function apiDestroy($id)
     {
-        Category::findOrFail($id)->delete();
+        $category = Category::findOrFail($id);
+        $categoryName = $category->name;
+        $categoryId = $category->id;
+        $category->delete();
+
+        AdminActivityLogger::log(
+            'Deleted Category',
+            'Category',
+            $categoryId,
+            auth()->user()->name . " deleted category \"{$categoryName}\" via API"
+        );
+
         return response()->json(['success' => true, 'message' => 'Category deleted successfully!']);
     }
 }

@@ -37,6 +37,7 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\BroadcastMailController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\MailTemplateController;
+use App\Http\Controllers\ActivityLogController;
 
 // Authentication routes with rate limiting (5 attempts per minute per IP)
 Route::middleware('throttle:auth')->group(function () {
@@ -232,4 +233,8 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::get('/inbox/{id}', [InboxController::class, 'show']);
     Route::patch('/inbox/{id}/read', [InboxController::class, 'markAsRead']);
     Route::delete('/inbox/{id}', [InboxController::class, 'destroy']);
+
+    // Activity Logs
+    Route::get('/activity-logs', [ActivityLogController::class, 'index']);
+    Route::get('/activity-logs/filters', [ActivityLogController::class, 'getFilters']);
 });

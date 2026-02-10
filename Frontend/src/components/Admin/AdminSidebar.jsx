@@ -14,7 +14,8 @@ import {
     Settings,
     FileDown,
     Mail,
-    LogOut
+    LogOut,
+    History
 } from 'lucide-react';
 import './AdminSidebar.css';
 
@@ -51,6 +52,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
         { name: 'Broadcast Mail', path: '/admin/broadcast-mail', icon: Mail },
         { name: 'Applications', path: '/admin/applications', icon: FileText },
         { name: 'Reports', path: '/admin/reports', icon: FileDown },
+        { name: 'Activity Log', path: '/admin/activity-logs', icon: History },
         { name: 'Settings', path: '/admin/settings', icon: Settings },
     ];
 

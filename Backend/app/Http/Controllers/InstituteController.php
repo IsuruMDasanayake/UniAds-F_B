@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\InstituteApprovedMail;
 use App\Mail\InstituteUnapprovedMail;
 use App\Models\InstituteProfileView;
+use App\Services\AdminActivityLogger;
 
 class InstituteController extends Controller
 {
@@ -44,6 +45,13 @@ class InstituteController extends Controller
         // Update the institute's status
         $institute->status = 'approved';
         $institute->save();
+
+        AdminActivityLogger::log(
+            'Approved',
+            'Institute',
+            $institute->id,
+            auth()->user()->name . " approved institute \"{$institute->institute_name}\""
+        );
 
         return redirect()->route('admin.institutesmanage')->with('success', 'Institute approved successfully!');
     }
@@ -164,8 +172,18 @@ class InstituteController extends Controller
 
     public function destroy($id)
     {
-        $institute = Institute::findOrFail($id); // Find the institute or throw a 404 error
+        $institute = Institute::findOrFail($id);
+        $instituteName = $institute->institute_name;
+        $instituteId = $institute->id;
         $institute->delete(); // Delete the institute
+
+        AdminActivityLogger::log(
+            'Deleted',
+            'Institute',
+            $instituteId,
+            auth()->user()->name . " deleted institute \"{$instituteName}\""
+        );
+
         return response()->json(['success' => true, 'message' => 'Institute deleted successfully!']);
     }
 
@@ -776,6 +794,13 @@ class InstituteController extends Controller
             \Illuminate\Support\Facades\Log::error('Failed to send approval email: ' . $e->getMessage());
         }
 
+        AdminActivityLogger::log(
+            'Approved',
+            'Institute',
+            $institute->id,
+            auth()->user()->name . " approved institute \"{$institute->institute_name}\" via API"
+        );
+
         return response()->json(['success' => true, 'message' => 'Institute approved successfully']);
     }
 
@@ -793,6 +818,13 @@ class InstituteController extends Controller
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to send unapproval email: ' . $e->getMessage());
         }
+
+        AdminActivityLogger::log(
+            'Unapproved',
+            'Institute',
+            $institute->id,
+            auth()->user()->name . " unapproved institute \"{$institute->institute_name}\""
+        );
 
         return response()->json(['success' => true, 'message' => 'Institute unapproved successfully']);
     }
@@ -819,6 +851,13 @@ class InstituteController extends Controller
 
         $institute->save();
 
+        AdminActivityLogger::log(
+            'Update Premium',
+            'Institute',
+            $institute->id,
+            auth()->user()->name . " changed premium status of \"{$institute->institute_name}\" to " . ($institute->is_premium ? 'Premium' : 'Basic')
+        );
+
         return response()->json([
             'success' => true,
             'message' => 'Premium status updated',
@@ -843,6 +882,13 @@ class InstituteController extends Controller
         ]);
 
         $institute->update($validatedData);
+
+        AdminActivityLogger::log(
+            'Updated',
+            'Institute',
+            $institute->id,
+            auth()->user()->name . " updated details for institute \"{$institute->institute_name}\""
+        );
 
         return response()->json(['success' => true, 'message' => 'Institute updated successfully', 'institute' => $institute]);
     }

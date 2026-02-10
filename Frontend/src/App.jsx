@@ -33,6 +33,7 @@ import ReportsPage from './pages/Admin/ReportsPage';
 import BroadcastMailPage from './pages/Admin/BroadcastMailPage';
 import ApplicationsPage from './pages/Admin/ApplicationsPage';
 import AdminInboxPage from './pages/Admin/AdminInboxPage';
+import ActivityLogPage from './pages/Admin/ActivityLogPage';
 
 import { SettingsProvider } from './context/SettingsContext';
 
@@ -96,6 +97,7 @@ function App() {
                     <Route path="broadcast-mail" element={<BroadcastMailPage />} />
                     <Route path="applications" element={<ApplicationsPage />} />
                     <Route path="inbox" element={<AdminInboxPage />} />
+                    <Route path="activity-logs" element={<ActivityLogPage />} />
                     <Route path="*" element={<Navigate to="dashboard" replace />} />
                   </Routes>
                 </AdminLayout>

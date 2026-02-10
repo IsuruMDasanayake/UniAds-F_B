@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
+use App\Services\AdminActivityLogger;
 
 
 class EventController extends Controller
@@ -210,7 +211,16 @@ class EventController extends Controller
         }
 
         // Delete the event
+        $eventTitle = $event->event_title;
+        $eventId = $event->id;
         $event->delete();
+
+        AdminActivityLogger::log(
+            'Deleted Event',
+            'Event',
+            $eventId,
+            auth()->user()->name . " deleted event \"{$eventTitle}\""
+        );
 
         return response()->json(['success' => true, 'message' => 'Event deleted successfully.']);
     }
@@ -230,6 +240,13 @@ class EventController extends Controller
         $event = Event::findOrFail($id);
         $event->is_active = !$event->is_active;
         $event->save();
+
+        AdminActivityLogger::log(
+            'Updated Event Status',
+            'Event',
+            $event->id,
+            auth()->user()->name . " changed active status of event \"{$event->event_title}\" to " . ($event->is_active ? 'Active' : 'Inactive')
+        );
 
         return response()->json(['success' => true, 'is_active' => $event->is_active]);
     }

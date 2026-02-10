@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Services\AdminActivityLogger;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\ApplyCase;
@@ -227,7 +228,16 @@ class PostController extends Controller
                 return response()->json(['message' => 'Unauthorized'], 403);
             }
 
+            $postTitle = $post->title;
+            $postId = $post->id;
             $post->delete();
+
+            AdminActivityLogger::log(
+                'Deleted Post',
+                'Post',
+                $postId,
+                auth()->user()->name . " deleted post \"{$postTitle}\""
+            );
 
             return response()->json([
                 'success' => true,
@@ -597,6 +607,13 @@ class PostController extends Controller
         $post = Post::findOrFail($id);
         $post->status = $post->status === 'active' ? 'inactive' : 'active';
         $post->save();
+
+        AdminActivityLogger::log(
+            'Updated Post Status',
+            'Post',
+            $post->id,
+            auth()->user()->name . " changed status of post \"{$post->title}\" to {$post->status}"
+        );
 
         return response()->json(['success' => true, 'message' => 'Post status updated', 'status' => $post->status]);
     }

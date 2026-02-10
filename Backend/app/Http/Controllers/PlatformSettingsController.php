@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Services\AdminActivityLogger;
 
 class PlatformSettingsController extends Controller
 {
@@ -114,6 +115,13 @@ class PlatformSettingsController extends Controller
 
         // Clear cache
         Cache::forget('platform_settings');
+
+        AdminActivityLogger::log(
+            'Updated Settings',
+            'PlatformSetting',
+            $settings->id,
+            auth()->user()->name . " updated platform settings (site name, registration rules, etc.)"
+        );
 
         return response()->json([
             'message' => 'Settings updated successfully',

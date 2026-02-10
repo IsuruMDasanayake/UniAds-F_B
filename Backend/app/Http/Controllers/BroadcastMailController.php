@@ -10,6 +10,7 @@ use App\Jobs\SendBroadcastMailJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use App\Services\AdminActivityLogger;
 
 class BroadcastMailController extends Controller
 {
@@ -260,6 +261,13 @@ class BroadcastMailController extends Controller
                 );
             }
         });
+
+        AdminActivityLogger::log(
+            'Sent Broadcast Mail',
+            'BroadcastMail',
+            $broadcastMail->id,
+            auth()->user()->name . " sent a broadcast email \"{$request->title}\" to {$recipientCount} recipients"
+        );
 
         return response()->json([
             'message' => "Broadcast email queued successfully! Sending to {$recipientCount} recipients.",

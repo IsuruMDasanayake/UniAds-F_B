@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Services\AdminActivityLogger;
 
 class BackendController extends Controller
 {
@@ -142,6 +143,13 @@ class BackendController extends Controller
             $user->role = $request->role;
             $user->save();
 
+            AdminActivityLogger::log(
+                'Updated User',
+                'User',
+                $user->id,
+                auth()->user()->name . " updated user details for \"{$user->name}\""
+            );
+
             // Return a success response
             return response()->json(['success' => true, 'user' => $user]);
         }
@@ -155,7 +163,16 @@ class BackendController extends Controller
 
         try {
             $user = User::findOrFail($id);
+            $userName = $user->name;
+            $userId = $user->id;
             $user->delete();
+
+            AdminActivityLogger::log(
+                'Deleted User',
+                'User',
+                $userId,
+                auth()->user()->name . " deleted user \"{$userName}\""
+            );
 
             return redirect()->route('admin.users')->with('success', 'User deleted successfully.');
         } catch (\Exception $e) {
@@ -411,6 +428,13 @@ class BackendController extends Controller
         $user->role = $request->role;
         $user->save();
 
+        AdminActivityLogger::log(
+            'Updated User',
+            'User',
+            $user->id,
+            auth()->user()->name . " updated user details for \"{$user->name}\" via API"
+        );
+
         return response()->json(['success' => true, 'user' => $user, 'message' => 'User updated successfully']);
     }
 
@@ -421,7 +445,17 @@ class BackendController extends Controller
             return response()->json(['success' => false, 'message' => 'User not found'], 404);
         }
 
+        $userName = $user->name;
+        $userId = $user->id;
         $user->delete();
+
+        AdminActivityLogger::log(
+            'Deleted User',
+            'User',
+            $userId,
+            auth()->user()->name . " deleted user \"{$userName}\" via API"
+        );
+
         return response()->json(['success' => true, 'message' => 'User deleted successfully']);
     }
 }
