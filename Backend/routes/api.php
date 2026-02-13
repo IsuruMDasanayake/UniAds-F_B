@@ -148,6 +148,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/analytics/overview', [AnalyticsController::class, 'apiOverview']);
         Route::get('/analytics/trends', [AnalyticsController::class, 'apiTrends']);
         Route::get('/analytics/posts', [AnalyticsController::class, 'apiPosts']);
+        Route::delete('/analytics/posts/{id}', [AnalyticsController::class, 'deletePost']);
         Route::patch('/posts/{id}/status', [AnalyticsController::class, 'toggleStatus']);
         Route::patch('/events/{id}/status', [AnalyticsController::class, 'toggleEventStatus']);
         Route::get('/analytics/events', [AnalyticsController::class, 'apiEvents']);

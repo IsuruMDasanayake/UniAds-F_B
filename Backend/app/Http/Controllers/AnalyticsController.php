@@ -450,17 +450,38 @@ class AnalyticsController extends Controller
 
     public function apiPosts(Request $request)
     {
-        $query = Post::withCount(['applyCases as applications_count'])
-            ->where('institute_id', auth()->user()->institute->id);
+        $instituteId = auth()->user()->institute->id;
 
-        if ($request->has('search')) {
+        // Base query for current page results (with filters)
+        $query = Post::withCount(['applyCases as applications_count'])
+            ->where('institute_id', $instituteId);
+
+        // Apply Search
+        if ($request->has('search') && !empty($request->get('search'))) {
             $search = $request->get('search');
             $query->where('title', 'like', "%{$search}%");
         }
 
+        // Apply Status Filter
+        if ($request->has('status') && $request->get('status') !== 'all') {
+            $query->where('status', $request->get('status'));
+        }
+
+        // Pagination
         $posts = $query->orderByDesc('created_at')->paginate(10);
 
-        return response()->json($posts);
+        // Stats for cards (Global for the institute)
+        $stats = [
+            'total_posts' => Post::where('institute_id', $instituteId)->count(),
+            'active_posts' => Post::where('institute_id', $instituteId)->where('status', 'active')->count(),
+            'total_views' => (int) Post::where('institute_id', $instituteId)->sum('view_count'),
+            'total_applications' => ApplyCase::where('institute_id', $instituteId)->count(),
+        ];
+
+        return response()->json([
+            'posts' => $posts,
+            'stats' => $stats
+        ]);
     }
 
     public function apiEvents(Request $request)
@@ -544,6 +565,17 @@ class AnalyticsController extends Controller
         return response()->json([
             'success' => true,
             'is_active' => $event->is_active
+        ]);
+    }
+
+    public function deletePost($id)
+    {
+        $post = Post::where('institute_id', auth()->user()->institute->id)->findOrFail($id);
+        $post->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Post deleted successfully'
         ]);
     }
 }

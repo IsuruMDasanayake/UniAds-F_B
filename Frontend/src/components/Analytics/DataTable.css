@@ -7,6 +7,8 @@
     border: 1px solid var(--c-slate-100);
     overflow: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    /* Added for progress bar */
 }
 
 .analytics-data-table-component:hover {
@@ -68,6 +70,21 @@
 
 .analytics-data-table-component .table-wrapper {
     overflow-x: auto;
+}
+
+/* Hide scrollbar on Desktop while allowing scrolling */
+@media (min-width: 769px) {
+    .analytics-data-table-component .table-wrapper {
+        scrollbar-width: none;
+        /* Firefox */
+        -ms-overflow-style: none;
+        /* IE/Edge */
+    }
+
+    .analytics-data-table-component .table-wrapper::-webkit-scrollbar {
+        display: none;
+        /* Chrome/Safari/Opera */
+    }
 }
 
 .analytics-data-table-component .data-table {
@@ -143,7 +160,7 @@
 
 .analytics-data-table-component .pagination {
     padding: 1.5rem 1.75rem;
-    border-top: 2px solid var(--c-slate-100);
+    border-top: 2px solid var(--c-slate-200);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -165,7 +182,7 @@
 
 .analytics-data-table-component .pagination-btn {
     padding: 0.625rem 1.125rem;
-    border: 2px solid var(--c-slate-200);
+    border: 2px solid var(--c-slate-300);
     background: var(--c-card-bg);
     border-radius: 0.625rem;
     font-size: 0.875rem;
@@ -198,4 +215,92 @@
     background: var(--c-primary-soft);
     border-radius: 0.625rem;
     border: 2px solid var(--c-primary);
+}
+
+/* Real-time Refresh Bar */
+.analytics-data-table-component .table-refresh-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: transparent;
+    overflow: hidden;
+    z-index: 20;
+}
+
+.analytics-data-table-component .progress-bar-segment {
+    width: 30%;
+    height: 100%;
+    background: var(--c-primary);
+    position: absolute;
+    animation: tableShimmer 1.5s infinite linear;
+    box-shadow: 0 0 10px var(--c-primary);
+}
+
+@keyframes tableShimmer {
+    from {
+        left: -30%;
+    }
+
+    to {
+        left: 100%;
+    }
+}
+
+.table-row {
+    border-bottom: 1px solid #f1f5f9;
+    transition: all 0.2s ease;
+}
+
+.table-row.clickable {
+    cursor: pointer;
+}
+
+.table-row:hover {
+    background-color: #f8fafc;
+}
+
+.table-row.clickable:hover {
+    background-color: #f1f5f9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.analytics-data-table-component.table-loading .data-table tbody {
+    opacity: 0.6;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+/* Mobile Horizontal Scroll Support */
+@media (max-width: 768px) {
+    .analytics-data-table-component .table-wrapper {
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 2px;
+    }
+
+    /* Sleek Mini Scrollbar */
+    .analytics-data-table-component .table-wrapper::-webkit-scrollbar {
+        height: 5px;
+    }
+
+    .analytics-data-table-component .table-wrapper::-webkit-scrollbar-track {
+        background: var(--c-slate-50);
+        border-radius: 10px;
+    }
+
+    .analytics-data-table-component .table-wrapper::-webkit-scrollbar-thumb {
+        background: var(--c-slate-300);
+        border-radius: 10px;
+    }
+
+    .analytics-data-table-component .table-wrapper::-webkit-scrollbar-thumb:hover {
+        background: var(--c-slate-400);
+    }
+
+    .analytics-data-table-component .data-table {
+        min-width: 800px;
+        /* Force table to be wider than mobile screen */
+    }
 }

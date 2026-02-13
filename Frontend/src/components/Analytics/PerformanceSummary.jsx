@@ -3,8 +3,31 @@ import { Award, Users, TrendingUp, Star } from 'lucide-react';
 import PeriodFilter from './PeriodFilter';
 import './PerformanceSummary.css';
 
-const PerformanceSummary = ({ summary, period, setPeriod, isUpdating }) => {
-    if (!summary) return null;
+const PerformanceSummary = ({ summary, period, setPeriod, isUpdating, loading = false }) => {
+    if (loading || !summary) {
+        return (
+            <div className="analytics-performance-summary loading">
+                <div className="summary-header">
+                    <h3 className="summary-title">Performance Highlights</h3>
+                    <div className="summary-filter-wrapper">
+                        <PeriodFilter period={period} setPeriod={setPeriod} size="small" />
+                    </div>
+                </div>
+                <div className="summary-grid">
+                    {[...Array(4)].map((_, i) => (
+                        <div key={i} className="summary-card skeleton-card">
+                            <div className="summary-icon skeleton-loader" style={{ width: '40px', height: '40px', borderRadius: '10px' }}></div>
+                            <div className="summary-content">
+                                <div className="skeleton-loader" style={{ width: '60px', height: '12px', marginBottom: '8px' }}></div>
+                                <div className="skeleton-loader" style={{ width: '100px', height: '16px', marginBottom: '4px' }}></div>
+                                <div className="skeleton-loader" style={{ width: '80px', height: '12px' }}></div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    }
 
     const { most_viewed_course, most_applied_course, followers_this_period, new_ratings } = summary;
 

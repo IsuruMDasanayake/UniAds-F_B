@@ -2,8 +2,24 @@ import React from 'react';
 import { Lightbulb } from 'lucide-react';
 import './InsightsBox.css';
 
-const InsightsBox = ({ insights }) => {
-    if (!insights || insights.length === 0) return null;
+const InsightsBox = ({ insights, loading = false }) => {
+    if (loading || !insights) {
+        return (
+            <div className="analytics-insights-box loading">
+                <div className="insights-header">
+                    <div className="skeleton-loader" style={{ width: '24px', height: '24px', borderRadius: '50%' }}></div>
+                    <div className="skeleton-loader" style={{ width: '180px', height: '18px', marginLeft: '12px' }}></div>
+                </div>
+                <ul className="insights-list">
+                    {[...Array(3)].map((_, i) => (
+                        <li key={i} className="insight-item">
+                            <div className="skeleton-loader" style={{ width: '100%', height: '14px' }}></div>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        );
+    }
 
     return (
         <div className="analytics-insights-box">

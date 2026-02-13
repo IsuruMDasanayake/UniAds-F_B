@@ -42,27 +42,27 @@ const TrendsPage = () => {
         fetchTrends();
     }, [range, compare]);
 
-    if (loading && !data) {
-        return (
-            <div id="analytics-trends-v2">
-                <div className="trends-header-v2">
-                    <div className="skeleton-loader" style={{ width: '200px', height: '40px' }}></div>
-                </div>
-                <div className="stat-cards-row-v2" style={{ marginBottom: '2rem' }}>
-                    {[...Array(5)].map((_, i) => (
-                        <div key={i} className="skeleton-loader" style={{ height: '120px' }}></div>
-                    ))}
-                </div>
-                <div className="skeleton-loader" style={{ height: '400px', marginBottom: '2rem' }}></div>
-                <div className="charts-grid-v2">
-                    <div className="skeleton-loader" style={{ height: '350px' }}></div>
-                    <div className="skeleton-loader" style={{ height: '350px' }}></div>
-                </div>
-            </div>
-        );
-    }
+    // Unified loading state
+    const isInitialLoading = loading && !data;
 
-    const { totals, postViews, eventViews, profileViews, applications, followers, demographics, summary, insights } = data;
+    // Destructure with defaults
+    const {
+        totals = {
+            postViews: { value: 0, change: 0 },
+            eventViews: { value: 0, change: 0 },
+            profileViews: { value: 0, change: 0 },
+            applications: { value: 0, change: 0 },
+            followers: { value: 0, change: 0 }
+        },
+        postViews = { labels: [], data: [] },
+        eventViews = { labels: [], data: [] },
+        profileViews = { labels: [], data: [] },
+        applications = { labels: [], data: [] },
+        followers = { labels: [], data: [] },
+        demographics = {},
+        summary = {},
+        insights = []
+    } = data || {};
 
     // Helper for multi-dataset charts
     const getTrafficDatasets = () => {
@@ -120,19 +120,23 @@ const TrendsPage = () => {
 
             {/* Stat Cards Row */}
             <div className="stat-cards-row-v2">
-                <StatCard icon={FileText} label="Post Views" value={totals.postViews.value} change={range === 'all' ? null : totals.postViews.change} color="blue" />
-                <StatCard icon={Calendar} label="Event Views" value={totals.eventViews.value} change={range === 'all' ? null : totals.eventViews.change} color="green" />
-                <StatCard icon={Briefcase} label="Applications" value={totals.applications.value} change={range === 'all' ? null : totals.applications.change} color="amber" />
-                <StatCard icon={Users} label="Total Followers" value={totals.followers.value} change={range === 'all' ? null : totals.followers.change} color="red" />
-                <StatCard icon={Eye} label="Profile Views" value={totals.profileViews.value} change={range === 'all' ? null : totals.profileViews.change} color="white" />
+                <StatCard icon={FileText} label="Post Views" value={totals.postViews.value} change={range === 'all' ? null : totals.postViews.change} color="blue" loading={isInitialLoading} />
+                <StatCard icon={Calendar} label="Event Views" value={totals.eventViews.value} change={range === 'all' ? null : totals.eventViews.change} color="green" loading={isInitialLoading} />
+                <StatCard icon={Briefcase} label="Applications" value={totals.applications.value} change={range === 'all' ? null : totals.applications.change} color="amber" loading={isInitialLoading} />
+                <StatCard icon={Users} label="Total Followers" value={totals.followers.value} change={range === 'all' ? null : totals.followers.change} color="red" loading={isInitialLoading} />
+                <StatCard icon={Eye} label="Profile Views" value={totals.profileViews.value} change={range === 'all' ? null : totals.profileViews.change} color="white" loading={isInitialLoading} />
             </div>
 
             {/* Insights Section */}
-            <TrendsInsights insights={insights} style={{ marginBottom: '2rem' }} />
+            <TrendsInsights insights={insights} loading={isInitialLoading} style={{ marginBottom: '2rem' }} />
 
             {/* Main Traffic Overview */}
             <div className="main-section-v2">
-                <ChartCard title="Traffic Overview" subtitle="Post, Event and Profile views compared">
+                <ChartCard
+                    title="Traffic Overview"
+                    subtitle="Post, Event and Profile views compared"
+                    loading={isInitialLoading}
+                >
                     <div style={{ height: '400px' }}>
                         <LineChart
                             labels={postViews.labels}
@@ -145,7 +149,7 @@ const TrendsPage = () => {
 
             {/* Detailed Grid */}
             <div className="charts-grid-v2">
-                <ChartCard title="Course Applications Trend">
+                <ChartCard title="Course Applications Trend" loading={isInitialLoading}>
                     <div style={{ height: '300px' }}>
                         <LineChart
                             labels={applications.labels}
@@ -153,7 +157,7 @@ const TrendsPage = () => {
                         />
                     </div>
                 </ChartCard>
-                <ChartCard title="Followers Growth">
+                <ChartCard title="Followers Growth" loading={isInitialLoading}>
                     <div style={{ height: '300px' }}>
                         <LineChart
                             labels={followers.labels}
@@ -166,7 +170,7 @@ const TrendsPage = () => {
             {/* Demographics */}
             <div className="overview-section-v2">
                 <h2 className="section-title-v2">User Demographics</h2>
-                <DemographicCharts demographics={demographics} loading={isUpdating} />
+                <DemographicCharts demographics={demographics} loading={isInitialLoading || isUpdating} />
             </div>
         </div>
     );

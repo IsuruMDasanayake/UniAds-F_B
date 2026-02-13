@@ -2,8 +2,23 @@ import React from 'react';
 import { Percent, BookX, Calendar } from 'lucide-react';
 import './ConversionMetrics.css';
 
-const ConversionMetrics = ({ conversion, contentHealth }) => {
-    if (!conversion || !contentHealth) return null;
+const ConversionMetrics = ({ conversion, contentHealth, loading = false }) => {
+    if (loading || !conversion || !contentHealth) {
+        return (
+            <div className="analytics-conversion-metrics loading">
+                {[...Array(3)].map((_, i) => (
+                    <div key={i} className="conversion-card skeleton-card">
+                        <div className="conversion-icon skeleton-loader" style={{ width: '40px', height: '40px', borderRadius: '10px' }}></div>
+                        <div className="conversion-content">
+                            <div className="skeleton-loader" style={{ width: '80px', height: '12px', marginBottom: '8px' }}></div>
+                            <div className="skeleton-loader" style={{ width: '100px', height: '20px', marginBottom: '4px' }}></div>
+                            <div className="skeleton-loader" style={{ width: '120px', height: '12px' }}></div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    }
 
     const metrics = [
         {

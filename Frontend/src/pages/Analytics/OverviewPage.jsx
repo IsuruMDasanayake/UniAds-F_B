@@ -37,34 +37,24 @@ const OverviewPage = () => {
         fetchStats();
     }, [period]);
 
-    if (loading && !stats) {
-        return (
-            <div id="analytics-overview-page">
-                <div className="overview-header">
-                    <div className="skeleton-loader" style={{ width: '200px', height: '40px' }}></div>
-                </div>
-                <div className="skeleton-loader" style={{ height: '200px', marginBottom: '2rem' }}></div>
-                <div className="overview-grid">
-                    {[...Array(8)].map((_, i) => (
-                        <div key={i} className="skeleton-loader" style={{ height: '150px' }}></div>
-                    ))}
-                </div>
-            </div>
-        );
+    // Unified loading state for components
+    const isInitialLoading = loading && !stats;
+
+    if (isInitialLoading && false) { // Kept for reference but bypassed
+        return null;
     }
 
-    if (!stats) {
-        return (
-            <div className="error-state">
-                <p>Failed to load analytics data. Please try again later.</p>
-            </div>
-        );
-    }
+    const {
+        metrics = {},
+        conversion = {},
+        content_health = {},
+        performance_summary = {},
+        insights = [],
+        cta = {}
+    } = stats || {};
 
-    const { metrics, conversion, content_health, performance_summary, insights, cta } = stats;
-
-    const hasPositiveGrowth = cta.hasPositiveGrowth;
-    const ctaMessage = cta.message;
+    const hasPositiveGrowth = cta?.hasPositiveGrowth || false;
+    const ctaMessage = cta?.message || "Analyzing your performance data...";
 
     const sections = [
         {
@@ -109,7 +99,7 @@ const OverviewPage = () => {
                     label: 'Total Interest Count',
                     value: metrics.event_interests,
                     icon: ThumbsUp,
-                    color: 'purple'
+                    color: 'red'
                 },
             ]
         },
@@ -154,6 +144,7 @@ const OverviewPage = () => {
                 period={period}
                 setPeriod={setPeriod}
                 isUpdating={isUpdating}
+                loading={isInitialLoading}
             />
 
             {/* KPI Sections */}
@@ -169,6 +160,7 @@ const OverviewPage = () => {
                                 value={item.value}
                                 color={item.color}
                                 delay={i * 0.1}
+                                loading={isInitialLoading}
                             />
                         ))}
                     </div>
@@ -176,26 +168,32 @@ const OverviewPage = () => {
             ))}
 
             {/* Conversion & Health Metrics */}
-            <ConversionMetrics conversion={conversion} contentHealth={content_health} />
+            <ConversionMetrics
+                conversion={conversion}
+                contentHealth={content_health}
+                loading={isInitialLoading}
+            />
 
             {/* Insights */}
-            <InsightsBox insights={insights} />
+            <InsightsBox insights={insights} loading={isInitialLoading} />
 
             {/* Dynamic CTA */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className={`overview-cta ${hasPositiveGrowth ? 'positive' : 'negative'}`}
-            >
-                <h3 className="cta-title">
-                    {hasPositiveGrowth ? '🎉 Great Performance!' : '📊 Room for Improvement'}
-                </h3>
-                <p className="cta-text">{ctaMessage}</p>
-                <a href="/analytics/trends" className="cta-button">
-                    View Detailed Trends
-                </a>
-            </motion.div>
+            {!isInitialLoading && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                    className={`overview-cta ${hasPositiveGrowth ? 'positive' : 'negative'}`}
+                >
+                    <h3 className="cta-title">
+                        {hasPositiveGrowth ? '🎉 Great Performance!' : '📊 Room for Improvement'}
+                    </h3>
+                    <p className="cta-text">{ctaMessage}</p>
+                    <a href="/analytics/trends" className="cta-button">
+                        View Detailed Trends
+                    </a>
+                </motion.div>
+            )}
         </div>
     );
 };

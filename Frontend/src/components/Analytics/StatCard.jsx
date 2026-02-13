@@ -3,7 +3,19 @@ import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import './StatCard.css';
 
-const StatCard = ({ icon: Icon, label, value, change, color = 'blue', delay = 0 }) => {
+const StatCard = ({ icon: Icon, label, value, change, color = 'blue', delay = 0, loading = false }) => {
+    if (loading) {
+        return (
+            <div className={`analytics-stat-card-component loading ${color}`}>
+                <div className="stat-icon-wrapper skeleton-loader" style={{ width: '48px', height: '48px', borderRadius: '12px' }}></div>
+                <div className="stat-content">
+                    <div className="skeleton-loader" style={{ width: '80px', height: '14px', marginBottom: '8px' }}></div>
+                    <div className="skeleton-loader" style={{ width: '120px', height: '24px' }}></div>
+                </div>
+            </div>
+        );
+    }
+
     const hasChange = change !== undefined && change !== null;
     const isPositive = change >= 0;
     const isNeutral = change === 0;

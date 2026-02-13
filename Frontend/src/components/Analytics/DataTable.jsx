@@ -9,27 +9,31 @@ const DataTable = ({
     onPageChange,
     searchQuery,
     onSearchChange,
-    loading
+    loading,
+    showSearch = true,
+    onRowClick
 }) => {
     return (
         <div className="analytics-data-table-component">
             {/* Controls */}
-            <div className="table-controls">
-                <div className="search-input-wrapper">
-                    <Search className="search-icon" size={18} />
-                    <input
-                        type="text"
-                        placeholder="Search..."
-                        value={searchQuery}
-                        onChange={(e) => onSearchChange(e.target.value)}
-                        className="search-input"
-                    />
+            {showSearch && (
+                <div className="table-controls">
+                    <div className="search-input-wrapper">
+                        <Search className="search-icon" size={18} />
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            value={searchQuery}
+                            onChange={(e) => onSearchChange(e.target.value)}
+                            className="search-input"
+                        />
+                    </div>
+                    {/* Additional filters can go here */}
                 </div>
-                {/* Additional filters can go here */}
-            </div>
+            )}
 
             {/* Table */}
-            <div className="table-responsive">
+            <div className="table-wrapper">
                 <table className="data-table">
                     <thead className="table-header">
                         <tr>
@@ -53,7 +57,11 @@ const DataTable = ({
                             ))
                         ) : data.length > 0 ? (
                             data.map((row, i) => (
-                                <tr key={i} className="table-row">
+                                <tr
+                                    key={i}
+                                    className={`table-row ${onRowClick ? 'clickable' : ''}`}
+                                    onClick={() => onRowClick && onRowClick(row)}
+                                >
                                     {columns.map((col, j) => (
                                         <td key={j} className="table-cell">
                                             <div className="table-cell-actions">
@@ -76,7 +84,7 @@ const DataTable = ({
 
             {/* Pagination */}
             {pagination && (
-                <div className="pagination-container">
+                <div className="pagination">
                     <div className="pagination-info">
                         Showing {pagination.from} to {pagination.to} of {pagination.total} results
                     </div>
