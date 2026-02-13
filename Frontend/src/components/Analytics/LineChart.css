@@ -4,7 +4,8 @@
     width: 100%;
     height: 100%;
     position: relative;
-    /* Removed card styling: background, border, shadow, padding */
+    min-width: 0;
+    /* Ensure chart can shrink inside forced grid columns */
 }
 
 /* No more internal header/title if used inside ChartCard */

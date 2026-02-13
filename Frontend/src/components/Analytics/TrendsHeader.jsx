@@ -1,13 +1,8 @@
 import React from 'react';
 import { Repeat } from 'lucide-react';
+import PeriodFilter from './PeriodFilter';
 
 const TrendsHeader = ({ range, setRange, compare, setCompare, loading }) => {
-    const periods = [
-        { value: '7', label: 'Last 7 Days' },
-        { value: '30', label: 'Last 30 Days' },
-        { value: '90', label: 'Last 90 Days' },
-    ];
-
     return (
         <div className="trends-header-v2">
             <div className="header-text">
@@ -16,20 +11,13 @@ const TrendsHeader = ({ range, setRange, compare, setCompare, loading }) => {
             </div>
 
             <div className="trends-controls-group-v2">
-                <div className="analytics-period-filter-v2">
-                    {periods.map(({ value, label }) => (
-                        <button
-                            key={value}
-                            className={`period-btn-v2 ${range === value ? 'active' : ''}`}
-                            onClick={() => setRange(value)}
-                            disabled={loading}
-                        >
-                            {label}
-                        </button>
-                    ))}
+                <div className="trends-period-filter-wrapper">
+                    <PeriodFilter
+                        period={parseInt(range)}
+                        setPeriod={(val) => setRange(String(val))}
+                        size="medium" // We'll control the "small" switch via CSS media queries on the wrapper
+                    />
                 </div>
-
-
             </div>
         </div>
     );
