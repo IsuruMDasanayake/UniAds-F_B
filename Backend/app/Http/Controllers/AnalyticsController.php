@@ -486,17 +486,61 @@ class AnalyticsController extends Controller
 
     public function apiEvents(Request $request)
     {
-        $query = Event::where('institute_id', auth()->user()->institute->id)
-            ->select('id', 'event_title', 'view_count', 'interested_count', 'is_active', 'created_at');
+        $instituteId = auth()->user()->institute->id;
+        $now = now();
 
+        $query = Event::where('institute_id', $instituteId)
+            ->select('id', 'event_title', 'event_image', 'event_date', 'event_description', 'main_location', 'sub_location', 'view_count', 'interested_count', 'decline_count', 'is_active', 'created_at');
+
+        // Stats calculation
+        $stats = [
+            'total_events' => Event::where('institute_id', $instituteId)->count(),
+            'total_interests' => Event::where('institute_id', $instituteId)->sum('interested_count'),
+            'total_declines' => Event::where('institute_id', $instituteId)->sum('decline_count'),
+            'total_views' => Event::where('institute_id', $instituteId)->sum('view_count'),
+            'upcoming_events' => Event::where('institute_id', $instituteId)->where('event_date', '>', $now)->count(),
+            'past_events' => Event::where('institute_id', $instituteId)->where('event_date', '<', $now)->count(),
+        ];
+
+        // Search
         if ($request->has('search')) {
             $search = $request->get('search');
             $query->where('event_title', 'like', "%{$search}%");
         }
 
+        // Status Filtering
+        if ($request->has('status') && $request->status !== 'all') {
+            $status = $request->status;
+            switch ($status) {
+                case 'active':
+                    $query->where('is_active', true);
+                    break;
+                case 'deactive':
+                    $query->where('is_active', false);
+                    break;
+                case 'upcoming':
+                    $query->where('event_date', '>', $now);
+                    break;
+                case 'past':
+                    $query->where('event_date', '<', $now);
+                    break;
+                case 'expired':
+                    // Assuming expired means past AND inactive? Or just past.
+                    // Let's go with past.
+                    $query->where('event_date', '<', $now);
+                    break;
+            }
+        }
+
         $events = $query->orderByDesc('created_at')->paginate(10);
 
-        return response()->json($events);
+        return response()->json([
+            'data' => $events->items(),
+            'current_page' => $events->currentPage(),
+            'last_page' => $events->lastPage(),
+            'total' => $events->total(),
+            'stats' => $stats,
+        ]);
     }
 
     public function apiRatings(Request $request)
@@ -576,6 +620,17 @@ class AnalyticsController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Post deleted successfully'
+        ]);
+    }
+
+    public function deleteEvent($id)
+    {
+        $event = Event::where('institute_id', auth()->user()->institute->id)->findOrFail($id);
+        $event->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Event deleted successfully'
         ]);
     }
 }

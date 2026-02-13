@@ -151,6 +151,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/analytics/posts/{id}', [AnalyticsController::class, 'deletePost']);
         Route::patch('/posts/{id}/status', [AnalyticsController::class, 'toggleStatus']);
         Route::patch('/events/{id}/status', [AnalyticsController::class, 'toggleEventStatus']);
+        Route::delete('/analytics/events/{id}', [AnalyticsController::class, 'deleteEvent']);
         Route::get('/analytics/events', [AnalyticsController::class, 'apiEvents']);
         Route::get('/analytics/ratings', [AnalyticsController::class, 'apiRatings']);
         Route::post('/ratings/{id}/report', [AnalyticsController::class, 'apiReportRating']);

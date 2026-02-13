@@ -11,7 +11,7 @@ import { getStorageUrl } from '../../lib/config';
 // Importing the dedicated CSS file to prevent conflicts
 import './EventDetailsModal.css';
 
-const EventDetailsModal = ({ event, onClose, onInterestToggle }) => {
+const EventDetailsModal = ({ isOpen, event, onClose, onInterestToggle }) => {
 
     // Internal helper for date formatting to match EventsPage logic
     const formatDate = (dateString) => {
@@ -27,7 +27,7 @@ const EventDetailsModal = ({ event, onClose, onInterestToggle }) => {
     // Using createPortal to ensure z-index correctness as previously established
     return createPortal(
         <AnimatePresence>
-            {event && (
+            {isOpen && event && (
                 <motion.div
                     className="modern-modal-overlay"
                     initial={{ opacity: 0 }}

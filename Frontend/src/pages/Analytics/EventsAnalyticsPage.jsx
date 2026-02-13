@@ -1,48 +1,72 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axiosClient from '../../lib/axios';
 import DataTable from '../../components/Analytics/DataTable';
-import { BadgeCheck, Ban, Eye, Calendar, Image as ImageIcon } from 'lucide-react';
+import { BadgeCheck, Ban, Eye, Calendar, Image as ImageIcon, Heart, Users, Edit3, Trash2, Clock, MapPin } from 'lucide-react';
 import { getStorageUrl } from '../../lib/config';
+
+// Modals
+import EventDetailsModal from '../../components/Modals/EventDetailsModal';
+import EditEventModal from '../../components/Modals/EditEventModal';
+import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
+
+// Components
+import EventsStatCards from '../../components/Analytics/EventsStatCards';
+import EventsTableCard from '../../components/Analytics/EventsTableCard';
+import SkeletonTable from '../../components/Analytics/SkeletonTable';
+import EmptyState from '../../components/Analytics/EmptyState';
 import './EventsAnalyticsPage.css';
 
 const EventsAnalyticsPage = () => {
     const [events, setEvents] = useState([]);
+    const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isUpdating, setIsUpdating] = useState(false);
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
+    const [status, setStatus] = useState('all');
     const [pagination, setPagination] = useState({});
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            fetchEvents();
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [search, page]);
+    // Modal States
+    const [selectedEvent, setSelectedEvent] = useState(null);
+    const [infoModalOpen, setInfoModalOpen] = useState(false);
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
-    const fetchEvents = async () => {
-        setLoading(true);
+    const fetchEvents = useCallback(async (isInitial = false) => {
+        if (isInitial) setLoading(true);
+        else setIsUpdating(true);
+
         try {
-            const { data } = await axiosClient.get(`/api/institute/analytics/events?page=${page}&search=${search}`);
+            const { data } = await axiosClient.get(`/api/institute/analytics/events`, {
+                params: { page, search, status }
+            });
             setEvents(data.data);
+            setStats(data.stats);
             setPagination({
                 current_page: data.current_page,
                 last_page: data.last_page,
-                from: data.from,
-                to: data.to,
                 total: data.total,
-                prev_page_url: data.prev_page_url,
-                next_page_url: data.next_page_url,
             });
         } catch (error) {
             console.error('Error fetching events:', error);
         } finally {
             setLoading(false);
+            setIsUpdating(false);
         }
-    };
+    }, [page, search, status]);
 
-    const handleToggleStatus = async (id, currentStatus) => {
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            fetchEvents(!events.length);
+        }, search ? 500 : 0);
+        return () => clearTimeout(timer);
+    }, [search, page, status, fetchEvents]);
+
+    const handleToggleStatus = async (id, currentIsActive) => {
+        // Optimistic update
         const updatedEvents = events.map(e =>
-            e.id === id ? { ...e, status: currentStatus === 'active' ? 'cancelled' : 'active' } : e
+            e.id === id ? { ...e, is_active: !currentIsActive } : e
         );
         setEvents(updatedEvents);
 
@@ -50,61 +74,137 @@ const EventsAnalyticsPage = () => {
             await axiosClient.patch(`/api/institute/events/${id}/status`);
         } catch (error) {
             console.error('Error toggling status:', error);
-            fetchEvents();
+            fetchEvents(); // Revert on error
         }
+    };
+
+    const handleRowClick = (event) => {
+        setSelectedEvent(event);
+        setInfoModalOpen(true);
+    };
+
+    const handleEditClick = (e, event) => {
+        e.stopPropagation();
+        setSelectedEvent(event);
+        setEditModalOpen(true);
+    };
+
+    const handleDeleteClick = (e, event) => {
+        e.stopPropagation();
+        setSelectedEvent(event);
+        setDeleteModalOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!selectedEvent) return;
+        setIsDeleting(true);
+        try {
+            await axiosClient.delete(`/api/institute/analytics/events/${selectedEvent.id}`);
+            setDeleteModalOpen(false);
+            fetchEvents();
+        } catch (error) {
+            console.error('Error deleting event:', error);
+            alert('Failed to delete event. Please try again.');
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    const handleEventUpdated = (updatedEvent) => {
+        setEvents(prev => prev.map(e => e.id === updatedEvent.id ? { ...e, ...updatedEvent } : e));
+        fetchEvents(); // Refresh stats too
     };
 
     const columns = [
         {
-            header: 'Event Name',
-            accessor: 'title',
+            header: 'Event Information',
+            accessor: 'event_title',
             render: (row) => (
                 <div className="cell-content-wrapper">
                     <div className="event-thumbnail-wrapper">
-                        {row.media_url ? (
-                            <img src={getStorageUrl(row.media_url)} alt="" className="event-thumbnail" />
+                        {row.event_image ? (
+                            <img
+                                src={getStorageUrl(row.event_image)}
+                                alt=""
+                                className="event-thumbnail"
+                                onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = '/images/default-event.jpg';
+                                }}
+                            />
                         ) : (
-                            <div className="event-placeholder"><ImageIcon size={20} /></div>
+                            <div className="event-placeholder">
+                                <ImageIcon size={20} />
+                            </div>
                         )}
-                        <div className="event-date-badge">
-                            {new Date(row.start_date).getDate()}
+                        <div className="event-date-badge-v2">
+                            <span className="day">{new Date(row.event_date).getDate()}</span>
+                            <span className="month">{new Date(row.event_date).toLocaleString('default', { month: 'short' })}</span>
                         </div>
                     </div>
-                    <span className="event-title">{row.title}</span>
+                    <div className="event-info-meta">
+                        <span className="event-title" title={row.event_title}>{row.event_title}</span>
+                        <span className="event-date">
+                            <Clock size={12} />
+                            {new Date(row.event_date).toLocaleDateString()}
+                        </span>
+                    </div>
                 </div>
             )
         },
         {
             header: 'Views',
-            accessor: 'views_count',
+            accessor: 'view_count',
             render: (row) => (
-                <div className="flex items-center gap-1 text-slate-600">
-                    <Eye size={16} />
-                    <span>{row.views_count}</span>
+                <div className="metric-cell">
+                    <div className="metric-icon blue"><Eye size={14} /></div>
+                    <span className="metric-value">{row.view_count || 0}</span>
                 </div>
             )
         },
         {
-            header: 'Date',
-            accessor: 'start_date',
+            header: 'Interests',
+            accessor: 'interested_count',
             render: (row) => (
-                <div className="flex items-center gap-1 text-slate-600">
-                    <Calendar size={16} />
-                    <span>{new Date(row.start_date).toLocaleDateString()}</span>
+                <div className="metric-cell">
+                    <div className="metric-icon red"><Heart size={14} /></div>
+                    <span className="metric-value">{row.interested_count || 0}</span>
+                </div>
+            )
+        },
+        {
+            header: 'Declines',
+            accessor: 'decline_count',
+            render: (row) => (
+                <div className="metric-cell">
+                    <div className="metric-icon slate"><Users size={14} /></div>
+                    <span className="metric-value">{row.decline_count || 0}</span>
                 </div>
             )
         },
         {
             header: 'Status',
-            accessor: 'status', // active, cancelled, upcoming, past
+            accessor: 'is_active',
             render: (row) => {
-                let statusClass = 'status-inactive';
-                if (row.status === 'active') statusClass = 'status-active';
-                if (row.status === 'upcoming') statusClass = 'status-upcoming';
+                const now = new Date();
+                const eventDate = new Date(row.event_date);
+                const isPast = eventDate < now;
+
+                let label = row.is_active ? 'Active' : 'Deactive';
+                let style = row.is_active ? 'active' : 'inactive';
+
+                if (isPast) {
+                    label = 'Expired';
+                    style = 'expired';
+                } else if (row.is_active) {
+                    label = 'Upcoming';
+                    style = 'upcoming';
+                }
 
                 return (
-                    <span className={`status-badge ${statusClass}`}>
-                        {row.status}
+                    <span className={`status-badge-v2 ${style}`}>
+                        <span className="dot"></span>
+                        {label}
                     </span>
                 );
             }
@@ -112,13 +212,27 @@ const EventsAnalyticsPage = () => {
         {
             header: 'Actions',
             render: (row) => (
-                <div className="action-buttons">
+                <div className="action-buttons-v2" onClick={(e) => e.stopPropagation()}>
                     <button
-                        onClick={() => handleToggleStatus(row.id, row.status)}
-                        className="action-btn toggle"
-                        title={row.status === 'active' ? "Cancel Event" : "Activate Event"}
+                        onClick={() => handleToggleStatus(row.id, row.is_active)}
+                        className={`action-btn-v2 ${row.is_active ? 'deactivate' : 'activate'}`}
+                        title={row.is_active ? "Deactivate Event" : "Activate Event"}
                     >
-                        {row.status === 'active' ? <Ban size={18} /> : <BadgeCheck size={18} />}
+                        {row.is_active ? <Ban size={18} /> : <BadgeCheck size={18} />}
+                    </button>
+                    <button
+                        className="action-btn-v2 edit"
+                        title="Edit Event"
+                        onClick={(e) => handleEditClick(e, row)}
+                    >
+                        <Edit3 size={18} />
+                    </button>
+                    <button
+                        className="action-btn-v2 delete"
+                        title="Delete Event"
+                        onClick={(e) => handleDeleteClick(e, row)}
+                    >
+                        <Trash2 size={18} />
                     </button>
                 </div>
             )
@@ -126,20 +240,65 @@ const EventsAnalyticsPage = () => {
     ];
 
     return (
-        <div id="analytics-events-page">
-            <div className="page-header">
-                <h1 className="page-title">Events</h1>
-                <p className="page-subtitle">Track your upcoming and past events.</p>
-            </div>
+        <div id="analytics-events-v2" className={isUpdating ? 'updating' : ''}>
+            {/* Header section */}
+            <header className="events-header-v2">
+                <div className="header-content">
+                    <h1 className="events-page-title">Events Analytics</h1>
+                    <p className="events-page-subtitle">Monitor performance of your events across your institute.</p>
+                </div>
+            </header>
 
-            <DataTable
-                columns={columns}
-                data={events}
-                pagination={pagination}
-                onPageChange={setPage}
-                searchQuery={search}
-                onSearchChange={setSearch}
-                loading={loading}
+            {/* Stat Cards */}
+            <EventsStatCards stats={stats} loading={loading} />
+
+            {/* Main Table Card */}
+            <EventsTableCard
+                search={search}
+                onSearchChange={(val) => { setSearch(val); setPage(1); }}
+                status={status}
+                onStatusChange={(val) => { setStatus(val); setPage(1); }}
+                totalEvents={pagination.total || 0}
+            >
+                <div className="table-responsive-wrapper">
+                    {loading ? (
+                        <SkeletonTable rows={5} cols={6} />
+                    ) : events.length > 0 ? (
+                        <DataTable
+                            columns={columns}
+                            data={events}
+                            pagination={pagination}
+                            onPageChange={setPage}
+                            loading={isUpdating}
+                            showSearch={false}
+                            onRowClick={handleRowClick}
+                        />
+                    ) : (
+                        <EmptyState search={search} status={status} />
+                    )}
+                </div>
+            </EventsTableCard>
+
+            {/* Modal Components */}
+            <EventDetailsModal
+                isOpen={infoModalOpen}
+                event={selectedEvent}
+                onClose={() => setInfoModalOpen(false)}
+            />
+
+            <EditEventModal
+                isOpen={editModalOpen}
+                onClose={() => setEditModalOpen(false)}
+                event={selectedEvent}
+                onUpdate={handleEventUpdated}
+            />
+
+            <DeleteConfirmModal
+                isOpen={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                onConfirm={handleConfirmDelete}
+                isDeleting={isDeleting}
+                title={selectedEvent?.event_title}
             />
         </div>
     );
