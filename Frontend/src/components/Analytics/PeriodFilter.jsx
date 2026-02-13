@@ -1,7 +1,7 @@
 import React from 'react';
 import './PeriodFilter.css';
 
-const PeriodFilter = ({ period, setPeriod }) => {
+const PeriodFilter = ({ period, setPeriod, size = 'medium' }) => {
     const periods = [
         { value: 7, label: 'Last 7 Days' },
         { value: 30, label: 'Last 30 Days' },
@@ -9,14 +9,15 @@ const PeriodFilter = ({ period, setPeriod }) => {
     ];
 
     return (
-        <div className="analytics-period-filter">
+        <div className={`analytics-period-filter ${size}`}>
             {periods.map(({ value, label }) => (
                 <button
                     key={value}
                     className={`period-btn ${period === value ? 'active' : ''}`}
                     onClick={() => setPeriod(value)}
                 >
-                    {label}
+                    <span className="last-word">Last </span>
+                    {label.replace('Last ', '')}
                 </button>
             ))}
         </div>

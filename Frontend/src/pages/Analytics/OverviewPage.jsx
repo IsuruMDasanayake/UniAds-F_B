@@ -5,7 +5,7 @@ import PeriodFilter from '../../components/Analytics/PeriodFilter';
 import PerformanceSummary from '../../components/Analytics/PerformanceSummary';
 import ConversionMetrics from '../../components/Analytics/ConversionMetrics';
 import InsightsBox from '../../components/Analytics/InsightsBox';
-import { Eye, FileText, Calendar, Users, Briefcase, Star, BookOpen } from 'lucide-react';
+import { Eye, FileText, Calendar, Users, Briefcase, Star, BookOpen, Heart, ThumbsUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import './OverviewPage.css';
 
@@ -61,13 +61,10 @@ const OverviewPage = () => {
         );
     }
 
-    const { metrics, conversion, content_health, performance_summary, insights } = stats;
+    const { metrics, conversion, content_health, performance_summary, insights, cta } = stats;
 
-    // Determine CTA message based on growth
-    const hasPositiveGrowth = metrics.post_views_change > 0 || metrics.followers_change > 0;
-    const ctaMessage = hasPositiveGrowth
-        ? "Your institute is growing well. Check trends for deeper insights."
-        : "Engagement needs attention. Review trends to improve performance.";
+    const hasPositiveGrowth = cta.hasPositiveGrowth;
+    const ctaMessage = cta.message;
 
     const sections = [
         {
@@ -76,21 +73,18 @@ const OverviewPage = () => {
                 {
                     label: 'Profile Views',
                     value: metrics.profile_views,
-                    change: metrics.profile_views_change,
                     icon: Eye,
                     color: 'blue'
                 },
                 {
                     label: 'Post Views',
                     value: metrics.post_views,
-                    change: metrics.post_views_change,
                     icon: FileText,
                     color: 'blue'
                 },
                 {
                     label: 'Event Views',
                     value: metrics.event_views,
-                    change: metrics.event_views_change,
                     icon: Calendar,
                     color: 'blue'
                 },
@@ -100,23 +94,21 @@ const OverviewPage = () => {
             title: 'Engagement',
             items: [
                 {
-                    label: 'New Followers',
+                    label: 'Total Followers',
                     value: metrics.followers,
-                    change: metrics.followers_change,
                     icon: Users,
-                    color: 'purple'
+                    color: 'red'
                 },
                 {
-                    label: 'Applications',
-                    value: metrics.course_applications,
-                    change: metrics.course_applications_change,
-                    icon: Briefcase,
-                    color: 'purple'
+                    label: 'Total Posts Likes',
+                    value: metrics.post_likes,
+                    icon: Heart,
+                    color: 'red'
                 },
                 {
-                    label: 'Reviews Received',
-                    value: metrics.reviews_count,
-                    icon: Star,
+                    label: 'Total Interest Count',
+                    value: metrics.event_interests,
+                    icon: ThumbsUp,
                     color: 'purple'
                 },
             ]
@@ -125,15 +117,20 @@ const OverviewPage = () => {
             title: 'Content & Reputation',
             items: [
                 {
+                    label: 'Total Applications',
+                    value: metrics.course_applications,
+                    icon: Briefcase,
+                    color: 'green'
+                },
+                {
                     label: 'Active Courses',
                     value: content_health.active_courses,
                     icon: BookOpen,
                     color: 'green'
                 },
                 {
-                    label: 'Average Rating',
-                    value: metrics.average_rating,
-                    change: metrics.rating_change,
+                    label: 'Total Ratings Count',
+                    value: metrics.ratings_count,
                     icon: Star,
                     color: 'yellow'
                 },
@@ -147,13 +144,17 @@ const OverviewPage = () => {
             <div className="overview-header">
                 <div>
                     <h1 className="overview-page-title">Analytics Overview</h1>
-                    <p className="overview-page-subtitle">Track your institute's performance</p>
+                    <p className="overview-page-subtitle">Historical performance of your institute</p>
                 </div>
-                <PeriodFilter period={period} setPeriod={setPeriod} />
             </div>
 
-            {/* Performance Summary */}
-            <PerformanceSummary summary={performance_summary} />
+            {/* Performance Summary (with internal filter) */}
+            <PerformanceSummary
+                summary={performance_summary}
+                period={period}
+                setPeriod={setPeriod}
+                isUpdating={isUpdating}
+            />
 
             {/* KPI Sections */}
             {sections.map((section, idx) => (
@@ -166,7 +167,6 @@ const OverviewPage = () => {
                                 icon={item.icon}
                                 label={item.label}
                                 value={item.value}
-                                change={item.change}
                                 color={item.color}
                                 delay={i * 0.1}
                             />

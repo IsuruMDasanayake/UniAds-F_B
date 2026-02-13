@@ -1,15 +1,23 @@
 import React from 'react';
 import { Award, Users, TrendingUp, Star } from 'lucide-react';
+import PeriodFilter from './PeriodFilter';
 import './PerformanceSummary.css';
 
-const PerformanceSummary = ({ summary }) => {
+const PerformanceSummary = ({ summary, period, setPeriod, isUpdating }) => {
     if (!summary) return null;
 
-    const { most_viewed_course, most_applied_course, followers_this_period, rating_change } = summary;
+    const { most_viewed_course, most_applied_course, followers_this_period, new_ratings } = summary;
 
     return (
-        <div className="analytics-performance-summary">
-            <h3 className="summary-title">Performance Highlights</h3>
+        <div className={`analytics-performance-summary ${isUpdating ? 'updating' : ''}`}>
+            <div className="summary-header">
+                <h3 className="summary-title">Performance Highlights</h3>
+                <div className="summary-filter-wrapper">
+                    <span className="filter-label">Filter:</span>
+                    <PeriodFilter period={period} setPeriod={setPeriod} size="small" />
+                </div>
+            </div>
+
             <div className="summary-grid">
                 {most_viewed_course && (
                     <div className="summary-card">
@@ -17,9 +25,9 @@ const PerformanceSummary = ({ summary }) => {
                             <Award size={20} />
                         </div>
                         <div className="summary-content">
-                            <p className="summary-label">Most Viewed Course</p>
+                            <p className="summary-label">Top Course Views</p>
                             <h4 className="summary-value">{most_viewed_course.title}</h4>
-                            <p className="summary-meta">{most_viewed_course.views} views</p>
+                            <p className="summary-meta">{most_viewed_course.views} total views</p>
                         </div>
                     </div>
                 )}
@@ -32,7 +40,7 @@ const PerformanceSummary = ({ summary }) => {
                         <div className="summary-content">
                             <p className="summary-label">Most Applied Course</p>
                             <h4 className="summary-value">{most_applied_course.title}</h4>
-                            <p className="summary-meta">{most_applied_course.applications} applications</p>
+                            <p className="summary-meta">{most_applied_course.applications} in period</p>
                         </div>
                     </div>
                 )}
@@ -44,7 +52,7 @@ const PerformanceSummary = ({ summary }) => {
                     <div className="summary-content">
                         <p className="summary-label">New Followers</p>
                         <h4 className="summary-value">{followers_this_period}</h4>
-                        <p className="summary-meta">This period</p>
+                        <p className="summary-meta">In selected period</p>
                     </div>
                 </div>
 
@@ -53,11 +61,9 @@ const PerformanceSummary = ({ summary }) => {
                         <Star size={20} />
                     </div>
                     <div className="summary-content">
-                        <p className="summary-label">Rating Change</p>
-                        <h4 className={`summary-value ${rating_change >= 0 ? 'positive' : 'negative'}`}>
-                            {rating_change >= 0 ? '+' : ''}{rating_change}
-                        </h4>
-                        <p className="summary-meta">Points</p>
+                        <p className="summary-label">New Ratings</p>
+                        <h4 className="summary-value">{summary.new_ratings || 0}</h4>
+                        <p className="summary-meta">Received in period</p>
                     </div>
                 </div>
             </div>

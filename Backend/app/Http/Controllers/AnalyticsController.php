@@ -33,234 +33,189 @@ class AnalyticsController extends Controller
             return response()->json(['error' => 'Institute profile not found'], 404);
         }
 
-        // Get period parameter (default 30 days)
+        // Get period parameter (default 30 days) - ONLY for Performance Highlights
         $period = (int) $request->query('period', 30);
 
-        // Define date ranges
-        $currentStart = Carbon::now()->subDays($period)->startOfDay();
+        // Date ranges for period-specific data (Performance Highlights)
         $currentEnd = Carbon::now()->endOfDay();
-        $previousStart = Carbon::now()->subDays($period * 2)->startOfDay();
+        $currentStart = Carbon::now()->subDays($period)->startOfDay();
         $previousEnd = Carbon::now()->subDays($period)->endOfDay();
+        $previousStart = Carbon::now()->subDays($period * 2)->startOfDay();
 
-        // Helper function to calculate growth percentage
-        $calculateGrowth = function ($current, $previous) {
-            if ($previous == 0) {
-                return $current > 0 ? 100 : 0;
-            }
-            return round((($current - $previous) / $previous) * 100, 1);
-        };
+        // 1. ALL-TIME METRICS (Always Lifetime)
+        $totalProfileViews = $institute->profile_views ?? 0;
 
-        // 1. PROFILE VIEWS (using institute profile_views - total count)
-        $currentProfileViews = $institute->profile_views ?? 0;
-        // Note: Without historical tracking, we'll use 0 for previous
-        $previousProfileViews = 0;
-        $profileViewsChange = 0; // Cannot calculate without historical data
+        $totalPostViews = Post::where('institute_id', $institute->id)->sum('view_count');
 
-        // 2. POST VIEWS (from PostView table with date filtering)
-        $currentPostViews = PostView::join('posts', 'post_views.post_id', '=', 'posts.id')
-            ->where('posts.institute_id', $institute->id)
-            ->whereBetween('post_views.viewed_at', [$currentStart, $currentEnd])
-            ->count();
+        $totalEventViews = Event::where('institute_id', $institute->id)->sum('view_count');
 
-        $previousPostViews = PostView::join('posts', 'post_views.post_id', '=', 'posts.id')
-            ->where('posts.institute_id', $institute->id)
-            ->whereBetween('post_views.viewed_at', [$previousStart, $previousEnd])
-            ->count();
+        $totalFollowers = $institute->followers_count ?? 0;
 
-        $postViewsChange = $calculateGrowth($currentPostViews, $previousPostViews);
-
-        // 3. EVENT VIEWS (from EventView table with date filtering)
-        $currentEventViews = EventView::join('events', 'event_views.event_id', '=', 'events.id')
-            ->where('events.institute_id', $institute->id)
-            ->whereBetween('event_views.viewed_at', [$currentStart, $currentEnd])
-            ->count();
-
-        $previousEventViews = EventView::join('events', 'event_views.event_id', '=', 'events.id')
-            ->where('events.institute_id', $institute->id)
-            ->whereBetween('event_views.viewed_at', [$previousStart, $previousEnd])
-            ->count();
-
-        $eventViewsChange = $calculateGrowth($currentEventViews, $previousEventViews);
-
-        // 4. FOLLOWERS
-        $currentFollowers = Follower::where('institute_id', $institute->id)
-            ->whereBetween('created_at', [$currentStart, $currentEnd])
-            ->count();
-
-        $previousFollowers = Follower::where('institute_id', $institute->id)
-            ->whereBetween('created_at', [$previousStart, $previousEnd])
-            ->count();
-
-        $followersChange = $calculateGrowth($currentFollowers, $previousFollowers);
-        $totalFollowers = Follower::where('institute_id', $institute->id)->count();
-
-        // 5. COURSE APPLICATIONS
-        $currentApplications = ApplyCase::where('institute_id', $institute->id)
-            ->whereBetween('created_at', [$currentStart, $currentEnd])
-            ->count();
-
-        $previousApplications = ApplyCase::where('institute_id', $institute->id)
-            ->whereBetween('created_at', [$previousStart, $previousEnd])
-            ->count();
-
-        $applicationsChange = $calculateGrowth($currentApplications, $previousApplications);
         $totalApplications = ApplyCase::where('institute_id', $institute->id)->count();
 
-        // 6. REVIEWS
-        $totalReviews = Rating::where('institute_id', $institute->id)
-            ->whereNotNull('comment')
-            ->where('comment', '!=', '')
+        $totalPostLikes = Post::where('institute_id', $institute->id)->sum('likes_count');
+
+        $totalEventInterests = DB::table('event_user_interests')
+            ->join('events', 'event_user_interests.event_id', '=', 'events.id')
+            ->where('events.institute_id', $institute->id)
             ->count();
 
-        // 7. AVERAGE RATING
-        $currentRating = Rating::where('institute_id', $institute->id)
-            ->whereBetween('created_at', [$currentStart, $currentEnd])
-            ->avg('rating');
-
-        $previousRating = Rating::where('institute_id', $institute->id)
-            ->whereBetween('created_at', [$previousStart, $previousEnd])
-            ->avg('rating');
+        $totalRatings = Rating::where('institute_id', $institute->id)->count();
 
         $averageRating = Rating::where('institute_id', $institute->id)->avg('rating');
         $averageRating = $averageRating ? round($averageRating, 1) : 0;
-        $ratingChange = $currentRating && $previousRating
-            ? round($currentRating - $previousRating, 1)
-            : 0;
 
-        // 8. CONVERSION RATE
-        $conversionRate = $currentPostViews > 0
-            ? round(($currentApplications / $currentPostViews) * 100, 2)
-            : 0;
-
-        // 9. CONTENT HEALTH
-        $totalCourses = Post::where('institute_id', $institute->id)->count();
-        $activeCourses = Post::where('institute_id', $institute->id)
-            ->where('status', 'active')
+        // 2. PERIOD-SPECIFIC DATA (For Performance Highlights)
+        $followersInPeriod = Follower::where('institute_id', $institute->id)
+            ->whereBetween('created_at', [$currentStart, $currentEnd])
             ->count();
+
+        $newRatingsInPeriod = Rating::where('institute_id', $institute->id)
+            ->whereBetween('created_at', [$currentStart, $currentEnd])
+            ->count();
+
+        // Top viewed course IN PERIOD
+        $topViewedData = PostView::join('posts', 'post_views.post_id', '=', 'posts.id')
+            ->where('posts.institute_id', $institute->id)
+            ->whereBetween('post_views.created_at', [$currentStart, $currentEnd])
+            ->select('post_id', DB::raw('count(*) as views_count'))
+            ->groupBy('post_id')
+            ->orderByDesc('views_count')
+            ->first();
+
+        $topViewedCourseInPeriod = null;
+        if ($topViewedData) {
+            $post = Post::find($topViewedData->post_id);
+            if ($post) {
+                $topViewedCourseInPeriod = (object)[
+                    'id' => $post->id,
+                    'title' => $post->title,
+                    'views' => $topViewedData->views_count
+                ];
+            }
+        }
+
+        // Most applied course IN PERIOD
+        $mostAppliedData = ApplyCase::where('institute_id', $institute->id)
+            ->whereBetween('created_at', [$currentStart, $currentEnd])
+            ->select('post_id', DB::raw('count(*) as apps_count'))
+            ->groupBy('post_id')
+            ->orderByDesc('apps_count')
+            ->first();
+
+        $mostAppliedCourseInPeriod = null;
+        if ($mostAppliedData) {
+            $post = Post::find($mostAppliedData->post_id);
+            if ($post) {
+                $mostAppliedCourseInPeriod = (object)[
+                    'id' => $post->id,
+                    'title' => $post->title,
+                    'applications' => $mostAppliedData->apps_count
+                ];
+            }
+        }
+
+        // 3. CONVERSION & HEALTH (Lifetime)
+        $lifetimeConversionRate = $totalPostViews > 0
+            ? round(($totalApplications / $totalPostViews) * 100, 2)
+            : 0;
+
+        $totalCourses = Post::where('institute_id', $institute->id)->count();
+        $activeCourses = Post::where('institute_id', $institute->id)->where('status', 'active')->count();
         $inactiveCourses = $totalCourses - $activeCourses;
 
         $upcomingEvents = Event::where('institute_id', $institute->id)
             ->where('event_date', '>', Carbon::now())
             ->count();
-
         $expiredEvents = Event::where('institute_id', $institute->id)
             ->where('event_date', '<', Carbon::now())
             ->count();
 
-        // 10. PERFORMANCE SUMMARY
-        $mostViewedCourse = Post::where('institute_id', $institute->id)
-            ->orderBy('view_count', 'desc')
-            ->first(['id', 'title', 'view_count']);
-
-        $mostAppliedCourse = Post::where('institute_id', $institute->id)
-            ->select('id', 'title')
-            ->get()
-            ->map(function ($post) {
-                $post->applications_count = $post->applyCases()->count();
-                return $post;
-            })
-            ->sortByDesc('applications_count')
-            ->first();
-
-        // 11. GENERATE INSIGHTS
+        // 4. INSIGHTS & CTA (Based on Lifetime/All-Time)
         $insights = [];
+        if ($inactiveCourses > 0) $insights[] = "You have {$inactiveCourses} inactive course" . ($inactiveCourses > 1 ? 's' : '');
+        if ($lifetimeConversionRate > 0 && $lifetimeConversionRate < 2) $insights[] = "Overall conversion is low. Consider optimizing course pages.";
+        if ($upcomingEvents == 0) $insights[] = "No upcoming events scheduled to drive traffic";
+        if ($totalFollowers > 100) $insights[] = "Your institute has a strong community of {$totalFollowers} followers!";
 
-        if ($postViewsChange > 10) {
-            $insights[] = "Post views increased {$postViewsChange}% this period";
-        } elseif ($postViewsChange < -10) {
-            $insights[] = "Post views dropped {$postViewsChange}% - consider boosting content";
-        }
+        if (empty($insights)) $insights[] = "Performance is stable. Keep growing your presence!";
 
-        if ($inactiveCourses > 0) {
-            $insights[] = "You have {$inactiveCourses} inactive course" . ($inactiveCourses > 1 ? 's' : '');
-        }
+        // CTA Logic (All-Time based)
+        $hasPositiveGrowth = $totalApplications > 0;
+        $ctaMessage = $hasPositiveGrowth
+            ? "Your institute has generated {$totalApplications} total applications. Review your top-performing courses to maximize results!"
+            : "No applications recorded yet. Try creating more engaging posts or events to attract potential students.";
 
-        if ($followersChange < 0) {
-            $insights[] = "Follower growth dropped compared to last period";
-        } elseif ($followersChange > 20) {
-            $insights[] = "Great follower growth of {$followersChange}%!";
-        }
-
-        if ($conversionRate > 0 && $conversionRate < 2) {
-            $insights[] = "Low conversion rate. Consider improving course descriptions";
-        } elseif ($conversionRate >= 5) {
-            $insights[] = "Excellent conversion rate of {$conversionRate}%";
-        }
-
-        if ($upcomingEvents == 0) {
-            $insights[] = "No upcoming events scheduled";
-        }
-
-        if ($ratingChange > 0.3) {
-            $insights[] = "Rating improved by {$ratingChange} points";
-        } elseif ($ratingChange < -0.3) {
-            $insights[] = "Rating decreased - focus on service quality";
-        }
-
-        if (empty($insights)) {
-            $insights[] = "Performance is stable. Keep up the good work!";
-        }
-
-        // 12. BUILD RESPONSE
-        $overviewStats = [
-            'metrics' => [
-                'profile_views' => $currentProfileViews,
-                'profile_views_change' => $profileViewsChange,
-                'post_views' => $currentPostViews,
-                'post_views_change' => $postViewsChange,
-                'event_views' => $currentEventViews,
-                'event_views_change' => $eventViewsChange,
-                'followers' => $currentFollowers,
-                'followers_change' => $followersChange,
-                'total_followers' => $totalFollowers,
-                'course_applications' => $currentApplications,
-                'course_applications_change' => $applicationsChange,
-                'total_applications' => $totalApplications,
-                'reviews_count' => $totalReviews,
-                'average_rating' => $averageRating,
-                'rating_change' => $ratingChange,
-            ],
-            'conversion' => [
-                'conversion_rate' => $conversionRate,
-            ],
-            'content_health' => [
-                'total_courses' => $totalCourses,
-                'active_courses' => $activeCourses,
-                'inactive_courses' => $inactiveCourses,
-                'upcoming_events' => $upcomingEvents,
-                'expired_events' => $expiredEvents,
-            ],
-            'performance_summary' => [
-                'most_viewed_course' => $mostViewedCourse ? [
-                    'id' => $mostViewedCourse->id,
-                    'title' => $mostViewedCourse->title,
-                    'views' => $mostViewedCourse->view_count,
-                ] : null,
-                'most_applied_course' => $mostAppliedCourse ? [
-                    'id' => $mostAppliedCourse->id,
-                    'title' => $mostAppliedCourse->title,
-                    'applications' => $mostAppliedCourse->applications_count ?? 0,
-                ] : null,
-                'followers_this_period' => $currentFollowers,
-                'rating_change' => $ratingChange,
-            ],
-            'insights' => $insights,
-        ];
-
-        return response()->json(['overviewStats' => $overviewStats]);
+        // 5. BUILD RESPONSE
+        return response()->json([
+            'overviewStats' => [
+                'metrics' => [
+                    'profile_views' => $totalProfileViews,
+                    'post_views' => $totalPostViews,
+                    'event_views' => $totalEventViews,
+                    'followers' => $totalFollowers,
+                    'course_applications' => $totalApplications,
+                    'post_likes' => $totalPostLikes,
+                    'event_interests' => $totalEventInterests,
+                    'ratings_count' => $totalRatings,
+                    'average_rating' => $averageRating,
+                ],
+                'performance_summary' => [
+                    'most_viewed_course' => $topViewedCourseInPeriod ? [
+                        'id' => $topViewedCourseInPeriod->id,
+                        'title' => $topViewedCourseInPeriod->title,
+                        'views' => $topViewedCourseInPeriod->views,
+                    ] : null,
+                    'most_applied_course' => $mostAppliedCourseInPeriod ? [
+                        'id' => $mostAppliedCourseInPeriod->id,
+                        'title' => $mostAppliedCourseInPeriod->title,
+                        'applications' => $mostAppliedCourseInPeriod->applications,
+                    ] : null,
+                    'followers_this_period' => $followersInPeriod,
+                    'new_ratings' => $newRatingsInPeriod,
+                ],
+                'conversion' => [
+                    'conversion_rate' => $lifetimeConversionRate,
+                ],
+                'content_health' => [
+                    'total_courses' => $totalCourses,
+                    'active_courses' => $activeCourses,
+                    'inactive_courses' => $inactiveCourses,
+                    'upcoming_events' => $upcomingEvents,
+                    'expired_events' => $expiredEvents,
+                ],
+                'insights' => $insights,
+                'cta' => [
+                    'hasPositiveGrowth' => $hasPositiveGrowth,
+                    'message' => $ctaMessage
+                ]
+            ]
+        ]);
     }
 
     public function apiTrends(Request $request)
     {
-        $days = (int) $request->query('range', 30); // Default to 30 days
+        $periodParam = $request->query('range', 'all');
+        $isAllTime = $periodParam === 'all';
         $institute = auth()->user()->institute;
+        $days = $isAllTime ? (int) Carbon::parse($institute->created_at)->diffInDays(Carbon::now()) : (int) $periodParam;
 
-        // Helper to fill dates
-        $fillDateCounts = function ($data) use ($days) {
+        $compare = $request->query('compare', 'false') === 'true';
+        if ($isAllTime) $compare = false; // Cannot compare all time with anything
+
+        // Define periods
+        $currentEnd = Carbon::now()->endOfDay();
+        $currentStart = $isAllTime ? Carbon::create(2000, 1, 1) : Carbon::now()->subDays($days)->startOfDay();
+
+        $previousEnd = Carbon::now()->subDays($days)->endOfDay();
+        $previousStart = Carbon::now()->subDays($days * 2)->startOfDay();
+
+        // Helper to fill dates with zero if missing
+        $fillDateCounts = function ($data, $start, $daysCount) {
             $dateCounts = [];
-            $startDate = Carbon::now()->subDays($days)->startOfDay();
+            $startDate = $start->copy();
 
-            for ($i = 0; $i <= $days; $i++) {
+            for ($i = 0; $i <= $daysCount; $i++) {
                 $date = $startDate->copy()->addDays($i)->format('Y-m-d');
                 $dateCounts[$date] = 0;
             }
@@ -271,67 +226,225 @@ class AnalyticsController extends Controller
             return $dateCounts;
         };
 
-        // 1. Post Views
-        $postViewsData = PostView::select(DB::raw('DATE(viewed_at) as date'), DB::raw('count(*) as total'))
-            ->join('posts', 'post_views.post_id', '=', 'posts.id')
-            ->where('posts.institute_id', $institute->id)
-            ->where('viewed_at', '>=', Carbon::now()->subDays($days)->startOfDay())
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get();
-        $postViewsProcessed = $fillDateCounts($postViewsData);
+        // Query Helper
+        $fetchTrend = function ($query, $start, $end) {
+            return $query->whereBetween('viewed_at', [$start, $end])
+                ->groupBy(DB::raw('DATE(viewed_at)'))
+                ->orderBy(DB::raw('DATE(viewed_at)'))
+                ->get([
+                    DB::raw('DATE(viewed_at) as date'),
+                    DB::raw('count(*) as total')
+                ]);
+        };
 
+        $calculateChange = function ($current, $previous) {
+            if ($previous == 0) return $current > 0 ? 100 : 0;
+            return round((($current - $previous) / $previous) * 100, 1);
+        };
+
+        // 1. Post Views
+        $postViewQuery = PostView::join('posts', 'post_views.post_id', '=', 'posts.id')
+            ->where('posts.institute_id', $institute->id);
+
+        $currentPostViews = $fetchTrend(clone $postViewQuery, $currentStart, $currentEnd);
+        $previousPostViews = $fetchTrend(clone $postViewQuery, $previousStart, $previousEnd);
+
+        $curPostViewsTotal = $isAllTime ? (Post::where('institute_id', $institute->id)->sum('view_count')) : array_sum(array_values($fillDateCounts($currentPostViews, $currentStart, $days)));
+        $prevPostViewsTotal = array_sum(array_values($fillDateCounts($previousPostViews, $previousStart, $days)));
+
+        $postViewsProcessed = [
+            'labels' => array_keys($fillDateCounts($currentPostViews, $currentStart, $days)),
+            'data' => array_values($fillDateCounts($currentPostViews, $currentStart, $days)),
+            'previous_data' => $compare ? array_values($fillDateCounts($previousPostViews, $previousStart, $days)) : null
+        ];
 
         // 2. Event Views
-        $eventViewsData = EventView::selectRaw('DATE(viewed_at) as date, COUNT(*) as total')
-            ->where('viewed_at', '>=', Carbon::now()->subDays($days)->startOfDay())
-            ->whereHas('event', function ($query) use ($institute) {
-                $query->where('institute_id', $institute->id);
-            })
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get();
-        $eventViewsProcessed = $fillDateCounts($eventViewsData);
+        $eventViewQuery = EventView::join('events', 'event_views.event_id', '=', 'events.id')
+            ->where('events.institute_id', $institute->id);
 
+        $currentEventViews = $fetchTrend(clone $eventViewQuery, $currentStart, $currentEnd);
+        $previousEventViews = $fetchTrend(clone $eventViewQuery, $previousStart, $previousEnd);
+
+        $curEventViewsTotal = $isAllTime ? (Event::where('institute_id', $institute->id)->sum('view_count')) : array_sum(array_values($fillDateCounts($currentEventViews, $currentStart, $days)));
+        $prevEventViewsTotal = array_sum(array_values($fillDateCounts($previousEventViews, $previousStart, $days)));
+
+        $eventViewsProcessed = [
+            'labels' => $postViewsProcessed['labels'],
+            'data' => array_values($fillDateCounts($currentEventViews, $currentStart, $days)),
+            'previous_data' => $compare ? array_values($fillDateCounts($previousEventViews, $previousStart, $days)) : null
+        ];
 
         // 3. Profile Views
-        $profileViewsData = DB::table('institute_profile_views')
-            ->select(DB::raw('DATE(viewed_at) as date'), DB::raw('count(*) as total'))
-            ->where('institute_id', $institute->id)
-            ->where('viewed_at', '>=', Carbon::now()->subDays($days)->startOfDay())
-            ->groupBy(DB::raw('DATE(viewed_at)'))
-            ->orderBy('date')
-            ->get();
-        $profileViewsProcessed = $fillDateCounts($profileViewsData);
+        $profileViewQuery = DB::table('institute_profile_views')
+            ->where('institute_id', $institute->id);
 
+        $currentProfileViews = $fetchTrend(clone $profileViewQuery, $currentStart, $currentEnd);
+        $previousProfileViews = $fetchTrend(clone $profileViewQuery, $previousStart, $previousEnd);
 
-        // 4. Followers Growth
-        $followersData = DB::table('followers')
-            ->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
-            ->where('institute_id', $institute->id)
-            ->where('created_at', '>=', Carbon::now()->subDays($days)->startOfDay())
-            ->groupBy(DB::raw('DATE(created_at)'))
-            ->orderBy('date')
-            ->get();
-        // For followers, we might want cumulative, but for now stick to daily growth as requested by charts
-        $followersProcessed = $fillDateCounts($followersData);
+        $curProfileViewsTotal = $isAllTime ? ($institute->profile_views ?? 0) : array_sum(array_values($fillDateCounts($currentProfileViews, $currentStart, $days)));
+        $prevProfileViewsTotal = array_sum(array_values($fillDateCounts($previousProfileViews, $previousStart, $days)));
 
+        $profileViewsProcessed = [
+            'labels' => $postViewsProcessed['labels'],
+            'data' => array_values($fillDateCounts($currentProfileViews, $currentStart, $days)),
+            'previous_data' => $compare ? array_values($fillDateCounts($previousProfileViews, $previousStart, $days)) : null
+        ];
 
-        // 5. Course Applications
-        $applicationsData = ApplyCase::select(DB::raw('DATE(applied_at) as date'), DB::raw('count(*) as total'))
-            ->where('institute_id', $institute->id)
-            ->where('applied_at', '>=', Carbon::now()->subDays($days)->startOfDay())
-            ->groupBy(DB::raw('DATE(applied_at)'))
-            ->orderBy('date')
-            ->get();
-        $applicationsProcessed = $fillDateCounts($applicationsData);
+        // 4. Followers
+        $followerQuery = Follower::where('institute_id', $institute->id);
+
+        $fetchFollowerTrend = function ($q, $s, $e) {
+            return $q->whereBetween('created_at', [$s, $e])
+                ->groupBy(DB::raw('DATE(created_at)'))
+                ->orderBy(DB::raw('DATE(created_at)'))
+                ->get([DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total')]);
+        };
+
+        $currentFollowers = $fetchFollowerTrend(clone $followerQuery, $currentStart, $currentEnd);
+        $previousFollowers = $fetchFollowerTrend(clone $followerQuery, $previousStart, $previousEnd);
+
+        $curFollowersTotal = $isAllTime ? ($institute->followers_count ?? 0) : array_sum(array_values($fillDateCounts($currentFollowers, $currentStart, $days)));
+        $prevFollowersTotal = array_sum(array_values($fillDateCounts($previousFollowers, $previousStart, $days)));
+
+        $followersProcessed = [
+            'labels' => $postViewsProcessed['labels'],
+            'data' => array_values($fillDateCounts($currentFollowers, $currentStart, $days)),
+            'previous_data' => $compare ? array_values($fillDateCounts($previousFollowers, $previousStart, $days)) : null
+        ];
+
+        // 5. Applications
+        $applicationQuery = ApplyCase::where('institute_id', $institute->id);
+
+        $fetchAppTrend = function ($q, $s, $e) {
+            return $q->whereBetween('created_at', [$s, $e])
+                ->groupBy(DB::raw('DATE(created_at)'))
+                ->orderBy(DB::raw('DATE(created_at)'))
+                ->get([DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total')]);
+        };
+
+        $currentApplications = $fetchAppTrend(clone $applicationQuery, $currentStart, $currentEnd);
+        $previousApplications = $fetchAppTrend(clone $applicationQuery, $previousStart, $previousEnd);
+
+        $curAppsTotal = array_sum(array_values($fillDateCounts($currentApplications, $currentStart, $days)));
+        $prevAppsTotal = array_sum(array_values($fillDateCounts($previousApplications, $previousStart, $days)));
+
+        $applicationsProcessed = [
+            'labels' => $postViewsProcessed['labels'],
+            'data' => array_values($fillDateCounts($currentApplications, $currentStart, $days)),
+            'previous_data' => $compare ? array_values($fillDateCounts($previousApplications, $previousStart, $days)) : null
+        ];
+
+        // 6. Demographics
+        // Get unique users who interacted with the institute (Followers + Applicants)
+        $userIds = array_unique(array_merge(
+            Follower::where('institute_id', $institute->id)->pluck('user_id')->toArray(),
+            ApplyCase::where('institute_id', $institute->id)->pluck('user_id')->toArray()
+        ));
+
+        $users = User::whereIn('id', $userIds)->get(['gender', 'birthday', 'district', 'education_level']);
+
+        // Gender Distribution
+        $genderDistrib = $users->groupBy('gender')->map(function ($group) {
+            return count($group);
+        });
+
+        // Age Distribution
+        $ageGroups = [
+            'Under 18' => 0,
+            '18-22' => 0,
+            '23-30' => 0,
+            '30+' => 0
+        ];
+        foreach ($users as $user) {
+            if ($user->birthday) {
+                $age = Carbon::parse($user->birthday)->age;
+                if ($age < 18) $ageGroups['Under 18']++;
+                elseif ($age <= 22) $ageGroups['18-22']++;
+                elseif ($age <= 30) $ageGroups['23-30']++;
+                else $ageGroups['30+']++;
+            }
+        }
+
+        // District Distribution (Top 10)
+        $districtDistrib = $users->whereNotNull('district')->countBy('district')->sortDesc()->take(10);
+
+        // Education Level Distribution
+        $eduDistrib = $users->whereNotNull('education_level')->countBy('education_level');
+
+        $demographics = [
+            'gender' => $genderDistrib,
+            'age_groups' => $ageGroups,
+            'districts' => $districtDistrib,
+            'education_levels' => $eduDistrib
+        ];
+
+        // 7. Totals for Stat Cards
+        $totals = [
+            'postViews' => [
+                'value' => $curPostViewsTotal,
+                'change' => $calculateChange($curPostViewsTotal, $prevPostViewsTotal)
+            ],
+            'eventViews' => [
+                'value' => $curEventViewsTotal,
+                'change' => $calculateChange($curEventViewsTotal, $prevEventViewsTotal)
+            ],
+            'profileViews' => [
+                'value' => $curProfileViewsTotal,
+                'change' => $calculateChange($curProfileViewsTotal, $prevProfileViewsTotal)
+            ],
+            'applications' => [
+                'value' => $curAppsTotal,
+                'change' => $calculateChange($curAppsTotal, $prevAppsTotal)
+            ],
+            'followers' => [
+                'value' => $curFollowersTotal,
+                'change' => $calculateChange($curFollowersTotal, $prevFollowersTotal)
+            ],
+        ];
+
+        // 8. Insights & Summary Calculation
+        $totalViews = $curPostViewsTotal + $curEventViewsTotal + $curProfileViewsTotal;
+
+        // Find peak day
+        $peakViews = 0;
+        $peakDate = 'N/A';
+        $postDates = $fillDateCounts($currentPostViews, $currentStart, $days);
+        $eventDates = $fillDateCounts($currentEventViews, $currentStart, $days);
+        $profileDates = $fillDateCounts($currentProfileViews, $currentStart, $days);
+
+        foreach ($postDates as $date => $count) {
+            $dayTotal = $count + ($eventDates[$date] ?? 0) + ($profileDates[$date] ?? 0);
+            if ($dayTotal > $peakViews) {
+                $peakViews = $dayTotal;
+                $peakDate = Carbon::parse($date)->format('M d');
+            }
+        }
+
+        $summary = [
+            'total_views' => $totalViews,
+            'total_applications' => $curAppsTotal,
+            'followers_gained' => $curFollowersTotal,
+            'avg_daily_views' => round($totalViews / ($days ?: 1), 1),
+            'peak_day' => "$peakDate ($peakViews)"
+        ];
+
+        $insights = [];
+        if ($totals['postViews']['change'] > 10) $insights[] = "Post engagement is up by {$totals['postViews']['change']}% compared to last period.";
+        if ($totals['applications']['change'] > 5) $insights[] = "Course applications are trending upwards (+{$totals['applications']['change']}%).";
+        if ($curFollowersTotal > $prevFollowersTotal) $insights[] = "Community growth is accelerating with new followers this period.";
+        if ($peakViews > ($totalViews / ($days ?: 1)) * 2) $insights[] = "Significant traffic spike detected on $peakDate.";
+        if (empty($insights)) $insights[] = "Maintain your current posting frequency to keep engagement stable.";
 
         return response()->json([
-            'postViews' => ['labels' => array_keys($postViewsProcessed), 'data' => array_values($postViewsProcessed)],
-            'eventViews' => ['labels' => array_keys($eventViewsProcessed), 'data' => array_values($eventViewsProcessed)],
-            'profileViews' => ['labels' => array_keys($profileViewsProcessed), 'data' => array_values($profileViewsProcessed)],
-            'followers' => ['labels' => array_keys($followersProcessed), 'data' => array_values($followersProcessed)],
-            'applications' => ['labels' => array_keys($applicationsProcessed), 'data' => array_values($applicationsProcessed)],
+            'postViews' => $postViewsProcessed,
+            'eventViews' => $eventViewsProcessed,
+            'profileViews' => $profileViewsProcessed,
+            'applications' => $applicationsProcessed,
+            'followers' => $followersProcessed,
+            'demographics' => $demographics,
+            'totals' => $totals,
+            'summary' => $summary,
+            'insights' => $insights
         ]);
     }
 

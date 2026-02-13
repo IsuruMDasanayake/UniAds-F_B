@@ -7,13 +7,25 @@ import './LineChart.css';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
-const LineChart = ({ title, data, labels, color = '#3b82f6', loading = false }) => {
+const LineChart = ({ title, data, labels, color = '#3b82f6', datasets, loading = false, showLegend = false }) => {
     const options = {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
             legend: {
-                display: false,
+                display: showLegend,
+                position: 'top',
+                align: 'end',
+                labels: {
+                    usePointStyle: true,
+                    boxWidth: 8,
+                    font: {
+                        family: "'Poppins', sans-serif",
+                        size: 11,
+                        weight: 600
+                    },
+                    color: '#64748b'
+                }
             },
             tooltip: {
                 enabled: true,
@@ -31,14 +43,16 @@ const LineChart = ({ title, data, labels, color = '#3b82f6', loading = false }) 
                     weight: 600
                 },
                 borderColor: '#e2e8f0',
-                borderWidth: 2,
+                borderWidth: 1,
                 padding: 12,
-                displayColors: false,
+                displayColors: true,
+                boxPadding: 4,
+                usePointStyle: true,
                 cornerRadius: 8,
                 caretSize: 6,
                 boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
                 callbacks: {
-                    label: (context) => ` ${context.parsed.y}`,
+                    label: (context) => ` ${context.dataset.label}: ${context.parsed.y}`,
                 }
             }
         },
@@ -54,7 +68,8 @@ const LineChart = ({ title, data, labels, color = '#3b82f6', loading = false }) 
                         weight: 600
                     },
                     color: '#94a3b8',
-                    padding: 8
+                    padding: 8,
+                    maxTicksLimit: 8
                 },
                 border: {
                     display: false
@@ -78,7 +93,8 @@ const LineChart = ({ title, data, labels, color = '#3b82f6', loading = false }) 
                 },
                 border: {
                     display: false
-                }
+                },
+                beginAtZero: true
             }
         },
         interaction: {
@@ -87,51 +103,61 @@ const LineChart = ({ title, data, labels, color = '#3b82f6', loading = false }) 
         },
         elements: {
             line: {
-                borderWidth: 3
+                borderWidth: 3,
+                tension: 0.4
             },
             point: {
+                radius: 0,
+                hoverRadius: 6,
                 hoverBorderWidth: 3
             }
         }
     };
 
+    // Handle both single data/color prop AND multiple datasets prop
+    let finalDatasets = [];
+
+    if (datasets) {
+        finalDatasets = datasets.map(ds => ({
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#ffffff',
+            pointHoverBackgroundColor: '#ffffff',
+            pointHoverBorderWidth: 3,
+            fill: ds.fill !== undefined ? ds.fill : false,
+            ...ds, // Merge passed props like label, data, borderColor, borderDash, backgroundColor
+        }));
+    } else {
+        // Backward compatibility for single dataset
+        finalDatasets = [{
+            label: title,
+            data: data || [],
+            borderColor: color,
+            backgroundColor: (context) => {
+                const ctx = context.chart.ctx;
+                const gradient = ctx.createLinearGradient(0, 0, 0, 350);
+                gradient.addColorStop(0, `${color}40`);
+                gradient.addColorStop(0.5, `${color}20`);
+                gradient.addColorStop(1, `${color}00`);
+                return gradient;
+            },
+            fill: true,
+            pointBorderColor: color,
+            pointHoverBorderColor: color,
+        }];
+    }
+
     const chartData = {
         labels,
-        datasets: [
-            {
-                label: title,
-                data: data,
-                borderColor: color,
-                backgroundColor: (context) => {
-                    const ctx = context.chart.ctx;
-                    const gradient = ctx.createLinearGradient(0, 0, 0, 350);
-                    gradient.addColorStop(0, `${color}40`); // 25% opacity
-                    gradient.addColorStop(0.5, `${color}20`); // 12% opacity
-                    gradient.addColorStop(1, `${color}00`); // 0% opacity
-                    return gradient;
-                },
-                tension: 0.4,
-                fill: true,
-                pointBackgroundColor: '#ffffff',
-                pointBorderColor: color,
-                pointBorderWidth: 2.5,
-                pointRadius: 4,
-                pointHoverRadius: 7,
-                pointHoverBackgroundColor: '#ffffff',
-                pointHoverBorderColor: color,
-                pointHoverBorderWidth: 3,
-            },
-        ],
+        datasets: finalDatasets
     };
 
     if (loading) return <div className="analytics-line-chart-component skeleton"></div>;
 
     return (
         <div className="analytics-line-chart-component">
-            <div className="line-chart-header">
-                <h3 className="line-chart-title">{title}</h3>
-            </div>
-            <div className="chart-canvas-wrapper">
+            <div className={`chart-canvas-wrapper ${showLegend ? 'with-legend' : ''}`}>
                 <Line options={options} data={chartData} />
             </div>
         </div>

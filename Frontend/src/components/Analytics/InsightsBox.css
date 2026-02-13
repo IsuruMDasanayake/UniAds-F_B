@@ -3,12 +3,18 @@
 .analytics-insights-box {
     background: linear-gradient(135deg, var(--c-card-bg) 0%, var(--c-slate-50) 100%);
     border-radius: var(--c-radius-md);
-    padding: 2rem;
+    padding: 1.25rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.04);
     border: 2px solid var(--c-primary);
     margin-bottom: 2rem;
     position: relative;
     overflow: hidden;
+}
+
+@media (min-width: 768px) {
+    .analytics-insights-box {
+        padding: 2rem;
+    }
 }
 
 .analytics-insights-box::before {
