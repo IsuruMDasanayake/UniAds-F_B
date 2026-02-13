@@ -1,0 +1,201 @@
+/* DataTable.css - Premium Edition (index.css colors only) */
+
+.analytics-data-table-component {
+    background: linear-gradient(135deg, var(--c-card-bg) 0%, var(--c-slate-50) 100%);
+    border-radius: var(--c-radius-md);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.04);
+    border: 1px solid var(--c-slate-100);
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.analytics-data-table-component:hover {
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12), 0 6px 12px rgba(0, 0, 0, 0.08);
+    border-color: var(--c-slate-200);
+}
+
+.analytics-data-table-component .table-controls {
+    padding: 1.5rem 1.75rem;
+    border-bottom: 2px solid var(--c-slate-100);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    background: linear-gradient(135deg, rgba(29, 55, 92, 0.02) 0%, rgba(29, 55, 92, 0.01) 100%);
+}
+
+.analytics-data-table-component .search-wrapper {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+    max-width: 400px;
+}
+
+.analytics-data-table-component .search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--c-slate-400);
+    pointer-events: none;
+}
+
+.analytics-data-table-component .search-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    border: 2px solid var(--c-slate-200);
+    border-radius: 0.75rem;
+    outline: none;
+    transition: all 0.25s ease;
+    font-family: var(--font-main);
+    color: var(--c-text-body);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    background: var(--c-card-bg);
+}
+
+.analytics-data-table-component .search-input:focus {
+    border-color: var(--c-primary);
+    box-shadow: 0 0 0 4px var(--c-focus-primary);
+    background: var(--c-card-bg);
+}
+
+.analytics-data-table-component .search-input::placeholder {
+    color: var(--c-slate-400);
+    font-weight: 500;
+}
+
+.analytics-data-table-component .table-wrapper {
+    overflow-x: auto;
+}
+
+.analytics-data-table-component .data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.analytics-data-table-component .data-table thead {
+    background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-hover) 100%);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.analytics-data-table-component .data-table th {
+    padding: 1.125rem 1.5rem;
+    text-align: left;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--c-text-inverse);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.analytics-data-table-component .data-table th:first-child {
+    border-top-left-radius: 0;
+}
+
+.analytics-data-table-component .data-table th:last-child {
+    border-top-right-radius: 0;
+}
+
+.analytics-data-table-component .data-table tbody tr {
+    transition: all 0.2s ease;
+    border-bottom: 1px solid var(--c-slate-100);
+}
+
+.analytics-data-table-component .data-table tbody tr:hover {
+    background: linear-gradient(135deg, var(--c-primary-soft) 0%, rgba(29, 55, 92, 0.04) 100%);
+    transform: scale(1.002);
+}
+
+.analytics-data-table-component .data-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.analytics-data-table-component .data-table td {
+    padding: 1.125rem 1.5rem;
+    font-size: 0.9375rem;
+    color: var(--c-text-body);
+    font-weight: 500;
+}
+
+.analytics-data-table-component .empty-state {
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.analytics-data-table-component .empty-icon {
+    margin: 0 auto 1.25rem;
+    color: var(--c-slate-300);
+}
+
+.analytics-data-table-component .empty-text {
+    color: var(--c-text-muted);
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.analytics-data-table-component .pagination {
+    padding: 1.5rem 1.75rem;
+    border-top: 2px solid var(--c-slate-100);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    background: linear-gradient(135deg, rgba(29, 55, 92, 0.02) 0%, rgba(29, 55, 92, 0.01) 100%);
+}
+
+.analytics-data-table-component .pagination-info {
+    font-size: 0.875rem;
+    color: var(--c-text-muted);
+    font-weight: 600;
+}
+
+.analytics-data-table-component .pagination-controls {
+    display: flex;
+    gap: 0.625rem;
+}
+
+.analytics-data-table-component .pagination-btn {
+    padding: 0.625rem 1.125rem;
+    border: 2px solid var(--c-slate-200);
+    background: var(--c-card-bg);
+    border-radius: 0.625rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--c-slate-700);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: var(--font-main);
+}
+
+.analytics-data-table-component .pagination-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-hover) 100%);
+    color: var(--c-text-inverse);
+    border-color: var(--c-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(29, 55, 92, 0.25);
+}
+
+.analytics-data-table-component .pagination-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: var(--c-slate-50);
+}
+
+.analytics-data-table-component .page-number {
+    padding: 0.625rem 1.125rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--c-primary);
+    background: var(--c-primary-soft);
+    border-radius: 0.625rem;
+    border: 2px solid var(--c-primary);
+}

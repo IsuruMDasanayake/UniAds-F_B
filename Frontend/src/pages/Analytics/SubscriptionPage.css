@@ -1,0 +1,243 @@
+/* SubscriptionPage.css - Premium Edition (index.css colors only) */
+
+#analytics-subscription-page {
+    max-width: 48rem;
+    margin: 0 auto;
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#analytics-subscription-page .page-header {
+    margin-bottom: 2.5rem;
+    text-align: center;
+}
+
+#analytics-subscription-page .page-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--c-text-heading);
+    margin: 0 0 0.75rem 0;
+    background: linear-gradient(135deg, var(--c-slate-900) 0%, var(--c-slate-700) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+#analytics-subscription-page .page-subtitle {
+    font-size: 1rem;
+    color: var(--c-text-muted);
+    margin: 0;
+    font-weight: 600;
+}
+
+#analytics-subscription-page .subscription-card {
+    background: linear-gradient(135deg, var(--c-card-bg) 0%, var(--c-slate-50) 100%);
+    border-radius: var(--c-radius-lg);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 6px 16px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    border: 1px solid var(--c-slate-100);
+    transition: all 0.3s ease;
+}
+
+#analytics-subscription-page .subscription-card:hover {
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.16), 0 10px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+}
+
+#analytics-subscription-page .subscription-header {
+    background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-hover) 100%);
+    padding: 2.5rem;
+    color: var(--c-text-inverse);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+#analytics-subscription-page .subscription-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+#analytics-subscription-page .plan-name {
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.025em;
+    font-family: var(--font-main);
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+#analytics-subscription-page .plan-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    background: rgba(255, 255, 255, 0.25);
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    position: relative;
+    z-index: 1;
+}
+
+#analytics-subscription-page .subscription-details {
+    padding: 2.5rem;
+}
+
+#analytics-subscription-page .detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 0;
+    border-bottom: 2px solid var(--c-slate-100);
+    transition: all 0.25s ease;
+}
+
+#analytics-subscription-page .detail-item:hover {
+    background: var(--c-primary-soft);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    border-radius: 0.75rem;
+}
+
+#analytics-subscription-page .detail-item:last-child {
+    border-bottom: none;
+}
+
+#analytics-subscription-page .detail-label-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    color: var(--c-text-muted);
+    font-weight: 600;
+}
+
+#analytics-subscription-page .detail-value {
+    font-weight: 700;
+    color: var(--c-slate-800);
+    font-size: 1rem;
+}
+
+#analytics-subscription-page .expiry-value {
+    color: var(--c-accent);
+    font-weight: 800;
+}
+
+#analytics-subscription-page .subscription-footer {
+    background: linear-gradient(135deg, var(--c-slate-50) 0%, var(--c-slate-100) 100%);
+    padding: 2rem;
+    text-align: center;
+}
+
+#analytics-subscription-page .upgrade-btn {
+    display: inline-block;
+    width: 100%;
+    background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-hover) 100%);
+    color: var(--c-text-inverse);
+    padding: 1rem 2rem;
+    border-radius: 0.75rem;
+    font-weight: 800;
+    font-size: 1.0625rem;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(29, 55, 92, 0.3);
+    font-family: var(--font-main);
+}
+
+#analytics-subscription-page .upgrade-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(29, 55, 92, 0.4);
+}
+
+#analytics-subscription-page .upgrade-btn:active {
+    transform: translateY(0);
+}
+
+#analytics-subscription-page .manage-link {
+    display: block;
+    margin-top: 1.25rem;
+    font-size: 0.9375rem;
+    color: var(--c-text-muted);
+    text-decoration: none;
+    font-weight: 700;
+    transition: all 0.25s ease;
+}
+
+#analytics-subscription-page .manage-link:hover {
+    color: var(--c-primary);
+    text-decoration: underline;
+}
+
+#analytics-subscription-page .expired-alert {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    background: linear-gradient(135deg, var(--c-accent-soft) 0%, rgba(228, 42, 25, 0.15) 100%);
+    border: 2px solid var(--c-accent);
+    color: var(--c-accent);
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--c-radius-md);
+    margin-bottom: 2rem;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(228, 42, 25, 0.15);
+}
+
+/* Skeleton */
+#analytics-subscription-page .skeleton-card {
+    background: linear-gradient(90deg, var(--c-slate-100) 25%, var(--c-slate-50) 50%, var(--c-slate-100) 75%);
+    background-size: 200% 100%;
+    height: 28rem;
+    border-radius: var(--c-radius-lg);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}

@@ -301,7 +301,7 @@ function Navbar({ user }) {
                                 <div className="navbar-dropdown-menu">
                                     <Link to="/profile">Profile</Link>
                                     {displayUser?.role === 'Institute' && displayUser?.institute?.is_premium === 1 && (
-                                        <Link to="/analytics" className="analytics-link">
+                                        <Link to="/analytics/overview" className="analytics-link">
                                             Dashboard
                                         </Link>
                                     )}

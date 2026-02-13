@@ -38,6 +38,7 @@ use App\Http\Controllers\BroadcastMailController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\MailTemplateController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\AnalyticsController;
 
 // Authentication routes with rate limiting (5 attempts per minute per IP)
 Route::middleware('throttle:auth')->group(function () {
@@ -141,6 +142,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/institutes/{id}/ratings', [RatingsController::class, 'apiIndex']);
     Route::post('/institutes/{id}/rate', [RatingsController::class, 'apiRate']);
     Route::delete('/reviews/{id}', [RatingsController::class, 'apiDelete']);
+
+    // Analytics Module Routes (New React Dashboard)
+    Route::prefix('institute')->group(function () {
+        Route::get('/analytics/overview', [AnalyticsController::class, 'apiOverview']);
+        Route::get('/analytics/trends', [AnalyticsController::class, 'apiTrends']);
+        Route::get('/analytics/posts', [AnalyticsController::class, 'apiPosts']);
+        Route::patch('/posts/{id}/status', [AnalyticsController::class, 'toggleStatus']);
+        Route::patch('/events/{id}/status', [AnalyticsController::class, 'toggleEventStatus']);
+        Route::get('/analytics/events', [AnalyticsController::class, 'apiEvents']);
+        Route::get('/analytics/ratings', [AnalyticsController::class, 'apiRatings']);
+        Route::post('/ratings/{id}/report', [AnalyticsController::class, 'apiReportRating']);
+        Route::get('/analytics/subscription', [AnalyticsController::class, 'apiSubscription']);
+    });
 });
 
 // Public Policy Routes

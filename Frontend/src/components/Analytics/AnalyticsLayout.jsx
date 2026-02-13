@@ -1,0 +1,143 @@
+import React, { useState } from 'react';
+import { NavLink, Outlet, Link, useLocation } from 'react-router-dom';
+import {
+    LayoutDashboard, TrendingUp, FileText, Calendar,
+    Star, CreditCard, Megaphone, Menu, X, ChevronRight, LogOut
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import './AnalyticsLayout.css';
+
+const AnalyticsLayout = () => {
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const location = useLocation();
+
+    const navItems = [
+        { path: '/analytics/overview', label: 'Overview', icon: LayoutDashboard },
+        { path: '/analytics/trends', label: 'Trends', icon: TrendingUp },
+        { path: '/analytics/posts', label: 'Posts', icon: FileText },
+        { path: '/analytics/events', label: 'Events', icon: Calendar },
+        { path: '/analytics/ratings', label: 'Reviews', icon: Star },
+        { path: '/analytics/ads', label: 'Ads Manager', icon: Megaphone },
+        { path: '/analytics/subscription', label: 'Subscription', icon: CreditCard },
+    ];
+
+    const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+    const closeMobileMenu = () => setIsMobileMenuOpen(false);
+
+    // Get current page title based on path
+    const getCurrentTitle = () => {
+        const current = navItems.find(item => item.path === location.pathname);
+        return current ? current.label : 'Analytics';
+    };
+
+    return (
+        <div id="analytics-layout-wrapper">
+            {/* Mobile Header */}
+            <div className="mobile-header">
+                <div className="mobile-header-content">
+                    <button onClick={toggleMobileMenu} className="mobile-menu-btn">
+                        <Menu size={24} />
+                    </button>
+                    <span className="mobile-brand">UniAds Analytics</span>
+                </div>
+                <div className="mobile-spacer"></div>
+            </div>
+
+            {/* Sidebar Overlay */}
+            <AnimatePresence>
+                {isMobileMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={closeMobileMenu}
+                        className="sidebar-overlay"
+                    />
+                )}
+            </AnimatePresence>
+
+            {/* Sidebar */}
+            <motion.aside
+                className={`analytics-sidebar ${isMobileMenuOpen ? 'open' : ''}`}
+            >
+                <div className="sidebar-header">
+                    <Link to="/" className="brand-link">
+                        <span>UniAds</span>
+                        <span className="institute-badge">Institute</span>
+                    </Link>
+                    <button onClick={closeMobileMenu} className="sidebar-close-btn">
+                        <X size={20} />
+                    </button>
+                </div>
+
+                <nav className="sidebar-nav">
+                    <div className="nav-section-title">
+                        Dashboard
+                    </div>
+
+                    {navItems.map((item) => (
+                        <NavLink
+                            key={item.path}
+                            to={item.path}
+                            onClick={closeMobileMenu}
+                            className={({ isActive }) =>
+                                `nav-item ${isActive ? 'active' : ''}`
+                            }
+                        >
+                            <item.icon size={20} />
+                            <span className="nav-label">{item.label}</span>
+                            {item.path === '/analytics/ads' && (
+                                <span className="badge-soon">SOON</span>
+                            )}
+                        </NavLink>
+                    ))}
+
+                    <div className="sidebar-footer">
+                        <Link
+                            to="/profile"
+                            className="footer-link"
+                        >
+                            <div className="profile-initial">
+                                <span className="initial-text">I</span>
+                            </div>
+                            <span className="nav-label">My Profile</span>
+                        </Link>
+                        <Link
+                            to="/"
+                            className="footer-link logout"
+                        >
+                            <LogOut size={20} />
+                            <span className="nav-label">Back to Home</span>
+                        </Link>
+                    </div>
+                </nav>
+            </motion.aside>
+
+            {/* Main Content */}
+            <main className="analytics-main">
+                {/* Desktop Header */}
+                <header className="desktop-header">
+                    <div>
+                        <h1 className="page-title">{getCurrentTitle()}</h1>
+                        <p className="page-subtitle">Welcome to your institute dashboard</p>
+                    </div>
+                    <div className="header-user">
+                        <div className="user-info">
+                            <p className="user-role">Institute Admin</p>
+                            <p className="user-status">Premium Member</p>
+                        </div>
+                        <div className="user-avatar">
+                            A
+                        </div>
+                    </div>
+                </header>
+
+                <div className="content-area">
+                    <Outlet />
+                </div>
+            </main>
+        </div>
+    );
+};
+
+export default AnalyticsLayout;

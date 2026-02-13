@@ -11,27 +11,24 @@
   --c-dark: #0d1117;
   /* Cinder */
 
-  /* Primary brand color (logo, navigation, links) */
+ 
   --c-primary: #1d375c;
-  /* Nile Blue */
   --c-primary-hover: #264a7a;
   --c-primary-active: #162a46;
   --c-primary-soft: rgba(29, 55, 92, 0.08);
 
-  /* Accent (Apply, Upgrade, Alerts) */
+
   --c-accent: #e42a19;
-  /* Lava Red */
   --c-accent-hover: #c52415;
   --c-accent-active: #9f1d11;
   --c-accent-soft: rgba(228, 42, 25, 0.12);
 
-  /* Success (Subscribe, Confirm, Active) */
   --c-success: #1f8f5f;
   --c-success-hover: #18724c;
   --c-success-active: #12583a;
   --c-success-soft: rgba(31, 143, 95, 0.12);
 
-  /* Bookmark / Save / Star Ratings (Amber) */
+
   --c-bookmark: #ffc107;
   --c-bookmark-hover: #e0a800;
   --c-bookmark-active: #c69500;

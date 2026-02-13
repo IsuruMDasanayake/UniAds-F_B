@@ -1,0 +1,57 @@
+/* LineChart.css - Premium Edition */
+
+.analytics-line-chart-component {
+    background: linear-gradient(135deg, var(--c-card-bg) 0%, var(--c-slate-50) 100%);
+    border-radius: var(--c-radius-md);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.04);
+    border: 1px solid var(--c-slate-100);
+    padding: 1.75rem;
+    height: 26rem;
+    width: 100%;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.analytics-line-chart-component::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent 0%, var(--c-primary) 50%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.analytics-line-chart-component:hover {
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12), 0 6px 12px rgba(0, 0, 0, 0.08);
+    border-color: var(--c-slate-200);
+}
+
+.analytics-line-chart-component:hover::before {
+    opacity: 1;
+}
+
+.analytics-line-chart-component .line-chart-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--c-slate-100);
+}
+
+.analytics-line-chart-component .line-chart-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--c-text-heading);
+    margin: 0;
+    background: linear-gradient(135deg, var(--c-slate-900) 0%, var(--c-slate-700) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.analytics-line-chart-component .chart-canvas-wrapper {
+    height: calc(100% - 4rem);
+    position: relative;
+}

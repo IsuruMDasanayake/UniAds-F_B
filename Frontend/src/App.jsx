@@ -37,6 +37,17 @@ import ActivityLogPage from './pages/Admin/ActivityLogPage';
 
 import { SettingsProvider } from './context/SettingsContext';
 
+// Analytics Module
+import InstituteRoute from './components/InstituteRoute';
+import AnalyticsLayout from './components/Analytics/AnalyticsLayout';
+import OverviewPage from './pages/Analytics/OverviewPage';
+import TrendsPage from './pages/Analytics/TrendsPage';
+import PostsAnalyticsPage from './pages/Analytics/PostsAnalyticsPage';
+import EventsAnalyticsPage from './pages/Analytics/EventsAnalyticsPage';
+import RatingsPage from './pages/Analytics/RatingsPage';
+import SubscriptionPage from './pages/Analytics/SubscriptionPage';
+import AdsPlaceholderPage from './pages/Analytics/AdsPlaceholderPage';
+
 import './App.css';
 
 function App() {
@@ -77,6 +88,24 @@ function App() {
             <Route path="/institutions/:id/courses" element={<MainProfilePage />} />
             <Route path="/institutions/:id/contact" element={<MainProfilePage />} />
             <Route path="/institutions/:id/events" element={<MainProfilePage />} />
+
+            {/* Institute Analytics - Wrapped in InstituteRoute */}
+            <Route path="/analytics/*" element={
+              <InstituteRoute>
+                <div className="analytics-module">
+                  <AnalyticsLayout />
+                </div>
+              </InstituteRoute>
+            }>
+              <Route path="overview" element={<OverviewPage />} />
+              <Route path="trends" element={<TrendsPage />} />
+              <Route path="posts" element={<PostsAnalyticsPage />} />
+              <Route path="events" element={<EventsAnalyticsPage />} />
+              <Route path="ratings" element={<RatingsPage />} />
+              <Route path="subscription" element={<SubscriptionPage />} />
+              <Route path="ads" element={<AdsPlaceholderPage />} />
+              <Route path="*" element={<Navigate to="overview" replace />} />
+            </Route>
 
             {/* Admin Routes - Wrapped in Layout and Protected */}
             <Route path="/admin/*" element={
