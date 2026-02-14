@@ -532,7 +532,9 @@ class AnalyticsController extends Controller
             }
         }
 
-        $events = $query->orderByDesc('created_at')->paginate(10);
+        $events = $query->orderByRaw('event_date < ? ASC', [$now])
+            ->orderByRaw('ABS(TIMESTAMPDIFF(SECOND, event_date, ?)) ASC', [$now])
+            ->paginate(10);
 
         return response()->json([
             'data' => $events->items(),
