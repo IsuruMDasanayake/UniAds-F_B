@@ -8,12 +8,15 @@ use App\Models\Rating;
 use App\Models\Post;
 use App\Models\PostView;
 use App\Models\EventView;
+use App\Models\InstituteProfileView;
 use App\Models\ApplyCase;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Follower;
 use App\Models\Event;
-use App\Models\Like;
+use App\Models\PostLike;
+use App\Models\EventUserInterest;
+use App\Models\EventUserDeclines;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Category;
@@ -335,11 +338,11 @@ class AnalyticsController extends Controller
         ];
 
         // 5.5 Post Likes
-        $likeQuery = Like::join('posts', 'likes.post_id', '=', 'posts.id')
+        $likeQuery = PostLike::join('posts', 'post_likes.post_id', '=', 'posts.id')
             ->where('posts.institute_id', $institute->id);
 
-        $currentLikes = $fetchFollowerTrend(clone $likeQuery, $currentStart, $currentEnd, 'likes.created_at');
-        $previousLikes = $fetchFollowerTrend(clone $likeQuery, $previousStart, $previousEnd, 'likes.created_at');
+        $currentLikes = $fetchFollowerTrend(clone $likeQuery, $currentStart, $currentEnd, 'post_likes.created_at');
+        $previousLikes = $fetchFollowerTrend(clone $likeQuery, $previousStart, $previousEnd, 'post_likes.created_at');
 
         $curLikesTotal = $isAllTime ? (Post::where('institute_id', $institute->id)->sum('likes_count')) : array_sum(array_values($fillDateCounts($currentLikes, $currentStart, $days)));
         $prevLikesTotal = array_sum(array_values($fillDateCounts($previousLikes, $previousStart, $days)));
@@ -350,19 +353,102 @@ class AnalyticsController extends Controller
             'previous_data' => $compare ? array_values($fillDateCounts($previousLikes, $previousStart, $days)) : null
         ];
 
-        // 6. Demographics
-        // Get unique users who interacted with the institute (Followers + Applicants)
+
+        // 5.6 Event Interests
+        $interestQuery = EventUserInterest::join('events', 'event_user_interests.event_id', '=', 'events.id')
+            ->where('events.institute_id', $institute->id);
+
+        $currentInterests = $fetchFollowerTrend(clone $interestQuery, $currentStart, $currentEnd, 'event_user_interests.created_at');
+        $previousInterests = $fetchFollowerTrend(clone $interestQuery, $previousStart, $previousEnd, 'event_user_interests.created_at');
+
+        $curInterestsTotal = $isAllTime ? (EventUserInterest::join('events', 'event_user_interests.event_id', '=', 'events.id')->where('events.institute_id', $institute->id)->count()) : array_sum(array_values($fillDateCounts($currentInterests, $currentStart, $days)));
+        $prevInterestsTotal = array_sum(array_values($fillDateCounts($previousInterests, $previousStart, $days)));
+
+        $interestsProcessed = [
+            'labels' => $postViewsProcessed['labels'],
+            'data' => array_values($fillDateCounts($currentInterests, $currentStart, $days)),
+            'previous_data' => $compare ? array_values($fillDateCounts($previousInterests, $previousStart, $days)) : null
+        ];
+
+        // 5.7 Event Declines
+        $declineQuery = EventUserDeclines::join('events', 'event_user_declines.event_id', '=', 'events.id')
+            ->where('events.institute_id', $institute->id);
+
+        $currentDeclines = $fetchFollowerTrend(clone $declineQuery, $currentStart, $currentEnd, 'event_user_declines.created_at');
+        $previousDeclines = $fetchFollowerTrend(clone $declineQuery, $previousStart, $previousEnd, 'event_user_declines.created_at');
+
+        $curDeclinesTotal = $isAllTime ? (EventUserDeclines::join('events', 'event_user_declines.event_id', '=', 'events.id')->where('events.institute_id', $institute->id)->count()) : array_sum(array_values($fillDateCounts($currentDeclines, $currentStart, $days)));
+        $prevDeclinesTotal = array_sum(array_values($fillDateCounts($previousDeclines, $previousStart, $days)));
+
+        $declinesProcessed = [
+            'labels' => $postViewsProcessed['labels'],
+            'data' => array_values($fillDateCounts($currentDeclines, $currentStart, $days)),
+            'previous_data' => $compare ? array_values($fillDateCounts($previousDeclines, $previousStart, $days)) : null
+        ];
+
+        // 5.8 Ratings
+        $ratingQuery = Rating::where('institute_id', $institute->id);
+
+        $currentRatings = $fetchFollowerTrend(clone $ratingQuery, $currentStart, $currentEnd, 'created_at');
+        $previousRatings = $fetchFollowerTrend(clone $ratingQuery, $previousStart, $previousEnd, 'created_at');
+
+        $curRatingsTotal = $isAllTime ? (Rating::where('institute_id', $institute->id)->count()) : array_sum(array_values($fillDateCounts($currentRatings, $currentStart, $days)));
+        $prevRatingsTotal = array_sum(array_values($fillDateCounts($previousRatings, $previousStart, $days)));
+
+        $ratingsProcessed = [
+            'labels' => $postViewsProcessed['labels'],
+            'data' => array_values($fillDateCounts($currentRatings, $currentStart, $days)),
+            'previous_data' => $compare ? array_values($fillDateCounts($previousRatings, $previousStart, $days)) : null
+        ];
+
+        // 6. Demographics (All Time - All Interactions)
+        // Get unique users who ever interacted with the institute
         $userIds = array_unique(array_merge(
             Follower::where('institute_id', $institute->id)->pluck('user_id')->toArray(),
-            ApplyCase::where('institute_id', $institute->id)->pluck('user_id')->toArray()
+            ApplyCase::where('institute_id', $institute->id)->pluck('user_id')->toArray(),
+
+            // Post Likes
+            PostLike::join('posts', 'post_likes.post_id', '=', 'posts.id')
+                ->where('posts.institute_id', $institute->id)
+                ->pluck('post_likes.user_id')->toArray(),
+
+            // Event Interests
+            EventUserInterest::join('events', 'event_user_interests.event_id', '=', 'events.id')
+                ->where('events.institute_id', $institute->id)
+                ->pluck('event_user_interests.user_id')->toArray(),
+
+            // Event Declines
+            EventUserDeclines::join('events', 'event_user_declines.event_id', '=', 'events.id')
+                ->where('events.institute_id', $institute->id)
+                ->pluck('event_user_declines.user_id')->toArray(),
+
+            // Ratings
+            Rating::where('institute_id', $institute->id)->pluck('user_id')->toArray(),
+
+            // Post Views (Logged in users)
+            PostView::join('posts', 'post_views.post_id', '=', 'posts.id')
+                ->where('posts.institute_id', $institute->id)
+                ->whereNotNull('post_views.user_id')
+                ->pluck('post_views.user_id')->toArray(),
+
+            // Event Views (Logged in users)
+            EventView::join('events', 'event_views.event_id', '=', 'events.id')
+                ->where('events.institute_id', $institute->id)
+                ->whereNotNull('event_views.user_id')
+                ->pluck('event_views.user_id')->toArray(),
+
+            // Profile Views (Logged in users)
+            InstituteProfileView::where('institute_id', $institute->id)
+                ->whereNotNull('user_id')
+                ->pluck('user_id')->toArray()
         ));
 
         $users = User::whereIn('id', $userIds)->get(['gender', 'birthday', 'district', 'education_level']);
 
         // Gender Distribution
-        $genderDistrib = $users->groupBy('gender')->map(function ($group) {
-            return count($group);
-        });
+        $genderDistrib = $users->filter(fn($u) => !empty($u->gender))
+            ->pluck('gender')
+            ->countBy();
 
         // Age Distribution
         $ageGroups = [
@@ -381,11 +467,14 @@ class AnalyticsController extends Controller
             }
         }
 
-        // District Distribution (Top 10)
-        $districtDistrib = $users->whereNotNull('district')->countBy('district')->sortDesc()->take(10);
+        // District Distribution
+        $districtDistrib = $users->filter(fn($u) => !empty($u->district))
+            ->countBy('district')
+            ->sortDesc();
 
         // Education Level Distribution
-        $eduDistrib = $users->whereNotNull('education_level')->countBy('education_level');
+        $eduDistrib = $users->filter(fn($u) => !empty($u->education_level))
+            ->countBy('education_level');
 
         $demographics = [
             'gender' => $genderDistrib,
@@ -419,6 +508,18 @@ class AnalyticsController extends Controller
             'postLikes' => [
                 'value' => $curLikesTotal,
                 'change' => $calculateChange($curLikesTotal, $prevLikesTotal)
+            ],
+            'eventInterests' => [
+                'value' => $curInterestsTotal,
+                'change' => $calculateChange($curInterestsTotal, $prevInterestsTotal)
+            ],
+            'eventDeclines' => [
+                'value' => $curDeclinesTotal,
+                'change' => $calculateChange($curDeclinesTotal, $prevDeclinesTotal)
+            ],
+            'ratings' => [
+                'value' => $curRatingsTotal,
+                'change' => $calculateChange($curRatingsTotal, $prevRatingsTotal)
             ],
         ];
 
@@ -462,6 +563,9 @@ class AnalyticsController extends Controller
             'applications' => $applicationsProcessed,
             'followers' => $followersProcessed,
             'postLikes' => $likesProcessed,
+            'eventInterests' => $interestsProcessed,
+            'eventDeclines' => $declinesProcessed,
+            'ratings' => $ratingsProcessed,
             'demographics' => $demographics,
             'totals' => $totals,
             'summary' => $summary,

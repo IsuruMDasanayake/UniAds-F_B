@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axiosClient from '../../lib/axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, FileText, Calendar, Users, Briefcase, Heart } from 'lucide-react';
+import { Eye, FileText, Calendar, Users, Briefcase, Heart, Star, CalendarCheck, CalendarX } from 'lucide-react';
 
 // Components
 import StatCard from '../../components/Analytics/StatCard';
@@ -55,11 +55,16 @@ const TrendsPage = () => {
             followers: { value: 0, change: 0 },
             postLikes: { value: 0, change: 0 }
         },
+
         postViews = { labels: [], data: [] },
         eventViews = { labels: [], data: [] },
         profileViews = { labels: [], data: [] },
         applications = { labels: [], data: [] },
         followers = { labels: [], data: [] },
+        postLikes = { labels: [], data: [] },
+        eventInterests = { labels: [], data: [] },
+        eventDeclines = { labels: [], data: [] },
+        ratings = { labels: [], data: [] },
         demographics = {},
         summary = {},
         insights = []
@@ -76,6 +81,36 @@ const TrendsPage = () => {
         if (compare) {
             if (postViews.previous_data) sets.push({ label: 'Prev Posts', data: postViews.previous_data, borderColor: '#3b82f640', borderDash: [5, 5], pointRadius: 0 });
             if (eventViews.previous_data) sets.push({ label: 'Prev Events', data: eventViews.previous_data, borderColor: '#10b98140', borderDash: [5, 5], pointRadius: 0 });
+        }
+
+        return sets;
+    };
+
+    const getPostEngagementDatasets = () => {
+        const sets = [
+            { label: 'Post Views', data: postViews.data, borderColor: '#3b82f6', backgroundColor: 'transparent' },
+            { label: 'Post Likes', data: postLikes.data, borderColor: '#ef4444', backgroundColor: 'transparent' }
+        ];
+
+        if (compare) {
+            if (postViews.previous_data) sets.push({ label: 'Prev Views', data: postViews.previous_data, borderColor: '#3b82f640', borderDash: [5, 5], pointRadius: 0 });
+            if (postLikes.previous_data) sets.push({ label: 'Prev Likes', data: postLikes.previous_data, borderColor: '#ef444440', borderDash: [5, 5], pointRadius: 0 });
+        }
+
+        return sets;
+    };
+
+    const getEventEngagementDatasets = () => {
+        const sets = [
+            { label: 'Event Views', data: eventViews.data, borderColor: '#3b82f6', backgroundColor: 'transparent' },
+            { label: 'Interests', data: eventInterests.data, borderColor: '#10b981', backgroundColor: 'transparent' },
+            { label: 'Declines', data: eventDeclines.data, borderColor: '#ef4444', backgroundColor: 'transparent' }
+        ];
+
+        if (compare) {
+            if (eventViews.previous_data) sets.push({ label: 'Prev Views', data: eventViews.previous_data, borderColor: '#3b82f640', borderDash: [5, 5], pointRadius: 0 });
+            if (eventInterests.previous_data) sets.push({ label: 'Prev Int.', data: eventInterests.previous_data, borderColor: '#10b98140', borderDash: [5, 5], pointRadius: 0 });
+            if (eventDeclines.previous_data) sets.push({ label: 'Prev Dec.', data: eventDeclines.previous_data, borderColor: '#ef444440', borderDash: [5, 5], pointRadius: 0 });
         }
 
         return sets;
@@ -122,11 +157,15 @@ const TrendsPage = () => {
             {/* Stat Cards Row */}
             <div className="stat-cards-row-v2">
                 <StatCard icon={FileText} label="Post Views" value={totals.postViews.value} change={range === 'all' ? null : totals.postViews.change} color="blue" loading={isInitialLoading} />
-                <StatCard icon={Heart} label="Post Likes" value={totals.postLikes.value} change={range === 'all' ? null : totals.postLikes.change} color="pink" loading={isInitialLoading} />
-                <StatCard icon={Calendar} label="Event Views" value={totals.eventViews.value} change={range === 'all' ? null : totals.eventViews.change} color="green" loading={isInitialLoading} />
+                <StatCard icon={Heart} label="Post Likes" value={totals.postLikes.value} change={range === 'all' ? null : totals.postLikes.change} color="red" loading={isInitialLoading} />
                 <StatCard icon={Briefcase} label="Applications" value={totals.applications.value} change={range === 'all' ? null : totals.applications.change} color="amber" loading={isInitialLoading} />
-                <StatCard icon={Users} label="Total Followers" value={totals.followers.value} change={range === 'all' ? null : totals.followers.change} color="red" loading={isInitialLoading} />
-                <StatCard icon={Eye} label="Profile Views" value={totals.profileViews.value} change={range === 'all' ? null : totals.profileViews.change} color="white" loading={isInitialLoading} />
+                <StatCard icon={Calendar} label="Event Views" value={totals.eventViews.value} change={range === 'all' ? null : totals.eventViews.change} color="red" loading={isInitialLoading} />
+                <StatCard icon={CalendarCheck} label="Event Interests" value={totals.eventInterests?.value} change={range === 'all' ? null : totals.eventInterests?.change} color="green" loading={isInitialLoading} />
+                <StatCard icon={CalendarX} label="Event Declines" value={totals.eventDeclines?.value} change={range === 'all' ? null : totals.eventDeclines?.change} color="red" loading={isInitialLoading} />
+                <StatCard icon={Eye} label="Profile Views" value={totals.profileViews.value} change={range === 'all' ? null : totals.profileViews.change} color="blue" loading={isInitialLoading} />
+                <StatCard icon={Users} label="Followers" value={totals.followers.value} change={range === 'all' ? null : totals.followers.change} color="red" loading={isInitialLoading} />
+                <StatCard icon={Star} label="Ratings" value={totals.ratings?.value} change={range === 'all' ? null : totals.ratings?.change} color="yellow" loading={isInitialLoading} />
+
             </div>
 
             {/* Insights Section */}
@@ -149,8 +188,26 @@ const TrendsPage = () => {
                 </ChartCard>
             </div>
 
+
+
             {/* Detailed Grid */}
             <div className="charts-grid-v2">
+                <ChartCard title="Post Engagement" loading={isInitialLoading}>
+                    <div style={{ height: '300px' }}>
+                        <LineChart
+                            labels={postViews.labels}
+                            datasets={getPostEngagementDatasets()}
+                        />
+                    </div>
+                </ChartCard>
+                <ChartCard title="Profile Views" loading={isInitialLoading}>
+                    <div style={{ height: '300px' }}>
+                        <LineChart
+                            labels={profileViews.labels}
+                            datasets={getSingleDataset(profileViews, 'Profile Views', '#8b5cf6')}
+                        />
+                    </div>
+                </ChartCard>
                 <ChartCard title="Course Applications Trend" loading={isInitialLoading}>
                     <div style={{ height: '300px' }}>
                         <LineChart
@@ -167,14 +224,30 @@ const TrendsPage = () => {
                         />
                     </div>
                 </ChartCard>
+                <ChartCard title="Event Engagement" loading={isInitialLoading}>
+                    <div style={{ height: '300px' }}>
+                        <LineChart
+                            labels={eventInterests.labels}
+                            datasets={getEventEngagementDatasets()}
+                        />
+                    </div>
+                </ChartCard>
+                <ChartCard title="Ratings Growth" loading={isInitialLoading}>
+                    <div style={{ height: '300px' }}>
+                        <LineChart
+                            labels={ratings.labels}
+                            datasets={getSingleDataset(ratings, 'New Ratings', '#eab308')}
+                        />
+                    </div>
+                </ChartCard>
             </div>
 
             {/* Demographics */}
             <div className="overview-section-v2">
-                <h2 className="section-title-v2">User Demographics</h2>
+                <h2 className="section-title-v2">All Time User Demographics</h2>
                 <DemographicCharts demographics={demographics} loading={isInitialLoading || isUpdating} />
             </div>
-        </div>
+        </div >
     );
 };
 

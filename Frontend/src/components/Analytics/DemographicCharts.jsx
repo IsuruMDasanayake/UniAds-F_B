@@ -68,11 +68,20 @@ const DemographicCharts = ({ demographics, loading }) => {
         }
     };
 
+    const genderLabels = Object.keys(gender);
+    const genderColors = genderLabels.map(label => {
+        const lowerLabel = label.toLowerCase();
+        if (lowerLabel === 'male') return '#3b82f6'; // Blue
+        if (lowerLabel === 'female') return '#ec4899'; // Rose
+        if (lowerLabel === 'other') return '#10b981'; // Green
+        return '#cbd5e1'; // Light grey fallback
+    });
+
     const genderData = {
-        labels: Object.keys(gender),
+        labels: genderLabels.map(l => l.charAt(0).toUpperCase() + l.slice(1)),
         datasets: [{
             data: Object.values(gender),
-            backgroundColor: ['#3b82f6', '#ec4899', '#94a3b8', '#f59e0b', '#10b981'],
+            backgroundColor: genderColors,
             hoverOffset: 15,
             borderWidth: 0
         }]

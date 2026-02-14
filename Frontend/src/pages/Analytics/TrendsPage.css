@@ -25,7 +25,7 @@
 #analytics-trends-v2.updating::after {
     content: '';
     position: absolute;
-    top: 15%;
+    top: 8%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 48px;
