@@ -1,11 +1,143 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Pie, Bar } from 'react-chartjs-2';
 import {
     Chart as ChartJS, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend
 } from 'chart.js';
+import { Filter, Loader2 } from 'lucide-react';
 import ChartCard from './ChartCard';
+import axiosClient from "../../lib/axios";
 
 ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+
+const INTERACTION_OPTIONS = [
+    { label: 'All Interactions', value: 'all' },
+    { label: 'Likes', value: 'likes' },
+    { label: 'Event Interests', value: 'interests' },
+    { label: 'Event Declines', value: 'declines' },
+    { label: 'Ratings', value: 'ratings' },
+    { label: 'Followers', value: 'followers' },
+    { label: 'Applicants', value: 'applicants' },
+    { label: 'Post Views', value: 'post_view' },
+    { label: 'Event Views', value: 'event_view' },
+    { label: 'Profile Views', value: 'profile_view' }
+];
+
+const DemographicChart = ({ title, type, initialData, chartType = 'pie', chartOptions = {} }) => {
+    const [data, setData] = useState(initialData);
+    const [filter, setFilter] = useState('all');
+    const [fetching, setFetching] = useState(false);
+
+    useEffect(() => {
+        if (filter === 'all') {
+            setData(initialData);
+            return;
+        }
+
+        const fetchData = async () => {
+            setFetching(true);
+            try {
+                const response = await axiosClient.get(`/api/institute/analytics/demographics`, {
+                    params: { interaction_type: filter }
+                });
+                const newData = response.data.demographics[type];
+                setData(newData);
+            } catch (error) {
+                console.error(`Error fetching demographics for ${type}:`, error);
+            } finally {
+                setFetching(false);
+            }
+        };
+
+        fetchData();
+    }, [filter, initialData, type]);
+
+    const filterDropdown = (
+        <div className="chart-filter-compact">
+            <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                className="filter-select-minimal"
+            >
+                {INTERACTION_OPTIONS.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+            </select>
+        </div>
+    );
+
+    // Prepare chart data based on type
+    let preparedData;
+    if (type === 'gender') {
+        const labels = Object.keys(data || {});
+        const colors = labels.map(label => {
+            const lowerLabel = label.toLowerCase();
+            if (lowerLabel === 'male') return '#3b82f6';
+            if (lowerLabel === 'female') return '#ec4899';
+            if (lowerLabel === 'other') return '#10b981';
+            return '#cbd5e1';
+        });
+
+        preparedData = {
+            labels: labels.map(l => l.charAt(0).toUpperCase() + l.slice(1)),
+            datasets: [{
+                data: Object.values(data || {}),
+                backgroundColor: colors,
+                hoverOffset: 15,
+                borderWidth: 0
+            }]
+        };
+    } else if (type === 'age_groups') {
+        preparedData = {
+            labels: Object.keys(data || {}),
+            datasets: [{
+                label: 'Users',
+                data: Object.values(data || {}),
+                backgroundColor: '#3b82f6',
+                borderRadius: 8,
+                barThickness: 30
+            }]
+        };
+    } else if (type === 'districts') {
+        preparedData = {
+            labels: Object.keys(data || {}),
+            datasets: [{
+                label: 'Users',
+                data: Object.values(data || {}),
+                backgroundColor: '#10b981',
+                borderRadius: 8,
+                barThickness: 25
+            }]
+        };
+    } else if (type === 'education_levels') {
+        preparedData = {
+            labels: Object.keys(data || {}),
+            datasets: [{
+                data: Object.values(data || {}),
+                backgroundColor: ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444'],
+                borderWidth: 0
+            }]
+        };
+    }
+
+    return (
+        <ChartCard title={title} actions={filterDropdown}>
+            <div style={{ height: '260px', position: 'relative' }}>
+                {fetching && (
+                    <div className="chart-overlay-loader">
+                        <Loader2 className="animate-spin text-blue-500" size={32} />
+                    </div>
+                )}
+                <div style={{ opacity: fetching ? 0.3 : 1, transition: 'opacity 0.2s', height: '100%' }}>
+                    {chartType === 'pie' ? (
+                        <Pie data={preparedData} options={chartOptions} />
+                    ) : (
+                        <Bar data={preparedData} options={chartOptions} />
+                    )}
+                </div>
+            </div>
+        </ChartCard>
+    );
+};
 
 const DemographicCharts = ({ demographics, loading }) => {
     if (loading) {
@@ -23,7 +155,7 @@ const DemographicCharts = ({ demographics, loading }) => {
 
     const { gender = {}, age_groups = {}, districts = {}, education_levels = {} } = demographics;
 
-    const chartOptions = {
+    const baseOptions = {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
@@ -46,15 +178,19 @@ const DemographicCharts = ({ demographics, loading }) => {
                 cornerRadius: 8,
                 titleFont: { family: "'Poppins', sans-serif", weight: 700 }
             }
-        },
+        }
+    };
+
+    const pieOptions = {
+        ...baseOptions,
         scales: {
-            y: { beginAtZero: true, display: false },
+            y: { display: false },
             x: { display: false }
         }
     };
 
     const barOptions = {
-        ...chartOptions,
+        ...baseOptions,
         scales: {
             y: {
                 beginAtZero: true,
@@ -68,81 +204,39 @@ const DemographicCharts = ({ demographics, loading }) => {
         }
     };
 
-    const genderLabels = Object.keys(gender);
-    const genderColors = genderLabels.map(label => {
-        const lowerLabel = label.toLowerCase();
-        if (lowerLabel === 'male') return '#3b82f6'; // Blue
-        if (lowerLabel === 'female') return '#ec4899'; // Rose
-        if (lowerLabel === 'other') return '#10b981'; // Green
-        return '#cbd5e1'; // Light grey fallback
-    });
-
-    const genderData = {
-        labels: genderLabels.map(l => l.charAt(0).toUpperCase() + l.slice(1)),
-        datasets: [{
-            data: Object.values(gender),
-            backgroundColor: genderColors,
-            hoverOffset: 15,
-            borderWidth: 0
-        }]
-    };
-
-    const ageData = {
-        labels: Object.keys(age_groups),
-        datasets: [{
-            label: 'Users',
-            data: Object.values(age_groups),
-            backgroundColor: '#3b82f6',
-            borderRadius: 8,
-            barThickness: 30
-        }]
-    };
-
-    const districtData = {
-        labels: Object.keys(districts),
-        datasets: [{
-            label: 'Users',
-            data: Object.values(districts),
-            backgroundColor: '#10b981',
-            borderRadius: 8,
-            barThickness: 25
-        }]
-    };
-
-    const eduData = {
-        labels: Object.keys(education_levels),
-        datasets: [{
-            data: Object.values(education_levels),
-            backgroundColor: ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444'],
-            borderWidth: 0
-        }]
-    };
-
     return (
         <div className="demographics-grid-v2">
-            <ChartCard title="Gender Distribution">
-                <div style={{ height: '300px' }}>
-                    <Pie data={genderData} options={chartOptions} />
-                </div>
-            </ChartCard>
+            <DemographicChart
+                title="Gender Distribution"
+                type="gender"
+                initialData={gender}
+                chartType="pie"
+                chartOptions={pieOptions}
+            />
 
-            <ChartCard title="Age Distribution">
-                <div style={{ height: '300px' }}>
-                    <Bar data={ageData} options={barOptions} />
-                </div>
-            </ChartCard>
+            <DemographicChart
+                title="Age Distribution"
+                type="age_groups"
+                initialData={age_groups}
+                chartType="bar"
+                chartOptions={barOptions}
+            />
 
-            <ChartCard title="Top Districts">
-                <div style={{ height: '300px' }}>
-                    <Bar data={districtData} options={{ ...barOptions, indexAxis: 'y' }} />
-                </div>
-            </ChartCard>
+            <DemographicChart
+                title="Top Districts"
+                type="districts"
+                initialData={districts}
+                chartType="bar"
+                chartOptions={{ ...barOptions, indexAxis: 'y' }}
+            />
 
-            <ChartCard title="Education Levels">
-                <div style={{ height: '300px' }}>
-                    <Pie data={eduData} options={chartOptions} />
-                </div>
-            </ChartCard>
+            <DemographicChart
+                title="Education Levels"
+                type="education_levels"
+                initialData={education_levels}
+                chartType="pie"
+                chartOptions={pieOptions}
+            />
         </div>
     );
 };

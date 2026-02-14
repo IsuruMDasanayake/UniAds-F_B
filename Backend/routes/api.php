@@ -147,6 +147,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('institute')->group(function () {
         Route::get('/analytics/overview', [AnalyticsController::class, 'apiOverview']);
         Route::get('/analytics/trends', [AnalyticsController::class, 'apiTrends']);
+        Route::get('/analytics/demographics', [AnalyticsController::class, 'apiDemographics']);
         Route::get('/analytics/posts', [AnalyticsController::class, 'apiPosts']);
         Route::delete('/analytics/posts/{id}', [AnalyticsController::class, 'deletePost']);
         Route::patch('/posts/{id}/status', [AnalyticsController::class, 'toggleStatus']);

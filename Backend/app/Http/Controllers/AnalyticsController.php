@@ -402,7 +402,6 @@ class AnalyticsController extends Controller
         ];
 
         // 6. Demographics (All Time - All Interactions)
-        // Get unique users who ever interacted with the institute
         $userIds = array_unique(array_merge(
             Follower::where('institute_id', $institute->id)->pluck('user_id')->toArray(),
             ApplyCase::where('institute_id', $institute->id)->pluck('user_id')->toArray(),
@@ -443,45 +442,7 @@ class AnalyticsController extends Controller
                 ->pluck('user_id')->toArray()
         ));
 
-        $users = User::whereIn('id', $userIds)->get(['gender', 'birthday', 'district', 'education_level']);
-
-        // Gender Distribution
-        $genderDistrib = $users->filter(fn($u) => !empty($u->gender))
-            ->pluck('gender')
-            ->countBy();
-
-        // Age Distribution
-        $ageGroups = [
-            'Under 18' => 0,
-            '18-22' => 0,
-            '23-30' => 0,
-            '30+' => 0
-        ];
-        foreach ($users as $user) {
-            if ($user->birthday) {
-                $age = Carbon::parse($user->birthday)->age;
-                if ($age < 18) $ageGroups['Under 18']++;
-                elseif ($age <= 22) $ageGroups['18-22']++;
-                elseif ($age <= 30) $ageGroups['23-30']++;
-                else $ageGroups['30+']++;
-            }
-        }
-
-        // District Distribution
-        $districtDistrib = $users->filter(fn($u) => !empty($u->district))
-            ->countBy('district')
-            ->sortDesc();
-
-        // Education Level Distribution
-        $eduDistrib = $users->filter(fn($u) => !empty($u->education_level))
-            ->countBy('education_level');
-
-        $demographics = [
-            'gender' => $genderDistrib,
-            'age_groups' => $ageGroups,
-            'districts' => $districtDistrib,
-            'education_levels' => $eduDistrib
-        ];
+        $demographics = $this->calculateDemographics($userIds);
 
         // 7. Totals for Stat Cards
         $totals = [
@@ -759,5 +720,134 @@ class AnalyticsController extends Controller
             'success' => true,
             'message' => 'Event deleted successfully'
         ]);
+    }
+
+    public function apiDemographics(Request $request)
+    {
+        $institute = auth()->user()->institute;
+        $type = $request->get('interaction_type', 'all');
+
+        $userIds = [];
+
+        switch ($type) {
+            case 'likes':
+                $userIds = PostLike::join('posts', 'post_likes.post_id', '=', 'posts.id')
+                    ->where('posts.institute_id', $institute->id)
+                    ->pluck('post_likes.user_id')->toArray();
+                break;
+            case 'interests':
+                $userIds = EventUserInterest::join('events', 'event_user_interests.event_id', '=', 'events.id')
+                    ->where('events.institute_id', $institute->id)
+                    ->pluck('event_user_interests.user_id')->toArray();
+                break;
+            case 'declines':
+                $userIds = EventUserDeclines::join('events', 'event_user_declines.event_id', '=', 'events.id')
+                    ->where('events.institute_id', $institute->id)
+                    ->pluck('event_user_declines.user_id')->toArray();
+                break;
+            case 'ratings':
+                $userIds = Rating::where('institute_id', $institute->id)->pluck('user_id')->toArray();
+                break;
+            case 'followers':
+                $userIds = Follower::where('institute_id', $institute->id)->pluck('user_id')->toArray();
+                break;
+            case 'applicants':
+                $userIds = ApplyCase::where('institute_id', $institute->id)->pluck('user_id')->toArray();
+                break;
+            case 'post_view':
+                $userIds = PostView::join('posts', 'post_views.post_id', '=', 'posts.id')
+                    ->where('posts.institute_id', $institute->id)
+                    ->whereNotNull('post_views.user_id')
+                    ->pluck('post_views.user_id')->toArray();
+                break;
+            case 'event_view':
+                $userIds = EventView::join('events', 'event_views.event_id', '=', 'events.id')
+                    ->where('events.institute_id', $institute->id)
+                    ->whereNotNull('event_views.user_id')
+                    ->pluck('event_views.user_id')->toArray();
+                break;
+            case 'profile_view':
+                $userIds = InstituteProfileView::where('institute_id', $institute->id)
+                    ->whereNotNull('user_id')
+                    ->pluck('user_id')->toArray();
+                break;
+            case 'all':
+            default:
+                $userIds = array_unique(array_merge(
+                    Follower::where('institute_id', $institute->id)->pluck('user_id')->toArray(),
+                    ApplyCase::where('institute_id', $institute->id)->pluck('user_id')->toArray(),
+                    PostLike::join('posts', 'post_likes.post_id', '=', 'posts.id')
+                        ->where('posts.institute_id', $institute->id)
+                        ->pluck('post_likes.user_id')->toArray(),
+                    EventUserInterest::join('events', 'event_user_interests.event_id', '=', 'events.id')
+                        ->where('events.institute_id', $institute->id)
+                        ->pluck('event_user_interests.user_id')->toArray(),
+                    EventUserDeclines::join('events', 'event_user_declines.event_id', '=', 'events.id')
+                        ->where('events.institute_id', $institute->id)
+                        ->pluck('event_user_declines.user_id')->toArray(),
+                    Rating::where('institute_id', $institute->id)->pluck('user_id')->toArray(),
+                    PostView::join('posts', 'post_views.post_id', '=', 'posts.id')
+                        ->where('posts.institute_id', $institute->id)
+                        ->whereNotNull('post_views.user_id')
+                        ->pluck('post_views.user_id')->toArray(),
+                    EventView::join('events', 'event_views.event_id', '=', 'events.id')
+                        ->where('events.institute_id', $institute->id)
+                        ->whereNotNull('event_views.user_id')
+                        ->pluck('event_views.user_id')->toArray(),
+                    InstituteProfileView::where('institute_id', $institute->id)
+                        ->whereNotNull('user_id')
+                        ->pluck('user_id')->toArray()
+                ));
+                break;
+        }
+
+        $userIds = array_unique($userIds);
+
+        return response()->json([
+            'demographics' => $this->calculateDemographics($userIds)
+        ]);
+    }
+
+    private function calculateDemographics($userIds)
+    {
+        $users = User::whereIn('id', $userIds)->get(['gender', 'birthday', 'district', 'education_level']);
+
+        // Gender Distribution
+        $genderDistrib = $users->filter(fn($u) => !empty($u->gender))
+            ->pluck('gender')
+            ->countBy();
+
+        // Age Distribution
+        $ageGroups = [
+            'Under 18' => 0,
+            '18-22' => 0,
+            '23-30' => 0,
+            '30+' => 0
+        ];
+        foreach ($users as $user) {
+            if ($user->birthday) {
+                $age = Carbon::parse($user->birthday)->age;
+                if ($age < 18) $ageGroups['Under 18']++;
+                elseif ($age <= 22) $ageGroups['18-22']++;
+                elseif ($age <= 30) $ageGroups['23-30']++;
+                else $ageGroups['30+']++;
+            }
+        }
+
+        // District Distribution
+        $districtDistrib = $users->filter(fn($u) => !empty($u->district))
+            ->countBy('district')
+            ->sortDesc();
+
+        // Education Level Distribution
+        $eduDistrib = $users->filter(fn($u) => !empty($u->education_level))
+            ->countBy('education_level');
+
+        return [
+            'gender' => $genderDistrib,
+            'age_groups' => $ageGroups,
+            'districts' => $districtDistrib,
+            'education_levels' => $eduDistrib
+        ];
     }
 }

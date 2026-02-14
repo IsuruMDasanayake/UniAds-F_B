@@ -74,6 +74,65 @@
     font-weight: 600;
 }
 
+/* Demographic Chart Filters */
+.chart-filter-compact {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.chart-filter-compact:hover {
+    border-color: #3b82f6;
+    background: #fff;
+}
+
+.filter-icon {
+    color: #64748b;
+}
+
+.filter-select-minimal {
+    border: none;
+    background: transparent;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    outline: none;
+    padding-right: 0.5rem;
+}
+
+.chart-overlay-loader {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.5);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    z-index: 10;
+    border-radius: 8px;
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .trends-header-v2 {
     display: flex;
     justify-content: space-between;
@@ -95,7 +154,7 @@
         flex-direction: column;
         align-items: center;
         text-align: center;
-        
+
     }
 }
 
@@ -242,7 +301,11 @@
 }
 
 .analytics-chart-card-v2 .card-header {
-    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 20px;
 }
 
 .analytics-chart-card-v2 .card-title {
@@ -256,6 +319,23 @@
     font-size: 0.875rem;
     color: var(--c-slate-500);
     margin: 0;
+}
+
+.analytics-chart-card-v2 .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 0;
+}
+
+/* Specific Demographic Card Refinements */
+.demographics-grid-v2 .analytics-chart-card-v2 {
+    padding: 20px;
+}
+
+.demographics-grid-v2 .analytics-chart-card-v2 .card-header {
+    margin-bottom: 16px;
 }
 
 /* Layout Sections */
