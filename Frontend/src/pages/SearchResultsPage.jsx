@@ -22,6 +22,7 @@ function SearchResultsPage() {
                     axiosClient.get(`/api/search?query=${query}`)
                 ]);
                 setUser(userRes.data);
+
                 setResults(searchRes.data);
             } catch (error) {
                 console.error('Error fetching search results:', error);
@@ -81,7 +82,13 @@ function SearchResultsPage() {
                                 </div>
                                 <div className="results-grid">
                                     {results.posts.map(post => (
-                                        <div key={post.id} className="result-card">
+                                        <div key={post.id} className={`result-card ${post.status !== 'active' ? 'result-inactive' : ''}`}>
+                                            {/* Inactive Badge */}
+                                            {post.status !== 'active' && (
+                                                <div className="result-inactive-badge">
+                                                    Inactive
+                                                </div>
+                                            )}
                                             <div className="card-image-box">
                                                 <img src={post.image ? getStorageUrl(post.image) : '/images/course-default.png'} alt={post.title} />
                                             </div>

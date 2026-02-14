@@ -8,7 +8,7 @@ import ApplyNowModal from '../../components/Modals/ApplyNowModal';
 import MoreInfoModal from '../../components/Modals/MoreInfoModal';
 import './InstituteCourses.css';
 
-const InstituteCourses = ({ institute, courses }) => {
+const InstituteCourses = ({ institute, courses, isOwner }) => {
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [showApplyModal, setShowApplyModal] = useState(false);
     const [showInfoModal, setShowInfoModal] = useState(false);
@@ -40,9 +40,15 @@ const InstituteCourses = ({ institute, courses }) => {
     }, []);
 
     useEffect(() => {
-        const initialCourses = courses || institute.posts?.filter(p => p.status === 'active') || [];
+        // If owner, show all posts. If not, show only active.
+        let initialCourses = courses || institute.posts || [];
+
+        if (!isOwner) {
+            initialCourses = initialCourses.filter(p => p.status === 'active');
+        }
+
         setLocalCourses(initialCourses);
-    }, [courses, institute.posts]);
+    }, [courses, institute.posts, isOwner]);
 
 
     const openModal = (course) => {
@@ -131,13 +137,19 @@ const InstituteCourses = ({ institute, courses }) => {
                 {localCourses.map(course => (
                     <motion.div
                         key={course.id}
-                        className="course-card"
+                        className={`course-card ${course.status !== 'active' ? 'course-inactive' : ''}`}
                         onClick={() => openModal(course)}
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.4 }}
                     >
+                        {/* Inactive Badge for Owner */}
+                        {course.status !== 'active' && isOwner && (
+                            <div className="course-inactive-badge">
+                                Inactive
+                            </div>
+                        )}
                         <div className="course-image-wrapper">
                             <img
                                 src={course.image ? getStorageUrl(course.image) : getStorageUrl(course.image_path) || '/images/default-course.jpg'}

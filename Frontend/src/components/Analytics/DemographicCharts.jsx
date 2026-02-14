@@ -21,7 +21,7 @@ const DemographicCharts = ({ demographics, loading }) => {
 
     if (!demographics) return null;
 
-    const { gender, age_groups, districts, education_levels } = demographics;
+    const { gender = {}, age_groups = {}, districts = {}, education_levels = {} } = demographics;
 
     const chartOptions = {
         responsive: true,

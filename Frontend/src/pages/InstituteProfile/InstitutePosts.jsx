@@ -180,7 +180,13 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
 
     const isPremium = !!(institute?.is_premium && new Date(institute.premium_expires_at) > new Date());
 
-    if (!localPosts || localPosts.length === 0) {
+    const visiblePosts = localPosts.filter(post => {
+        // If owner, show all. If not owner, show only active.
+        if (isOwner) return true;
+        return post.status === 'active';
+    });
+
+    if (!visiblePosts || visiblePosts.length === 0) {
         return (
             <div id="institute-profile-posts-wrapper">
                 <div className="bg-white rounded-3xl shadow-sm p-12 text-center text-gray-500 border border-slate-100">
@@ -193,8 +199,14 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
     return (
         <div id="institute-profile-posts-wrapper">
             <div className="posts-container">
-                {localPosts.map(post => (
-                    <div key={post.id} className="post-card">
+                {visiblePosts.map(post => (
+                    <div key={post.id} className={`post-card ${post.status !== 'active' ? 'post-inactive' : ''}`}>
+                        {/* Inactive Badge for Owner */}
+                        {post.status !== 'active' && isOwner && (
+                            <div className="inactive-badge">
+                                Inactive
+                            </div>
+                        )}
                         {/* Left Split: Image */}
                         <div className="post-image-container">
                             <img

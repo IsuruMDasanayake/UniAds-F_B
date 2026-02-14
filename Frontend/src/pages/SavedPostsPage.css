@@ -309,3 +309,30 @@
 
 /* ---------------- MODALS ---------------- */
 /* Modal styles have been moved to individual component CSS files in src/components/Modals/ */
+
+/* Inactive Saved Post Styling */
+.saved-post-card.saved-inactive {
+    opacity: 0.75;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    position: relative;
+    box-shadow: none;
+}
+
+.saved-post-card.saved-inactive .saved-post-image img {
+    filter: grayscale(100%);
+}
+
+.saved-inactive-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #334155;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    z-index: 20;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

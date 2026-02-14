@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axiosClient from '../../lib/axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, FileText, Calendar, Users, Briefcase } from 'lucide-react';
+import { Eye, FileText, Calendar, Users, Briefcase, Heart } from 'lucide-react';
 
 // Components
 import StatCard from '../../components/Analytics/StatCard';
@@ -52,7 +52,8 @@ const TrendsPage = () => {
             eventViews: { value: 0, change: 0 },
             profileViews: { value: 0, change: 0 },
             applications: { value: 0, change: 0 },
-            followers: { value: 0, change: 0 }
+            followers: { value: 0, change: 0 },
+            postLikes: { value: 0, change: 0 }
         },
         postViews = { labels: [], data: [] },
         eventViews = { labels: [], data: [] },
@@ -121,6 +122,7 @@ const TrendsPage = () => {
             {/* Stat Cards Row */}
             <div className="stat-cards-row-v2">
                 <StatCard icon={FileText} label="Post Views" value={totals.postViews.value} change={range === 'all' ? null : totals.postViews.change} color="blue" loading={isInitialLoading} />
+                <StatCard icon={Heart} label="Post Likes" value={totals.postLikes.value} change={range === 'all' ? null : totals.postLikes.change} color="pink" loading={isInitialLoading} />
                 <StatCard icon={Calendar} label="Event Views" value={totals.eventViews.value} change={range === 'all' ? null : totals.eventViews.change} color="green" loading={isInitialLoading} />
                 <StatCard icon={Briefcase} label="Applications" value={totals.applications.value} change={range === 'all' ? null : totals.applications.change} color="amber" loading={isInitialLoading} />
                 <StatCard icon={Users} label="Total Followers" value={totals.followers.value} change={range === 'all' ? null : totals.followers.change} color="red" loading={isInitialLoading} />

@@ -293,15 +293,15 @@ class AnalyticsController extends Controller
         // 4. Followers
         $followerQuery = Follower::where('institute_id', $institute->id);
 
-        $fetchFollowerTrend = function ($q, $s, $e) {
-            return $q->whereBetween('created_at', [$s, $e])
-                ->groupBy(DB::raw('DATE(created_at)'))
-                ->orderBy(DB::raw('DATE(created_at)'))
-                ->get([DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total')]);
+        $fetchFollowerTrend = function ($q, $s, $e, $column = 'created_at') {
+            return $q->whereBetween($column, [$s, $e])
+                ->groupBy(DB::raw("DATE($column)"))
+                ->orderBy(DB::raw("DATE($column)"))
+                ->get([DB::raw("DATE($column) as date"), DB::raw('count(*) as total')]);
         };
 
-        $currentFollowers = $fetchFollowerTrend(clone $followerQuery, $currentStart, $currentEnd);
-        $previousFollowers = $fetchFollowerTrend(clone $followerQuery, $previousStart, $previousEnd);
+        $currentFollowers = $fetchFollowerTrend(clone $followerQuery, $currentStart, $currentEnd, 'created_at');
+        $previousFollowers = $fetchFollowerTrend(clone $followerQuery, $previousStart, $previousEnd, 'created_at');
 
         $curFollowersTotal = $isAllTime ? ($institute->followers_count ?? 0) : array_sum(array_values($fillDateCounts($currentFollowers, $currentStart, $days)));
         $prevFollowersTotal = array_sum(array_values($fillDateCounts($previousFollowers, $previousStart, $days)));
@@ -332,6 +332,22 @@ class AnalyticsController extends Controller
             'labels' => $postViewsProcessed['labels'],
             'data' => array_values($fillDateCounts($currentApplications, $currentStart, $days)),
             'previous_data' => $compare ? array_values($fillDateCounts($previousApplications, $previousStart, $days)) : null
+        ];
+
+        // 5.5 Post Likes
+        $likeQuery = Like::join('posts', 'likes.post_id', '=', 'posts.id')
+            ->where('posts.institute_id', $institute->id);
+
+        $currentLikes = $fetchFollowerTrend(clone $likeQuery, $currentStart, $currentEnd, 'likes.created_at');
+        $previousLikes = $fetchFollowerTrend(clone $likeQuery, $previousStart, $previousEnd, 'likes.created_at');
+
+        $curLikesTotal = $isAllTime ? (Post::where('institute_id', $institute->id)->sum('likes_count')) : array_sum(array_values($fillDateCounts($currentLikes, $currentStart, $days)));
+        $prevLikesTotal = array_sum(array_values($fillDateCounts($previousLikes, $previousStart, $days)));
+
+        $likesProcessed = [
+            'labels' => $postViewsProcessed['labels'],
+            'data' => array_values($fillDateCounts($currentLikes, $currentStart, $days)),
+            'previous_data' => $compare ? array_values($fillDateCounts($previousLikes, $previousStart, $days)) : null
         ];
 
         // 6. Demographics
@@ -400,6 +416,10 @@ class AnalyticsController extends Controller
                 'value' => $curFollowersTotal,
                 'change' => $calculateChange($curFollowersTotal, $prevFollowersTotal)
             ],
+            'postLikes' => [
+                'value' => $curLikesTotal,
+                'change' => $calculateChange($curLikesTotal, $prevLikesTotal)
+            ],
         ];
 
         // 8. Insights & Summary Calculation
@@ -441,6 +461,7 @@ class AnalyticsController extends Controller
             'profileViews' => $profileViewsProcessed,
             'applications' => $applicationsProcessed,
             'followers' => $followersProcessed,
+            'postLikes' => $likesProcessed,
             'demographics' => $demographics,
             'totals' => $totals,
             'summary' => $summary,

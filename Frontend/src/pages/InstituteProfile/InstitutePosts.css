@@ -300,3 +300,29 @@
         flex-wrap: wrap;
     }
 }
+
+/* Inactive Post Styling */
+#institute-profile-posts-wrapper .post-card.post-inactive {
+    opacity: 0.75;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    position: relative;
+}
+
+#institute-profile-posts-wrapper .post-card.post-inactive .post-img {
+    filter: grayscale(100%);
+}
+
+#institute-profile-posts-wrapper .inactive-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #334155;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

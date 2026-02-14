@@ -136,11 +136,12 @@ function FeedPage() {
 
                 const savedIds = currentUser.saved_posts?.map(p => p.id) || [];
 
-                const postsWithSaved = (feedRes.data.posts?.data || []).map(post => ({
-                    ...post,
-                    is_liked_by_user: post.is_liked_by_user || false,
-                    is_saved_by_user: post.is_saved_by_user || savedIds.includes(post.id)
-                }));
+                const postsWithSaved = (feedRes.data.posts?.data || [])
+                    .map(post => ({
+                        ...post,
+                        is_liked_by_user: post.is_liked_by_user || false,
+                        is_saved_by_user: post.is_saved_by_user || savedIds.includes(post.id)
+                    }));
 
                 setUser(currentUser);
                 setPosts(postsWithSaved);
@@ -379,11 +380,17 @@ function FeedPage() {
                         posts.map((post) => (
                             <motion.div
                                 key={post.id}
-                                className="post-card"
+                                className={`post-card ${post.status !== 'active' ? 'post-inactive' : ''}`}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.3 }}
                             >
+                                {/* Inactive Badge */}
+                                {post.status !== 'active' && (
+                                    <div className="inactive-badge">
+                                        Inactive
+                                    </div>
+                                )}
                                 <div className="post-image">
                                     <img
                                         src={post.image ? getStorageUrl(post.image) : (settings.logo_url || '/images/logo.png')}

@@ -213,10 +213,16 @@ const CoursesPage = () => {
                                 posts.map(post => (
                                     <motion.div
                                         key={post.id}
-                                        className="premium-course-card"
+                                        className={`premium-course-card ${post.status !== 'active' ? 'post-inactive' : ''}`}
                                         variants={itemVariants}
                                     >
                                         <div className="card-top">
+                                            {/* Inactive Badge */}
+                                            {post.status !== 'active' && (
+                                                <div className="inactive-badge">
+                                                    Inactive
+                                                </div>
+                                            )}
                                             <img src={getStorageUrl(post.image)} alt={post.title} />
                                             <div className="type-badge">{post.course_type}</div>
                                             {user?.role !== 'Institute' && (
@@ -271,9 +277,10 @@ const CoursesPage = () => {
                                     <p>We couldn't find any programs in this category. Try browsing others!</p>
                                     <Link to="/courses" className="back-btn">Back to Disciplines</Link>
                                 </div>
-                            )}
+                            )
+                            }
                         </motion.div>
-                    </div>
+                    </div >
                 ) : (
                     // ---------------- BROWSE BY DISCIPLINE VIEW ----------------
                     <div className="browse-view">
@@ -336,7 +343,7 @@ const CoursesPage = () => {
                         </div>
                     </div>
                 )}
-            </main>
+            </main >
 
             {/* Modals integrated from the system design */}
             {/* Reusable Modals */}
@@ -372,7 +379,7 @@ const CoursesPage = () => {
                 onClose={() => setShowInfoModal(false)}
                 contactNumber={selectedPost?.institute?.contact_number}
             />
-        </div>
+        </div >
     );
 };
 

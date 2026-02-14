@@ -39,7 +39,14 @@ function SavedPostsPage() {
                     axiosClient.get('/api/posts/saved')
                 ]);
                 setUser(userRes.data);
-                setSavedPosts(savedRes.data.posts.data || []);
+
+                let posts = savedRes.data.posts.data || [];
+                // For normal users, filter out inactive posts
+                if (userRes.data.role === 'User') {
+                    posts = posts.filter(p => p.status === 'active');
+                }
+
+                setSavedPosts(posts);
             } catch (error) {
                 console.error('Failed to fetch saved posts:', error);
                 if (error.response?.status === 401) navigate('/login');
@@ -150,6 +157,12 @@ function SavedPostsPage() {
                                     layout
                                 >
                                     <div className="saved-post-image">
+                                        {/* Inactive Badge */}
+                                        {post.status !== 'active' && (
+                                            <div className="saved-inactive-badge">
+                                                Inactive
+                                            </div>
+                                        )}
                                         <img
                                             src={post.image ? getStorageUrl(post.image) : '/images/profile.png'}
                                             alt={post.title}
