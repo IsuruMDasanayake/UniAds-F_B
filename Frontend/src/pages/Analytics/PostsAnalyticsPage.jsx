@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axiosClient from '../../lib/axios';
 import DataTable from '../../components/Analytics/DataTable';
-import { BadgeCheck, Ban, Eye, FileText, Image as ImageIcon, ChevronRight, Edit3, Heart, Trash2 } from 'lucide-react';
+import { BadgeCheck, Ban, Eye, FileText, Image as ImageIcon, ChevronRight, Edit3, Heart, Trash2, RefreshCw } from 'lucide-react';
 import { getStorageUrl } from '../../lib/config';
 
 // Modals
@@ -230,13 +230,20 @@ const PostsAnalyticsPage = () => {
 
     return (
         <div id="analytics-posts" className={isUpdating ? 'updating' : ''}>
-            {/* Header section (Redesigned) */}
-            <header className="posts-header-v2">
-                <div className="header-content">
-                    <h1 className="posts-page-title">Course Posts</h1>
-                    <p className="posts-page-subtitle">Manage posts and analyze performance across your institute.</p>
+            {/* Page Header */}
+            <div className={`page-header-card-v2 ${isUpdating ? 'updating' : ''}`}>
+                <div className="header-content-v2">
+                    <div className="header-left-v2">
+                        <h1 className="page-title-v2">Course Posts</h1>
+                        <p className="page-subtitle-v2">Manage posts and analyze performance across your institute.</p>
+                    </div>
+                    {isUpdating && (
+                        <div className="updating-loader-v2">
+                            <RefreshCw className="animate-spin" size={20} />
+                        </div>
+                    )}
                 </div>
-            </header>
+            </div>
 
             {/* Stat Cards */}
             <PostsStatCards stats={stats} loading={loading} />

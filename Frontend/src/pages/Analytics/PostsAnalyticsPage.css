@@ -28,32 +28,14 @@
     transition: all 0.2s ease;
 }
 
-/* Page Header */
-.posts-header-v2 {
-    margin-bottom: 2.5rem;
-}
-
-.posts-page-title {
-    font-size: 2.25rem;
-    font-weight: 800;
-    color: var(--c-slate-900);
-    margin: 0 0 0.5rem 0;
-    letter-spacing: -0.02em;
-    text-align: left !important;
-}
-
-.posts-page-subtitle {
-    font-size: 1.0625rem;
-    color: var(--c-slate-500);
-    font-weight: 500;
-    margin: 0;
-}
+/* Page Header - Now using global styles from AnalyticsLayout.css */
 
 /* Stat Cards Row - Synchronized 1-2-3 Column Layout */
 #analytics-posts .stat-cards-row-v2 {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 1.25rem;
+    margin-top: 2rem;
 }
 
 @media (min-width: 440px) {

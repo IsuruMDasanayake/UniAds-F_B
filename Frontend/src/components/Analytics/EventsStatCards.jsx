@@ -45,18 +45,15 @@ const EventsStatCards = ({ stats, loading }) => {
     return (
         <div className="stat-cards-row-v2" style={{ marginBottom: '2.5rem' }}>
             {cards.map((card, index) => (
-                loading ? (
-                    <div key={index} className="skeleton-loader" style={{ height: '120px' }}></div>
-                ) : (
-                    <StatCard
-                        key={index}
-                        icon={card.icon}
-                        label={card.label}
-                        value={card.value}
-                        color={card.color}
-                        change={null}
-                    />
-                )
+                <StatCard
+                    key={index}
+                    icon={card.icon}
+                    label={card.label}
+                    value={card.value}
+                    color={card.color}
+                    change={null}
+                    loading={loading}
+                />
             ))}
         </div>
     );

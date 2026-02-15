@@ -634,14 +634,74 @@ class AnalyticsController extends Controller
     public function apiRatings(Request $request)
     {
         try {
-            $ratings = Rating::where('institute_id', auth()->user()->institute->id)
-                ->with(['user:id,name,profile_picture'])
-                ->latest()
-                ->paginate(10);
+            $instituteId = auth()->user()->institute->id;
+            $query = Rating::where('institute_id', $instituteId)
+                ->with(['user:id,name,email,profile_picture']);
 
-            return response()->json($ratings);
+            // Apply Search (Student Name or Comment)
+            if ($request->has('search') && !empty($request->get('search'))) {
+                $search = $request->get('search');
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('user', function ($uq) use ($search) {
+                        $uq->where('name', 'like', "%{$search}%");
+                    })->orWhere('comment', 'like', "%{$search}%");
+                });
+            }
+
+            // Apply Rating Filter
+            if ($request->has('rating') && $request->get('rating') !== 'all') {
+                $query->where('rating', $request->get('rating'));
+            }
+
+            // Apply Reported Filter
+            if ($request->has('reported') && $request->get('reported') !== 'all') {
+                $query->where('is_reported', $request->get('reported') === 'true' ? 1 : 0);
+            }
+
+            // Apply Sort
+            $sort = $request->get('sort', 'newest');
+            switch ($sort) {
+                case 'oldest':
+                    $query->orderBy('created_at');
+                    break;
+                case 'highest':
+                    $query->orderByDesc('rating')->orderByDesc('created_at');
+                    break;
+                case 'lowest':
+                    $query->orderBy('rating')->orderByDesc('created_at');
+                    break;
+                case 'newest':
+                default:
+                    $query->latest();
+                    break;
+            }
+
+            $ratings = $query->paginate(10);
+
+            // Stats for Cards
+            $stats = [
+                'total_reviews' => Rating::where('institute_id', $instituteId)->count(),
+                'avg_rating' => round(Rating::where('institute_id', $instituteId)->avg('rating'), 1) ?: 0,
+                'reported_count' => Rating::where('institute_id', $instituteId)->where('is_reported', true)->count(),
+                'commented_count' => Rating::where('institute_id', $instituteId)->whereNotNull('comment')->where('comment', '!=', '')->count(),
+            ];
+
+            // Distribution Calculation
+            $distribution = [
+                5 => Rating::where('institute_id', $instituteId)->where('rating', 5)->count(),
+                4 => Rating::where('institute_id', $instituteId)->where('rating', 4)->count(),
+                3 => Rating::where('institute_id', $instituteId)->where('rating', 3)->count(),
+                2 => Rating::where('institute_id', $instituteId)->where('rating', 2)->count(),
+                1 => Rating::where('institute_id', $instituteId)->where('rating', 1)->count(),
+            ];
+
+            return response()->json([
+                'ratings' => $ratings,
+                'stats' => $stats,
+                'distribution' => $distribution
+            ]);
         } catch (\Exception $e) {
-            Log::error('Ratings API Error: ' . $e->getMessage());
+            Log::error('Ratings Analytics Error: ' . $e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }

@@ -6,16 +6,30 @@ const ConversionMetrics = ({ conversion, contentHealth, loading = false }) => {
     if (loading || !conversion || !contentHealth) {
         return (
             <div className="analytics-conversion-metrics loading">
-                {[...Array(3)].map((_, i) => (
-                    <div key={i} className="conversion-card skeleton-card">
-                        <div className="conversion-icon skeleton-loader" style={{ width: '40px', height: '40px', borderRadius: '10px' }}></div>
-                        <div className="conversion-content">
-                            <div className="skeleton-loader" style={{ width: '80px', height: '12px', marginBottom: '8px' }}></div>
-                            <div className="skeleton-loader" style={{ width: '100px', height: '20px', marginBottom: '4px' }}></div>
-                            <div className="skeleton-loader" style={{ width: '120px', height: '12px' }}></div>
-                        </div>
+                <div className="conversion-card skeleton-card">
+                    <div className="conversion-icon skeleton-loader blue" style={{ width: '48px', height: '48px', borderRadius: '12px' }}></div>
+                    <div className="conversion-content">
+                        <div className="skeleton-loader" style={{ width: '100px', height: '14px', marginBottom: '8px' }}></div>
+                        <div className="skeleton-loader" style={{ width: '160px', height: '24px', marginBottom: '6px' }}></div>
+                        <div className="skeleton-loader" style={{ width: '120px', height: '12px' }}></div>
                     </div>
-                ))}
+                </div>
+                <div className="conversion-card skeleton-card">
+                    <div className="conversion-icon skeleton-loader red" style={{ width: '48px', height: '48px', borderRadius: '12px' }}></div>
+                    <div className="conversion-content">
+                        <div className="skeleton-loader" style={{ width: '100px', height: '14px', marginBottom: '8px' }}></div>
+                        <div className="skeleton-loader" style={{ width: '160px', height: '24px', marginBottom: '6px' }}></div>
+                        <div className="skeleton-loader" style={{ width: '120px', height: '12px' }}></div>
+                    </div>
+                </div>
+                <div className="conversion-card skeleton-card">
+                    <div className="conversion-icon skeleton-loader amber" style={{ width: '48px', height: '48px', borderRadius: '12px' }}></div>
+                    <div className="conversion-content">
+                        <div className="skeleton-loader" style={{ width: '100px', height: '14px', marginBottom: '8px' }}></div>
+                        <div className="skeleton-loader" style={{ width: '160px', height: '24px', marginBottom: '6px' }}></div>
+                        <div className="skeleton-loader" style={{ width: '120px', height: '12px' }}></div>
+                    </div>
+                </div>
             </div>
         );
     }

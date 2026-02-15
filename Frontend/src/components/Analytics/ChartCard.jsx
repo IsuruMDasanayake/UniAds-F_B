@@ -1,7 +1,21 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 const ChartCard = ({ title, subtitle, children, loading, actions, className = "" }) => {
-    if (loading) return <div className="skeleton-loader" style={{ height: '350px' }}></div>;
+    if (loading) {
+        return (
+            <div className={`analytics-chart-card-v2 loading ${className}`}>
+                <div className="card-header">
+                    <div className="header-content">
+                        <div className="skeleton-loader" style={{ width: '150px', height: '18px', marginBottom: '8px' }}></div>
+                        <div className="skeleton-loader" style={{ width: '250px', height: '14px' }}></div>
+                    </div>
+                </div>
+                <div className="card-body">
+                    <div className="skeleton-loader" style={{ width: '100%', height: '280px', borderRadius: '12px' }}></div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <motion.div

@@ -7,7 +7,7 @@ const StatCard = ({ icon: Icon, label, value, change, color = 'blue', delay = 0,
     if (loading) {
         return (
             <div className={`analytics-stat-card-component loading ${color}`}>
-                <div className="stat-icon-wrapper skeleton-loader" style={{ width: '48px', height: '48px', borderRadius: '12px' }}></div>
+                <div className={`stat-icon-wrapper skeleton-loader ${color}`} style={{ width: '48px', height: '48px', borderRadius: '12px' }}></div>
                 <div className="stat-content">
                     <div className="skeleton-loader" style={{ width: '80px', height: '14px', marginBottom: '8px' }}></div>
                     <div className="skeleton-loader" style={{ width: '120px', height: '24px' }}></div>

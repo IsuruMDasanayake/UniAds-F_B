@@ -110,7 +110,7 @@ const OverviewPage = () => {
                     label: 'Total Applications',
                     value: metrics.course_applications,
                     icon: Briefcase,
-                    color: 'green'
+                    color: 'yellow'
                 },
                 {
                     label: 'Active Courses',

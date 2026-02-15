@@ -1,114 +1,265 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axiosClient from '../../lib/axios';
-import { Star, Flag, MessageSquare, User } from 'lucide-react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Star, Flag, MessageSquare, User, AlertTriangle, RefreshCw } from 'lucide-react';
+
+// Components
+import DataTable from '../../components/Analytics/DataTable';
+import RatingsStatCards from '../../components/Analytics/RatingsStatCards';
+import RatingsTableCard from '../../components/Analytics/RatingsTableCard';
+import SkeletonTable from '../../components/Analytics/SkeletonTable';
+import EmptyState from '../../components/Analytics/EmptyState';
+
+// Modals
+import ReportRatingModal from '../../components/Modals/ReportRatingModal';
+
 import './RatingsPage.css';
 
-const RatingsPage = () => {
+const RatingsAnalyticsPage = () => {
     const [reviews, setReviews] = useState([]);
+    const [stats, setStats] = useState(null);
+    const [distribution, setDistribution] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isUpdating, setIsUpdating] = useState(false);
+
+    // Filters & Pagination
+    const [page, setPage] = useState(1);
+    const [search, setSearch] = useState('');
+    const [rating, setRating] = useState('all');
+    const [reported, setReported] = useState('all');
+    const [sort, setSort] = useState('newest');
+    const [pagination, setPagination] = useState({});
+
+    // Modal States
+    const [reportingId, setReportingId] = useState(null);
+    const [isReporting, setIsReporting] = useState(false);
+
+    const fetchRatings = useCallback(async (isInitial = false) => {
+        if (isInitial) setLoading(true);
+        else setIsUpdating(true);
+
+        try {
+            const { data } = await axiosClient.get('/api/institute/analytics/ratings', {
+                params: { page, search, rating, reported, sort }
+            });
+
+            setReviews(data.ratings.data || []);
+            setStats(data.stats);
+            setDistribution(data.distribution);
+            setPagination({
+                current_page: data.ratings.current_page,
+                last_page: data.ratings.last_page,
+                total: data.ratings.total,
+                from: data.ratings.from,
+                to: data.ratings.to
+            });
+        } catch (error) {
+            console.error('Error fetching ratings:', error);
+        } finally {
+            setLoading(false);
+            setIsUpdating(false);
+        }
+    }, [page, search, rating, reported, sort]);
 
     useEffect(() => {
-        const fetchReviews = async () => {
-            try {
-                const { data } = await axiosClient.get('/api/institute/analytics/ratings');
-                setReviews(data);
-            } catch (error) {
-                console.error('Error fetching reviews:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+        const timer = setTimeout(() => {
+            fetchRatings(!reviews.length);
+        }, search ? 500 : 0);
+        return () => clearTimeout(timer);
+    }, [search, rating, reported, sort, page, fetchRatings]);
 
-        fetchReviews();
-    }, []);
-
-    const handleReport = async (id) => {
-        if (!window.confirm('Report this review as inappropriate?')) return;
+    const handleReportSubmit = async (reason) => {
+        setIsReporting(true);
         try {
-            await axiosClient.post(`/api/institute/ratings/${id}/report`);
-            alert('Review reported to administrators.');
+            await axiosClient.post(`/api/institute/ratings/${reportingId}/report`, { reason });
+            setReportingId(null);
+            fetchRatings();
         } catch (error) {
             console.error('Error reporting review:', error);
+        } finally {
+            setIsReporting(false);
         }
     };
 
+    const columns = [
+        {
+            header: 'Student',
+            accessor: 'user',
+            render: (row) => {
+                const user = row.user || {};
+                return (
+                    <div className="student-cell-v2">
+                        <div className="student-avatar-v2">
+                            {user.profile_picture ? (
+                                <img src={user.profile_picture} alt={user.name} />
+                            ) : (
+                                <User size={16} />
+                            )}
+                        </div>
+                        <div className="student-info-v2">
+                            <span className="student-name">{user.name || 'Anonymous Student'}</span>
+                            <span className="student-email">{user.email || 'N/A'}</span>
+                        </div>
+                    </div>
+                );
+            }
+        },
+        {
+            header: 'Rating',
+            accessor: 'rating',
+            render: (row) => {
+                const val = row.rating;
+                return (
+                    <div className="rating-cell-v2">
+                        <div className="stars-mini">
+                            {[...Array(5)].map((_, i) => (
+                                <Star
+                                    key={i}
+                                    size={14}
+                                    className={i < val ? 'star-filled' : 'star-empty'}
+                                />
+                            ))}
+                        </div>
+                        <span className="rating-value">{val}.0</span>
+                    </div>
+                );
+            }
+        },
+        {
+            header: 'Comment',
+            accessor: 'comment',
+            render: (row) => {
+                const comment = row.comment;
+                return (
+                    <div className="comment-cell-v2" title={comment}>
+                        {comment ? (
+                            <span className="comment-text">{comment}</span>
+                        ) : (
+                            <span className="no-comment">No comment provided</span>
+                        )}
+                    </div>
+                );
+            }
+        },
+        {
+            header: 'Posted At',
+            accessor: 'created_at',
+            render: (row) => (
+                <div className="date-cell-v2">
+                    {new Date(row.created_at).toLocaleDateString(undefined, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    })}
+                </div>
+            )
+        },
+        {
+            header: 'Status',
+            accessor: 'is_reported',
+            render: (row) => (
+                <div className="status-cell-v2">
+                    {row.is_reported ? (
+                        <div className="report-badge" title={row.report_reason}>
+                            <AlertTriangle size={12} />
+                            Reported
+                        </div>
+                    ) : (
+                        <span className="text-muted text-xs">—</span>
+                    )}
+                </div>
+            )
+        },
+        {
+            header: 'Action',
+            accessor: 'id',
+            className: 'text-right',
+            render: (row) => (
+                <div className="actions-cell-v2">
+                    {!row.is_reported ? (
+                        <button
+                            className="action-btn-v2 report"
+                            title="Report Review"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setReportingId(row.id);
+                            }}
+                        >
+                            <Flag size={16} />
+                        </button>
+                    ) : (
+                        <div className="reported-status-icon" title="Reported">
+                            <Flag size={16} className="text-red-500 opacity-50" />
+                        </div>
+                    )}
+                </div>
+            )
+        }
+    ];
+
     return (
-        <div id="analytics-ratings-page">
-            <div className="page-header">
-                <h1 className="page-title">Student Reviews</h1>
-                <p className="page-subtitle">Understand student sentiment.</p>
+        <div id="analytics-ratings-v2">
+            {/* Page Header */}
+            <div className="page-header-card-v2">
+                <div className="header-content-v2">
+                    <div className="header-left-v2">
+                        <h1 className="page-title-v2">Student Reviews & Ratings</h1>
+                        <p className="page-subtitle-v2">Monitor student feedback and manage reported reviews</p>
+                    </div>
+                </div>
             </div>
 
-            {loading ? (
-                <div className="ratings-loading-grid">
-                    {[...Array(4)].map((_, i) => (
-                        <div key={i} className="skeleton-review"></div>
-                    ))}
-                </div>
-            ) : reviews.length > 0 ? (
-                <div className="ratings-grid">
-                    <AnimatePresence>
-                        {reviews.map((review, i) => (
-                            <motion.div
-                                key={review.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.05 }}
-                                className="review-card"
-                            >
-                                <div className="review-header">
-                                    <div className="reviewer-info">
-                                        <div className="reviewer-avatar-placeholder">
-                                            <User size={20} />
-                                        </div>
-                                        <div className="reviewer-details">
-                                            <span className="reviewer-name">
-                                                {review.student_name || 'Anonymous Student'}
-                                            </span>
-                                            <span className="review-date">
-                                                {new Date(review.created_at).toLocaleDateString()}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className="review-stars">
-                                        {[...Array(5)].map((_, idx) => (
-                                            <Star
-                                                key={idx}
-                                                size={16}
-                                                className={`star-icon ${idx < review.rating ? 'star-filled' : 'star-empty'}`}
-                                            />
-                                        ))}
-                                    </div>
-                                </div>
+            {/* Stats Row */}
+            <RatingsStatCards stats={stats} loading={loading} />
 
-                                <p className="review-content">
-                                    {review.comment || (
-                                        <span className="italic text-slate-400">No written comment provided.</span>
-                                    )}
-                                </p>
+            <div className="main-section-v2">
+                <RatingsTableCard
+                    distribution={distribution}
+                    loading={loading}
+                    isUpdating={isUpdating}
+                    search={search}
+                    setSearch={setSearch}
+                    rating={rating}
+                    setRating={setRating}
+                    reported={reported}
+                    setReported={setReported}
+                    sort={sort}
+                    setSort={setSort}
+                >
+                    {loading ? (
+                        <SkeletonTable columns={6} rows={5} />
+                    ) : (
+                        <div className="table-responsive-wrapper">
+                            {reviews.length > 0 ? (
+                                <DataTable
+                                    columns={columns}
+                                    data={reviews}
+                                    pagination={pagination}
+                                    onPageChange={setPage}
+                                    loading={isUpdating}
+                                    showSearch={false}
+                                />
+                            ) : (
+                                <EmptyState
+                                    icon={MessageSquare}
+                                    title="No reviews found"
+                                    subtitle={search || rating !== 'all' || reported !== 'all' ? "Try adjusting your filters to find what you're looking for." : "Student reviews will appear here once they start rating your institute."}
+                                />
+                            )}
+                        </div>
+                    )}
+                </RatingsTableCard>
+            </div>
 
-                                <div className="review-actions">
-                                    <button
-                                        onClick={() => handleReport(review.id)}
-                                        className="report-btn"
-                                    >
-                                        <Flag size={14} />
-                                        Report
-                                    </button>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </AnimatePresence>
-                </div>
-            ) : (
-                <div className="empty-state">
-                    <MessageSquare size={48} className="empty-icon" />
-                    <p className="empty-text">No reviews received yet.</p>
-                </div>
-            )}
+            {/* Modals */}
+            <ReportRatingModal
+                isOpen={!!reportingId}
+                onClose={() => setReportingId(null)}
+                onConfirm={handleReportSubmit}
+                loading={isReporting}
+            />
         </div>
     );
 };
 
-export default RatingsPage;
+export default RatingsAnalyticsPage;

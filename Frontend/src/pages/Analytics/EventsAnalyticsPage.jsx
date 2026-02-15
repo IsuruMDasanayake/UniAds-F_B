@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axiosClient from '../../lib/axios';
 import DataTable from '../../components/Analytics/DataTable';
-import { BadgeCheck, Ban, Eye, Calendar, Image as ImageIcon, Heart, Users, Edit3, Trash2, Clock, MapPin } from 'lucide-react';
+import { BadgeCheck, Ban, Eye, Calendar, Image as ImageIcon, Heart, Users, Edit3, Trash2, Clock, MapPin, RefreshCw } from 'lucide-react';
 import { getStorageUrl } from '../../lib/config';
 
 // Modals
@@ -241,13 +241,20 @@ const EventsAnalyticsPage = () => {
 
     return (
         <div id="analytics-events-v2" className={isUpdating ? 'updating' : ''}>
-            {/* Header section */}
-            <header className="events-header-v2">
-                <div className="header-content">
-                    <h1 className="events-page-title">Events Analytics</h1>
-                    <p className="events-page-subtitle">Monitor performance of your events across your institute.</p>
+            {/* Page Header */}
+            <div className={`page-header-card-v2 ${isUpdating ? 'updating' : ''}`}>
+                <div className="header-content-v2">
+                    <div className="header-left-v2">
+                        <h1 className="page-title-v2">Events Analytics</h1>
+                        <p className="page-subtitle-v2">Monitor performance of your events across your institute.</p>
+                    </div>
+                    {isUpdating && (
+                        <div className="updating-loader-v2">
+                            <RefreshCw className="animate-spin" size={20} />
+                        </div>
+                    )}
                 </div>
-            </header>
+            </div>
 
             {/* Stat Cards */}
             <EventsStatCards stats={stats} loading={loading} />

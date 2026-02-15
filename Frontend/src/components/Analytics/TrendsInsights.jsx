@@ -7,13 +7,13 @@ const TrendsInsights = ({ insights, style, loading = false }) => {
         return (
             <div className="trends-insights-box loading" style={style}>
                 <div className="insights-header">
-                    <div className="skeleton-loader" style={{ width: '20px', height: '20px', borderRadius: '50%' }}></div>
-                    <div className="skeleton-loader" style={{ width: '120px', height: '18px', marginLeft: '12px' }}></div>
+                    <div className="skeleton-loader amber" style={{ width: '40px', height: '40px', borderRadius: '12px' }}></div>
+                    <div className="skeleton-loader" style={{ width: '180px', height: '22px', marginLeft: '12px' }}></div>
                 </div>
                 <ul className="insights-list">
-                    {[...Array(2)].map((_, i) => (
+                    {[...Array(3)].map((_, i) => (
                         <li key={i} className="insight-item">
-                            <div className="skeleton-loader" style={{ width: '100%', height: '14px' }}></div>
+                            <div className="skeleton-loader" style={{ width: '100%', height: '14px', borderRadius: '4px' }}></div>
                         </li>
                     ))}
                 </ul>

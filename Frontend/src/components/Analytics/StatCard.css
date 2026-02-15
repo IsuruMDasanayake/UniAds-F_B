@@ -149,3 +149,58 @@
 .analytics-stat-card-component .stat-change.neutral {
     color: var(--c-text-muted);
 }
+
+/* Skeleton Overrides for Colored Icons */
+.analytics-stat-card-component .stat-icon-wrapper.skeleton-loader {
+    border: none !important;
+    opacity: 0.8;
+    box-shadow: none !important;
+    position: relative;
+    z-index: 1;
+}
+
+/* Explicit color overrides to beat page-level ID selectors */
+.analytics-stat-card-component.blue .stat-icon-wrapper.skeleton-loader {
+    background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-hover) 100%) !important;
+}
+
+.analytics-stat-card-component.green .stat-icon-wrapper.skeleton-loader {
+    background: linear-gradient(135deg, var(--c-success) 0%, var(--c-success-hover) 100%) !important;
+}
+
+.analytics-stat-card-component.red .stat-icon-wrapper.skeleton-loader {
+    background: linear-gradient(135deg, var(--c-accent) 0%, var(--c-accent-hover) 100%) !important;
+}
+
+.analytics-stat-card-component.amber .stat-icon-wrapper.skeleton-loader,
+.analytics-stat-card-component.yellow .stat-icon-wrapper.skeleton-loader {
+    background: linear-gradient(135deg, var(--c-bookmark) 0%, var(--c-bookmark-hover) 100%) !important;
+}
+
+.analytics-stat-card-component.purple .stat-icon-wrapper.skeleton-loader {
+    background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-active) 100%) !important;
+}
+
+.stat-icon-wrapper.skeleton-loader::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent 25%, rgba(255, 255, 255, 0.4) 50%, transparent 75%);
+    background-size: 200% 100%;
+    animation: shimmerStatIcon 2s infinite;
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+@keyframes shimmerStatIcon {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
