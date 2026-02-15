@@ -1,15 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, Link, useLocation } from 'react-router-dom';
 import {
     LayoutDashboard, TrendingUp, FileText, Calendar,
     Star, CreditCard, Megaphone, Menu, X, ChevronRight, LogOut
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getStorageUrl } from '../../lib/config';
+import { useSettings } from '../../context/SettingsContext';
 import './AnalyticsLayout.css';
 
 const AnalyticsLayout = () => {
+    const { settings } = useSettings();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const location = useLocation();
+    const [user, setUser] = useState(null);
 
     const navItems = [
         { path: '/analytics/overview', label: 'Overview', icon: LayoutDashboard },
@@ -21,6 +25,17 @@ const AnalyticsLayout = () => {
         { path: '/analytics/subscription', label: 'Subscription', icon: CreditCard },
     ];
 
+    useEffect(() => {
+        try {
+            const storedUser = localStorage.getItem('APP_USER');
+            if (storedUser) {
+                setUser(JSON.parse(storedUser));
+            }
+        } catch (error) {
+            console.error('Error loading user data:', error);
+        }
+    }, []);
+
     const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
     const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
@@ -29,6 +44,12 @@ const AnalyticsLayout = () => {
         const current = navItems.find(item => item.path === location.pathname);
         return current ? current.label : 'Analytics';
     };
+
+    const instituteName = user?.institute?.institute_name || 'Institute';
+    const profilePhoto = user?.institute?.profile_photo
+        ? getStorageUrl(user.institute.profile_photo)
+        : '/images/profile.png';
+    const firstLetter = instituteName.charAt(0).toUpperCase();
 
     return (
         <div id="analytics-layout-wrapper">
@@ -62,8 +83,8 @@ const AnalyticsLayout = () => {
             >
                 <div className="sidebar-header">
                     <Link to="/" className="brand-link">
-                        <span>UniAds</span>
-                        <span className="institute-badge">Institute</span>
+                        <img src={settings.logo_url || "/images/logo.png"} alt={settings.site_name} style={{ height: '45px', width: 'auto' }} />
+                        <span className="institute-badge" style={{ color: "#FFC107 !important" }}>Premium</span>
                     </Link>
                     <button onClick={closeMobileMenu} className="sidebar-close-btn">
                         <X size={20} />
@@ -98,7 +119,7 @@ const AnalyticsLayout = () => {
                             className="footer-link"
                         >
                             <div className="profile-initial">
-                                <span className="initial-text">I</span>
+                                <span className="initial-text"><img src={profilePhoto} alt={instituteName} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} /></span>
                             </div>
                             <span className="nav-label">My Profile</span>
                         </Link>
@@ -123,11 +144,11 @@ const AnalyticsLayout = () => {
                     </div>
                     <div className="header-user">
                         <div className="user-info">
-                            <p className="user-role">Institute Admin</p>
+                            <p className="user-role">{instituteName}</p>
                             <p className="user-status">Premium Member</p>
                         </div>
                         <div className="user-avatar">
-                            A
+                            <img src={profilePhoto} alt={instituteName} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
                         </div>
                     </div>
                 </header>
