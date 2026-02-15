@@ -6,8 +6,8 @@ const TrendsHeader = ({ range, setRange, compare, setCompare, loading }) => {
     return (
         <div className="trends-header-v2">
             <div className="header-text">
-                <h1 className="trends-page-title-v2">Performance Trends</h1>
-                <p className="trends-page-subtitle-v2">Visualize growth and engagement over time</p>
+                <h1 className="page-title-v2">Performance Trends</h1>
+                <p className="page-subtitle-v2">Visualize growth and engagement over time</p>
             </div>
 
             <div className="trends-controls-group-v2">

@@ -213,7 +213,7 @@ const RatingsAnalyticsPage = () => {
             <div className={`page-header-card-v2 ${isUpdating ? 'updating' : ''}`}>
                 <div className="header-content-v2">
                     <div className="header-left-v2">
-                        <h1 className="page-title-v2">Student Reviews & Ratings</h1>
+                        <h1 className="page-title-v2">Reviews & Ratings</h1>
                         <p className="page-subtitle-v2">Monitor student feedback and manage reported reviews</p>
                     </div>
                     {isUpdating && (

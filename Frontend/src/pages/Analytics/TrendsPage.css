@@ -1,5 +1,39 @@
 /* TrendsPage v2 Styling - Scoped Under #analytics-trends-v2 */
 
+.page-subtitle-v2 {
+    font-size: 1rem;
+    color: var(--c-text-muted);
+    margin: 0;
+    font-weight: 600;
+}
+
+.page-title-v2 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #000000 !important;
+    margin: 0 0 0.5rem 0;
+}
+
+@media (max-width: 768px) {
+    .page-header-card-v2 .header-content-v2 {
+        text-align: center;
+    }
+
+    .page-header-card-v2 .header-left-v2 {
+        align-items: center;
+    }
+
+    .page-title-v2 {
+        font-size: 2rem !important;
+        font-weight: 800;
+    }
+
+    .page-subtitle-v2 {
+        font-size: 0.95rem;
+        opacity: 0.8;
+    }
+}
+
 #analytics-trends-v2 {
     font-family: var(--font-main);
     color: var(--c-slate-900);
@@ -59,12 +93,7 @@
 .trends-page-title-v2 {
     font-size: 2rem;
     font-weight: 800;
-    color: var(--c-text-heading);
-    margin: 0 0 0.5rem 0;
-    background: linear-gradient(135deg, var(--c-slate-900) 0%, var(--c-slate-700) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: black !important;
 }
 
 .trends-page-subtitle-v2 {

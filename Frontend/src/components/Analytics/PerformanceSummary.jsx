@@ -14,38 +14,16 @@ const PerformanceSummary = ({ summary, period, setPeriod, isUpdating, loading = 
                     </div>
                 </div>
                 <div className="summary-grid">
-                    <div className="summary-card skeleton-card">
-                        <div className="summary-icon skeleton-loader blue" style={{ width: '48px', height: '48px', borderRadius: '12px' }}></div>
-                        <div className="summary-content">
-                            <div className="skeleton-loader" style={{ width: '100px', height: '14px', marginBottom: '8px' }}></div>
-                            <div className="skeleton-loader" style={{ width: '160px', height: '22px', marginBottom: '6px' }}></div>
-                            <div className="skeleton-loader" style={{ width: '120px', height: '12px' }}></div>
+                    {[1, 2, 3, 4].map((index) => (
+                        <div key={index} className="summary-card skeleton-card">
+                            <div className="skeleton-icon"></div>
+                            <div className="skeleton-content">
+                                <div className="skeleton-label"></div>
+                                <div className="skeleton-value"></div>
+                                <div className="skeleton-meta"></div>
+                            </div>
                         </div>
-                    </div>
-                    <div className="summary-card skeleton-card">
-                        <div className="summary-icon skeleton-loader green" style={{ width: '48px', height: '48px', borderRadius: '12px' }}></div>
-                        <div className="summary-content">
-                            <div className="skeleton-loader" style={{ width: '100px', height: '14px', marginBottom: '8px' }}></div>
-                            <div className="skeleton-loader" style={{ width: '160px', height: '22px', marginBottom: '6px' }}></div>
-                            <div className="skeleton-loader" style={{ width: '120px', height: '12px' }}></div>
-                        </div>
-                    </div>
-                    <div className="summary-card skeleton-card">
-                        <div className="summary-icon skeleton-loader red" style={{ width: '48px', height: '48px', borderRadius: '12px' }}></div>
-                        <div className="summary-content">
-                            <div className="skeleton-loader" style={{ width: '100px', height: '14px', marginBottom: '8px' }}></div>
-                            <div className="skeleton-loader" style={{ width: '160px', height: '22px', marginBottom: '6px' }}></div>
-                            <div className="skeleton-loader" style={{ width: '120px', height: '12px' }}></div>
-                        </div>
-                    </div>
-                    <div className="summary-card skeleton-card">
-                        <div className="summary-icon skeleton-loader yellow" style={{ width: '48px', height: '48px', borderRadius: '12px' }}></div>
-                        <div className="summary-content">
-                            <div className="skeleton-loader" style={{ width: '100px', height: '14px', marginBottom: '8px' }}></div>
-                            <div className="skeleton-loader" style={{ width: '160px', height: '22px', marginBottom: '6px' }}></div>
-                            <div className="skeleton-loader" style={{ width: '120px', height: '12px' }}></div>
-                        </div>
-                    </div>
+                    ))}
                 </div>
             </div>
         );

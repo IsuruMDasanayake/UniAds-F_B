@@ -1,0 +1,160 @@
+/* CancelSubscriptionModal.css */
+
+.cancel-sub-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000000;
+}
+
+.cancel-sub-modal-container {
+    background: var(--c-card-bg, #ffffff);
+    width: 90%;
+    max-width: 480px;
+    border-radius: 20px;
+    padding: 40px 32px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--c-border, #e2e8f0);
+}
+
+.cancel-sub-modal-container .cancel-sub-close-trigger {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    background: var(--c-input-bg, #f8fafc);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 50;
+    transition: all 0.2s ease;
+    color: var(--c-text-body, #64748b);
+}
+
+.cancel-sub-modal-container .cancel-sub-close-trigger:hover {
+    transform: rotate(90deg) scale(1.1);
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.cancel-sub-icon-wrapper {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+}
+
+.cancel-sub-icon-wrapper.danger {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.cancel-sub-modal-container h3 {
+    color: var(--c-text-heading, #1e293b);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.cancel-sub-info-box {
+    background: #fff7ed;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    gap: 12px;
+    text-align: left;
+    margin-bottom: 32px;
+    border: 1px solid #ffedd5;
+}
+
+.cancel-sub-info-box .warning-icon {
+    color: #f97316;
+    flex-shrink: 0;
+}
+
+.cancel-sub-info-box p {
+    color: #9a3412;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.cancel-sub-info-box strong {
+    font-weight: 700;
+}
+
+.cancel-sub-actions {
+    display: flex;
+    gap: 16px;
+}
+
+.cancel-sub-actions button {
+    flex: 1;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cancel-sub-actions .btn-secondary {
+    background: transparent;
+    border: 1.5px solid var(--c-border, #e2e8f0);
+    color: var(--c-text-body, #64748b);
+}
+
+.cancel-sub-actions .btn-secondary:hover {
+    background: var(--c-input-bg, #f8fafc);
+    border-color: var(--c-text-body, #64748b);
+    color: var(--c-text-heading, #1e293b);
+}
+
+.cancel-sub-actions .btn-primary.danger {
+    background: #ef4444;
+    color: white;
+    border: none;
+}
+
+.cancel-sub-actions .btn-primary.danger:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
+.cancel-sub-actions button:active {
+    transform: scale(0.98);
+}
+
+.cancel-sub-actions button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+@keyframes cancelSubSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.cancel-sub-animate-spin {
+    animation: cancelSubSpin 1s linear infinite;
+}

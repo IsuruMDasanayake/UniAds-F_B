@@ -352,6 +352,33 @@ class SubscriptionController extends Controller
         return response()->json(['message' => 'Free trial cancelled.']);
     }
 
+    public function apiCancelUnified(Request $request)
+    {
+        $user = auth()->user();
+        $institute = $user->institute;
+
+        if (!$institute) {
+            return response()->json(['error' => 'Institute not found.'], 404);
+        }
+
+        // 1. Check for Active Subscription first
+        $hasActiveSubscription = Subscription::where('institute_id', $institute->id)
+            ->where('status', 'active')
+            ->whereNull('cancelled_at')
+            ->exists();
+
+        if ($hasActiveSubscription) {
+            return $this->apiCancelSubscription($request);
+        }
+
+        // 2. Fallback to Trial cancellation if active
+        if ($institute->trial_status === 'active') {
+            return $this->apiCancelTrial($request);
+        }
+
+        return response()->json(['error' => 'No active subscription or trial found to cancel.'], 400);
+    }
+
     public function apiVerifyPayment(Request $request)
     {
         $user = auth()->user();

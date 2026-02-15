@@ -736,6 +736,134 @@ class AnalyticsController extends Controller
         ]);
     }
 
+    public function apiSubscriptions()
+    {
+        $institute = auth()->user()->institute;
+        $now = now();
+
+        // 1. Get Current Plan Info
+        $activeSubscription = Subscription::where('institute_id', $institute->id)
+            ->where('status', 'active')
+            ->latest()
+            ->first();
+
+        $currentPlan = null;
+        if ($activeSubscription) {
+            $isCancelled = (bool)$activeSubscription->cancelled_at;
+            $isExpired = $activeSubscription->ends_at && Carbon::parse($activeSubscription->ends_at)->isPast();
+
+            $currentPlan = [
+                'type' => 'monthly',
+                'plan_name' => 'Monthly Plan',
+                'status' => $isExpired ? 'expired' : ($isCancelled ? 'cancelled' : 'active'),
+                'started_at' => $activeSubscription->started_at,
+                'ends_at' => $activeSubscription->ends_at,
+                'cancelled_at' => $activeSubscription->cancelled_at,
+                'is_trial' => false
+            ];
+        } else if ($institute->trial_status === 'active' || $institute->trial_status === 'cancelled') {
+            $isExpired = $institute->trial_expires_at && Carbon::parse($institute->trial_expires_at)->isPast();
+            $isCancelled = $institute->trial_status === 'cancelled';
+
+            $currentPlan = [
+                'type' => 'trial',
+                'plan_name' => 'Free Trial',
+                'status' => $isExpired ? 'expired' : ($isCancelled ? 'cancelled' : 'active'),
+                'started_at' => $institute->trial_expires_at ? Carbon::parse($institute->trial_expires_at)->subDays(30) : null,
+                'ends_at' => $institute->trial_expires_at,
+                'cancelled_at' => $institute->trial_cancelled_at,
+                'is_trial' => true
+            ];
+        } else {
+            $currentPlan = [
+                'type' => 'none',
+                'plan_name' => 'Free',
+                'status' => 'inactive',
+                'started_at' => null,
+                'ends_at' => null,
+                'cancelled_at' => null,
+                'is_trial' => false
+            ];
+        }
+
+        // 2. Build History
+        $paidHistory = Subscription::where('institute_id', $institute->id)
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function ($sub) {
+                // Dynamically determine status
+                $isExpired = $sub->ends_at && Carbon::parse($sub->ends_at)->isPast();
+                $isCancelled = (bool)$sub->cancelled_at;
+
+                return [
+                    'id' => $sub->id,
+                    'plan' => 'Monthly',
+                    'status' => $isExpired ? 'expired' : ($isCancelled ? 'cancelled' : 'active'),
+                    'started_at' => $sub->started_at,
+                    'ends_at' => $sub->ends_at,
+                    'cancelled_at' => $sub->cancelled_at,
+                    'is_trial' => false
+                ];
+            });
+
+        $history = collect();
+
+        // Add trial to history if used
+        if ($institute->trial_status !== 'not_used') {
+            $isExpired = $institute->trial_expires_at && Carbon::parse($institute->trial_expires_at)->isPast();
+            $isCancelled = (bool)$institute->trial_cancelled_at;
+
+            $status = 'active';
+            if ($isExpired) {
+                $status = 'expired';
+            } elseif ($isCancelled) {
+                $status = 'cancelled';
+            }
+
+            $history->push([
+                'id' => 'trial',
+                'plan' => 'Trial',
+                'status' => $status,
+                'started_at' => $institute->trial_expires_at ? Carbon::parse($institute->trial_expires_at)->subDays(30) : null,
+                'ends_at' => $institute->trial_expires_at,
+                'cancelled_at' => $institute->trial_cancelled_at,
+                'is_trial' => true
+            ]);
+        }
+
+        $history = $history->merge($paidHistory)->sortByDesc('started_at')->values();
+
+        // 3. Stats
+        $remainingDays = 0;
+        // Subscriptions stay active until ends_at even if cancelled. 
+        // For Trials, if cancelled, the user said "redirect to pricing" and "remove access", so we'll show 0.
+        $isMonthlyActiveOrCancelled = in_array($currentPlan['status'], ['active', 'cancelled']) && $currentPlan['type'] === 'monthly';
+        $isTrialActive = $currentPlan['status'] === 'active' && $currentPlan['type'] === 'trial';
+
+        if (($isMonthlyActiveOrCancelled || $isTrialActive) && $currentPlan['ends_at']) {
+            $remainingDays = max(0, Carbon::parse($currentPlan['ends_at'])->diffInDays($now));
+        }
+
+        $stats = [
+            'total_subscriptions' => $paidHistory->count(),
+            'active_days_remaining' => $remainingDays,
+            'is_trial_used' => $institute->trial_status !== 'not_used',
+            'next_billing_date' => ($currentPlan['status'] === 'active' && !$currentPlan['cancelled_at']) ? $currentPlan['ends_at'] : null
+        ];
+
+        return response()->json([
+            'current_plan' => $currentPlan,
+            'trial_info' => [
+                'status' => $institute->trial_status,
+                'expires_at' => $institute->trial_expires_at,
+                'cancelled_at' => $institute->trial_cancelled_at,
+                'is_used' => $institute->trial_status !== 'not_used'
+            ],
+            'history' => $history,
+            'stats' => $stats
+        ]);
+    }
+
     public function toggleStatus($id)
     {
         $post = Post::findOrFail($id);

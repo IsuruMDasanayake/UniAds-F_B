@@ -157,6 +157,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/analytics/ratings', [AnalyticsController::class, 'apiRatings']);
         Route::post('/ratings/{id}/report', [AnalyticsController::class, 'apiReportRating']);
         Route::get('/analytics/subscription', [AnalyticsController::class, 'apiSubscription']);
+        Route::get('/analytics/subscriptions', [AnalyticsController::class, 'apiSubscriptions']);
+        Route::post('/subscription/cancel', [SubscriptionController::class, 'apiCancelUnified']);
     });
 });
 
