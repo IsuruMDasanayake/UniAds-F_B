@@ -15,6 +15,7 @@ import Navbar from '../components/Navbar';
 import ProgrammeInfoModal from '../components/Modals/ProgrammeInfoModal';
 import ApplyNowModal from '../components/Modals/ApplyNowModal';
 import MoreInfoModal from '../components/Modals/MoreInfoModal';
+import EventDetailsModal from '../components/Modals/EventDetailsModal';
 import './FeedPage.css';
 
 function FeedPage() {
@@ -25,6 +26,7 @@ function FeedPage() {
     const [posts, setPosts] = useState([]);
     const [events, setEvents] = useState([]);
     const [selectedPost, setSelectedPost] = useState(null);
+    const [selectedEvent, setSelectedEvent] = useState(null);
     const [showApplyModal, setShowApplyModal] = useState(false);
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [applying, setApplying] = useState(false);
@@ -250,8 +252,16 @@ function FeedPage() {
 
     const closeModals = () => {
         setSelectedPost(null);
+        setSelectedEvent(null);
         setShowApplyModal(false);
         setShowInfoModal(false);
+    };
+
+    const openEventModal = (event) => {
+        setSelectedEvent(event);
+        if (event.id) {
+            axiosClient.post(`/api/events/${event.id}/track-view`).catch(() => { });
+        }
     };
 
     const handleApplySubmit = async (e) => {
@@ -508,6 +518,8 @@ function FeedPage() {
                                                 animate={{ opacity: 1, x: 0 }}
                                                 exit={{ opacity: 0, x: -20 }}
                                                 transition={{ duration: 0.3 }}
+                                                onClick={() => openEventModal(event)}
+                                                style={{ cursor: 'pointer' }}
                                             >
                                                 <div className="event-banner">
                                                     <img
@@ -516,7 +528,10 @@ function FeedPage() {
                                                     />
                                                     <button
                                                         className="event-decline-btn"
-                                                        onClick={() => handleEventDecline(event.id)}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleEventDecline(event.id);
+                                                        }}
                                                         title="Hide this event"
                                                     >
                                                         &times;
@@ -541,7 +556,10 @@ function FeedPage() {
                                                     </div>
                                                     <button
                                                         className={`event-interest-btn ${hasInterested ? 'interested' : ''}`}
-                                                        onClick={() => handleEventInterest(event.id)}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleEventInterest(event.id);
+                                                        }}
                                                     >
                                                         {hasInterested ? 'Interested' : 'Interest'}
                                                     </button>
@@ -610,6 +628,13 @@ function FeedPage() {
                 isOpen={showInfoModal}
                 onClose={() => setShowInfoModal(false)}
                 contactNumber={selectedPost?.institute?.contact_number}
+            />
+
+            <EventDetailsModal
+                isOpen={!!selectedEvent}
+                event={selectedEvent}
+                onClose={closeModals}
+                onInterestToggle={handleEventInterest}
             />
         </div>
     );
