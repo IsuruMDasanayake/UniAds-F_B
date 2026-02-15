@@ -1,0 +1,218 @@
+/* ReportRatingModal.css */
+
+.report-rating-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000000;
+}
+
+.report-rating-modal-container {
+    background: var(--c-card-bg);
+    width: 90%;
+    max-width: 440px;
+    border-radius: var(--c-radius-md);
+    padding: 32px 24px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--c-border);
+    color: var(--c-text-body);
+}
+
+.report-rating-modal-container .report-rating-close-trigger {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 50;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    color: var(--c-dark, #0f172a);
+}
+
+.report-rating-modal-container .report-rating-close-trigger:hover {
+    transform: rotate(90deg) scale(1.1);
+    background: white;
+    color: #ef4444;
+}
+
+.report-rating-modal-container .report-rating-icon-wrapper {
+    width: 64px;
+    height: 64px;
+    background: var(--c-accent-soft);
+    color: var(--c-accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+.report-rating-modal-container .report-rating-icon-wrapper.red {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.report-rating-modal-container h3 {
+    color: var(--c-text-heading);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.report-rating-description {
+    color: var(--c-text-body);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 24px;
+}
+
+.report-rating-modal-body {
+    text-align: left;
+}
+
+.report-rating-form-group {
+    margin-bottom: 20px;
+}
+
+.report-rating-form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--c-text-heading);
+    margin-bottom: 8px;
+}
+
+.report-rating-form-select,
+.report-rating-form-textarea {
+    width: 100%;
+    background: var(--c-input-bg);
+    border: 1.5px solid var(--c-border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--c-text-body);
+    font-size: 0.9375rem;
+    font-family: inherit;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.report-rating-form-select:focus,
+.report-rating-form-textarea:focus {
+    outline: none;
+    border-color: var(--c-primary);
+    box-shadow: 0 0 0 4px var(--c-primary-soft);
+}
+
+.report-rating-form-select:focus.danger,
+.report-rating-form-textarea:focus.danger {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+}
+
+.report-rating-form-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 40px;
+}
+
+.report-rating-form-textarea {
+    resize: none;
+}
+
+.report-rating-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+}
+
+.report-rating-actions .btn-secondary {
+    flex: 1;
+    background: transparent;
+    border: 1.5px solid var(--c-border);
+    color: var(--c-text-body);
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.report-rating-actions .btn-secondary:hover {
+    background: var(--c-slate-50);
+}
+
+.report-rating-actions .btn-primary {
+    flex: 1;
+    background: var(--c-primary);
+    color: var(--c-text-inverse);
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.report-rating-actions .btn-primary.danger {
+    background: #ef4444;
+    color: white;
+}
+
+.report-rating-actions .btn-primary.danger:hover {
+    background: #dc2626;
+}
+
+.report-rating-actions .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.report-rating-actions .btn-primary:active,
+.report-rating-actions .btn-secondary:active {
+    transform: scale(0.98);
+}
+
+.report-rating-actions .btn-primary:disabled,
+.report-rating-actions .btn-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Spinner animation */
+@keyframes reportRatingSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.report-rating-animate-spin {
+    animation: reportRatingSpin 1s linear infinite;
+}
