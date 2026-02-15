@@ -208,14 +208,19 @@ const RatingsAnalyticsPage = () => {
     ];
 
     return (
-        <div id="analytics-ratings-v2">
+        <div id="analytics-ratings-v2" className={isUpdating ? 'updating' : ''}>
             {/* Page Header */}
-            <div className="page-header-card-v2">
+            <div className={`page-header-card-v2 ${isUpdating ? 'updating' : ''}`}>
                 <div className="header-content-v2">
                     <div className="header-left-v2">
                         <h1 className="page-title-v2">Student Reviews & Ratings</h1>
                         <p className="page-subtitle-v2">Monitor student feedback and manage reported reviews</p>
                     </div>
+                    {isUpdating && (
+                        <div className="updating-loader-v2">
+                            <RefreshCw className="animate-spin" size={20} />
+                        </div>
+                    )}
                 </div>
             </div>
 
