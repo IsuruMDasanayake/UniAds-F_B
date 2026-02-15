@@ -33,21 +33,59 @@
 /* Stats Row */
 #analytics-ratings-v2 .stat-cards-row-v2 {
     display: grid;
-    grid-template-columns: repeat(1, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     gap: 1.25rem;
     margin-bottom: 2.5rem;
     margin-top: 2rem;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 440px) {
     #analytics-ratings-v2 .stat-cards-row-v2 {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
     #analytics-ratings-v2 .stat-cards-row-v2 {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 500px) {
+
+    /* Highly optimized mobile layout for stat cards */
+    #analytics-ratings-v2 .stat-cards-row-v2 {
+        gap: 0.875rem;
+        margin-top: 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    #analytics-ratings-v2 .analytics-stat-card-component {
+        padding: 1rem 1.25rem;
+        border-radius: 16px;
+        background: linear-gradient(135deg, var(--c-white) 0%, var(--c-slate-50) 100%);
+    }
+
+    #analytics-ratings-v2 .stat-icon-wrapper {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+    }
+
+    #analytics-ratings-v2 .stat-icon-wrapper svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    #analytics-ratings-v2 .stat-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+        margin-bottom: 2px;
+    }
+
+    #analytics-ratings-v2 .stat-value {
+        font-size: 1.125rem;
     }
 }
 
@@ -436,15 +474,21 @@
 /* Responsive */
 @media (max-width: 1024px) {
     #analytics-ratings-v2 .rating-distribution-v2 {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
     }
 }
 
 @media (max-width: 768px) {
+
+    .page-header-card-v2 {
+        margin-top: 2rem;
+    }
+
     .card-header-v2 {
         flex-direction: column;
         align-items: stretch;
         padding: 1.5rem;
+
     }
 
     .header-actions-v2 {
@@ -464,7 +508,7 @@
 
 @media (max-width: 480px) {
     #analytics-ratings-v2 .rating-distribution-v2 {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
