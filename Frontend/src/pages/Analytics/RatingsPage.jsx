@@ -12,7 +12,7 @@ import EmptyState from '../../components/Analytics/EmptyState';
 
 // Modals
 import ReportRatingModal from '../../components/Modals/ReportRatingModal';
-
+import { getStorageUrl } from '../../lib/config';
 import './RatingsPage.css';
 
 const RatingsAnalyticsPage = () => {
@@ -87,17 +87,27 @@ const RatingsAnalyticsPage = () => {
             accessor: 'user',
             render: (row) => {
                 const user = row.user || {};
+                const name = user.name || 'User';
+                const initialsUrl = `https://api.dicebear.com/7.x/initials/svg?seed=${name}&backgroundColor=ffc107`;
+                const avatarSrc = user?.profile_picture
+                    ? getStorageUrl(user.profile_picture)
+                    : initialsUrl;
+
                 return (
                     <div className="student-cell-v2">
                         <div className="student-avatar-v2">
-                            {user.profile_picture ? (
-                                <img src={user.profile_picture} alt={user.name} />
-                            ) : (
-                                <User size={16} />
-                            )}
+                            <img
+                                src={avatarSrc}
+                                alt="Profile"
+                                onError={(e) => {
+                                    if (e.target.src !== initialsUrl) {
+                                        e.target.src = initialsUrl;
+                                    }
+                                }}
+                            />
                         </div>
                         <div className="student-info-v2">
-                            <span className="student-name">{user.name || 'Anonymous Student'}</span>
+                            <span className="student-name">{user?.name || 'Anonymous Student'}</span>
                             <span className="student-email">{user.email || 'N/A'}</span>
                         </div>
                     </div>
