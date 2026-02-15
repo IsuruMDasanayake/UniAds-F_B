@@ -60,6 +60,40 @@
     width: 2.5rem;
 }
 
+/* Header User - Mobile Variant */
+#analytics-layout-wrapper .header-user.mobile {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+#analytics-layout-wrapper .header-user.mobile .user-info {
+    display: block;
+    text-align: right;
+}
+
+#analytics-layout-wrapper .header-user.mobile .user-avatar {
+    height: 2.5rem;
+    width: 2.5rem;
+    box-shadow: 0 4px 12px rgba(29, 55, 92, 0.15);
+    overflow: hidden;
+    margin-right: 5px;
+}
+
+#analytics-layout-wrapper .header-user.mobile .user-role {
+    font-size: 0.8125rem;
+    white-space: nowrap;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 460px) {
+    #analytics-layout-wrapper .header-user.mobile .user-info {
+        display: none;
+    }
+}
+
 /* Sidebar Overlay */
 #analytics-layout-wrapper .sidebar-overlay {
     position: fixed;
@@ -106,13 +140,15 @@
     text-decoration: none;
     font-weight: 700;
     font-size: 1.375rem;
-    background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-hover) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    transition: transform 0.2s ease;
-    margin-left: 15px;
 }
+
+#analytics-layout-wrapper .brand-link img {
+    height: 32px;
+    width: auto;
+    object-fit: contain;
+}
+
+
 
 #analytics-layout-wrapper .brand-link:hover {
     transform: scale(1.02);
@@ -263,11 +299,20 @@
     height: 1.5rem;
     border-radius: 50%;
     background: linear-gradient(135deg, var(--c-slate-200) 0%, var(--c-slate-300) 100%);
+    overflow: hidden;
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+#analytics-layout-wrapper .profile-initial img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 
 #analytics-layout-wrapper .initial-text {
     font-size: 0.75rem;
@@ -356,6 +401,14 @@
     box-shadow: 0 8px 16px rgba(29, 55, 92, 0.25), 0 4px 8px rgba(29, 55, 92, 0.15);
     transition: all 0.3s ease;
     cursor: pointer;
+    overflow: hidden;
+}
+
+#analytics-layout-wrapper .user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 #analytics-layout-wrapper .user-avatar:hover {
@@ -415,9 +468,11 @@
         display: flex;
     }
 
-    #analytics-layout-wrapper .sidebar-close-btn {
+    /* #analytics-layout-wrapper .sidebar-close-btn {
         display: block;
-    }
+        margin-top: -2.5rem;
+        background-color: red;
+    } */
 
     #analytics-layout-wrapper .sidebar-overlay {
         display: block;

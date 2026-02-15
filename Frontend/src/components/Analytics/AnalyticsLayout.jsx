@@ -7,6 +7,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { getStorageUrl } from '../../lib/config';
 import { useSettings } from '../../context/SettingsContext';
+import EditProfileModal from '../../pages/InstituteProfile/modals/EditProfileModal';
 import './AnalyticsLayout.css';
 
 const AnalyticsLayout = () => {
@@ -14,6 +15,7 @@ const AnalyticsLayout = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const location = useLocation();
     const [user, setUser] = useState(null);
+    const [showEditModal, setShowEditModal] = useState(false);
 
     const navItems = [
         { path: '/analytics/overview', label: 'Overview', icon: LayoutDashboard },
@@ -39,6 +41,12 @@ const AnalyticsLayout = () => {
     const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
     const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
+    const handleProfileUpdate = (updatedInstitute) => {
+        const updatedUser = { ...user, institute: updatedInstitute };
+        setUser(updatedUser);
+        localStorage.setItem('APP_USER', JSON.stringify(updatedUser));
+    };
+
     // Get current page title based on path
     const getCurrentTitle = () => {
         const current = navItems.find(item => item.path === location.pathname);
@@ -59,9 +67,18 @@ const AnalyticsLayout = () => {
                     <button onClick={toggleMobileMenu} className="mobile-menu-btn">
                         <Menu size={24} />
                     </button>
-                    <span className="mobile-brand">UniAds Analytics</span>
+                    <span className="mobile-brand">Analytics</span>
                 </div>
-                <div className="mobile-spacer"></div>
+
+                <div className="header-user mobile" onClick={() => setShowEditModal(true)}>
+                    <div className="user-info">
+                        <p className="user-role">{instituteName}</p>
+                        <p className="user-status">Premium Member</p>
+                    </div>
+                    <div className="user-avatar">
+                        <img src={profilePhoto} alt={instituteName} />
+                    </div>
+                </div>
             </div>
 
             {/* Sidebar Overlay */}
@@ -142,7 +159,7 @@ const AnalyticsLayout = () => {
                         <h1 className="page-title">{getCurrentTitle()}</h1>
                         <p className="page-subtitle">Welcome to your institute dashboard</p>
                     </div>
-                    <div className="header-user">
+                    <div className="header-user" onClick={() => setShowEditModal(true)} style={{ cursor: 'pointer' }}>
                         <div className="user-info">
                             <p className="user-role">{instituteName}</p>
                             <p className="user-status">Premium Member</p>
@@ -157,6 +174,16 @@ const AnalyticsLayout = () => {
                     <Outlet />
                 </div>
             </main>
+
+            <AnimatePresence>
+                {showEditModal && user?.institute && (
+                    <EditProfileModal
+                        institute={user.institute}
+                        onClose={() => setShowEditModal(false)}
+                        onUpdate={handleProfileUpdate}
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 };
