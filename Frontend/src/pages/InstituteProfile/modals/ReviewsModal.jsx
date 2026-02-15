@@ -232,9 +232,9 @@ const ReviewsModal = ({ institute, currentUser, onClose }) => {
 
                             <div className="reviews-list-section">
                                 {loading ? (
-                                    <div className="text-center py-12">
-                                        <Loader2 className="animate-spin mx-auto text-primary" size={40} />
-                                        <p style={{ marginTop: '16px', color: '#64748b', fontWeight: 600 }}>Loading reviews...</p>
+                                    <div className="modal-loading-centered">
+                                        <Loader2 className="animate-spin" size={40} />
+                                        <p>Loading reviews...</p>
                                     </div>
                                 ) : reviews.length === 0 ? (
                                     <div className="empty-reviews">

@@ -766,6 +766,28 @@
         margin-top: 12px;
     }
 
+    .modal-loading-centered {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 1rem;
+        width: 100%;
+        text-align: center;
+    }
+
+    .modal-loading-centered svg {
+        color: var(--c-primary);
+        margin-bottom: 1rem;
+    }
+
+    .modal-loading-centered p {
+        color: #64748b;
+        font-weight: 600;
+        margin: 0;
+        font-size: 1rem;
+    }
+
     .delete-review-btn {
         background: #fff1f2;
         color: #e11d48;
