@@ -235,6 +235,7 @@ const InstituteEvents = ({ events, isOwner, onEventsUpdate, isSidebar }) => {
             />
 
             <EventDetailsModal
+                isOpen={viewModalOpen}
                 event={viewModalOpen ? viewEvent : null}
                 onClose={() => setViewModalOpen(false)}
             />

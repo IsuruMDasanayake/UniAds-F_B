@@ -347,6 +347,7 @@ function EventsPage() {
             </AnimatePresence>
 
             <EventDetailsModal
+                isOpen={!!selectedEvent}
                 event={selectedEvent}
                 onClose={closeEventModal}
                 onInterestToggle={handleMarkInterest}
