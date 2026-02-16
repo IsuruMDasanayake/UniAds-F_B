@@ -13,13 +13,6 @@ use Illuminate\Support\Facades\Auth;
 class CourseApplicationController extends Controller
 {   
 
-    public function showCategories()
-{
-    $posts = Post::with('institute')->get(); // eager load institute
-    return view('frontend.categories', compact('posts'));
-}
-
-
 
     public function apply(Request $request, $institute_id)
 {

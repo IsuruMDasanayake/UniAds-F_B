@@ -81,36 +81,6 @@ class EventController extends Controller
 
 
 
-
-    // public function showEvent()
-    // {
-    //     // Fetch events and order by the event date
-    //     $events = Event::with([
-    //         'institute',
-    //         'views' => function ($query) {
-    //             $query->where('user_id', auth()->id());
-    //         }
-    //     ])
-    //         ->where('is_active', true)                      // Only active events
-    //         ->whereDate('event_date', '>=', Carbon::today()) // Only today or future events
-    //         ->latest()
-    //         ->get();
-
-    //     // Fetch posts and order by the created date (adjust as needed)
-    //     $posts = Post::with('institute')->orderBy('created_at', 'desc')->get();
-
-    //     // Pass both posts and events to the view
-    //     return view('frontend.feed.feed', compact('events', 'posts'));
-    // }
-
-
-
-
-    // adminEvents removed
-
-
-
-
     // Show the edit event form and return the event data as JSON
     public function edit($id)
     {

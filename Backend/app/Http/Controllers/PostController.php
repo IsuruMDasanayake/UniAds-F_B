@@ -103,28 +103,7 @@ class PostController extends Controller
     }
 
 
-
-    // public function showProfile($id)
-    // {
-    //     $institute = Institute::findOrFail($id);
-    //     return view('frontend.profile.institute-edit', compact('institute'));
-    // }
-
-    // public function showFeed()
-    // {
-    //     $posts = Post::with('institute')->latest()->paginate(3); // Loads first 6 posts
-    //     return view('frontend.feed.feed', compact('posts'));
-    // }
-
-    // loadMore removed
-
-
-
-
     // showPostsProfile removed
-
-
-
 
     public function edit($id)
     {

@@ -26,22 +26,6 @@ class CategoryController extends Controller
     }
 
 
-    // public function showPrograms()
-    // {
-    //     $categories = Category::select('id', 'name', 'icon', 'main_category')
-    //         ->whereIn('main_category', ["Bachelor's degree", "Master's degree", "Diploma"])
-    //         ->get()
-    //         ->groupBy('main_category')
-    //         ->map(function ($group) {
-    //             return $group->take(5);
-    //         });
-
-    //     // Pass categories to the feed view
-    //     return view('frontend.feed.feed', compact('categories'));
-    // }
-
-
-
 
     // Store a new category
     public function store(Request $request)

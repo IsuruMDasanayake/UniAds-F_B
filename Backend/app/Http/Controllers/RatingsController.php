@@ -74,15 +74,6 @@ class RatingsController extends Controller
         return back()->with('error', 'Unauthorized');
     }
 
-    public function index()
-    {
-        if (!auth()->check()) {
-            return redirect()->route('login');
-        }
-
-        $ratings = Rating::orderBy('created_at', 'desc')->get();
-        return view('admin.ratings', compact('ratings'));
-    }
 
     public function report(Request $request, $id)
     {

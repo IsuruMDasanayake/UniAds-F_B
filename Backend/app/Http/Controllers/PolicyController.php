@@ -106,30 +106,6 @@ class PolicyController extends Controller
         ]);
     }
 
-    // ==========================================
-    // PUBLIC FRONTEND VIEWS (BLADE)
-    // ==========================================
-
-    public function showPrivacy()
-    {
-        $sections = PrivacyPolicy::orderBy('order_index')->get();
-        $lastUpdated = PrivacyPolicy::orderBy('updated_at', 'desc')->first()?->updated_at;
-        return view('frontend.privacy_policy', compact('sections', 'lastUpdated'));
-    }
-
-    public function showTerms()
-    {
-        $sections = TermsAndConditions::orderBy('order_index')->get();
-        $lastUpdated = TermsAndConditions::orderBy('updated_at', 'desc')->first()?->updated_at;
-        return view('frontend.terms_and_conditions', compact('sections', 'lastUpdated'));
-    }
-
-    public function showRefund()
-    {
-        $sections = RefundPolicy::orderBy('order_index')->get();
-        $lastUpdated = RefundPolicy::orderBy('updated_at', 'desc')->first()?->updated_at;
-        return view('frontend.refund_policy', compact('sections', 'lastUpdated'));
-    }
 
     // ==========================================
     // LEGACY ADMIN VIEWS (Optional/Backward Compatibility)
