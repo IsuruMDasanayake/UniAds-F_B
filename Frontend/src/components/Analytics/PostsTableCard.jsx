@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, X, Filter } from 'lucide-react';
+import { Search, X, Filter, ArrowUpDown } from 'lucide-react';
 
 const PostsTableCard = ({
     children,
@@ -7,6 +7,8 @@ const PostsTableCard = ({
     onSearchChange,
     status,
     onStatusChange,
+    sortConfig,
+    onSortChange,
     totalPosts
 }) => {
     return (
@@ -51,6 +53,27 @@ const PostsTableCard = ({
                             <option value="all">All Status</option>
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+
+                    {/* Sort Filter */}
+                    <div className="filter-wrapper-v2 sort-wrapper">
+                        <ArrowUpDown className="filter-icon" size={18} />
+                        <select
+                            value={`${sortConfig?.key || ''}-${sortConfig?.direction || ''}`}
+                            onChange={(e) => {
+                                const [key, direction] = e.target.value.split('-');
+                                onSortChange({ key, direction });
+                            }}
+                            className="status-select-v2 sort-select"
+                        >
+                            <option value="-">Default Sort</option>
+                            <option value="views_count-desc">Views: High to Low</option>
+                            <option value="views_count-asc">Views: Low to High</option>
+                            <option value="applications_count-desc">Applications: High to Low</option>
+                            <option value="applications_count-asc">Applications: Low to High</option>
+                            <option value="likes_count-desc">Likes: High to Low</option>
+                            <option value="likes_count-asc">Likes: Low to High</option>
                         </select>
                     </div>
                 </div>

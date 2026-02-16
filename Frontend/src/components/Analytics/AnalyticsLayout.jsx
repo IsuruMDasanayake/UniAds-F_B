@@ -99,7 +99,7 @@ const AnalyticsLayout = () => {
                 className={`analytics-sidebar ${isMobileMenuOpen ? 'open' : ''}`}
             >
                 <div className="sidebar-header">
-                    <Link to="/" className="brand-link">
+                    <Link to="/feed" className="brand-link">
                         <img src={settings.logo_url || "/images/logo.png"} alt={settings.site_name} style={{ height: '45px', width: 'auto' }} />
                         <span className="institute-badge" style={{ color: "#FFC107 !important" }}>Premium</span>
                     </Link>

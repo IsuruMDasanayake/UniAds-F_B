@@ -553,8 +553,30 @@ class AnalyticsController extends Controller
             $query->where('status', $request->get('status'));
         }
 
+        // Apply Sorting
+        if ($request->has('sort_by') && $request->has('sort_order')) {
+            $sortBy = $request->get('sort_by');
+            $sortOrder = $request->get('sort_order', 'desc');
+
+            switch ($sortBy) {
+                case 'views_count':
+                    $query->orderBy('view_count', $sortOrder)->orderByDesc('created_at');
+                    break;
+                case 'applications_count':
+                    $query->orderBy('applications_count', $sortOrder)->orderByDesc('created_at');
+                    break;
+                case 'likes_count':
+                    $query->orderBy('likes_count', $sortOrder)->orderByDesc('created_at');
+                    break;
+                default:
+                    $query->orderByDesc('created_at');
+            }
+        } else {
+            $query->orderByDesc('created_at');
+        }
+
         // Pagination
-        $posts = $query->orderByDesc('created_at')->paginate(10);
+        $posts = $query->paginate(10);
 
         // Stats for cards (Global for the institute)
         $stats = [
@@ -618,9 +640,32 @@ class AnalyticsController extends Controller
             }
         }
 
-        $events = $query->orderByRaw('event_date < ? ASC', [$now])
-            ->orderByRaw('ABS(TIMESTAMPDIFF(SECOND, event_date, ?)) ASC', [$now])
-            ->paginate(10);
+        // Apply Sorting
+        if ($request->has('sort_by') && $request->has('sort_order')) {
+            $sortBy = $request->get('sort_by');
+            $sortOrder = $request->get('sort_order', 'desc');
+
+            switch ($sortBy) {
+                case 'view_count':
+                    $query->orderBy('view_count', $sortOrder)->orderByDesc('created_at');
+                    break;
+                case 'interested_count':
+                    $query->orderBy('interested_count', $sortOrder)->orderByDesc('created_at');
+                    break;
+                case 'decline_count':
+                    $query->orderBy('decline_count', $sortOrder)->orderByDesc('created_at');
+                    break;
+                default:
+                    $query->orderByRaw('event_date < ? ASC', [$now])
+                        ->orderByRaw('ABS(TIMESTAMPDIFF(SECOND, event_date, ?)) ASC', [$now]);
+            }
+        } else {
+            // Default Sort: Upcoming events closest to now, then past events closest to now
+            $query->orderByRaw('event_date < ? ASC', [$now])
+                ->orderByRaw('ABS(TIMESTAMPDIFF(SECOND, event_date, ?)) ASC', [$now]);
+        }
+
+        $events = $query->paginate(10);
 
         return response()->json([
             'data' => $events->items(),

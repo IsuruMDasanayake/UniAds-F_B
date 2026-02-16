@@ -24,6 +24,7 @@ const EventsAnalyticsPage = () => {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const [status, setStatus] = useState('all');
+    const [sortConfig, setSortConfig] = useState({ key: '', direction: '' });
     const [pagination, setPagination] = useState({});
 
     // Modal States
@@ -39,7 +40,13 @@ const EventsAnalyticsPage = () => {
 
         try {
             const { data } = await axiosClient.get(`/api/institute/analytics/events`, {
-                params: { page, search, status }
+                params: {
+                    page,
+                    search,
+                    status,
+                    sort_by: sortConfig.key,
+                    sort_order: sortConfig.direction
+                }
             });
             setEvents(data.data);
             setStats(data.stats);
@@ -54,14 +61,14 @@ const EventsAnalyticsPage = () => {
             setLoading(false);
             setIsUpdating(false);
         }
-    }, [page, search, status]);
+    }, [page, search, status, sortConfig]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
             fetchEvents(!events.length);
         }, search ? 500 : 0);
         return () => clearTimeout(timer);
-    }, [search, page, status, fetchEvents]);
+    }, [search, page, status, sortConfig, fetchEvents]);
 
     const handleToggleStatus = async (id, currentIsActive) => {
         // Optimistic update
@@ -265,6 +272,8 @@ const EventsAnalyticsPage = () => {
                 onSearchChange={(val) => { setSearch(val); setPage(1); }}
                 status={status}
                 onStatusChange={(val) => { setStatus(val); setPage(1); }}
+                sortConfig={sortConfig}
+                onSortChange={(val) => { setSortConfig(val); setPage(1); }}
                 totalEvents={pagination.total || 0}
             >
                 <div className="table-responsive-wrapper">

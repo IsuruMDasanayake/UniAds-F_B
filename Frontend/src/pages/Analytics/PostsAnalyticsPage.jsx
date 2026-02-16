@@ -29,6 +29,7 @@ const PostsAnalyticsPage = () => {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const [status, setStatus] = useState('all');
+    const [sortConfig, setSortConfig] = useState({ key: '', direction: '' });
     const [pagination, setPagination] = useState({});
 
     // Modal States
@@ -44,7 +45,13 @@ const PostsAnalyticsPage = () => {
 
         try {
             const { data } = await axiosClient.get(`/api/institute/analytics/posts`, {
-                params: { page, search, status }
+                params: {
+                    page,
+                    search,
+                    status,
+                    sort_by: sortConfig.key,
+                    sort_order: sortConfig.direction
+                }
             });
 
             // Handle enhanced API response
@@ -66,15 +73,15 @@ const PostsAnalyticsPage = () => {
             setLoading(false);
             setIsUpdating(false);
         }
-    }, [page, search, status]);
+    }, [page, search, status, sortConfig]);
 
-    // Effect for search/status change (with debounce for search)
+    // Effect for search/status/sort change (with debounce for search)
     useEffect(() => {
         const timer = setTimeout(() => {
             fetchPosts(!posts.length);
         }, search ? 500 : 0);
         return () => clearTimeout(timer);
-    }, [search, status, page, fetchPosts]);
+    }, [search, status, sortConfig, page, fetchPosts]);
 
     const handleToggleStatus = async (id, currentStatus) => {
         // Optimistic update
@@ -254,6 +261,8 @@ const PostsAnalyticsPage = () => {
                 onSearchChange={(val) => { setSearch(val); setPage(1); }}
                 status={status}
                 onStatusChange={(val) => { setStatus(val); setPage(1); }}
+                sortConfig={sortConfig}
+                onSortChange={(val) => { setSortConfig(val); setPage(1); }}
                 totalPosts={pagination.total || 0}
             >
                 <div className="table-responsive-wrapper">

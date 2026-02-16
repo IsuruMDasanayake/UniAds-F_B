@@ -156,7 +156,7 @@
 
 #analytics-layout-wrapper .institute-badge {
     background: linear-gradient(135deg, var(--c-bookmark-soft) 0%, rgba(255, 193, 7, 0.15) 100%);
-    color: var(--c-bookmark);
+    color: var(--c-accent);
     font-size: 0.65rem;
     font-weight: 600;
     padding: 0.1rem 0.4rem;
