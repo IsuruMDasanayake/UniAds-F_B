@@ -19,153 +19,22 @@ use App\Services\AdminActivityLogger;
 
 class InstituteController extends Controller
 {
-    public function institutesmanage()
-    {
-        // Redirect to login if not logged in
-        if (!auth()->check()) {
-            return redirect()->route('login');
-        }
-
-        if (auth()->user()->role !== 'Admin') {
-            abort(403, 'Unauthorized access');
-        }
-
-        $unapprovedInstitutes = Institute::where('status', 'unapproved')->get();
-        $approvedInstitutes = Institute::where('status', 'approved')->get();
-
-        return view('admin.institutesmanage', compact('unapprovedInstitutes', 'approvedInstitutes'));
-    }
-
-
-
-    public function approve($id)
-    {
-        $institute = Institute::findOrFail($id);
-
-        // Update the institute's status
-        $institute->status = 'approved';
-        $institute->save();
-
-        AdminActivityLogger::log(
-            'Approved',
-            'Institute',
-            $institute->id,
-            auth()->user()->name . " approved institute \"{$institute->institute_name}\""
-        );
-
-        return redirect()->route('admin.institutesmanage')->with('success', 'Institute approved successfully!');
-    }
+    // institutesmanage removed
 
 
 
 
-    public function instituteadd()
-    {
-        return view('frontend.institutions.institutionprofileadd');
-    }
-
-
-    public function store(Request $request)
-    {
-        // Validation
-        $validatedData = $request->validate([
-            'institute_name' => 'required|string|max:255',
-            'location' => 'required|string|max:255',
-
-            // Email must be unique in both users and institutes tables
-            'email' => [
-                'required',
-                'email',
-                'max:255',
-                Rule::unique('users', 'email'),
-                Rule::unique('institutes', 'email'),
-            ],
-
-            // Contact number: +94XXXXXXXXX or 07XXXXXXXX (no spaces)
-            'contact_number' => [
-                'required',
-                'regex:/^(?:\+94\d{9}|0\d{9})$/'
-            ],
-
-            // Government Registration Number must be unique
-            'gov_register_number' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('institutes', 'gov_register_number')
-            ],
-
-            // Website must start with https://
-            'website' => [
-                'required',
-                'url',
-                'regex:/^https:\/\/.*/'
-            ],
-
-            // Password: min 8 chars, mixed case, number, special char
-            'password' => [
-                'required',
-                'confirmed',
-                'min:8',
-                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$/'
-            ],
-
-            'profile_photo' => 'nullable|image|max:2048',
-            'cover_photo' => 'nullable|image|max:2048',
-            'bio' => 'nullable|string|max:255',
-        ], [
-            'contact_number.regex' => 'Contact number must be in the format +94XXXXXXXXX or 07XXXXXXXX with no spaces.',
-            'website.regex' => 'Website must start with https://',
-            'password.regex' => 'Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character.',
-        ]);
-
-        // Create the user
-        $user = new User();
-        $user->name = $validatedData['institute_name'];
-        $user->email = $validatedData['email'];
-        $user->password = Hash::make($validatedData['password']);
-        $user->role = 'Institute';
-        $user->save();
-
-        // Create the institute
-        $institute = new Institute();
-        $institute->institute_name = $validatedData['institute_name'];
-        $institute->location = $validatedData['location'];
-        $institute->email = $validatedData['email'];
-        $institute->contact_number = $validatedData['contact_number'];
-        $institute->gov_register_number = $validatedData['gov_register_number'];
-        $institute->website = $validatedData['website'];
-
-        if ($request->hasFile('profile_photo')) {
-            $institute->profile_photo = $request->file('profile_photo')->store('profile_photos', 'public');
-        }
-
-        if ($request->hasFile('cover_photo')) {
-            $institute->cover_photo = $request->file('cover_photo')->store('cover_photos', 'public');
-        }
-
-        $institute->bio = $validatedData['bio'] ?? null;
-        $institute->user_id = $user->id;
-
-        $institute->save();
-
-        // Success message
-        return redirect()->route('login')->with('success', 'Institute registered successfully! Once the admin approves your account, you will receive basic privileges. Until then, you can edit your profile and explore the platform.');
-    }
+    // approve removed
 
 
 
 
 
+    // instituteadd removed
 
+    // store removed (truncated in previous chunk target, so this covers the rest of store and show)
+    // show removed
 
-
-
-    public function show()
-    {
-        $institutes = Institute::all(); // Fetch all institutes from the database
-        return view('admin.institutesmanage', compact('institutes'));
-    }
 
 
 
@@ -225,14 +94,8 @@ class InstituteController extends Controller
 
 
 
-    public function showInstitutions()
-    {
-        $approvedInstitutes = Institute::where('status', 'approved')
-            ->orderBy('institute_name', 'asc') // Order alphabetically
-            ->get();
+    // showInstitutions removed
 
-        return view('frontend.institutions.institutions', compact('approvedInstitutes'));
-    }
 
     public function apiIndex()
     {
@@ -248,71 +111,7 @@ class InstituteController extends Controller
 
 
 
-    public function showProfile($id)
-    {
-        // Fetch the institute by its ID
-        $institute = Institute::findOrFail($id);
-        $categories = Category::all();
-
-        $posts = $institute->posts()
-            ->latest()
-            ->paginate(10); // 10 posts per page
-
-        $events = $institute->events()
-            ->where('is_active', true)
-            ->latest()
-            ->paginate(10);
-
-
-        $user = auth()->user();
-        $isSelfView = $user && $user->institute_id === $institute->id;
-
-        // ✅ Only track view if not the same institute
-        if (!$isSelfView) {
-            $alreadyViewed = false;
-
-            if ($user) {
-                $alreadyViewed = InstituteProfileView::where('institute_id', $institute->id)
-                    ->where('user_id', $user->id)
-                    ->whereDate('viewed_at', now()->toDateString())
-                    ->exists();
-            } else {
-                $ip = request()->ip();
-                $alreadyViewed = InstituteProfileView::where('institute_id', $institute->id)
-                    ->where('ip_address', $ip)
-                    ->whereDate('viewed_at', now()->toDateString())
-                    ->exists();
-            }
-
-            if (!$alreadyViewed) {
-                InstituteProfileView::create([
-                    'institute_id' => $institute->id,
-                    'user_id' => $user?->id,
-                    'ip_address' => request()->ip(),
-                    'viewed_at' => now(),
-                ]);
-
-                $institute->increment('profile_views');
-            }
-        }
-
-        // Check if the logged-in user is following this institute
-        $isFollowing = false;
-        if ($user && $user->role !== 'Institute') {
-            $isFollowing = Follower::where('user_id', $user->id)
-                ->where('institute_id', $id)
-                ->exists();
-        }
-
-        // Return view with all relevant data
-        return view('frontend.profile.institute-edit', compact(
-            'institute',
-            'posts',
-            'events',
-            'categories',
-            'isFollowing'
-        ));
-    }
+    // showProfile removed
 
 
 
@@ -324,97 +123,15 @@ class InstituteController extends Controller
 
 
 
-    public function instituteupdate(Request $request, $id)
-    {
-        if (Auth::user()->role !== 'admin' && Auth::user()->role === 'institute' && Auth::user()->id !== (int)$id) {
-            abort(403, 'Unauthorized action.');
-        }
 
-        $institute = Institute::findOrFail($id);
+    // instituteupdate removed
 
-        // Validate inputs
-        $request->validate([
-            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'cover_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'institute_name' => 'required|string|max:255',
-            'location' => 'required|string|max:255',
-            'email' => [
-                'required',
-                'email',
-                Rule::unique('institutes', 'email')->ignore($id),
-                Rule::unique('users', 'email')->ignore($institute->user_id),
-            ],
-            'contact_number' => 'required|string|max:15',
-            'website' => 'nullable|url',
-            'bio' => 'nullable|string|max:500',
-        ]);
-
-        // Update profile photo
-        if ($request->hasFile('profile_photo')) {
-            if ($institute->profile_photo) {
-                Storage::delete('public/' . $institute->profile_photo);
-            }
-            $profilePhotoPath = $request->file('profile_photo')->store('institute_photos', 'public');
-            $institute->profile_photo = $profilePhotoPath;
-        }
-
-        // Update cover photo
-        if ($request->hasFile('cover_photo')) {
-            if ($institute->cover_photo) {
-                Storage::delete('public/' . $institute->cover_photo);
-            }
-            $coverPhotoPath = $request->file('cover_photo')->store('institute_covers', 'public');
-            $institute->cover_photo = $coverPhotoPath;
-        }
-
-        // Save changes to main fields
-        $institute->update($request->only([
-            'institute_name',
-            'location',
-            'email',
-            'contact_number',
-            'website',
-            'bio',
-        ]));
-
-        // Update premium-only features
-        if ($institute->is_premium) {
-            $institute->followers_enabled = $request->has('followers_enabled');
-            $institute->reviews_enabled = $request->has('reviews_enabled');
-            $institute->save(); // Save the toggle changes
-        }
-
-        // Update user table
-        $user = User::find($institute->user_id);
-        if ($user) {
-            $user->name = $request->input('institute_name');
-            $user->email = $request->input('email');
-            if (isset($profilePhotoPath)) {
-                $user->profile_picture = $profilePhotoPath;
-            }
-            $user->save();
-        }
-
-        return redirect()->back()->with('success', 'Profile updated successfully.');
-    }
 
 
 
     //Courses on institute
-    public function showCourses($id)
-    {
-        $institute = Institute::with('posts')->findOrFail($id);
-        $categories = Category::all();
-        $isFollowing = false;
+    // showCourses removed
 
-        if (Auth::check() && Auth::user()->role !== 'Institute') {
-            $isFollowing = Follower::where('user_id', Auth::id())
-                ->where('institute_id', $institute->id)
-                ->exists();
-        }
-
-        return view('frontend.profile.profile-courses', compact('institute', 'isFollowing', 'categories'));
-    }
 
 
 

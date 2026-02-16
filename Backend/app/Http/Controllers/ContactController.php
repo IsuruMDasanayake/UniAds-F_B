@@ -12,20 +12,8 @@ use App\Models\Category;
 
 class ContactController extends Controller
 {
-    public function showContactPage($id)
-    {
-        $institute = Institute::findOrFail($id);
-        $categories = Category::all();
-        $isFollowing = false;
+    // showContactPage removed
 
-        if (Auth::check() && Auth::user()->role !== 'Institute') {
-            $isFollowing = Follower::where('user_id', Auth::id())
-                ->where('institute_id', $institute->id)
-                ->exists();
-        }
-
-        return view('frontend.profile.profile-contact', ['institute' => $institute, 'isFollowing' => $isFollowing, 'categories' => $categories]);
-    }
 
     public function sendContactMessage(Request $request, $id)
     {

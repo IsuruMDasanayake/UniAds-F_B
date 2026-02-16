@@ -23,32 +23,13 @@ use App\Services\AdminActivityLogger;
 class EventController extends Controller
 {
 
-    public function index()
-    {
-        $events = Event::where('event_date', '>=', now())
-            ->where('is_active', true)
-            ->orderBy('event_date', 'asc')
-            ->get();
-
-        return view('frontend.events.upcoming', compact('events'));
-    }
+    // index removed
 
 
 
-    public function create($id)
-    {
-        // Fetch the institute by ID
-        $institute = Institute::findOrFail($id);
 
-        // Fetch all institutes (or you can filter them as needed)
-        $institutes = Institute::all(); // Adjust based on your logic
+    // create removed
 
-        // Fetch all categories for dropdowns
-        $categories = Category::all();
-
-        // Pass institute, institutes, and categories to the view
-        return view('frontend.profile.add-post', compact('institute', 'institutes', 'categories'));
-    }
 
     public function store(Request $request, $id)
     {
@@ -125,22 +106,8 @@ class EventController extends Controller
 
 
 
-    public function adminEvents()
-    {
-        // Redirect to login if not logged in
-        if (!auth()->check()) {
-            return redirect()->route('login');
-        }
+    // adminEvents removed
 
-        if (auth()->user()->role !== 'Admin') {
-            abort(403, 'Unauthorized access');
-        }
-        // Fetch all events
-        $events = Event::all();
-
-        // Return the view with the events data
-        return view('admin.events', compact('events'));
-    }
 
 
 

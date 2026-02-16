@@ -14,64 +14,23 @@ use Illuminate\Http\Request;
 
 class FrontendController extends Controller
 {
-    public function profile()
-    {
-        return view('frontend.profile');
-    }
-
-    public function feed()
-    {
-        $posts = Post::with('institute')
-            ->where('status', 'active')
-            ->latest()
-            ->paginate(3);
-
-        $categories = Category::whereIn('main_category', [
-            "Course Type  - Bachelor's Degree",
-            "Course Type -  Master's Degree",
-            "Course Type  - Diploma"
-        ])
-            ->orderBy('name')
-            ->get()
-            ->groupBy('main_category')
-            ->map(function ($group) {
-                return $group->take(5);
-            });
-
-        $events = Event::with([
-            'institute',
-            'views' => function ($query) {
-                $query->where('user_id', auth()->id());
-            }
-        ])
-            ->where('is_active', true)
-            ->whereDate('event_date', '>=', Carbon::today())
-            ->latest()
-            ->get();
-
-        return view('frontend.feed.feed', compact('posts', 'categories', 'events'));
-    }
-
-    public function institutions()
-    {
-        return view('frontend.institutions.institutions');
-    }
-    public function showInstitutions()
-    {
-        $approvedInstitutes = Institute::where('status', 'approved')->get();
-        return view('frontend.institutions.institutions', compact('approvedInstitutes'));
-    }
+    // profile removed
 
 
-    public function courses()
-    {
-        return view('frontend.courses.courses');
-    }
+    // feed removed
 
-    public function courselist()
-    {
-        return view('frontend.courses.courselist');
-    }
+
+    // institutions removed
+
+    // showInstitutions removed
+
+
+
+    // courses removed
+
+
+    // courselist removed
+
 
     /**
      * API endpoint for feed data

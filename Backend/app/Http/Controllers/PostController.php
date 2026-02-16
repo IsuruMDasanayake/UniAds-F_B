@@ -22,11 +22,8 @@ use App\Models\ApplyCase;
 class PostController extends Controller
 {
 
-    public function store(Request $request, $id)
-    {
-        // ... (existing store code for Blade)
-        // Note: keeping existing store for Blade compatibility
-    }
+    // store (blade) removed
+
 
     public function apiStore(Request $request, $id)
     {
@@ -119,32 +116,13 @@ class PostController extends Controller
     //     return view('frontend.feed.feed', compact('posts'));
     // }
 
-    public function loadMore(Request $request)
-    {
-        $page = $request->input('page', 1);
-
-        $posts = Post::with('institute')
-            ->orderBy('created_at', 'desc')
-            ->paginate(3, ['*'], 'page', $page);
-
-        return response()->json([
-            'html' => view('frontend.feed.post_partial', compact('posts'))->render(),
-            'next_page' => $posts->currentPage() + 1,
-            'has_more' => $posts->hasMorePages(),
-        ]);
-    }
+    // loadMore removed
 
 
 
-    public function showPostsProfile()
-    {
-        $posts = Post::with('institute')->latest()->get();
-        foreach ($posts as $post) {
-            Log::info($post->institute); // Log institute data for debugging
-        }
 
-        return view('frontend.profile.institute-edit', compact('posts'));
-    }
+    // showPostsProfile removed
+
 
 
 
@@ -254,19 +232,8 @@ class PostController extends Controller
 
 
     //admin post
-    public function adminPost()
-    {
-        // Redirect to login if not logged in
-        if (!auth()->check()) {
-            return redirect()->route('login');
-        }
+    // adminPost removed
 
-        if (auth()->user()->role !== 'Admin') {
-            abort(403, 'Unauthorized access');
-        }
-        $posts = Post::all();
-        return view('admin.posts', compact('posts'));
-    }
 
 
     //like function
@@ -298,50 +265,8 @@ class PostController extends Controller
         ]);
     }
 
-    public function filter($filterType, $filterValue)
-    {
-        $query = Post::query()
-            ->with('institute') // eager load relation
-            ->select('posts.*')
-            ->addSelect(DB::raw("
-            (
-                CASE
-                    WHEN institutes.is_premium = 1
-                        AND posts.created_at >= NOW() - INTERVAL 10 DAY
-                    THEN 2
-                    ELSE 0
-                END
-                + institutes.followers_count * 0.01
-            ) as priority
-        "))
-            ->join('institutes', 'institutes.id', '=', 'posts.institute_id');
+    // filter removed
 
-        // Map filterType to the corresponding column in the database
-        $filterMap = [
-            'Courses' => 'course_name',
-            'Course Type' => 'course_type',
-            'Location' => 'location',
-            'Duration' => 'duration',
-            'Course Format' => 'course_format',
-            'Attendance Type' => 'attendance_type',
-        ];
-
-        if (array_key_exists($filterType, $filterMap)) {
-            if ($filterType === 'Location') {
-                // Use LIKE to match posts with multiple locations
-                $query->where('posts.location', 'LIKE', "%{$filterValue}%");
-            } else {
-                $query->where("posts." . $filterMap[$filterType], $filterValue);
-            }
-        }
-
-        // Apply priority-based sorting
-        $posts = $query->orderByDesc('priority')
-            ->orderByDesc('posts.created_at')
-            ->get();
-
-        return view('frontend.courses.categories', compact('posts', 'filterType', 'filterValue'));
-    }
 
     public function apiFilter($filterType, $filterValue)
     {

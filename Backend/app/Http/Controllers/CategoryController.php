@@ -10,29 +10,14 @@ use App\Services\AdminActivityLogger;
 class CategoryController extends Controller
 {
     // Display the category management page
-    public function categories()
-    {
-        // Redirect to login if not logged in
-        if (!auth()->check()) {
-            return redirect()->route('login');
-        }
+    // categories removed
 
-        if (auth()->user()->role !== 'Admin') {
-            abort(403, 'Unauthorized access');
-        }
-
-        $categories = Category::all();
-        return view('admin.categories', compact('categories'));
-    }
 
 
 
     //show in frontend
-    public function showCategories()
-    {
-        $categories = Category::all()->groupBy('main_category');
-        return view('frontend.courses.courses', compact('categories'));
-    }
+    // showCategories removed
+
 
     public function apiIndex()
     {
@@ -160,16 +145,8 @@ class CategoryController extends Controller
 
 
     // Edit Category
-    public function edit($id)
-    {
-        $category = Category::find($id);
-        if (!$category) {
-            // Return to the previous page or a specific view with a message
-            return redirect()->route('categories.index')->with('error', 'Category not found.');
-        }
+    // edit removed
 
-        return view('categories.edit', compact('category'));
-    }
 
     // ==========================================
     // API METHODS FOR ADMIN DASHBOARD

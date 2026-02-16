@@ -4,11 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Laravel\Cashier\Billable;
 
 class Institute extends Model
 {
-    use HasFactory, Billable;
+    use HasFactory;
 
     protected $fillable = [
         'institute_name',

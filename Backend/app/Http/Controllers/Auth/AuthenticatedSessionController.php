@@ -14,13 +14,8 @@ use App\Services\AdminActivityLogger;
 
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * Display the login view.
-     */
-    public function create(): View
-    {
-        return view('auth.login');
-    }
+    // create removed
+
 
     /**
      * Handle an incoming authentication request.
@@ -67,41 +62,8 @@ class AuthenticatedSessionController extends Controller
 
 
 
-    /**
-     * Destroy an authenticated session.
-     */
-    public function destroy(Request $request): RedirectResponse
-    {
-        $user = Auth::user();
-        $userRole = $user?->role;
-        $userName = $user?->name;
+    // destroy removed
 
-        // Log Admin Logout
-        if ($userRole === 'Admin' && $user) {
-            AdminActivityLogger::log(
-                'Logged Out',
-                'User',
-                $user->id,
-                "Administrator {$userName} logged out of the dashboard."
-            );
-        }
-
-        // Log out the current user
-        Auth::logout();
-
-        // Invalidate the current session and regenerate the session ID
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        // Redirect based on the user's role
-        if ($userRole === 'Admin') {
-            // Redirect to the admin login page
-            return redirect('/')->with('message', 'Logged out successfully as Admin.');
-        }
-
-        // Redirect other users to the default login page
-        return redirect('/')->with('message', 'Logged out successfully.');
-    }
 
     /**
      * Destroy an authenticated session via API.

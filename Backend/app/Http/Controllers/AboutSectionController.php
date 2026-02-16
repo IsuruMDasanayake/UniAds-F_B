@@ -14,31 +14,8 @@ use Illuminate\Support\Facades\Storage;
 
 class AboutSectionController extends Controller
 {
-    public function showAboutPage($id)
-    {
-        // Fetch the institute details
-        $institute = Institute::findOrFail($id);
+    // showAboutPage removed
 
-        // Fetch the about section details for the given institute ID (nullable)
-        $aboutSection = AboutSection::where('institute_id', $id)->first();
-        $aboutSection = AboutSection::where('institute_id', $id)->first() ?? new AboutSection();
-        $categories = Category::all();
-        $isFollowing = false;
-
-        if (Auth::check() && Auth::user()->role !== 'Institute') {
-            $isFollowing = Follower::where('user_id', Auth::id())
-                ->where('institute_id', $institute->id)
-                ->exists();
-        }
-
-        // Pass both institute and about section data to the view
-        return view('frontend.profile.profile-about', [
-            'institute' => $institute,
-            'aboutSection' => $aboutSection,
-            'isFollowing' => $isFollowing,
-            'categories' => $categories,
-        ]);
-    }
 
 
 
