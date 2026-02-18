@@ -96,7 +96,7 @@
 @media (max-width: 768px) {
     .courses-modal-content {
         max-height: 95vh;
-        width: 100%;
+        width: 90%;
         border-radius: 20px;
     }
 
