@@ -113,6 +113,10 @@
     .courses-grid {
         grid-template-columns: 1fr;
     }
+
+    .courses-page-container {
+        margin-top: -2rem;
+    }
 }
 
 /* Bookmark Button */

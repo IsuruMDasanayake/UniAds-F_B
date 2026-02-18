@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axiosClient from '../../lib/axios';
 import './InstituteContact.css';
 
-const InstituteContact = ({ institute }) => {
+const InstituteContact = ({ institute, isOwner }) => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -31,135 +31,163 @@ const InstituteContact = ({ institute }) => {
     };
 
     return (
-        <div className="contact-page-container">
-            <div className="contact-card-wrapper">
-                {/* Left Side: Contact Info */}
-                <div className="contact-info-section">
-                    <h2 className="contact-info-title">Contact Us</h2>
-                    <p className="contact-info-bio">{institute.bio}</p>
-
-                    <div className="contact-details-list">
-                        <div className="contact-detail-item">
-                            <span className="contact-detail-icon">📍</span>
-                            <div className="contact-detail-content">
-                                <strong className="contact-detail-label">Address</strong>
-                                <span className="contact-detail-value">{institute.location}</span>
-                            </div>
-                        </div>
-                        <div className="contact-detail-item">
-                            <span className="contact-detail-icon">📞</span>
-                            <div className="contact-detail-content">
-                                <strong className="contact-detail-label">Phone</strong>
-                                <span className="contact-detail-value">{institute.contact_number}</span>
-                            </div>
-                        </div>
-                        <div className="contact-detail-item">
-                            <span className="contact-detail-icon">✉️</span>
-                            <div className="contact-detail-content">
-                                <strong className="contact-detail-label">Email</strong>
-                                <span className="contact-detail-value">
-                                    <a href={`mailto:${institute.email}`}>{institute.email}</a>
-                                </span>
-                            </div>
-                        </div>
-                        <div className="contact-detail-item">
-                            <span className="contact-detail-icon">🌐</span>
-                            <div className="contact-detail-content">
-                                <strong className="contact-detail-label">Website</strong>
-                                <span className="contact-detail-value">
-                                    <a href={institute.website} target="_blank" rel="noopener noreferrer">{institute.website}</a>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Simple Map Embed */}
-                    <div className="contact-map-container">
-                        <iframe
-                            width="100%"
-                            height="100%"
-                            frameBorder="0"
-                            src={`https://www.google.com/maps?q=${encodeURIComponent(institute.location)}&output=embed`}
-                            allowFullScreen
-                            title="Institute Location"
-                        ></iframe>
-                    </div>
+        <div className="ic-page-container">
+            <div className="ic-info-header">
+                <div className="ic-header-content">
+                    <h2 className="ic-title">Contact Us</h2>
+                    <p className="ic-bio">{institute.bio}</p>
                 </div>
 
-                {/* Right Side: Message Form */}
-                <div className="contact-form-section">
-                    <h3 className="contact-form-title">Send Us a Message</h3>
-                    <form onSubmit={handleSubmit} className="contact-form">
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label className="form-label">Full Name</label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleChange}
-                                    required
-                                    className="form-input"
-                                    placeholder="Your Full Name"
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">Email</label>
-                                <input
-                                    type="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    required
-                                    className="form-input"
-                                    placeholder="your.email@example.com"
-                                />
-                            </div>
+                <div className="ic-details-row">
+                    <div className="ic-compact-detail-item">
+                        <span className="ic-detail-icon">📍</span>
+                        <div className="ic-detail-info">
+                            <span className="ic-detail-label">Address</span>
+                            <span className="ic-detail-value">{institute.location}</span>
                         </div>
-                        <div className="form-group">
-                            <label className="form-label">Subject</label>
-                            <input
-                                type="text"
-                                name="subject"
-                                value={formData.subject}
-                                onChange={handleChange}
-                                required
-                                className="form-input"
-                                placeholder="What is this about?"
-                            />
+                    </div>
+                    <div className="ic-compact-detail-item">
+                        <span className="ic-detail-icon">📞</span>
+                        <div className="ic-detail-info">
+                            <span className="ic-detail-label">Phone</span>
+                            <span className="ic-detail-value">{institute.contact_number}</span>
                         </div>
-                        <div className="form-group">
-                            <label className="form-label">Message</label>
-                            <textarea
-                                name="message"
-                                value={formData.message}
-                                onChange={handleChange}
-                                required
-                                rows={10}
-                                className="form-textarea"
-                                placeholder="Write your message here..."
-                            ></textarea>
+                    </div>
+                    <div className="ic-compact-detail-item">
+                        <span className="ic-detail-icon">✉️</span>
+                        <div className="ic-detail-info">
+                            <span className="ic-detail-label">Email</span>
+                            <span className="ic-detail-value">
+                                <a href={`mailto:${institute.email}`}>{institute.email}</a>
+                            </span>
                         </div>
+                    </div>
+                    <div className="ic-compact-detail-item">
+                        <span className="ic-detail-icon">🌐</span>
+                        <div className="ic-detail-info">
+                            <span className="ic-detail-label">Website</span>
+                            <span className="ic-detail-value">
+                                <a href={institute.website} target="_blank" rel="noopener noreferrer">
+                                    {institute.website?.replace(/^https?:\/\//, '')}
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                        {status === 'success' && (
-                            <div className="status-message status-success">
-                                ✓ Message sent successfully!
-                            </div>
-                        )}
-                        {status === 'error' && (
-                            <div className="status-message status-error">
-                                ✗ Failed to send message. Please try again.
-                            </div>
-                        )}
+            <div className="ic-main-grid">
+                {/* Left Side: Map (1/3) */}
+                <div className="ic-map-wrapper">
+                    <iframe
+                        width="100%"
+                        height="100%"
+                        frameBorder="0"
+                        src={`https://www.google.com/maps?q=${encodeURIComponent(institute.location)}&output=embed`}
+                        allowFullScreen
+                        title="Institute Location"
+                        className="ic-map-iframe"
+                    ></iframe>
+                </div>
 
-                        <button
-                            type="submit"
-                            disabled={status === 'sending'}
-                            className="submit-button"
-                        >
-                            {status === 'sending' ? 'Sending...' : 'Send Message'}
-                        </button>
-                    </form>
+                {/* Right Side: Message Form (2/3) */}
+                <div className="ic-form-wrapper">
+                    {isOwner ? (
+                        <div className="ic-form-card ic-owner-preview-card">
+                            <div className="ic-owner-preview-content">
+                                <div className="ic-preview-icon">🏠</div>
+                                <h3 className="ic-form-title">Contact Form Preview</h3>
+                                <p className="ic-preview-text">
+                                    This is how your contact form appears to students and visitors.
+                                    As the owner, you cannot send messages to yourself.
+                                </p>
+                                <div className="ic-preview-form-skeleton">
+                                    <div className="ic-skeleton-row">
+                                        <div className="ic-skeleton-item"></div>
+                                        <div className="ic-skeleton-item"></div>
+                                    </div>
+                                    <div className="ic-skeleton-item ic-full"></div>
+                                    <div className="ic-skeleton-item ic-area"></div>
+                                    <div className="ic-skeleton-button"></div>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="ic-form-card">
+                            <h3 className="ic-form-title">Send Us a Message</h3>
+                            <form onSubmit={handleSubmit} className="ic-contact-form">
+                                <div className="ic-form-row">
+                                    <div className="ic-form-group">
+                                        <label className="ic-form-label">Full Name</label>
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            value={formData.name}
+                                            onChange={handleChange}
+                                            required
+                                            className="ic-form-input"
+                                            placeholder="Your Full Name"
+                                        />
+                                    </div>
+                                    <div className="ic-form-group">
+                                        <label className="ic-form-label">Email</label>
+                                        <input
+                                            type="email"
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleChange}
+                                            required
+                                            className="ic-form-input"
+                                            placeholder="your.email@example.com"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="ic-form-group">
+                                    <label className="ic-form-label">Subject</label>
+                                    <input
+                                        type="text"
+                                        name="subject"
+                                        value={formData.subject}
+                                        onChange={handleChange}
+                                        required
+                                        className="ic-form-input"
+                                        placeholder="What is this about?"
+                                    />
+                                </div>
+                                <div className="ic-form-group">
+                                    <label className="ic-form-label">Message</label>
+                                    <textarea
+                                        name="message"
+                                        value={formData.message}
+                                        onChange={handleChange}
+                                        required
+                                        rows={6}
+                                        className="ic-form-textarea"
+                                        placeholder="Write your message here..."
+                                    ></textarea>
+                                </div>
+
+                                {status === 'success' && (
+                                    <div className="ic-status-message ic-status-success">
+                                        ✓ Message sent successfully!
+                                    </div>
+                                )}
+                                {status === 'error' && (
+                                    <div className="ic-status-message ic-status-error">
+                                        ✗ Failed to send message. Please try again.
+                                    </div>
+                                )}
+
+                                <button
+                                    type="submit"
+                                    disabled={status === 'sending'}
+                                    className="ic-submit-button"
+                                >
+                                    {status === 'sending' ? 'Sending...' : 'Send Message'}
+                                </button>
+                            </form>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
