@@ -13,6 +13,16 @@
 .ins-header-section {
     margin-bottom: 40px;
     margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.ins-header-text {
+    flex: 1;
+    min-width: 300px;
 }
 
 .ins-header-section h1 {
@@ -20,7 +30,7 @@
     color: var(--c-primary);
     font-weight: 700;
     margin-bottom: 12px;
-    text-align: center;
+    text-align: left;
 }
 
 .ins-header-section h1 span {
@@ -31,8 +41,67 @@
     font-size: 1.1rem;
     color: var(--c-slate-500);
     max-width: 600px;
-    text-align: center !important;
-    margin: 0 auto;
+    margin: 0;
+    text-align: left;
+}
+
+/* Search Styles */
+.ins-search-wrapper {
+    min-width: 350px;
+}
+
+.ins-search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1px solid var(--c-slate-200);
+    border-radius: 12px;
+    padding: 2px 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.ins-search-container:focus-within {
+    border-color: var(--c-primary);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+}
+
+.ins-search-icon {
+    color: var(--c-slate-400);
+    margin-left: 8px;
+}
+
+.ins-search-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: none;
+    outline: none;
+    font-size: 0.95rem;
+    color: var(--c-dark);
+    background: transparent;
+}
+
+.ins-clear-button {
+    background: var(--c-slate-100);
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--c-slate-500);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    margin-right: 4px;
+}
+
+.ins-clear-button:hover {
+    background: var(--c-slate-200);
+    color: var(--c-dark);
 }
 
 .ins-grid-layout {
@@ -53,7 +122,7 @@
 
 .ins-card-cover {
     margin: -24px -24px 0 -24px;
-    height: 100px;
+    height: 150px;
     overflow: hidden;
     border-radius: 16px 16px 0 0;
     position: relative;
@@ -186,9 +255,20 @@
 
 /* Responsiveness */
 @media (max-width: 768px) {
+    .ins-header-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+        margin-top: 80px;
+    }
+
     .ins-header-section h1 {
         font-size: 2rem;
-        margin-top: 80px;
+    }
+
+    .ins-search-wrapper {
+        width: 100%;
+        min-width: unset;
     }
 
     .ins-grid-layout {
