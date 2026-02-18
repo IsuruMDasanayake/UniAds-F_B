@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
-    Home, Building2, GraduationCap, Calendar, Search,
+    Compass, Building2, GraduationCap, Calendar, Search,
     LogOut, CreditCard, ChevronDown, X, Loader2,
     BookOpen, MapPin, Star, BarChart3, ChevronRight
 } from 'lucide-react';
@@ -118,21 +118,26 @@ function Navbar({ user }) {
                     </div>
 
                     <nav className="navbar-links">
-                        <Link to="/feed" className={`nav-icon-link ${location.pathname === '/feed' ? 'active' : ''}`} title="Home">
-                            <Home size={24} />
+                        <Link to="/feed" className={`nav-icon-link ${location.pathname === '/feed' ? 'active' : ''}`} title="Feed">
+                            <Compass size={24} />
+                            <span className="nav-label">Feed</span>
                         </Link>
                         <Link to="/institutions" className={`nav-icon-link ${location.pathname === '/institutions' ? 'active' : ''}`} title="Institutes">
                             <Building2 size={24} />
+                            <span className="nav-label">Institutes</span>
                         </Link>
                         <Link to="/courses" className={`nav-icon-link ${location.pathname === '/courses' ? 'active' : ''}`} title="Courses">
                             <GraduationCap size={24} />
+                            <span className="nav-label">Courses</span>
                         </Link>
                         <Link to="/events" className={`nav-icon-link ${location.pathname === '/events' ? 'active' : ''}`} title="Events">
                             <Calendar size={24} />
+                            <span className="nav-label">Events</span>
                         </Link>
                         {displayUser?.role === 'Institute' && (
                             <Link to="/pricing" className={`nav-icon-link pricing ${location.pathname === '/pricing' ? 'active' : ''}`} title="Pricing">
                                 <CreditCard size={24} />
+                                <span className="nav-label">Pricing</span>
                             </Link>
                         )}
                     </nav>
@@ -182,21 +187,26 @@ function Navbar({ user }) {
 
             {/* Mobile Bottom Navigation */}
             <nav className={`mobile-bottom-nav ${isMinimized ? 'hidden' : ''}`}>
-                <Link to="/feed" className={`nav-icon-link mobile ${location.pathname === '/feed' ? 'active' : ''}`} title="Home">
-                    <Home size={24} />
+                <Link to="/feed" className={`nav-icon-link mobile ${location.pathname === '/feed' ? 'active' : ''}`} title="Feed">
+                    <Compass size={24} />
+                    <span className="nav-label">Feed</span>
                 </Link>
                 <Link to="/institutions" className={`nav-icon-link mobile ${location.pathname === '/institutions' ? 'active' : ''}`} title="Institutes">
                     <Building2 size={24} />
+                    <span className="nav-label">Institutes</span>
                 </Link>
                 <Link to="/courses" className={`nav-icon-link mobile ${location.pathname === '/courses' ? 'active' : ''}`} title="Courses">
                     <GraduationCap size={24} />
+                    <span className="nav-label">Courses</span>
                 </Link>
                 <Link to="/events" className={`nav-icon-link mobile ${location.pathname === '/events' ? 'active' : ''}`} title="Events">
                     <Calendar size={24} />
+                    <span className="nav-label">Events</span>
                 </Link>
                 {displayUser?.role === 'Institute' && (
                     <Link to="/pricing" className={`nav-icon-link mobile pricing ${location.pathname === '/pricing' ? 'active' : ''}`} title="Pricing">
                         <CreditCard size={24} />
+                        <span className="nav-label">Pricing</span>
                     </Link>
                 )}
             </nav>
