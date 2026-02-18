@@ -65,7 +65,7 @@ const InstitutionsPage = () => {
 
     if (loading) {
         return (
-            <div className="institutions-loading">
+            <div className="ins-loading-state">
                 <div className="ui-loader loader-blk">
                     <svg viewBox="22 22 44 44" className="multiColor-loader">
                         <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="3.6" className="loader-circle loader-circle-animation"></circle>
@@ -77,16 +77,16 @@ const InstitutionsPage = () => {
     }
 
     return (
-        <div className="institutions-page">
+        <div className="ins-page-container">
             <Navbar user={user} />
-            <main className="institutions-main">
-                <header className="page-header">
+            <main className="ins-main-content">
+                <header className="ins-header-section">
                     <motion.h1
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.5 }}
                     >
-                        <h1>Our Partner <span>Institutions</span></h1>
+                        Our Partner <span>Institutions</span>
                     </motion.h1>
                     <motion.p
                         initial={{ opacity: 0, x: -20 }}
@@ -98,7 +98,7 @@ const InstitutionsPage = () => {
                 </header>
 
                 <motion.div
-                    className="institutions-grid"
+                    className="ins-grid-layout"
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
@@ -107,48 +107,48 @@ const InstitutionsPage = () => {
                         institutions.map(inst => (
                             <motion.div
                                 key={inst.id}
-                                className="institution-card"
+                                className="ins-card-item"
                                 variants={itemVariants}
                                 whileHover={{ y: -5, boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}
                             >
-                                <div className="card-cover">
+                                <div className="ins-card-cover">
                                     <img
                                         src={inst.cover_photo ? getStorageUrl(inst.cover_photo) : '/images/cover.png'}
                                         alt=""
-                                        className="cover-img"
+                                        className="ins-cover-img"
                                     />
                                 </div>
-                                <div className="card-top">
+                                <div className="ins-card-top">
                                     <img
                                         src={inst.profile_photo ? getStorageUrl(inst.profile_photo) : '/images/profile.png'}
                                         alt={inst.institute_name}
-                                        className="inst-logo"
+                                        className="ins-logo-img"
                                     />
                                     {!!inst.is_premium && (
-                                        <div className="premium-label">
+                                        <div className="ins-premium-tag">
                                             <BadgeCheck size={16} fill="#ff4757" color="#fff" />
                                             <span>Premium</span>
                                         </div>
                                     )}
                                 </div>
-                                <div className="card-body">
+                                <div className="ins-card-body">
                                     <h3>
                                         {inst.institute_name}
                                     </h3>
-                                    <div className="inst-meta">
-                                        <span className="inst-location">
+                                    <div className="ins-meta-info">
+                                        <span className="ins-location-text">
                                             <MapPin size={14} />
                                             {inst.location}
                                         </span>
                                     </div>
-                                    <p className="inst-bio">
+                                    <p className="ins-bio-text">
                                         {inst.bio ? (inst.bio.length > 120 ? inst.bio.substring(0, 117) + '...' : inst.bio) : 'No description available for this institution.'}
                                     </p>
                                 </div>
-                                <div className="card-actions">
+                                <div className="ins-card-actions">
                                     <Link
                                         to={(user?.role === 'Institute' && user?.institute?.id === inst.id) ? '/profile' : `/institutions/${inst.id}/profile`}
-                                        className="btn-view-profile"
+                                        className="ins-btn-profile"
                                     >
                                         View Profile
                                         <ExternalLink size={14} />
@@ -157,7 +157,7 @@ const InstitutionsPage = () => {
                             </motion.div>
                         ))
                     ) : (
-                        <div className="no-institutions">
+                        <div className="ins-empty-state">
                             <p>No approved institutions found at this time.</p>
                         </div>
                     )}
