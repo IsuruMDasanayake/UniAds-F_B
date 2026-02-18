@@ -49,8 +49,8 @@
 }
 
 .register-auth-container .auth-brand-logo {
-    height: 150px;
-    margin-bottom: 0.5rem;
+    height: 70px;
+    margin-bottom: 2rem;
     object-fit: contain;
     position: relative;
     z-index: 1;
@@ -280,7 +280,7 @@
 }
 
 .register-auth-container .compact-footer {
-    margin-top: 0.25rem;
+    margin-top: 1rem;
 }
 
 /* ============================================
@@ -369,14 +369,14 @@
 .register-auth-container .error-text {
     color: var(--c-accent);
     font-size: 0.8rem;
-    margin-top: 0.25rem;
+    margin-top: 1rem;
     font-weight: 500;
 }
 
 .register-auth-container .success-text {
     color: var(--c-success);
     font-size: 0.8rem;
-    margin-top: 0.25rem;
+    margin-top: 1rem;
     font-weight: 500;
 }
 
@@ -462,7 +462,7 @@
 
     .register-auth-container .auth-left {
         min-height: 280px;
-        padding: 2.5rem 1.5rem;
+        padding: 3rem 1.5rem;
     }
 
     .register-auth-container .auth-right {
@@ -503,29 +503,9 @@
     }
 
     .register-auth-container .auth-brand-logo {
-        height: 90px;
-        margin-bottom: 0.5rem;
+        height: 80px;
+        margin-bottom: 2rem;
         object-fit: contain;
         position: relative;
-    }
-}
-
-@media (max-width: 480px) {
-    .register-auth-container .auth-left {
-        min-height: 220px;
-        padding: 2rem 1rem;
-    }
-
-    .register-auth-container .auth-right {
-        padding: 2rem 1rem;
-    }
-
-    .register-auth-container .form-input {
-        padding: 0.65rem 0.75rem;
-        font-size: 0.875rem;
-    }
-
-    .register-auth-container .auth-header {
-        margin-top: -10px;
     }
 }

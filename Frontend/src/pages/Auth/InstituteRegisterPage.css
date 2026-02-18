@@ -258,16 +258,22 @@
 
 .institute-auth-container .error-text {
     color: var(--c-accent);
-    font-size: 0.8rem;
-    margin-top: 0.25rem;
-    font-weight: 500;
+    font-size: 0.725rem;
+    margin-top: 1.5rem;
+    font-weight: 600;
+    display: block;
+    line-height: 1.4;
+    padding-left: 2px;
 }
 
 .institute-auth-container .success-text {
     color: var(--c-success);
-    font-size: 0.8rem;
-    margin-top: 0.25rem;
-    font-weight: 500;
+    font-size: 0.725rem;
+    margin-top: 1.5rem;
+    font-weight: 600;
+    display: block;
+    line-height: 1.4;
+    padding-left: 2px;
 }
 
 .institute-auth-container .auth-error-message {
@@ -294,7 +300,7 @@
 
     .institute-auth-container .auth-left {
         min-height: 280px;
-        padding: 2.5rem 1.5rem;
+        padding: 3rem 1.5rem;
     }
 
     .institute-auth-container .auth-right {
@@ -318,26 +324,6 @@
         height: 40px;
         border-radius: 50%;
         justify-content: center;
-    }
-
-    .institute-auth-container .auth-header {
-        margin-top: -10px;
-    }
-}
-
-@media (max-width: 480px) {
-    .institute-auth-container .auth-left {
-        min-height: 220px;
-        padding: 2rem 1rem;
-    }
-
-    .institute-auth-container .auth-right {
-        padding: 2rem 1rem;
-    }
-
-    .institute-auth-container .form-input {
-        padding: 0.65rem 0.75rem;
-        font-size: 0.875rem;
     }
 
     .institute-auth-container .auth-header {

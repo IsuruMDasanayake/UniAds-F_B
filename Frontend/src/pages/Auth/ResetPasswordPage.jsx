@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axiosClient from '../../lib/axios';
 import { useSettings } from '../../context/SettingsContext';
 import AccessDeniedModal from '../../components/Modals/AccessDeniedModal';
@@ -10,100 +10,112 @@ import './ResetPasswordPage.css';
 const ResetPasswordPage = () => {
     const { settings } = useSettings();
     const navigate = useNavigate();
-    const location = useLocation();
 
     const [resetCode, setResetCode] = useState('');
     const [password, setPassword] = useState('');
     const [passwordConfirmation, setPasswordConfirmation] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [error, setError] = useState(null);
+    const [errors, setErrors] = useState({});
     const [success, setSuccess] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [passwordStrength, setPasswordStrength] = useState('');
     const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', message: '' });
+    const [liveValidation, setLiveValidation] = useState({
+        password: ''
+    });
 
-    // Calculate password strength
+    // Strong password validation (matches Blade template / Register page)
     const calculatePasswordStrength = (pass) => {
         if (pass.length === 0) return '';
-        if (pass.length < 8) return 'weak';
-
-        let strength = 0;
-        if (pass.length >= 8) strength++;
-        if (pass.length >= 12) strength++;
-        if (/[a-z]/.test(pass) && /[A-Z]/.test(pass)) strength++;
-        if (/\d/.test(pass)) strength++;
-        if (/[^a-zA-Z\d]/.test(pass)) strength++;
-
-        if (strength <= 2) return 'weak';
-        if (strength <= 4) return 'medium';
-        return 'strong';
+        const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+        if (strongRegex.test(pass)) {
+            return 'strong';
+        }
+        return 'weak';
     };
 
     const handlePasswordChange = (e) => {
         const newPassword = e.target.value;
         setPassword(newPassword);
-        setPasswordStrength(calculatePasswordStrength(newPassword));
+        const strength = calculatePasswordStrength(newPassword);
+        setPasswordStrength(strength);
+
+        if (newPassword.length === 0) {
+            setLiveValidation(prev => ({ ...prev, password: '' }));
+        } else if (strength === 'strong') {
+            setLiveValidation(prev => ({ ...prev, password: 'Strong password ✅' }));
+        } else {
+            setLiveValidation(prev => ({
+                ...prev,
+                password: 'Include uppercase, lowercase, number & special char, min 8 chars.'
+            }));
+        }
+
+        if (errors.password) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors.password;
+                return newErrors;
+            });
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(null);
+        setErrors({});
         setSuccess(false);
 
-        // Validation
-        if (password.length < 8) {
-            setError('Password must be at least 8 characters long');
-            return;
+        const validationErrors = {};
+
+        if (!resetCode.trim()) {
+            validationErrors.reset_code = 'Please enter the reset code from your email';
+        }
+
+        if (passwordStrength !== 'strong') {
+            validationErrors.password = 'Password must contain uppercase, lowercase, number & special char, min 8 chars';
         }
 
         if (password !== passwordConfirmation) {
-            setError('Passwords do not match');
-            return;
+            validationErrors.password_confirmation = 'Passwords do not match';
         }
 
-        if (!resetCode.trim()) {
-            setError('Please enter the reset code from your email');
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
             return;
         }
 
         setIsLoading(true);
 
         try {
-            // Get CSRF cookie
             await axiosClient.get('/sanctum/csrf-cookie');
 
-            // Reset password
-            const response = await axiosClient.post('/api/password/reset', {
+            await axiosClient.post('/api/password/reset', {
                 reset_code: resetCode,
                 password: password,
                 password_confirmation: passwordConfirmation
             });
 
-            // Success
             setSuccess(true);
-
-            // Redirect to login after 5 seconds
             setTimeout(() => {
                 navigate('/login');
             }, 5000);
 
         } catch (err) {
             console.error('Reset password error:', err);
-            if (err.response && err.response.status === 400) {
-                setError('Invalid or expired reset code');
-            } else if (err.response && err.response.status === 422) {
-                const errors = err.response.data.errors;
-                if (errors) {
-                    const firstError = Object.values(errors)[0][0];
-                    setError(firstError);
-                } else {
-                    setError('Invalid reset code or password');
-                }
+            if (err.response && err.response.status === 422) {
+                const backendErrors = err.response.data.errors || {};
+                const processedErrors = {};
+                Object.keys(backendErrors).forEach(key => {
+                    processedErrors[key] = Array.isArray(backendErrors[key]) ? backendErrors[key][0] : backendErrors[key];
+                });
+                setErrors(processedErrors);
             } else if (err.response && err.response.status === 429) {
-                setError('Too many requests. Please wait a moment and try again');
+                setErrors({ general: 'Too many requests. Please wait a moment and try again' });
+            } else if (err.response && err.response.status === 400) {
+                setErrors({ general: 'Invalid or expired reset code' });
             } else {
-                setError('Unable to reset password. Please try again later');
+                setErrors({ general: 'Unable to reset password. Please try again later' });
             }
         } finally {
             setIsLoading(false);
@@ -113,7 +125,7 @@ const ResetPasswordPage = () => {
     return (
         <div className="reset-auth-container">
 
-            <Link to="/forgot-password" className="back-home-floating">
+            <Link to="/" className="back-home-floating">
                 <ArrowLeft size={20} /> <span className="back-text">Back </span>
             </Link>
 
@@ -144,15 +156,23 @@ const ResetPasswordPage = () => {
                         <p>Enter the code and your new password</p>
                     </div>
 
-                    {error && (
+                    {/* Error Alert - Show all errors */}
+                    {Object.keys(errors).length > 0 && (
                         <div className="auth-error-message">
-                            {error}
+                            <strong>Please fix the following:</strong>
+                            <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem', fontSize: '0.85rem' }}>
+                                {Object.entries(errors).map(([field, message]) => (
+                                    <li key={field}>
+                                        {message}
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
                     )}
 
                     {success && (
                         <div className="auth-success-message">
-                            Password reset successful! Redirecting to login...
+                            Password reset successful! Redirecting to login in 5 seconds...
                         </div>
                     )}
 
@@ -162,13 +182,23 @@ const ResetPasswordPage = () => {
                             <input
                                 type="text"
                                 id="resetCode"
-                                className="form-input"
+                                className={`form-input ${errors.reset_code ? 'input-error' : ''}`}
                                 placeholder="Enter code from email"
                                 value={resetCode}
-                                onChange={(e) => setResetCode(e.target.value)}
+                                onChange={(e) => {
+                                    setResetCode(e.target.value);
+                                    if (errors.reset_code) {
+                                        setErrors(prev => {
+                                            const newErrors = { ...prev };
+                                            delete newErrors.reset_code;
+                                            return newErrors;
+                                        });
+                                    }
+                                }}
                                 required
                                 disabled={success}
                             />
+                            {errors.reset_code && <span className="error-text">{errors.reset_code}</span>}
                         </div>
 
                         <div className="form-group">
@@ -177,11 +207,10 @@ const ResetPasswordPage = () => {
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     id="password"
-                                    className="form-input"
-                                    placeholder="At least 8 characters"
+                                    className={`form-input ${errors.password ? 'input-error' : ''}`}
+                                    placeholder="Strong password required"
                                     value={password}
                                     onChange={handlePasswordChange}
-                                    minLength={8}
                                     required
                                     disabled={success}
                                 />
@@ -194,15 +223,21 @@ const ResetPasswordPage = () => {
                                     {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
                                 </button>
                             </div>
-                            {password && passwordStrength && (
+                            {liveValidation.password && (
+                                <span className={liveValidation.password.includes('✅') ? 'success-text' : 'error-text'}>
+                                    {liveValidation.password}
+                                </span>
+                            )}
+                            {errors.password && <span className="error-text">{errors.password}</span>}
+
+                            {/* Strength indicator bar */}
+                            {password && (
                                 <div className="password-strength">
                                     <div className="strength-bar">
                                         <div className={`strength-fill ${passwordStrength}`}></div>
                                     </div>
                                     <span className={`strength-text ${passwordStrength}`}>
-                                        {passwordStrength === 'weak' && 'Weak Password'}
-                                        {passwordStrength === 'medium' && 'Medium Strength'}
-                                        {passwordStrength === 'strong' && 'Strong Password'}
+                                        {passwordStrength === 'weak' ? 'Weak Password' : 'Strong Password'}
                                     </span>
                                 </div>
                             )}
@@ -214,11 +249,19 @@ const ResetPasswordPage = () => {
                                 <input
                                     type={showConfirmPassword ? "text" : "password"}
                                     id="passwordConfirmation"
-                                    className="form-input"
+                                    className={`form-input ${errors.password_confirmation ? 'input-error' : ''}`}
                                     placeholder="Repeat new password"
                                     value={passwordConfirmation}
-                                    onChange={(e) => setPasswordConfirmation(e.target.value)}
-                                    minLength={8}
+                                    onChange={(e) => {
+                                        setPasswordConfirmation(e.target.value);
+                                        if (errors.password_confirmation) {
+                                            setErrors(prev => {
+                                                const newErrors = { ...prev };
+                                                delete newErrors.password_confirmation;
+                                                return newErrors;
+                                            });
+                                        }
+                                    }}
                                     required
                                     disabled={success}
                                 />
@@ -231,6 +274,7 @@ const ResetPasswordPage = () => {
                                     {showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
                                 </button>
                             </div>
+                            {errors.password_confirmation && <span className="error-text">{errors.password_confirmation}</span>}
                         </div>
 
                         <button

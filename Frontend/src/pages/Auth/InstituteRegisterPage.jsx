@@ -372,12 +372,13 @@ const InstituteRegisterPage = () => {
                                 onChange={handleChange}
                                 required
                             />
-                            {liveValidation.website && (
+                            {liveValidation.website ? (
                                 <span className={liveValidation.website.includes('must') ? 'error-text' : 'success-text'}>
                                     {liveValidation.website}
                                 </span>
+                            ) : (
+                                errors.website && <span className="error-text">{errors.website}</span>
                             )}
-                            {errors.website && <span className="error-text">{errors.website}</span>}
                         </div>
 
                         {/* Contact Number */}
@@ -393,12 +394,13 @@ const InstituteRegisterPage = () => {
                                 onChange={handleChange}
                                 required
                             />
-                            {liveValidation.contact && (
+                            {liveValidation.contact ? (
                                 <span className={liveValidation.contact.includes('Valid') ? 'success-text' : 'error-text'}>
                                     {liveValidation.contact}
                                 </span>
+                            ) : (
+                                errors.contact_number && <span className="error-text">{errors.contact_number}</span>
                             )}
-                            {errors.contact_number && <span className="error-text">{errors.contact_number}</span>}
                         </div>
 
                         {/* Password */}
@@ -422,12 +424,13 @@ const InstituteRegisterPage = () => {
                                     {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
                                 </button>
                             </div>
-                            {liveValidation.password && (
+                            {liveValidation.password ? (
                                 <span className={liveValidation.password.includes('✅') ? 'success-text' : 'error-text'}>
                                     {liveValidation.password}
                                 </span>
+                            ) : (
+                                errors.password && <span className="error-text">{errors.password}</span>
                             )}
-                            {errors.password && <span className="error-text">{errors.password}</span>}
                         </div>
 
                         {/* Confirm Password */}
