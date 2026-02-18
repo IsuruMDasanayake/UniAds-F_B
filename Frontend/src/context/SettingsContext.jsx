@@ -15,6 +15,12 @@ export const SettingsProvider = ({ children }) => {
         allow_user_registration: true,
         allow_login: true,
         subscription_price: 4990,
+        about_text: '',
+        vision_text: '',
+        mission_text: '',
+        address_text: '',
+        social_links: [],
+        home_slides_paths: [],
     });
     const [loading, setLoading] = useState(true);
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Save, Upload, Globe, Mail, Phone, Image, Palette } from 'lucide-react';
+import { Settings, Save, Upload, Globe, Mail, Phone, Image, Palette, Plus, Trash2, Home, Facebook, Instagram, Linkedin, Twitter, MessageCircle } from 'lucide-react';
 import axiosClient from '../../lib/axios';
 import './AdminSettings.css';
 
@@ -19,7 +19,16 @@ const AdminSettings = () => {
         allow_user_registration: true,
         allow_login: true,
         subscription_price: 4990,
+        about_text: '',
+        vision_text: '',
+        mission_text: '',
+        address_text: '',
     });
+
+    const [socialLinks, setSocialLinks] = useState([]);
+    const [homeSlides, setHomeSlides] = useState([]); // Local files for new slides
+    const [existingSlides, setExistingSlides] = useState([]); // URLs from server
+    const [removedSlides, setRemovedSlides] = useState([]); // Paths to remove on server
 
     const [files, setFiles] = useState({
         logo: null,
@@ -67,7 +76,14 @@ const AdminSettings = () => {
                 allow_user_registration: settings.allow_user_registration ?? true,
                 allow_login: settings.allow_login ?? true,
                 subscription_price: settings.subscription_price || 4990,
+                about_text: settings.about_text || '',
+                vision_text: settings.vision_text || '',
+                mission_text: settings.mission_text || '',
+                address_text: settings.address_text || '',
             });
+
+            setSocialLinks(settings.social_links || []);
+            setExistingSlides(settings.home_slides_urls || []);
 
             setCurrentImages({
                 logo_url: settings.logo_url,
@@ -97,19 +113,39 @@ const AdminSettings = () => {
         const file = e.target.files[0];
         if (file) {
             setFiles(prev => ({ ...prev, [type]: file }));
-
-            // Create preview
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviews(prev => ({ ...prev, [type]: reader.result }));
-            };
-            reader.readAsDataURL(file);
-
-            // Clear error for this field
-            if (errors[type]) {
-                setErrors(prev => ({ ...prev, [type]: null }));
-            }
+            setPreviews(prev => ({ ...prev, [type]: URL.createObjectURL(file) }));
         }
+    };
+
+    const handleHomeSlidesChange = (e) => {
+        const selectedFiles = Array.from(e.target.files);
+        setHomeSlides(prev => [...prev, ...selectedFiles]);
+    };
+
+    const removeNewSlide = (index) => {
+        setHomeSlides(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const removeExistingSlide = (url, index) => {
+        const pathMatch = url.match(/settings\/slides\/(.+)$/);
+        if (pathMatch) {
+            setRemovedSlides(prev => [...prev, `settings/slides/${pathMatch[1]}`]);
+        }
+        setExistingSlides(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const handleSocialLinkChange = (index, field, value) => {
+        const updatedLinks = [...socialLinks];
+        updatedLinks[index][field] = value;
+        setSocialLinks(updatedLinks);
+    };
+
+    const addSocialLink = () => {
+        setSocialLinks([...socialLinks, { platform: 'facebook', url: '' }]);
+    };
+
+    const removeSocialLink = (index) => {
+        setSocialLinks(socialLinks.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async (e) => {
@@ -118,23 +154,32 @@ const AdminSettings = () => {
         setMessage({ type: '', text: '' });
         setErrors({});
 
+        const data = new FormData();
+
+        // Files
+        if (files.logo) data.append('logo', files.logo);
+        if (files.favicon) data.append('favicon', files.favicon);
+
+        // New Slides
+        homeSlides.forEach((file) => {
+            data.append('home_slides[]', file);
+        });
+
+        // Removed Slides (JSON)
+        data.append('removed_slides', JSON.stringify(removedSlides));
+
+        // Social Links (JSON)
+        data.append('social_links', JSON.stringify(socialLinks));
+
+        // Text Fields & Booleans
+        Object.keys(formData).forEach(key => {
+            data.append(key, formData[key]);
+        });
+
         try {
-            const submitData = new FormData();
-
-            // Append text fields
-            Object.keys(formData).forEach(key => {
-                submitData.append(key, formData[key]);
+            const response = await axiosClient.post('/api/admin/settings', data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
-
-            // Append files if selected
-            if (files.logo) {
-                submitData.append('logo', files.logo);
-            }
-            if (files.favicon) {
-                submitData.append('favicon', files.favicon);
-            }
-
-            const response = await axiosClient.post('/api/admin/settings', submitData);
 
             setMessage({ type: 'success', text: 'Settings updated successfully!' });
 
@@ -149,19 +194,25 @@ const AdminSettings = () => {
                 setPreviews({ logo: null, favicon: null });
             }
 
-            // Clear message after 5 seconds
-            setTimeout(() => setMessage({ type: '', text: '' }), 5000);
+            setHomeSlides([]);
+            setRemovedSlides([]);
+            fetchSettings(); // Refresh to get proper URLs and synced state
         } catch (error) {
             console.error('Error updating settings:', error);
-
             if (error.response?.data?.errors) {
-                setErrors(error.response.data.errors);
+                const backendErrors = error.response.data.errors;
+                setErrors(backendErrors);
+
+                // Detailed error logging for debugging
+                console.log('Validation Errors:', backendErrors);
+
                 setMessage({ type: 'error', text: 'Please fix the validation errors' });
             } else {
                 setMessage({ type: 'error', text: error.response?.data?.message || 'Failed to update settings' });
             }
         } finally {
             setSaving(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
 
@@ -244,7 +295,7 @@ const AdminSettings = () => {
                         <div className="form-group">
                             <label htmlFor="contact_email">Contact Email *</label>
                             <div className="input-with-icon">
-                                <Mail size={18} />
+                                {/* <Mail size={18} /> */}
                                 <input
                                     type="email"
                                     id="contact_email"
@@ -261,7 +312,7 @@ const AdminSettings = () => {
                         <div className="form-group">
                             <label htmlFor="support_phone">Support Phone *</label>
                             <div className="input-with-icon">
-                                <Phone size={18} />
+                                {/* <Phone size={18} /> */}
                                 <input
                                     type="text"
                                     id="support_phone"
@@ -290,6 +341,162 @@ const AdminSettings = () => {
                             />
                             {errors.subscription_price && <span className="error-text">{errors.subscription_price[0]}</span>}
                         </div>
+
+                        <div className="form-group full-width">
+                            <label htmlFor="address_text">Platform Address/Location</label>
+                            <input
+                                type="text"
+                                id="address_text"
+                                name="address_text"
+                                value={formData.address_text}
+                                onChange={handleInputChange}
+                                placeholder="e.g., Kandy, Sri Lanka"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* HomePage Content Section */}
+                <div className="admin-glass-card settings-section">
+                    <div className="section-header">
+                        <Home size={24} />
+                        <h3>HomePage Dynamic Content</h3>
+                    </div>
+
+                    <div className="form-grid">
+                        <div className="form-group full-width">
+                            <label htmlFor="about_text">About UniAds Section</label>
+                            <textarea
+                                id="about_text"
+                                name="about_text"
+                                value={formData.about_text}
+                                onChange={handleInputChange}
+                                rows="4"
+                                placeholder="Edit the primary about text..."
+                            ></textarea>
+                        </div>
+
+                        <div className="form-group full-width">
+                            <label htmlFor="vision_text">Our Vision</label>
+                            <textarea
+                                id="vision_text"
+                                name="vision_text"
+                                value={formData.vision_text}
+                                onChange={handleInputChange}
+                                rows="2"
+                            ></textarea>
+                        </div>
+
+                        <div className="form-group full-width">
+                            <label htmlFor="mission_text">Our Mission</label>
+                            <textarea
+                                id="mission_text"
+                                name="mission_text"
+                                value={formData.mission_text}
+                                onChange={handleInputChange}
+                                rows="2"
+                            ></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Home Hero Slides Section */}
+                <div className="admin-glass-card settings-section">
+                    <div className="section-header">
+                        <Image size={24} />
+                        <h3>Home Hero Slideshow</h3>
+                    </div>
+
+                    <div className="slides-manager">
+                        {errors.home_slides && <div className="error-text mb-4">{errors.home_slides[0]}</div>}
+                        {Object.keys(errors).some(key => key.startsWith('home_slides.')) && (
+                            <div className="error-text mb-4">One or more slides failed validation. Please ensure they are images and under 10MB.</div>
+                        )}
+                        <div className="slides-grid">
+                            {/* Existing Slides */}
+                            {existingSlides.map((url, index) => (
+                                <div key={`existing-${index}`} className="slide-preview-card">
+                                    <img src={url} alt={`Slide ${index}`} />
+                                    <button
+                                        type="button"
+                                        className="remove-slide-btn"
+                                        onClick={() => removeExistingSlide(url, index)}
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
+                            ))}
+
+                            {/* New Slides Previews */}
+                            {homeSlides.map((file, index) => (
+                                <div key={`new-${index}`} className="slide-preview-card new">
+                                    <img src={URL.createObjectURL(file)} alt="New slide" />
+                                    <button
+                                        type="button"
+                                        className="remove-slide-btn"
+                                        onClick={() => removeNewSlide(index)}
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                    <span className="badge">New</span>
+                                </div>
+                            ))}
+
+                            {/* Add Button */}
+                            <label className="add-slide-card">
+                                <input
+                                    type="file"
+                                    multiple
+                                    accept="image/*"
+                                    onChange={handleHomeSlidesChange}
+                                    style={{ display: 'none' }}
+                                />
+                                <Plus size={32} />
+                                <span>Add Slides</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Social Links Section */}
+                <div className="admin-glass-card settings-section">
+                    <div className="section-header">
+                        <Globe size={24} />
+                        <h3>Social Media Links</h3>
+                    </div>
+
+                    <div className="social-links-manager">
+                        {socialLinks.map((link, index) => (
+                            <div key={index} className="social-link-row">
+                                <select
+                                    value={link.platform}
+                                    onChange={(e) => handleSocialLinkChange(index, 'platform', e.target.value)}
+                                >
+                                    <option value="facebook">Facebook</option>
+                                    <option value="instagram">Instagram</option>
+                                    <option value="linkedin">LinkedIn</option>
+                                    <option value="twitter">Twitter / X</option>
+                                    <option value="whatsapp">WhatsApp</option>
+                                    <option value="youtube">YouTube</option>
+                                </select>
+                                <input
+                                    type="text"
+                                    placeholder="Enter profile/link URL"
+                                    value={link.url}
+                                    onChange={(e) => handleSocialLinkChange(index, 'url', e.target.value)}
+                                />
+                                <button
+                                    type="button"
+                                    className="remove-link-btn"
+                                    onClick={() => removeSocialLink(index)}
+                                >
+                                    <Trash2 size={18} />
+                                </button>
+                            </div>
+                        ))}
+                        <button type="button" className="add-link-btn" onClick={addSocialLink}>
+                            <Plus size={18} /> Add New Social Link
+                        </button>
                     </div>
                 </div>
 

@@ -73,7 +73,7 @@
    ============================================ */
 .institute-auth-container .auth-right {
     flex: 1.2;
-    background-color: white;
+    background-color: var(--c-bg);
     display: flex;
     flex-direction: column;
     padding: 0.25rem 1rem;

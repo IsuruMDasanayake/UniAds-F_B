@@ -131,6 +131,11 @@
     transition: all 0.3s ease;
 }
 
+#admin-settings-container select option {
+    background-color: #0f172a;
+    color: #fff;
+}
+
 #admin-settings-container .form-group input:focus,
 #admin-settings-container .form-group select:focus {
     outline: none;
@@ -161,7 +166,7 @@
 }
 
 #admin-settings-container .input-with-icon input {
-    padding-left: 3rem;
+    padding-left: 1rem;
 }
 
 #admin-settings-container .error-text {
@@ -433,4 +438,196 @@
         width: 100%;
         justify-content: center;
     }
+}
+
+/* Extra Styles for HomePage dynamic content */
+#admin-settings-container .form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+#admin-settings-container .form-group textarea {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(15, 23, 42, 0.6) !important;
+    color: #f1f5f9;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    resize: vertical;
+}
+
+#admin-settings-container .form-group textarea:focus {
+    outline: none;
+    border-color: var(--admin-primary, #3b82f6);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Slides Manager */
+#admin-settings-container .slides-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1rem;
+}
+
+#admin-settings-container .slide-preview-card {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#admin-settings-container .slide-preview-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#admin-settings-container .remove-slide-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#admin-settings-container .remove-slide-btn:hover {
+    background: #ef4444;
+    transform: scale(1.1);
+}
+
+#admin-settings-container .slide-preview-card .badge {
+    position: absolute;
+    bottom: 0.5rem;
+    left: 0.5rem;
+    background: var(--admin-primary, #3b82f6);
+    color: white;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+#admin-settings-container .add-slide-card {
+    aspect-ratio: 16 / 9;
+    border-radius: 12px;
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    color: #94a3b8;
+    transition: all 0.3s ease;
+}
+
+#admin-settings-container .add-slide-card:hover {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.05);
+    color: #3b82f6;
+}
+
+#admin-settings-container .add-slide-card span {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Social Links Manager */
+#admin-settings-container .social-links-manager {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+#admin-settings-container .social-link-row {
+    display: grid;
+    grid-template-columns: 180px 1fr 45px;
+    gap: 1rem;
+    align-items: center;
+    animation: fadeIn 0.3s ease-out;
+}
+
+#admin-settings-container .social-link-row select,
+#admin-settings-container .social-link-row input {
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(15, 23, 42, 0.6) !important;
+    color: #f1f5f9;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+#admin-settings-container .social-link-row select:focus,
+#admin-settings-container .social-link-row input:focus {
+    outline: none;
+    border-color: var(--admin-primary, #3b82f6);
+    background: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#admin-settings-container .add-link-btn {
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#admin-settings-container .add-link-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #3b82f6;
+}
+
+#admin-settings-container .remove-link-btn {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(239, 68, 68, 0.1);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#admin-settings-container .remove-link-btn:hover {
+    background: #ef4444;
+    color: white;
+    border-color: transparent;
 }

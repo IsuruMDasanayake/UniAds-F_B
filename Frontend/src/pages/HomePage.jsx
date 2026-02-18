@@ -5,23 +5,26 @@ import { useSettings } from '../context/SettingsContext';
 import AccessDeniedModal from '../components/Modals/AccessDeniedModal';
 import './HomePage.css';
 
-const slides = [
-    `${BACKEND_URL}/images/image1.jpg`,
-    `${BACKEND_URL}/images/image2.jpg`,
-    `${BACKEND_URL}/images/image3.jpg`,
-    `${BACKEND_URL}/images/image4.jpg`,
-    `${BACKEND_URL}/images/image5.jpg`,
-    `${BACKEND_URL}/images/image6.jpg`,
-    `${BACKEND_URL}/images/image7.jpg`,
-    `${BACKEND_URL}/images/image8.jpg`
-];
-
 const HomePage = () => {
     const navigate = useNavigate();
-    const { settings } = useSettings();
+    const { settings, loading } = useSettings();
     const [currentSlide, setCurrentSlide] = useState(0);
     const [menuOpen, setMenuOpen] = useState(false);
     const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', message: '' });
+
+    // Dynamic slides from settings or fallback to defaults
+    const displaySlides = (settings.home_slides_urls && settings.home_slides_urls.length > 0)
+        ? settings.home_slides_urls
+        : [
+            `${BACKEND_URL}/images/image1.jpg`,
+            `${BACKEND_URL}/images/image2.jpg`,
+            `${BACKEND_URL}/images/image3.jpg`,
+            `${BACKEND_URL}/images/image4.jpg`,
+            `${BACKEND_URL}/images/image5.jpg`,
+            `${BACKEND_URL}/images/image6.jpg`,
+            `${BACKEND_URL}/images/image7.jpg`,
+            `${BACKEND_URL}/images/image8.jpg`
+        ];
 
     // Redirect authenticated users
     useEffect(() => {
@@ -46,11 +49,23 @@ const HomePage = () => {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setCurrentSlide(prev => (prev + 1) % slides.length);
+            setCurrentSlide(prev => (prev + 1) % displaySlides.length);
         }, 3000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [displaySlides]);
+
+    const getSocialIcon = (platform) => {
+        switch (platform.toLowerCase()) {
+            case 'facebook': return 'fab fa-facebook-f';
+            case 'instagram': return 'fab fa-instagram';
+            case 'linkedin': return 'fab fa-linkedin-in';
+            case 'twitter': return 'fab fa-twitter';
+            case 'whatsapp': return 'fab fa-whatsapp';
+            case 'youtube': return 'fab fa-youtube';
+            default: return 'fas fa-share-alt';
+        }
+    };
 
     const handleAuthClick = (e, path, type) => {
         if (type === 'login' && !settings.allow_login) {
@@ -72,6 +87,16 @@ const HomePage = () => {
             return;
         }
     };
+
+    if (loading) {
+        return (
+            <div className="homepage-loader-container">
+                <img src="/images/logo.png" alt="Loading..." className="homepage-loader-logo" />
+                <div className="homepage-loader-spinner"></div>
+                <div className="homepage-loader-text">Loading UniAds...</div>
+            </div>
+        );
+    }
 
     return (
         <div className="home-page-container">
@@ -106,7 +131,7 @@ const HomePage = () => {
             {/* Hero Section */}
             <section className="home-hero">
                 <div className="home-hero-slideshow">
-                    {slides.map((slide, index) => (
+                    {displaySlides.map((slide, index) => (
                         <img
                             key={index}
                             src={slide}
@@ -155,22 +180,28 @@ const HomePage = () => {
 
             {/* About Section */}
             <section className="home-about" id="about">
-                <h2>About UniAds</h2>
-                <p>
-                    <strong>UniAds</strong> is a comprehensive digital platform designed to simplify and modernize how higher education
-                    opportunities are discovered and promoted in Sri Lanka. We serve as a trusted bridge between students, parents,
-                    and higher education institutions by providing accurate, verified, and up-to-date academic information in one
-                    centralized space.
-                </p>
-                <p>
-                    With features such as course discovery, institution dashboards, direct communication, and application support,
-                    UniAds ensures that students can make informed academic decisions while institutions connect with the right
-                    audience at the right time.
-                </p>
+                <h2>About {settings.site_name || 'UniAds'}</h2>
+                {settings.about_text ? (
+                    <p style={{ whiteSpace: 'pre-line' }}>{settings.about_text}</p>
+                ) : (
+                    <>
+                        <p>
+                            <strong>UniAds</strong> is a comprehensive digital platform designed to simplify and modernize how higher education
+                            opportunities are discovered and promoted in Sri Lanka. We serve as a trusted bridge between students, parents,
+                            and higher education institutions by providing accurate, verified, and up-to-date academic information in one
+                            centralized space.
+                        </p>
+                        <p>
+                            With features such as course discovery, institution dashboards, direct communication, and application support,
+                            UniAds ensures that students can make informed academic decisions while institutions connect with the right
+                            audience at the right time.
+                        </p>
+                    </>
+                )}
                 <h3>Our Vision</h3>
-                <p>To become Sri Lanka’s most trusted and innovative digital platform for discovering, comparing, and connecting with higher education opportunities.</p>
+                <p>{settings.vision_text || ''}</p>
                 <h3>Our Mission</h3>
-                <p>To provide a centralized, transparent, and user-friendly platform that empowers students to make informed educational decisions, while enabling higher education institutions to promote their academic offerings.</p>
+                <p>{settings.mission_text || ''}</p>
             </section>
 
             {/* Contact Section */}
@@ -185,15 +216,17 @@ const HomePage = () => {
                         <div className="home-contact-info">
                             <div>
                                 <h3>Contact Information</h3>
-                                <div className="home-contact-item"><i className="fas fa-map-marker-alt"></i> Kandy, Sri Lanka</div>
+                                <div className="home-contact-item"><i className="fas fa-map-marker-alt"></i> {settings.address_text || 'Kandy, Sri Lanka'}</div>
                                 <div className="home-contact-item"><i className="fas fa-envelope"></i> {settings.contact_email || ''}</div>
-                                <div className="home-contact-item"><i className="fas fa-phone"></i> {settings.support_phone || ''}</div>
+                                {/* <div className="home-contact-item"><i className="fas fa-phone"></i> {settings.support_phone || ''}</div> */}
                             </div>
 
                             <div className="home-social-links">
-                                <a href="https://web.facebook.com/profile.php?id=61579680668904" target="_blank" className="home-social-btn"><i className="fab fa-facebook-f"></i></a>
-                                <a href="https://instagram.com" target="_blank" className="home-social-btn"><i className="fab fa-instagram"></i></a>
-                                <a href="https://linkedin.com" target="_blank" className="home-social-btn"><i className="fab fa-linkedin-in"></i></a>
+                                {settings.social_links?.map((link, index) => (
+                                    <a key={index} href={link.url} target="_blank" rel="noopener noreferrer" className="home-social-btn">
+                                        <i className={getSocialIcon(link.platform)}></i>
+                                    </a>
+                                ))}
                             </div>
                         </div>
 
@@ -231,8 +264,11 @@ const HomePage = () => {
                         <a href={`mailto:${settings.contact_email || 'support@uniads.com'}`}>Contact Us</a>
                     </div>
                     <div className="home-footer-social">
-                        <a href="https://wa.me/94772300279" target="_blank"><i className="fab fa-whatsapp"></i></a>
-                        <a href="https://web.facebook.com/profile.php?id=61579680668904" target="_blank"><i className="fab fa-facebook-f"></i></a>
+                        {settings.social_links?.map((link, index) => (
+                            <a key={index} href={link.url} target="_blank" rel="noopener noreferrer">
+                                <i className={getSocialIcon(link.platform)}></i>
+                            </a>
+                        ))}
                     </div>
                 </div>
                 <div className="home-footer-bottom">
