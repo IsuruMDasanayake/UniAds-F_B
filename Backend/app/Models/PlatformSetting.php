@@ -26,6 +26,7 @@ class PlatformSetting extends Model
         'allow_institute_registration',
         'allow_user_registration',
         'allow_login',
+        'subscription_price',
     ];
 
     /**
@@ -37,6 +38,7 @@ class PlatformSetting extends Model
         'allow_institute_registration' => 'boolean',
         'allow_user_registration' => 'boolean',
         'allow_login' => 'boolean',
+        'subscription_price' => 'float',
     ];
 
     /**
@@ -59,6 +61,7 @@ class PlatformSetting extends Model
                 'allow_institute_registration' => true,
                 'allow_user_registration' => true,
                 'allow_login' => true,
+                'subscription_price' => 4990.00,
             ]);
         }
 

@@ -18,6 +18,7 @@ const AdminSettings = () => {
         allow_institute_registration: true,
         allow_user_registration: true,
         allow_login: true,
+        subscription_price: 4990,
     });
 
     const [files, setFiles] = useState({
@@ -65,6 +66,7 @@ const AdminSettings = () => {
                 allow_institute_registration: settings.allow_institute_registration ?? true,
                 allow_user_registration: settings.allow_user_registration ?? true,
                 allow_login: settings.allow_login ?? true,
+                subscription_price: settings.subscription_price || 4990,
             });
 
             setCurrentImages({
@@ -271,6 +273,22 @@ const AdminSettings = () => {
                                 />
                             </div>
                             {errors.support_phone && <span className="error-text">{errors.support_phone[0]}</span>}
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="subscription_price">Monthly Subscription Price (LKR) *</label>
+                            <input
+                                type="number"
+                                id="subscription_price"
+                                name="subscription_price"
+                                value={formData.subscription_price}
+                                onChange={handleInputChange}
+                                className={errors.subscription_price ? 'error' : ''}
+                                step="0.01"
+                                min="0"
+                                required
+                            />
+                            {errors.subscription_price && <span className="error-text">{errors.subscription_price[0]}</span>}
                         </div>
                     </div>
                 </div>

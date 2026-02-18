@@ -63,6 +63,7 @@ class PlatformSettingsController extends Controller
             'allow_institute_registration' => 'sometimes',
             'allow_user_registration' => 'sometimes',
             'allow_login' => 'sometimes',
+            'subscription_price' => 'required|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -108,6 +109,7 @@ class PlatformSettingsController extends Controller
         $settings->allow_institute_registration = $request->boolean('allow_institute_registration');
         $settings->allow_user_registration = $request->boolean('allow_user_registration');
         $settings->allow_login = $request->boolean('allow_login');
+        $settings->subscription_price = $request->input('subscription_price');
 
         // Save settings
         $saved = $settings->save();

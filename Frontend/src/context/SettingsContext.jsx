@@ -14,6 +14,7 @@ export const SettingsProvider = ({ children }) => {
         allow_institute_registration: true,
         allow_user_registration: true,
         allow_login: true,
+        subscription_price: 4990,
     });
     const [loading, setLoading] = useState(true);
 

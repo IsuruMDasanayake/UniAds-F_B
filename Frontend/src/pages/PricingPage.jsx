@@ -319,7 +319,7 @@ const PricingPage = () => {
                             <div className="pricing-header">
                                 <div className="amount-box">
                                     <span className="currency">LKR</span>
-                                    <span className="amount">4990</span>
+                                    <span className="amount">{settings?.subscription_price || 4990}</span>
                                 </div>
                                 <div className="plan-note">per month / billed monthly</div>
                             </div>

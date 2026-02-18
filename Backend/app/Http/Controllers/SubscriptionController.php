@@ -123,7 +123,8 @@ class SubscriptionController extends Controller
             $items = "UniAds Free Trial";
             $orderIdPrefix = "TRIAL-";
         } else {
-            $amount = 4990.00;
+            $settings = \App\Models\PlatformSetting::getInstance();
+            $amount = $settings->subscription_price ?? 4990.00;
             $items = "UniAds Premium Subscription - Monthly";
             $orderIdPrefix = "SUB-";
         }
