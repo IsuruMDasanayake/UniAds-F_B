@@ -1,17 +1,39 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import { Search, BookOpen, Building2, Calendar, MapPin, Loader2, Star, ChevronRight } from 'lucide-react';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+    Search, BookOpen, Building2, MapPin, Loader2,
+    Bookmark, CheckCircle2, BadgeCheck, X, Send, Info
+} from 'lucide-react';
 import axiosClient from '../lib/axios';
 import { getStorageUrl } from '../lib/config';
 import Navbar from '../components/Navbar';
+import ProgrammeInfoModal from '../components/Modals/ProgrammeInfoModal';
+import ApplyNowModal from '../components/Modals/ApplyNowModal';
+import MoreInfoModal from '../components/Modals/MoreInfoModal';
 import './SearchResultsPage.css';
 
 function SearchResultsPage() {
+    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const query = searchParams.get('query') || '';
+
     const [user, setUser] = useState(null);
-    const [results, setResults] = useState({ posts: [], institutes: [], events: [] });
     const [loading, setLoading] = useState(true);
+    const [posts, setPosts] = useState([]);
+
+    const [selectedPost, setSelectedPost] = useState(null);
+    const [showApplyModal, setShowApplyModal] = useState(false);
+    const [showInfoModal, setShowInfoModal] = useState(false);
+    const [applying, setApplying] = useState(false);
+    const [submissionStatus, setSubmissionStatus] = useState({ type: '', message: '' });
+    const [applyForm, setApplyForm] = useState({
+        name: '',
+        email: '',
+        phone: '',
+        message: '',
+        privacyConsent: false
+    });
 
     useEffect(() => {
         const fetchResults = async () => {
@@ -23,7 +45,9 @@ function SearchResultsPage() {
                 ]);
                 setUser(userRes.data);
 
-                setResults(searchRes.data);
+                // The backend now returns paginated posts or an object with 'posts'
+                const results = searchRes.data.posts.data || searchRes.data.posts || [];
+                setPosts(results);
             } catch (error) {
                 console.error('Error fetching search results:', error);
             } finally {
@@ -38,125 +62,227 @@ function SearchResultsPage() {
         }
     }, [query]);
 
-    const hasResults = results.posts.length > 0 || results.institutes.length > 0 || results.events.length > 0;
+    const handleToggleSave = async (postId) => {
+        try {
+            await axiosClient.post(`/api/posts/${postId}/save`);
+            // Update local state to reflect save status
+            setPosts(posts.map(post => {
+                if (post.id === postId) {
+                    const isSaved = user?.saved_posts?.some(sp => sp.id === postId);
+                    // This is a bit tricky since we don't have the full saved status in the search array directly
+                    // but we can toggle it if the backend returns it. 
+                    // For now, let's just show a notification or assume success.
+                }
+                return post;
+            }));
+            // Refresh user to get updated saved_posts
+            const userRes = await axiosClient.get('/api/user');
+            setUser(userRes.data);
+        } catch (error) {
+            console.error('Error toggling save:', error);
+        }
+    };
+
+    const isPostSaved = (postId) => {
+        return user?.saved_posts?.some(sp => sp.id === postId);
+    };
+
+    const openPostModal = (post) => {
+        setSelectedPost(post);
+        axiosClient.post(`/api/posts/${post.id}/track-view`).catch(err => console.error(err));
+    };
+
+    const closeModals = () => {
+        setSelectedPost(null);
+        setShowApplyModal(false);
+        setShowInfoModal(false);
+        setSubmissionStatus({ type: '', message: '' });
+    };
+
+    const handleApplySubmit = async (e) => {
+        e.preventDefault();
+        setApplying(true);
+        setSubmissionStatus({ type: '', message: '' });
+
+        try {
+            await axiosClient.post(`/api/course/apply/${selectedPost.institute_id}`, {
+                ...applyForm,
+                course_title: selectedPost.title,
+                post_id: selectedPost.id,
+                privacy_consent: applyForm.privacyConsent
+            });
+
+            setSubmissionStatus({ type: 'success', message: 'Application submitted successfully!' });
+            setApplyForm({ name: '', email: '', phone: '', message: '', privacyConsent: false });
+
+            setTimeout(() => {
+                setShowApplyModal(false);
+                setSubmissionStatus({ type: '', message: '' });
+            }, 5000);
+        } catch (error) {
+            const errorMsg = error.response?.data?.message || "Failed to submit application.";
+            setSubmissionStatus({ type: 'error', message: errorMsg });
+        } finally {
+            setApplying(false);
+        }
+    };
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    };
+
+    if (loading) {
+        return (
+            <div className="loading-screen">
+                <div className="ui-loader loader-blk">
+                    <svg viewBox="22 22 44 44" className="multiColor-loader">
+                        <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="3.6" className="loader-circle loader-circle-animation"></circle>
+                    </svg>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="search-results-page">
+        <div className="search-page-container">
             <Navbar user={user} />
 
-            <main className="results-container">
-                <header className="search-header">
-                    {query ? (
-                        <>
-                            <h1>Search Results</h1>
-                            <p>Showing findings for "<span className="query-highlight">{query}</span>"</p>
-                        </>
-                    ) : (
-                        <h1>Global Search</h1>
-                    )}
+            <main className="search-page-content">
+                <header className="search-results-header">
+                    <h2 className="search-results-title">
+                        {query ? `Results for "${query}"` : 'Search Results'}
+                    </h2>
                 </header>
 
-                {loading ? (
-                    <div className="search-loading">
-                        <div className="ui-loader loader-blk">
-                            <svg viewBox="22 22 44 44" className="multiColor-loader">
-                                <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="3.6" className="loader-circle loader-circle-animation"></circle>
-                            </svg>
-                        </div>
-                        <p>Finding the best results for you...</p>
-                    </div>
-                ) : !hasResults ? (
-                    <div className="empty-results">
-                        <Search size={64} style={{ color: '#e2e8f0' }} />
-                        <h3>No results found</h3>
-                        <p>Try searching for something else, like "Business", "Computing", or "IIT".</p>
+                {posts.length === 0 ? (
+                    <div className="no-results-found-custom">
+                        <Search size={48} />
+                        <p>No courses found matching your search.</p>
+                        <Link to="/feed" className="browse-btn">Go to Feed</Link>
                     </div>
                 ) : (
-                    <div className="results-sections">
-                        {/* Courses Section */}
-                        {results.posts.length > 0 && (
-                            <section className="section-group">
-                                <div className="section-title">
-                                    <BookOpen size={24} />
-                                    <h2>Courses & Programs</h2>
-                                </div>
-                                <div className="results-grid">
-                                    {results.posts.map(post => (
-                                        <div key={post.id} className={`result-card ${post.status !== 'active' ? 'result-inactive' : ''}`}>
-                                            {/* Inactive Badge */}
-                                            {post.status !== 'active' && (
-                                                <div className="result-inactive-badge">
-                                                    Inactive
+                    <div className="search-posts-list">
+                        <AnimatePresence>
+                            {posts.map((post) => (
+                                <motion.div
+                                    key={post.id}
+                                    className="search-post-card"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
+                                    layout
+                                >
+                                    <div className="search-post-image">
+                                        {post.status !== 'active' && (
+                                            <div className="search-inactive-badge">Inactive</div>
+                                        )}
+                                        <img
+                                            src={post.image ? getStorageUrl(post.image) : '/images/course-default.png'}
+                                            alt={post.title}
+                                        />
+                                    </div>
+
+                                    <div className="search-post-content">
+                                        <div className="search-post-header">
+                                            <Link
+                                                to={`/institutions/${post.institute?.id}/profile`}
+                                                className="institute-badge-top"
+                                                style={{ textDecoration: 'none', color: 'inherit' }}
+                                            >
+                                                <div className="institute-icon">
+                                                    {post.institute?.profile_photo ? (
+                                                        <img
+                                                            src={getStorageUrl(post.institute.profile_photo)}
+                                                            alt={post.institute.institute_name}
+                                                        />
+                                                    ) : (
+                                                        <span>{post.institute?.institute_name?.charAt(0) || 'U'}</span>
+                                                    )}
+                                                </div>
+                                                <span className="institute-name-text">
+                                                    {post.institute?.institute_name || 'UniAds'}
+                                                </span>
+                                                {!!(post.institute?.is_premium) && (
+                                                    <BadgeCheck size={18} fill="#ff4757" color="#ffffff" style={{ marginLeft: '4px', verticalAlign: 'middle', display: 'inline-block', marginTop: '-0.4rem' }} />
+                                                )}
+                                            </Link>
+                                            <span className="post-timestamp">{formatDate(post.created_at)}</span>
+                                        </div>
+
+                                        <h3 className="search-post-title">{post.title}</h3>
+                                        <p className="search-post-description">{post.small_description}</p>
+
+                                        <div className="search-post-meta">
+                                            {post.course_type} / {post.duration} / {post.location}
+                                        </div>
+
+                                        <div className="search-post-footer">
+                                            <button
+                                                className="view-programme-btn"
+                                                onClick={() => openPostModal(post)}
+                                            >
+                                                View Programme Information
+                                            </button>
+                                            {user?.role === 'User' && (
+                                                <div className="save-action-wrapper">
+                                                    <label className="ui-bookmark">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={isPostSaved(post.id)}
+                                                            onChange={() => handleToggleSave(post.id)}
+                                                        />
+                                                        <div className="bookmark">
+                                                            <svg viewBox="0 0 32 32">
+                                                                <g>
+                                                                    <path d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 0 0 1 4-4h14a4 4 0 0 1 4 4z"></path>
+                                                                </g>
+                                                            </svg>
+                                                        </div>
+                                                    </label>
                                                 </div>
                                             )}
-                                            <div className="card-image-box">
-                                                <img src={post.image ? getStorageUrl(post.image) : '/images/course-default.png'} alt={post.title} />
-                                            </div>
-                                            <div className="card-content">
-                                                <h3>{post.title}</h3>
-                                                <div className="card-meta">
-                                                    <span><Building2 size={14} /> {post.institute?.institute_name}</span>
-                                                    <span><MapPin size={14} /> {post.location}</span>
-                                                </div>
-                                            </div>
                                         </div>
-                                    ))}
-                                </div>
-                            </section>
-                        )}
-
-                        {/* Institutes Section */}
-                        {results.institutes.length > 0 && (
-                            <section className="section-group">
-                                <div className="section-title">
-                                    <Building2 size={24} />
-                                    <h2>Educational Institutes</h2>
-                                </div>
-                                <div className="results-grid">
-                                    {results.institutes.map(inst => (
-                                        <div key={inst.id} className="result-card institute-card">
-                                            <div className="inst-logo-box">
-                                                <img src={inst.profile_photo ? getStorageUrl(inst.profile_photo) : '/images/default-logo.png'} alt={inst.institute_name} />
-                                            </div>
-                                            <h3 className="inst-name">{inst.institute_name}</h3>
-                                            <p className="inst-location">{inst.location || 'Education Institute'}</p>
-                                            <Link to={`/institutions`} className="view-inst-btn">
-                                                View Profile
-                                            </Link>
-                                        </div>
-                                    ))}
-                                </div>
-                            </section>
-                        )}
-
-                        {/* Events Section */}
-                        {results.events.length > 0 && (
-                            <section className="section-group">
-                                <div className="section-title">
-                                    <Calendar size={24} />
-                                    <h2>Upcoming Events</h2>
-                                </div>
-                                <div className="results-grid">
-                                    {results.events.map(event => (
-                                        <div key={event.id} className="result-card">
-                                            <div className="card-image-box">
-                                                <img src={event.event_banner ? getStorageUrl(event.event_banner) : '/images/event-default.png'} alt={event.event_title} />
-                                            </div>
-                                            <div className="card-content">
-                                                <h3>{event.event_title}</h3>
-                                                <div className="card-meta">
-                                                    <span><Star size={14} /> {event.interested_count} Interested</span>
-                                                    <span><ChevronRight size={14} /> View Details</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </section>
-                        )}
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
                     </div>
                 )}
             </main>
+
+            <ProgrammeInfoModal
+                course={selectedPost}
+                isOpen={!!selectedPost && !showApplyModal && !showInfoModal}
+                onClose={closeModals}
+                onApply={() => setShowApplyModal(true)}
+                onMoreInfo={() => setShowInfoModal(true)}
+                userRole={user?.role}
+            />
+
+            <ApplyNowModal
+                isOpen={showApplyModal}
+                onClose={() => setShowApplyModal(false)}
+                courseTitle={selectedPost?.title}
+                form={{ ...applyForm, privacy_consent: applyForm.privacyConsent }}
+                onChange={(e) => {
+                    const { name, value, checked, type } = e.target;
+                    if (name === 'privacy_consent') {
+                        setApplyForm({ ...applyForm, privacyConsent: checked });
+                    } else {
+                        setApplyForm({ ...applyForm, [name]: type === 'checkbox' ? checked : value });
+                    }
+                }}
+                onSubmit={handleApplySubmit}
+                isSubmitting={applying}
+                status={submissionStatus}
+            />
+
+            <MoreInfoModal
+                isOpen={showInfoModal}
+                onClose={() => setShowInfoModal(false)}
+                contactNumber={selectedPost?.institute?.contact_number}
+            />
         </div>
     );
 }

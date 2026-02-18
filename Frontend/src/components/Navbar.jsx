@@ -17,9 +17,6 @@ function Navbar({ user }) {
     const location = useLocation();
     const searchRef = useRef(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState({ posts: [], institutes: [], events: [] });
-    const [isSearching, setIsSearching] = useState(false);
-    const [showResults, setShowResults] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
     const [lastScrollY, setLastScrollY] = useState(0);
@@ -65,44 +62,6 @@ function Navbar({ user }) {
         return () => window.removeEventListener('scroll', handleScroll);
     }, [lastScrollY]);
 
-    // Instant Search logic
-    useEffect(() => {
-        const delayDebounceFn = setTimeout(() => {
-            if (searchQuery.length >= 2) {
-                performSearch();
-            } else {
-                setSearchResults({ posts: [], institutes: [], events: [] });
-                setShowResults(false);
-            }
-        }, 500);
-
-        return () => clearTimeout(delayDebounceFn);
-    }, [searchQuery]);
-
-    // Handle clicks outside search
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (searchRef.current && !searchRef.current.contains(event.target)) {
-                setShowResults(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
-    const performSearch = async () => {
-        setIsSearching(true);
-        setShowResults(true);
-        try {
-            const resp = await axiosClient.get(`/api/search?query=${searchQuery}`);
-            setSearchResults(resp.data);
-        } catch (error) {
-            console.error('Search error:', error);
-        } finally {
-            setIsSearching(false);
-        }
-    };
-
     const handleLogout = async () => {
         try {
             await axiosClient.post('/api/logout');
@@ -116,22 +75,14 @@ function Navbar({ user }) {
 
     const clearSearch = () => {
         setSearchQuery('');
-        setSearchResults({ posts: [], institutes: [], events: [] });
-        setShowResults(false);
     };
 
     const handleResultClick = (path) => {
-        setShowResults(false);
         navigate(path);
     };
 
-    const hasResults = searchResults.posts.length > 0 ||
-        searchResults.institutes.length > 0 ||
-        searchResults.events.length > 0;
-
     const handleKeyDown = (e) => {
         if (e.key === 'Enter' && searchQuery.trim()) {
-            setShowResults(false);
             navigate(`/search?query=${searchQuery}`);
         }
     };
@@ -147,16 +98,15 @@ function Navbar({ user }) {
                     </div>
 
                     <div className="navbar-search-container" ref={searchRef}>
-                        <div className={`navbar-search-bar ${showResults ? 'active' : ''}`}>
+                        <div className="navbar-search-bar">
                             <div className="search-icon-box">
                                 <Search size={18} />
                             </div>
                             <input
                                 type="text"
-                                placeholder="Search courses, institutes, events..."
+                                placeholder="Search courses..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                onFocus={() => searchQuery.length >= 2 && setShowResults(true)}
                                 onKeyDown={handleKeyDown}
                             />
                             {searchQuery && (
@@ -165,94 +115,6 @@ function Navbar({ user }) {
                                 </button>
                             )}
                         </div>
-
-                        <AnimatePresence>
-                            {showResults && (
-                                <motion.div
-                                    className="search-results-dropdown"
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: 10 }}
-                                >
-                                    {isSearching ? (
-                                        <div className="search-loading">
-                                            <div className="ui-loader loader-blk">
-                                                <svg viewBox="22 22 44 44" className="multiColor-loader">
-                                                    <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="3.6" className="loader-circle loader-circle-animation"></circle>
-                                                </svg>
-                                            </div>
-                                            <p>Searching for excellence...</p>
-                                        </div>
-                                    ) : !hasResults ? (
-                                        <div className="no-results-found">
-                                            <p>No results found for "{searchQuery}"</p>
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <div className="results-scroll-area">
-                                                {/* Courses */}
-                                                {searchResults.posts.length > 0 && (
-                                                    <div className="result-group">
-                                                        <h4 className="group-title">Courses</h4>
-                                                        {searchResults.posts.map(post => (
-                                                            <div key={post.id} className="result-item" onClick={() => handleResultClick('/courses')}>
-                                                                <div className="item-icon courses"><BookOpen size={16} /></div>
-                                                                <div className="item-info">
-                                                                    <span className="item-name">{post.title}</span>
-                                                                    <span className="item-sub">{post.institute?.institute_name}</span>
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
-
-                                                {/* Institutes */}
-                                                {searchResults.institutes.length > 0 && (
-                                                    <div className="result-group">
-                                                        <h4 className="group-title">Institutes</h4>
-                                                        {searchResults.institutes.map(inst => (
-                                                            <div key={inst.id} className="result-item" onClick={() => handleResultClick('/institutions')}>
-                                                                <div className="item-icon institutes"><Building2 size={16} /></div>
-                                                                <div className="item-info">
-                                                                    <div className="name-with-badge">
-                                                                        <span className="item-name">{inst.institute_name}</span>
-                                                                        {inst.is_premium === 1 && <span className="premium-dot"></span>}
-                                                                    </div>
-                                                                    <span className="item-sub">{inst.location || 'Education Institute'}</span>
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
-
-                                                {/* Events */}
-                                                {searchResults.events.length > 0 && (
-                                                    <div className="result-group">
-                                                        <h4 className="group-title">Events</h4>
-                                                        {searchResults.events.map(event => (
-                                                            <div key={event.id} className="result-item" onClick={() => handleResultClick('/events')}>
-                                                                <div className="item-icon events"><Calendar size={16} /></div>
-                                                                <div className="item-info">
-                                                                    <span className="item-name">{event.event_title}</span>
-                                                                    <div className="item-meta">
-                                                                        <span><MapPin size={10} /> {event.sub_location || 'Campus'}</span>
-                                                                        <span><Star size={10} /> {event.interested_count || 0} interested</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="see-all-results" onClick={() => handleResultClick(`/search?query=${searchQuery}`)}>
-                                                <span>See all results for "{searchQuery}"</span>
-                                                <ChevronRight size={16} />
-                                            </div>
-                                        </>
-                                    )}
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
                     </div>
 
                     <nav className="navbar-links">

@@ -55,8 +55,6 @@ class SearchController extends Controller
         if (strlen($query) < 2) {
             return response()->json([
                 'posts' => [],
-                'institutes' => [],
-                'events' => []
             ]);
         }
 
@@ -65,28 +63,10 @@ class SearchController extends Controller
             ->where('title', 'LIKE', "%{$query}%")
             ->where('status', 'active')
             ->latest()
-            ->take(5)
-            ->get();
-
-        // Search Institutes
-        $institutes = Institute::where('institute_name', 'LIKE', "%{$query}%")
-            ->where('status', 'approved')
-            ->latest()
-            ->take(5)
-            ->get();
-
-        // Search Events
-        $events = Event::with('institute')
-            ->where('event_title', 'LIKE', "%{$query}%")
-            ->where('is_active', true)
-            ->latest()
-            ->take(5)
-            ->get();
+            ->paginate(15); // Increased limit and added pagination support if needed
 
         return response()->json([
             'posts' => $posts,
-            'institutes' => $institutes,
-            'events' => $events
         ]);
     }
 }
