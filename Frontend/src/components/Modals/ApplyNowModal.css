@@ -32,7 +32,7 @@
 
 /* Specific styling for Apply Modal to make it compact */
 .apply-modal {
-    padding: 1.5rem;
+    padding: 3rem;
     /* Reduced padding from 2rem */
 }
 
@@ -134,7 +134,7 @@
     display: flex;
     gap: 0.6rem;
     align-items: flex-start;
-    margin-top: 0.2rem;
+    margin-top: 1rem;
     padding: 0.5rem;
     background: rgba(255, 193, 7, 0.05);
     /* Lighter background */
