@@ -5,7 +5,7 @@
     <title>{{ $mailTitle }}</title>
     <style>
         body {
-            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: 'Poppins', sans-serif;
             background-color: #f4f6f8;
             padding: 20px;
             margin: 0;

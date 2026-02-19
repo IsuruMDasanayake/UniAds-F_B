@@ -1,57 +1,90 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <meta charset="UTF-8">
-    <title>New Course Application</title>
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <style>
         body {
-            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f4f4f4;
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
             color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #e1e1e1;
+            border-radius: 10px;
+        }
+
+        .header {
+            background: #f8f9fa;
+            padding: 15px;
+            border-bottom: 2px solid #1d375c;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .content {
             padding: 20px;
         }
-        .container {
-            background: #ffffff;
-            padding: 20px 30px;
-            border-radius: 8px;
-            max-width: 600px;
-            margin: auto;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            color: #007bff;
-        }
-        .field {
-            margin-bottom: 15px;
-        }
-        .field strong {
-            display: inline-block;
-            width: 120px;
-            color: #555;
-        }
+
         .footer {
-            margin-top: 30px;
             font-size: 12px;
-            color: #aaa;
-            text-align: center;
+            color: #777;
+            padding: 15px;
+            border-top: 1px solid #e1e1e1;
+            margin-top: 20px;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #1d375c;
+            width: 120px;
+            display: inline-block;
+        }
+
+        .message-box {
+            background: #f0f7ff;
+            padding: 15px;
+            border-left: 4px solid #1d375c;
+            margin: 20px 0;
         }
     </style>
 </head>
+
 <body>
-<div class="container">
-    <h2>New Course Application</h2>
-    <p>You have received a new course application. Below are the details:</p>
+    <div class="container">
+        <div class="header">
+            <h2 style="margin:0; color: #1d375c;">New Course Application</h2>
+        </div>
+        <div class="content">
+            <p>You have received a new application for your course. Below are the details:</p>
 
-    <div class="field"><strong>Course:</strong> {{ $data['course_title'] }}</div>
-    <div class="field"><strong>Name:</strong> {{ $data['name'] }}</div>
-    <div class="field"><strong>Email:</strong> {{ $data['email'] }}</div>
-    <div class="field"><strong>Phone:</strong> {{ $data['phone'] }}</div>
-    <div class="field"><strong>Message:</strong>{{ $data['message'] }}</div>
+            <div style="margin-bottom: 10px;">
+                <span class="label">Course:</span> <strong>{{ $data['course_title'] }}</strong>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <span class="label">Student Name:</span> {{ $data['name'] }}
+            </div>
+            <div style="margin-bottom: 10px;">
+                <span class="label">Email:</span> {{ $data['email'] }}
+            </div>
+            <div style="margin-bottom: 20px;">
+                <span class="label">Phone:</span> {{ $data['phone'] }}
+            </div>
 
-    <div class="footer">
-        This email was generated from your UniAds profile course application form.
+            <p><strong>Note/Message from Student:</strong></p>
+            <div class="message-box">
+                {!! nl2br(e($data['message'])) !!}
+            </div>
+
+            <p style="font-size: 0.9rem; color: #666;">This request was generated via your institute profile on UniAds.
+            </p>
+        </div>
+        <div class="footer">
+            <p>&copy; {{ date('Y') }} UniAds. All rights reserved.</p>
+        </div>
     </div>
-</div>
 </body>
+
 </html>

@@ -153,7 +153,7 @@ class ApplicationController extends Controller
 
             Mail::send('emails.application_reply', $mailData, function ($mail) use ($application, $request, $institute) {
                 $mail->to($application->student_email)
-                    ->subject($request->subject)
+                    ->subject('[No-Reply] ' . $request->subject)
                     ->from($institute->email, $institute->institute_name);
             });
 

@@ -116,26 +116,36 @@
     gap: 0.5rem;
 }
 
-.view-details-btn {
+.action-buttons-v2 {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: #eff6ff;
-    color: var(--c-primary);
-    border: none;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.2s;
+    gap: 0.75rem;
 }
 
-.view-details-btn:hover {
-    background: var(--c-primary);
-    color: white;
-    transform: translateX(2px);
+.action-btn-v2 {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid var(--c-slate-200, #e2e8f0);
+    background: white;
+    color: var(--c-slate-500, #64748b);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+.action-btn-v2:hover {
+    transform: translateY(-2px);
+}
+
+.action-btn-v2.view:hover {
+    border-color: var(--c-primary);
+    color: var(--c-primary);
+    background: var(--c-primary-soft);
+}
+
 
 /* Status Badges */
 .status-badge-v2.new {

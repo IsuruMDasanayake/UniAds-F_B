@@ -182,13 +182,15 @@ const ApplicationsPage = () => {
         {
             header: 'Action',
             render: (row) => (
-                <button
-                    className="view-details-btn"
-                    onClick={() => handleViewDetails(row)}
-                >
-                    View Details
-                    <ChevronRight size={16} />
-                </button>
+                <div className="action-buttons-v2" onClick={(e) => e.stopPropagation()}>
+                    <button
+                        className="action-btn-v2 view"
+                        onClick={() => handleViewDetails(row)}
+                        title="View Details"
+                    >
+                        <Eye size={18} />
+                    </button>
+                </div>
             )
         }
     ];
@@ -261,6 +263,7 @@ const ApplicationsPage = () => {
                             onPageChange={setPage}
                             loading={isUpdating}
                             showSearch={false}
+                            onRowClick={handleViewDetails}
                         />
                     ) : (
                         <EmptyState
