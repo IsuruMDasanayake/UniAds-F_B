@@ -255,11 +255,6 @@ const EventsAnalyticsPage = () => {
                         <h1 className="page-title-v2">Events Analytics</h1>
                         <p className="page-subtitle-v2">Monitor performance of your events across your institute.</p>
                     </div>
-                    {isUpdating && (
-                        <div className="updating-loader-v2">
-                            <RefreshCw className="animate-spin" size={20} />
-                        </div>
-                    )}
                 </div>
             </div>
 

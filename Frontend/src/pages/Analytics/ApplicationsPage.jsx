@@ -262,7 +262,7 @@ const ApplicationsPage = () => {
                     icon={CheckCircle}
                     label="CONTACTED"
                     value={stats?.contacted || 0}
-                    color="slate"
+                    color="red"
                     loading={loading}
                 />
             </div>

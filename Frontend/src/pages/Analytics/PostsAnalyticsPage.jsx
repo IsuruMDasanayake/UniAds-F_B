@@ -244,11 +244,6 @@ const PostsAnalyticsPage = () => {
                         <h1 className="page-title-v2">Course Posts</h1>
                         <p className="page-subtitle-v2">Manage posts and analyze performance across your institute.</p>
                     </div>
-                    {isUpdating && (
-                        <div className="updating-loader-v2">
-                            <RefreshCw className="animate-spin" size={20} />
-                        </div>
-                    )}
                 </div>
             </div>
 

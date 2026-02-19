@@ -26,7 +26,7 @@ const EventsStatCards = ({ stats, loading }) => {
             label: "Decline Count",
             value: stats?.total_declines || 0,
             icon: Users,
-            color: "slate"
+            color: "red"
         },
         {
             label: "Upcoming Events",

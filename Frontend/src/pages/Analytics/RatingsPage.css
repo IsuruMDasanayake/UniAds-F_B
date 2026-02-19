@@ -79,6 +79,12 @@
     }
 }
 
+@media (min-width: 1024px) {
+    #analytics-ratings-v2 .stat-cards-row-v2 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
 @media (max-width: 500px) {
 
     /* Highly optimized mobile layout for stat cards */
