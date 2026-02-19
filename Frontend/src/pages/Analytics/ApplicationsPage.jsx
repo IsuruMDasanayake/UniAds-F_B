@@ -25,7 +25,8 @@ import EmptyState from '../../components/Analytics/EmptyState';
 import ApplicationsTableCard from '../../components/Analytics/ApplicationsTableCard';
 import ApplicationDetailsModal from '../../components/Modals/ApplicationDetailsModal';
 import CommunicationsHistoryModal from '../../components/Modals/CommunicationsHistoryModal';
-import { History } from 'lucide-react';
+import LineChart from '../../components/Analytics/LineChart';
+import ChartCard from '../../components/Analytics/ChartCard';
 
 // Styling
 import './ApplicationsPage.css';
@@ -36,6 +37,8 @@ const ApplicationsPage = () => {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [trendData, setTrendData] = useState(null);
+    const [loadingTrend, setLoadingTrend] = useState(true);
 
     // Filters
     const [page, setPage] = useState(1);
@@ -88,6 +91,24 @@ const ApplicationsPage = () => {
         }, search ? 500 : 0);
         return () => clearTimeout(timer);
     }, [search, status, page, fetchApplications]);
+
+    useEffect(() => {
+        const fetchTrends = async () => {
+            setLoadingTrend(true);
+            try {
+                const { data } = await axiosClient.get('/api/institute/analytics/trends', {
+                    params: { range: '90', compare: 'false' }
+                });
+                setTrendData(data.applications || null);
+            } catch (error) {
+                console.error('Error fetching application trends:', error);
+            } finally {
+                setLoadingTrend(false);
+            }
+        };
+
+        fetchTrends();
+    }, []);
 
     const handleViewDetails = async (application) => {
         setSelectedApplication(application);
@@ -214,39 +235,68 @@ const ApplicationsPage = () => {
                 </div>
             </div>
 
-            {/* Stats Cards */}
+            {/* Stat Cards Row */}
             <div className="stat-cards-row-v2">
                 <StatCard
                     icon={Briefcase}
-                    label="Total Applications"
-                    value={stats?.total}
+                    label="TOTAL APPLICATIONS"
+                    value={stats?.total || 0}
                     color="blue"
-                    loading={isInitialLoading}
+                    loading={loading}
                 />
                 <StatCard
                     icon={TrendingUp}
-                    label="Applications This Month"
-                    value={stats?.this_month}
+                    label="APPLICATIONS THIS MONTH"
+                    value={stats?.this_month || 0}
                     color="green"
-                    loading={isInitialLoading}
+                    loading={loading}
                 />
                 <StatCard
                     icon={Clock}
-                    label="New Applications"
-                    value={stats?.new}
-                    color="amber"
-                    loading={isInitialLoading}
+                    label="NEW APPLICATIONS"
+                    value={stats?.new || 0}
+                    color="yellow"
+                    loading={loading}
                 />
                 <StatCard
                     icon={CheckCircle}
-                    label="Contacted"
-                    value={stats?.contacted}
-                    color="purple"
-                    loading={isInitialLoading}
+                    label="CONTACTED"
+                    value={stats?.contacted || 0}
+                    color="slate"
+                    loading={loading}
                 />
             </div>
 
-            {/* Table Section */}
+            {/* Application Trends Chart */}
+            <div className="chart-section">
+                <ChartCard
+                    title="Application Volume (90 Days)"
+                    subtitle="Track your course applications trend over the last 3 months"
+                    loading={loadingTrend || loading}
+                >
+                    <div className="application-trend-chart-wrapper">
+                        <LineChart
+                            labels={trendData?.labels || []}
+                            datasets={[{
+                                label: 'Applications',
+                                data: trendData?.data || [],
+                                borderColor: '#3b82f6',
+                                backgroundColor: (context) => {
+                                    const ctx = context.chart.ctx;
+                                    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                                    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)');
+                                    gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+                                    return gradient;
+                                },
+                                fill: true
+                            }]}
+                            showLegend={false}
+                        />
+                    </div>
+                </ChartCard>
+            </div>
+
+            {/* Main Table Card */}
             <ApplicationsTableCard
                 title="Applications Performance"
                 subtitle={`${pagination.total || 0} applications found`}
