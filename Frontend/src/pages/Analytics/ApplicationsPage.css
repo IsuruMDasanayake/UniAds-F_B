@@ -10,12 +10,6 @@
     pointer-events: none;
 }
 
-#analytics-applications-page.updating .table-responsive-wrapper {
-    opacity: 0.6;
-    filter: blur(1px);
-    transition: all 0.2s ease;
-}
-
 #analytics-applications-page .stat-cards-row-v2 {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -83,7 +77,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    vertical-align: middle;
     margin-bottom: -1rem;
     margin-top: 1rem;
 }
@@ -156,6 +149,7 @@
 .status-badge-v2.new .dot {
     background: #2563eb;
     box-shadow: 0 0 8px #2563eb;
+    animation: pulse-blue 2s infinite;
 }
 
 .status-badge-v2.viewed {

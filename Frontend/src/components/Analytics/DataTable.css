@@ -268,10 +268,18 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
-.analytics-data-table-component.table-loading .data-table tbody {
+.analytics-data-table-component.table-loading .table-wrapper {
     opacity: 0.6;
-    pointer-events: none;
-    transition: opacity 0.2s ease;
+    filter: blur(1.5px);
+    transition: all 0.3s ease;
+}
+
+.skeleton-h-4 {
+    height: 1rem;
+}
+
+.table-cell-content {
+    transition: all 0.3s ease;
 }
 
 /* Mobile Horizontal Scroll Support */

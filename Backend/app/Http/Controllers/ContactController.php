@@ -8,6 +8,7 @@ use App\Models\Institute;
 use App\Models\Follower;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Category;
+use App\Models\InstituteInquiry;
 
 
 class ContactController extends Controller
@@ -84,6 +85,15 @@ class ContactController extends Controller
             'subject' => $request->subject,
             'messageContent' => $request->message,
         ];
+
+        // Persist Inquiry
+        InstituteInquiry::create([
+            'institute_id' => $institute->id,
+            'name' => $request->name,
+            'email' => $request->email,
+            'subject' => $request->subject,
+            'message' => $request->message,
+        ]);
 
         try {
             Mail::send('emails.contact', $mailData, function ($mail) use ($institute, $request) {

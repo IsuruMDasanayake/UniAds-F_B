@@ -58,12 +58,6 @@
     pointer-events: none;
 }
 
-#analytics-posts.updating .table-responsive-wrapper {
-    opacity: 0.6;
-    filter: blur(1px);
-    transition: all 0.2s ease;
-}
-
 /* Page Header - Now using global styles from AnalyticsLayout.css */
 
 /* Stat Cards Row - Synchronized 1-2-3 Column Layout */

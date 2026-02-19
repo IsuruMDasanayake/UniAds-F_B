@@ -1,0 +1,215 @@
+/* GeneralInquiriesPage.css - Premium Analytics Design */
+
+.general-inquiries-page {
+
+    animation: fadeIn 0.6s ease-out;
+}
+
+#general-inquiries-page .page-header-v2 {
+    margin-bottom: 2rem;
+}
+
+#general-inquiries-page .header-title-v2 {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: #1e293b;
+    letter-spacing: -0.025em;
+    margin-bottom: 0.5rem;
+}
+
+#general-inquiries-page .header-subtitle-v2 {
+    color: #64748b;
+    font-size: 1rem;
+}
+
+#general-inquiries-page .stats-grid-v2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    margin-top: 2rem;
+}
+
+#general-inquiries-page .sender-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+#general-inquiries-page .sender-name {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 0.9375rem;
+}
+
+#general-inquiries-page .sender-email {
+    font-size: 0.8125rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+#general-inquiries-page .inquiry-subject {
+    font-weight: 600;
+    color: #334155;
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#general-inquiries-page .date-info {
+    display: flex;
+    flex-direction: column;
+    font-weight: 600;
+    color: #475569;
+}
+
+#general-inquiries-page .time-sub {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+/* Status Badges - Synchronized with ApplicationsPage */
+#general-inquiries-page .status-badge-v2 {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.875rem;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+#general-inquiries-page .status-badge-v2.new {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+#general-inquiries-page .status-badge-v2.viewed {
+    background: #fffbeb;
+    color: #d97706;
+}
+
+#general-inquiries-page .status-badge-v2.contacted {
+    background: #ecfdf5;
+    color: #059669;
+}
+
+#general-inquiries-page .status-badge-v2 .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+#general-inquiries-page .status-badge-v2.new .dot {
+    box-shadow: 0 0 8px #2563eb;
+    animation: pulse-blue 2s infinite;
+}
+
+#general-inquiries-page .status-badge-v2.viewed .dot {
+    box-shadow: 0 0 8px #d97706;
+}
+
+#general-inquiries-page .status-badge-v2.contacted .dot {
+    box-shadow: 0 0 8px #059669;
+}
+
+@keyframes pulse-blue {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
+    }
+
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
+    }
+
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+    }
+}
+
+@keyframes pulse-orange {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4);
+    }
+
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(249, 115, 22, 0);
+    }
+
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(249, 115, 22, 0);
+    }
+}
+
+#general-inquiries-page .action-buttons-v2 {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+#general-inquiries-page .action-btn-v2 {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid #e2e8f0;
+    background: white;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#general-inquiries-page .action-btn-v2:hover {
+    transform: translateY(-2px);
+}
+
+#general-inquiries-page .action-btn-v2.view:hover {
+    border-color: #3b82f6;
+    color: #3b82f6;
+    background: #eff6ff;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#general-inquiries-page.updating {
+    pointer-events: none;
+}
+
+#general-inquiries-page .table-container-v2 {
+    transition: all 0.3s ease;
+    position: relative;
+    min-height: 400px;
+}
+
+@media (max-width: 768px) {
+    #general-inquiries-page.general-inquiries-page {
+        padding: 1rem;
+    }
+
+    #general-inquiries-page .header-title-v2 {
+        font-size: 1.5rem;
+    }
+}

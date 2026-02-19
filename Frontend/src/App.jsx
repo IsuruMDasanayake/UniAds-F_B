@@ -47,6 +47,7 @@ import EventsAnalyticsPage from './pages/Analytics/EventsAnalyticsPage';
 import RatingsPage from './pages/Analytics/RatingsPage';
 import SubscriptionPage from './pages/Analytics/SubscriptionPage';
 import ApplicationsPageInstitute from './pages/Analytics/ApplicationsPage';
+import GeneralInquiriesPage from './pages/Analytics/GeneralInquiriesPage';
 import AdsPlaceholderPage from './pages/Analytics/AdsPlaceholderPage';
 
 import './App.css';
@@ -105,6 +106,7 @@ function App() {
               <Route path="ratings" element={<RatingsPage />} />
               <Route path="subscription" element={<SubscriptionPage />} />
               <Route path="applications" element={<ApplicationsPageInstitute />} />
+              <Route path="inquiries" element={<GeneralInquiriesPage />} />
               <Route path="ads" element={<AdsPlaceholderPage />} />
               <Route path="*" element={<Navigate to="overview" replace />} />
             </Route>

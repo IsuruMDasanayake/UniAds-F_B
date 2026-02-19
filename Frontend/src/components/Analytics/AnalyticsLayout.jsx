@@ -3,7 +3,7 @@ import { NavLink, Outlet, Link, useLocation } from 'react-router-dom';
 import {
     LayoutDashboard, TrendingUp, FileText, Calendar,
     Star, CreditCard, Megaphone, Menu, X, ChevronRight, LogOut,
-    UserCheck
+    UserCheck, Mail
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axiosClient from '../../lib/axios';
@@ -19,6 +19,7 @@ const AnalyticsLayout = () => {
     const [user, setUser] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [newAppsCount, setNewAppsCount] = useState(0);
+    const [newInquiriesCount, setNewInquiriesCount] = useState(0);
 
     const navItems = [
         { path: '/analytics/overview', label: 'Overview', icon: LayoutDashboard },
@@ -27,6 +28,7 @@ const AnalyticsLayout = () => {
         { path: '/analytics/events', label: 'Events', icon: Calendar },
         { path: '/analytics/ratings', label: 'Reviews', icon: Star },
         { path: '/analytics/applications', label: 'Applications', icon: UserCheck },
+        { path: '/analytics/inquiries', label: 'Inquiries', icon: Mail },
         { path: '/analytics/ads', label: 'Ads Manager', icon: Megaphone },
         { path: '/analytics/subscription', label: 'Subscription', icon: CreditCard },
     ];
@@ -42,6 +44,7 @@ const AnalyticsLayout = () => {
         }
 
         fetchNewAppsCount();
+        fetchNewInquiriesCount();
     }, []);
 
     const fetchNewAppsCount = async () => {
@@ -54,6 +57,19 @@ const AnalyticsLayout = () => {
             }
         } catch (error) {
             console.error('Error fetching new apps count:', error);
+        }
+    };
+
+    const fetchNewInquiriesCount = async () => {
+        try {
+            const { data } = await axiosClient.get('/api/institute/inquiries', {
+                params: { page: 1 }
+            });
+            if (data.stats && data.stats.new !== undefined) {
+                setNewInquiriesCount(data.stats.new);
+            }
+        } catch (error) {
+            console.error('Error fetching new inquiries count:', error);
         }
     };
 
@@ -144,6 +160,9 @@ const AnalyticsLayout = () => {
                             {item.path === '/analytics/applications' && newAppsCount > 0 && (
                                 <span className="nav-badge">{newAppsCount}</span>
                             )}
+                            {item.path === '/analytics/inquiries' && newInquiriesCount > 0 && (
+                                <span className="nav-badge yellow">{newInquiriesCount}</span>
+                            )}
                             {item.path === '/analytics/ads' && (
                                 <span className="badge-soon">SOON</span>
                             )}
@@ -191,7 +210,7 @@ const AnalyticsLayout = () => {
                 </header>
 
                 <div className="content-area">
-                    <Outlet />
+                    <Outlet context={{ fetchNewAppsCount, fetchNewInquiriesCount }} />
                 </div>
             </main>
 

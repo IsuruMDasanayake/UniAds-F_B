@@ -23,7 +23,14 @@ const CommunicationsHistoryModal = ({ isOpen, onClose, history, loading }) => {
                                 <History size={20} className="header-icon" />
                                 <h3>Communication History</h3>
                             </div>
-                            <span className="history-count">{history.length} messages sent</span>
+                            <div className="header-meta-row">
+                                {history.length > 0 && (
+                                    <span className={`type-badge ${history[0].type}`}>
+                                        {history[0].type === 'application' ? 'Course inquiry' : 'General inquiry'}
+                                    </span>
+                                )}
+                                <span className="history-count">{history.length} messages sent</span>
+                            </div>
                         </div>
                         <button className="close-btn" onClick={onClose}><X size={20} /></button>
                     </div>
@@ -57,19 +64,27 @@ const CommunicationsHistoryModal = ({ isOpen, onClose, history, loading }) => {
                                 <table className="history-table">
                                     <thead>
                                         <tr>
-                                            <th>Course & Student</th>
+                                            <th>
+                                                {history.length > 0 && history[0].type === 'application'
+                                                    ? 'Course & Student'
+                                                    : 'Subject & Sender'}
+                                            </th>
                                             <th>Message Details</th>
                                             <th>Sent Date</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {history.map((item) => (
-                                            <tr key={item.id}>
+                                        {history.map((item, index) => (
+                                            <tr key={item.type + (item.id || index)}>
                                                 <td>
                                                     <div className="history-entity">
-                                                        <span className="course-name">{item.apply_case?.course_title || 'Unknown Course'}</span>
+                                                        <span className="course-name">
+                                                            {item.type === 'application'
+                                                                ? (item.apply_case?.course_title || 'Unknown Course')
+                                                                : (item.inquiry?.subject || 'General Inquiry')}
+                                                        </span>
                                                         <span className="student-email">
-                                                            <Mail size={12} /> {item.student_email}
+                                                            <Mail size={12} /> {item.type === 'application' ? item.student_email : item.inquiry?.email}
                                                         </span>
                                                     </div>
                                                 </td>

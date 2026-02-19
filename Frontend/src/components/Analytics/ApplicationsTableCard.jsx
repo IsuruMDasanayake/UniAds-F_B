@@ -1,25 +1,33 @@
 import React from 'react';
-import { Search, X, Filter, History } from 'lucide-react';
+import { Search, X, Filter, History, RefreshCw } from 'lucide-react';
 
 const ApplicationsTableCard = ({
     children,
+    title = "Applications Performance",
+    subtitle,
     search,
     onSearchChange,
+    searchPlaceholder = "Search...",
     status,
     onStatusChange,
-    totalApplications,
+    statusOptions = [
+        { value: 'all', label: 'All Status' },
+        { value: 'new', label: 'New' },
+        { value: 'viewed', label: 'Viewed' },
+        { value: 'contacted', label: 'Contacted' }
+    ],
+    onRefresh,
+    isRefreshing,
+    showHistoryButton,
     onHistoryClick,
-    isFetchingHistory,
-    showHistoryButton
+    isFetchingHistory
 }) => {
     return (
         <div className="analytics-card-v2 applications-table-card">
             <div className="card-header-v2">
                 <div className="header-text-group">
-                    <h2 className="card-title-v2">Applications Performance</h2>
-                    <p className="card-subtitle-v2">
-                        {totalApplications} {totalApplications === 1 ? 'application' : 'applications'} found
-                    </p>
+                    <h2 className="card-title-v2">{title}</h2>
+                    {subtitle && <p className="card-subtitle-v2">{subtitle}</p>}
                 </div>
 
                 <div className="header-actions-v2">
@@ -28,7 +36,7 @@ const ApplicationsTableCard = ({
                         <Search className="search-icon" size={18} />
                         <input
                             type="text"
-                            placeholder="Search by student or course..."
+                            placeholder={searchPlaceholder}
                             value={search}
                             onChange={(e) => onSearchChange(e.target.value)}
                             className="search-input-v2"
@@ -51,12 +59,22 @@ const ApplicationsTableCard = ({
                             onChange={(e) => onStatusChange(e.target.value)}
                             className="status-select-v2"
                         >
-                            <option value="all">All Status</option>
-                            <option value="new">New</option>
-                            <option value="viewed">Viewed</option>
-                            <option value="contacted">Contacted</option>
+                            {statusOptions.map(option => (
+                                <option key={option.value} value={option.value}>{option.label}</option>
+                            ))}
                         </select>
                     </div>
+
+                    {onRefresh && (
+                        <button
+                            className={`action-btn-v2 refresh ${isRefreshing ? 'spinning' : ''}`}
+                            onClick={onRefresh}
+                            disabled={isRefreshing}
+                            title="Refresh Data"
+                        >
+                            <RefreshCw size={18} />
+                        </button>
+                    )}
 
                     {showHistoryButton && (
                         <button

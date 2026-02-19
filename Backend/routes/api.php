@@ -39,6 +39,7 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\MailTemplateController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\InquiryController;
 
 // Authentication routes with rate limiting (5 attempts per minute per IP)
 Route::middleware('throttle:auth')->group(function () {
@@ -166,6 +167,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/applications/{id}/view', [ApplicationController::class, 'markAsViewed']);
         Route::post('/applications/{id}/reply', [ApplicationController::class, 'sendReply']);
         Route::get('/communications/history', [ApplicationController::class, 'communicationsHistory']);
+
+        // Inquiry Management (General Contact)
+        Route::get('/inquiries', [InquiryController::class, 'index']);
+        Route::put('/inquiries/{id}/view', [InquiryController::class, 'markAsViewed']);
+        Route::post('/inquiries/{id}/reply', [InquiryController::class, 'sendReply']);
     });
 });
 

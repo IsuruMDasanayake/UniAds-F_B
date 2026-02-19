@@ -1,21 +1,15 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useLocation, useOutletContext } from 'react-router-dom';
+import { useOutletContext } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import axiosClient from '../../lib/axios';
 import DataTable from '../../components/Analytics/DataTable';
 import {
-    Users,
-    Calendar,
-    Mail,
-    Phone,
-    Eye,
-    CheckCircle,
-    Clock,
-    Search,
+    Inbox,
+    MessageCircle,
+    Activity,
     RefreshCw,
-    Briefcase,
-    MessageSquare,
-    ChevronRight,
-    TrendingUp
+    Mail,
+    Eye
 } from 'lucide-react';
 
 // Components
@@ -23,16 +17,15 @@ import StatCard from '../../components/Analytics/StatCard';
 import SkeletonTable from '../../components/Analytics/SkeletonTable';
 import EmptyState from '../../components/Analytics/EmptyState';
 import ApplicationsTableCard from '../../components/Analytics/ApplicationsTableCard';
-import ApplicationDetailsModal from '../../components/Modals/ApplicationDetailsModal';
+import InquiryDetailsModal from '../../components/Modals/InquiryDetailsModal';
 import CommunicationsHistoryModal from '../../components/Modals/CommunicationsHistoryModal';
-import { History } from 'lucide-react';
 
 // Styling
-import './ApplicationsPage.css';
+import './GeneralInquiriesPage.css';
 
-const ApplicationsPage = () => {
-    const { fetchNewAppsCount } = useOutletContext();
-    const [applications, setApplications] = useState([]);
+const GeneralInquiriesPage = () => {
+    const { fetchNewInquiriesCount } = useOutletContext();
+    const [inquiries, setInquiries] = useState([]);
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
@@ -44,7 +37,7 @@ const ApplicationsPage = () => {
     const [pagination, setPagination] = useState({});
 
     // Modal States
-    const [selectedApplication, setSelectedApplication] = useState(null);
+    const [selectedInquiry, setSelectedInquiry] = useState(null);
     const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
     // Communication History States
@@ -52,12 +45,12 @@ const ApplicationsPage = () => {
     const [showHistoryModal, setShowHistoryModal] = useState(false);
     const [fetchingHistory, setFetchingHistory] = useState(false);
 
-    const fetchApplications = useCallback(async (isInitial = false) => {
+    const fetchInquiries = useCallback(async (isInitial = false) => {
         if (isInitial) setLoading(true);
         else setIsUpdating(true);
 
         try {
-            const { data } = await axiosClient.get('/api/institute/applications', {
+            const { data } = await axiosClient.get('/api/institute/inquiries', {
                 params: {
                     page,
                     search,
@@ -65,17 +58,17 @@ const ApplicationsPage = () => {
                 }
             });
 
-            setApplications(data.applications.data || []);
+            setInquiries(data.inquiries.data || []);
             setStats(data.stats);
             setPagination({
-                current_page: data.applications.current_page,
-                last_page: data.applications.last_page,
-                total: data.applications.total,
-                from: data.applications.from,
-                to: data.applications.to
+                current_page: data.inquiries.current_page,
+                last_page: data.inquiries.last_page,
+                total: data.inquiries.total,
+                from: data.inquiries.from,
+                to: data.inquiries.to
             });
         } catch (error) {
-            console.error('Error fetching applications:', error);
+            console.error('Error fetching inquiries:', error);
         } finally {
             setLoading(false);
             setIsUpdating(false);
@@ -84,34 +77,40 @@ const ApplicationsPage = () => {
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            fetchApplications(!applications.length);
+            fetchInquiries(!inquiries.length);
         }, search ? 500 : 0);
         return () => clearTimeout(timer);
-    }, [search, status, page, fetchApplications]);
+    }, [search, status, page, fetchInquiries]);
 
-    const handleViewDetails = async (application) => {
-        setSelectedApplication(application);
+    const handleViewDetails = async (inquiry) => {
+        setSelectedInquiry(inquiry);
         setDetailsModalOpen(true);
 
         // Mark as viewed if new
-        if (application.status === 'new') {
+        if (inquiry.status === 'new') {
             try {
-                const { data } = await axiosClient.put(`/api/institute/applications/${application.id}/view`);
-                // Update local state update
-                setApplications(prev => prev.map(a => a.id === application.id ? { ...a, status: 'viewed', viewed_at: data.application.viewed_at } : a));
-                // Update stats
-                setStats(prev => ({ ...prev, new: prev.new - 1 }));
+                const { data } = await axiosClient.put(`/api/institute/inquiries/${inquiry.id}/view`);
+                // Update local state
+                setInquiries(prev => prev.map(i => i.id === inquiry.id ? { ...i, status: 'viewed', viewed_at: data.inquiry.viewed_at } : i));
+                setStats(prev => ({ ...prev, new: Math.max(0, prev.new - 1) }));
                 // Refresh sidebar badge
-                fetchNewAppsCount();
-            } catch (err) {
-                console.error('Error marking as viewed:', err);
+                fetchNewInquiriesCount();
+            } catch (error) {
+                console.error('Error marking inquiry as viewed:', error);
             }
         }
     };
 
-    const handleReplySent = (updatedApplication) => {
-        setApplications(prev => prev.map(a => a.id === updatedApplication.id ? { ...a, ...updatedApplication } : a));
-        fetchApplications(false); // Refresh to update stats properly
+    const handleReplySent = (reply) => {
+        // Update the inquiry status in local state to 'contacted'
+        if (selectedInquiry) {
+            setInquiries(prev => prev.map(i =>
+                i.id === selectedInquiry.id
+                    ? { ...i, status: 'contacted', contacted_at: new Date().toISOString() }
+                    : i
+            ));
+        }
+        fetchInquiries(false); // Refresh stats
     };
 
     const handleHistoryClick = async () => {
@@ -120,7 +119,7 @@ const ApplicationsPage = () => {
         setFetchingHistory(true);
         try {
             const { data } = await axiosClient.get('/api/institute/communications/history', {
-                params: { type: 'application' }
+                params: { type: 'inquiry' }
             });
             setCommunicationsHistory(data);
             setShowHistoryModal(true);
@@ -133,42 +132,24 @@ const ApplicationsPage = () => {
 
     const columns = [
         {
-            header: 'Student',
-            accessor: 'student_name',
+            header: 'Sender',
             render: (row) => (
-                <div className="application-student-cell">
-                    <div className="student-avatar">
-                        <Users size={16} />
-                    </div>
-                    <div className="student-info">
-                        <span className="student-name">{row.student_name || 'N/A'}</span>
-                        <span className="student-email">{row.student_email || '—'}</span>
-                    </div>
+                <div className="sender-info">
+                    <div className="sender-name">{row.name}</div>
+                    <div className="sender-email">{row.email}</div>
                 </div>
             )
         },
         {
-            header: 'Course',
-            accessor: 'course_title',
+            header: 'Subject',
             render: (row) => (
-                <div className="application-course-cell">
-                    <span className="course-title" title={row.course_title}>{row.course_title}</span>
-                </div>
-            )
-        },
-        {
-            header: 'Applied At',
-            accessor: 'applied_at',
-            render: (row) => (
-                <div className="date-cell">
-                    <Calendar size={14} className="icon-v2" />
-                    <span>{new Date(row.applied_at).toLocaleDateString()}</span>
+                <div className="inquiry-subject">
+                    {row.subject}
                 </div>
             )
         },
         {
             header: 'Status',
-            accessor: 'status',
             render: (row) => (
                 <span className={`status-badge-v2 ${row.status}`}>
                     <span className="dot"></span>
@@ -177,10 +158,11 @@ const ApplicationsPage = () => {
             )
         },
         {
-            header: 'Contact',
+            header: 'Date Received',
             render: (row) => (
-                <div className="contact-info-cell">
-                    <div className="contact-item"><Phone size={14} /> {row.student_phone || 'N/A'}</div>
+                <div className="date-info">
+                    {new Date(row.created_at).toLocaleDateString()}
+                    <span className="time-sub">{new Date(row.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
             )
         },
@@ -200,72 +182,71 @@ const ApplicationsPage = () => {
         }
     ];
 
-    const isInitialLoading = loading && !stats;
-
     return (
-        <div id="analytics-applications-page" className={isUpdating ? 'updating' : ''}>
-            {/* Header section */}
+        <div id="general-inquiries-page" className={`general-inquiries-page ${isUpdating ? 'updating' : ''}`}>
             <div className={`page-header-card-v2 ${isUpdating ? 'updating' : ''}`}>
                 <div className="header-content-v2">
                     <div className="header-left-v2">
-                        <h1 className="page-title-v2">Applications Analytics</h1>
-                        <p className="page-subtitle-v2">Monitor performance of your course applications across your institute.</p>
+                        <h1 className="page-title-v2">General Inquiries</h1>
+                        <p className="page-subtitle-v2">Manage and respond to direct inquiries from your profile.</p>
                     </div>
+                    {isUpdating && (
+                        <div className="updating-loader-v2">
+                            <RefreshCw className="animate-spin" size={20} />
+                        </div>
+                    )}
                 </div>
             </div>
 
-            {/* Stats Cards */}
-            <div className="stat-cards-row-v2">
+            <div className="stats-grid-v2">
                 <StatCard
-                    icon={Briefcase}
-                    label="Total Applications"
-                    value={stats?.total}
+                    label="Total Inquiries"
+                    value={stats?.total || 0}
+                    icon={Inbox}
                     color="blue"
-                    loading={isInitialLoading}
+                    loading={loading}
                 />
                 <StatCard
-                    icon={TrendingUp}
-                    label="Applications This Month"
-                    value={stats?.this_month}
+                    label="New Messages"
+                    value={stats?.new || 0}
+                    icon={MessageCircle}
                     color="green"
-                    loading={isInitialLoading}
+                    loading={loading}
                 />
                 <StatCard
-                    icon={Clock}
-                    label="New Applications"
-                    value={stats?.new}
+                    label="Monthly Activity"
+                    value={stats?.this_month || 0}
+                    icon={Activity}
                     color="amber"
-                    loading={isInitialLoading}
-                />
-                <StatCard
-                    icon={CheckCircle}
-                    label="Contacted"
-                    value={stats?.contacted}
-                    color="purple"
-                    loading={isInitialLoading}
+                    loading={loading}
                 />
             </div>
 
-            {/* Table Section */}
             <ApplicationsTableCard
-                title="Applications Performance"
-                subtitle={`${pagination.total || 0} applications found`}
+                title="Direct Inquiries"
+                subtitle={`${pagination.total || 0} inquiries found`}
                 search={search}
                 onSearchChange={setSearch}
-                searchPlaceholder="Search by student or course..."
+                searchPlaceholder="Search by sender or subject..."
                 status={status}
                 onStatusChange={setStatus}
                 showHistoryButton={true}
                 onHistoryClick={handleHistoryClick}
                 isFetchingHistory={fetchingHistory}
+                statusOptions={[
+                    { value: 'all', label: 'All Messages' },
+                    { value: 'new', label: 'New' },
+                    { value: 'viewed', label: 'Reviewed' },
+                    { value: 'contacted', label: 'Contacted' }
+                ]}
             >
                 <div className="table-container-v2">
                     {loading ? (
-                        <SkeletonTable rows={5} cols={6} />
-                    ) : applications.length > 0 ? (
+                        <SkeletonTable rows={5} cols={5} />
+                    ) : inquiries.length > 0 ? (
                         <DataTable
                             columns={columns}
-                            data={applications}
+                            data={inquiries}
                             pagination={pagination}
                             onPageChange={setPage}
                             loading={isUpdating}
@@ -274,9 +255,9 @@ const ApplicationsPage = () => {
                         />
                     ) : (
                         <EmptyState
-                            icon={FileText}
-                            title="No applications found"
-                            type="applications"
+                            icon={Mail}
+                            title="No inquiries found"
+                            type="inquiries"
                             search={search}
                             status={status}
                         />
@@ -285,11 +266,11 @@ const ApplicationsPage = () => {
             </ApplicationsTableCard>
 
             {/* Modal */}
-            {selectedApplication && (
-                <ApplicationDetailsModal
+            {selectedInquiry && (
+                <InquiryDetailsModal
                     isOpen={detailsModalOpen}
                     onClose={() => setDetailsModalOpen(false)}
-                    application={selectedApplication}
+                    inquiry={selectedInquiry}
                     onReplySent={handleReplySent}
                 />
             )}
@@ -304,4 +285,4 @@ const ApplicationsPage = () => {
     );
 };
 
-export default ApplicationsPage;
+export default GeneralInquiriesPage;

@@ -56,12 +56,6 @@
     pointer-events: none;
 }
 
-#analytics-ratings-v2.updating .table-responsive-wrapper {
-    opacity: 0.6;
-    filter: blur(1px);
-    transition: all 0.2s ease;
-}
-
 /* Header Section - Now using global styles from AnalyticsLayout.css */
 
 /* Stats Row */
@@ -549,12 +543,6 @@
 /* Table Updating Styles */
 .ratings-table-card.updating {
     pointer-events: none;
-}
-
-.ratings-table-card.updating .table-responsive-wrapper {
-    opacity: 0.6;
-    filter: blur(1px);
-    transition: all 0.2s ease;
 }
 
 .ratings-table-card.updating .rating-distribution-v2 {

@@ -200,7 +200,7 @@
 .ic-form-textarea:focus {
     background: white;
     border-color: var(--c-primary);
-    box-shadow: 0 0 0 4px rgba(255, 193, 7, 0.1);
+    box-shadow: 0 0 0 4px rgba(79, 80, 97, 0.1);
 }
 
 .ic-form-textarea {
@@ -209,7 +209,7 @@
 }
 
 .ic-submit-button {
-    background: var(--c-primary);
+    background: var(--c-accent);
     color: white;
     padding: 1rem 2rem;
     border-radius: 12px;
@@ -217,15 +217,13 @@
     border: none;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
     margin-top: 1rem;
     width: fit-content;
 }
 
 .ic-submit-button:hover:not(:disabled) {
-    background: var(--c-primary-hover);
+    background: var(--c-accent-hover);
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(255, 193, 7, 0.4);
 }
 
 .ic-submit-button:active:not(:disabled) {

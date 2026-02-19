@@ -2,7 +2,14 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { FileSearch } from 'lucide-react';
 
-const EmptyState = ({ search, status }) => {
+const EmptyState = ({
+    search,
+    status,
+    icon: Icon = FileSearch,
+    title = "No results found",
+    subtitle: customSubtitle,
+    type = "items"
+}) => {
     return (
         <motion.div
             className="empty-state-wrapper"
@@ -10,22 +17,17 @@ const EmptyState = ({ search, status }) => {
             animate={{ opacity: 1, y: 0 }}
         >
             <div className="empty-state-icon">
-                <FileSearch size={48} />
+                <Icon size={48} />
             </div>
-            <h3 className="empty-state-title">No posts found</h3>
+            <h3 className="empty-state-title">{title}</h3>
             <p className="empty-state-subtitle">
-                {search
-                    ? `We couldn't find any posts matching "${search}"`
+                {customSubtitle || (search
+                    ? `We couldn't find any ${type} matching "${search}"`
                     : status !== 'all'
-                        ? `You don't have any ${status} posts at the moment.`
-                        : "Start creating course posts to track their performance here."
-                }
+                        ? `You don't have any ${status} ${type} at the moment.`
+                        : `Start tracking your ${type} performance here.`
+                )}
             </p>
-            {!search && status === 'all' && (
-                <p className="empty-state-hint">
-                    Create your first course post to start tracking analytics.
-                </p>
-            )}
         </motion.div>
     );
 };

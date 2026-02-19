@@ -175,13 +175,36 @@ class ApplicationController extends Controller
     }
     public function communicationsHistory(Request $request)
     {
-        $instituteId = $request->user()->institute->id;
+        $instituteId = Auth::user()->institute->id;
+        $type = $request->query('type');
 
-        $history = ContactedEmail::with('applyCase:id,course_title')
-            ->where('institute_id', $instituteId)
-            ->latest('sent_at')
-            ->get();
+        $history = collect();
 
-        return response()->json($history);
+        if (!$type || $type === 'application') {
+            $appHistory = ContactedEmail::with('applyCase:id,course_title')
+                ->where('institute_id', $instituteId)
+                ->get()
+                ->map(function ($item) {
+                    $item->type = 'application';
+                    return $item;
+                });
+            $history = $history->concat($appHistory);
+        }
+
+        if (!$type || $type === 'inquiry') {
+            $inquiryHistory = \App\Models\InquiryCommunication::with('inquiry:id,subject,email')
+                ->where('institute_id', $instituteId)
+                ->get()
+                ->map(function ($item) {
+                    $item->type = 'inquiry';
+                    $item->student_email = $item->inquiry?->email;
+                    return $item;
+                });
+            $history = $history->concat($inquiryHistory);
+        }
+
+        $sortedHistory = $history->sortByDesc('sent_at')->values();
+
+        return response()->json($sortedHistory);
     }
 }

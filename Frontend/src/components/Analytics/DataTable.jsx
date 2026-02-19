@@ -14,7 +14,14 @@ const DataTable = ({
     onRowClick
 }) => {
     return (
-        <div className="analytics-data-table-component">
+        <div className={`analytics-data-table-component ${loading ? 'table-loading' : ''}`}>
+            {/* Real-time Refresh Progress Bar */}
+            {loading && (
+                <div className="table-refresh-progress">
+                    <div className="progress-bar-segment"></div>
+                </div>
+            )}
+
             {/* Controls */}
             {showSearch && (
                 <div className="table-controls">
@@ -28,7 +35,6 @@ const DataTable = ({
                             className="search-input"
                         />
                     </div>
-                    {/* Additional filters can go here */}
                 </div>
             )}
 
@@ -38,19 +44,19 @@ const DataTable = ({
                     <thead className="table-header">
                         <tr>
                             {columns.map((col, idx) => (
-                                <th key={idx} className="table-header-cell">
+                                <th key={idx} className="table-header-cell" style={col.headerStyle}>
                                     {col.header}
                                 </th>
                             ))}
                         </tr>
                     </thead>
                     <tbody className="table-body">
-                        {loading ? (
+                        {loading && data.length === 0 ? (
                             [...Array(5)].map((_, i) => (
                                 <tr key={i} className="table-row">
                                     {columns.map((_, j) => (
                                         <td key={j} className="table-cell">
-                                            <div className="h-4 bg-slate-100 rounded animate-pulse"></div>
+                                            <div className="skeleton-h-4 bg-slate-100 rounded animate-pulse"></div>
                                         </td>
                                     ))}
                                 </tr>
@@ -64,7 +70,7 @@ const DataTable = ({
                                 >
                                     {columns.map((col, j) => (
                                         <td key={j} className="table-cell">
-                                            <div className="table-cell-actions">
+                                            <div className="table-cell-content">
                                                 {col.render ? col.render(row) : row[col.accessor]}
                                             </div>
                                         </td>
@@ -73,8 +79,11 @@ const DataTable = ({
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={columns.length} className="table-cell text-center text-slate-500 py-8">
-                                    No results found
+                                <td colSpan={columns.length} className="table-cell text-center text-slate-500 py-12">
+                                    <div className="empty-results">
+                                        <p className="font-semibold text-lg">No results found</p>
+                                        <p className="text-sm opacity-60">Try adjusting your filters or search query</p>
+                                    </div>
                                 </td>
                             </tr>
                         )}
