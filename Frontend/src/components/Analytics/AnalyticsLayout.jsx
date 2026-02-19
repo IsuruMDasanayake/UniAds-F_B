@@ -6,6 +6,7 @@ import {
     UserCheck
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import axiosClient from '../../lib/axios';
 import { getStorageUrl } from '../../lib/config';
 import { useSettings } from '../../context/SettingsContext';
 import EditProfileModal from '../../pages/InstituteProfile/modals/EditProfileModal';
@@ -17,6 +18,7 @@ const AnalyticsLayout = () => {
     const location = useLocation();
     const [user, setUser] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [newAppsCount, setNewAppsCount] = useState(0);
 
     const navItems = [
         { path: '/analytics/overview', label: 'Overview', icon: LayoutDashboard },
@@ -38,7 +40,22 @@ const AnalyticsLayout = () => {
         } catch (error) {
             console.error('Error loading user data:', error);
         }
+
+        fetchNewAppsCount();
     }, []);
+
+    const fetchNewAppsCount = async () => {
+        try {
+            const { data } = await axiosClient.get('/api/institute/applications', {
+                params: { per_page: 1 }
+            });
+            if (data.stats && data.stats.new !== undefined) {
+                setNewAppsCount(data.stats.new);
+            }
+        } catch (error) {
+            console.error('Error fetching new apps count:', error);
+        }
+    };
 
     const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
     const closeMobileMenu = () => setIsMobileMenuOpen(false);
@@ -111,7 +128,7 @@ const AnalyticsLayout = () => {
                 </div>
 
                 <nav className="sidebar-nav">
-                    
+
 
                     {navItems.map((item) => (
                         <NavLink
@@ -124,6 +141,9 @@ const AnalyticsLayout = () => {
                         >
                             <item.icon size={20} />
                             <span className="nav-label">{item.label}</span>
+                            {item.path === '/analytics/applications' && newAppsCount > 0 && (
+                                <span className="nav-badge">{newAppsCount}</span>
+                            )}
                             {item.path === '/analytics/ads' && (
                                 <span className="badge-soon">SOON</span>
                             )}
