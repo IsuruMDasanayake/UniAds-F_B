@@ -107,20 +107,23 @@ const ApplicationsPage = () => {
                                 <th>Student</th>
                                 <th>Course</th>
                                 <th>Institute</th>
+                                <th>Status</th>
                                 <th>Applied At</th>
+                                <th>Viewed At</th>
+                                <th>Contacted At</th>
                             </tr>
                         </thead>
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan="4" className="text-center p-12">
+                                    <td colSpan="7" className="text-center p-12">
                                         <div className="loader mx-auto mb-4"></div>
                                         <p className="text-muted">Loading applications...</p>
                                     </td>
                                 </tr>
                             ) : applications.length === 0 ? (
                                 <tr>
-                                    <td colSpan="4" className="text-center p-12">
+                                    <td colSpan="7" className="text-center p-12">
                                         <p className="text-muted">No applications found.</p>
                                     </td>
                                 </tr>
@@ -146,9 +149,25 @@ const ApplicationsPage = () => {
                                             </div>
                                         </td>
                                         <td>
+                                            <span className={`status-badge-v2 min-w-[100px] ${app.status}`}>
+                                                <span className="dot"></span>
+                                                {app.status?.charAt(0).toUpperCase() + app.status?.slice(1)}
+                                            </span>
+                                        </td>
+                                        <td>
                                             <div className="flex items-center gap-2 text-sm text-muted">
                                                 <Calendar size={14} />
-                                                {app.applied_at ? new Date(app.applied_at).toLocaleString() : new Date(app.created_at).toLocaleString()}
+                                                {app.applied_at ? new Date(app.applied_at).toLocaleDateString() : new Date(app.created_at).toLocaleDateString()}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className="text-sm text-muted">
+                                                {app.viewed_at ? new Date(app.viewed_at).toLocaleString() : '-'}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className="text-sm text-muted">
+                                                {app.contacted_at ? new Date(app.contacted_at).toLocaleString() : '-'}
                                             </div>
                                         </td>
                                     </tr>
