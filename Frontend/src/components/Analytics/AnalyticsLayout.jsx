@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, Link, useLocation } from 'react-router-dom';
 import {
     LayoutDashboard, TrendingUp, FileText, Calendar,
-    Star, CreditCard, Megaphone, Menu, X, ChevronRight, LogOut
+    Star, CreditCard, Megaphone, Menu, X, ChevronRight, LogOut,
+    UserCheck
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getStorageUrl } from '../../lib/config';
@@ -23,6 +24,7 @@ const AnalyticsLayout = () => {
         { path: '/analytics/posts', label: 'Posts', icon: FileText },
         { path: '/analytics/events', label: 'Events', icon: Calendar },
         { path: '/analytics/ratings', label: 'Reviews', icon: Star },
+        { path: '/analytics/applications', label: 'Applications', icon: UserCheck },
         { path: '/analytics/ads', label: 'Ads Manager', icon: Megaphone },
         { path: '/analytics/subscription', label: 'Subscription', icon: CreditCard },
     ];
@@ -109,9 +111,7 @@ const AnalyticsLayout = () => {
                 </div>
 
                 <nav className="sidebar-nav">
-                    <div className="nav-section-title">
-                        Dashboard
-                    </div>
+                    
 
                     {navItems.map((item) => (
                         <NavLink

@@ -204,3 +204,29 @@
         background-position: -200% 0;
     }
 }
+
+@media (max-width: 640px) {
+    .analytics-stat-card-component {
+        padding: 1rem;
+        gap: 0.75rem;
+    }
+
+    .analytics-stat-card-component .stat-icon-wrapper {
+        width: 2.25rem;
+        height: 2.25rem;
+    }
+
+    .analytics-stat-card-component .stat-icon-wrapper svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .analytics-stat-card-component .stat-value {
+        font-size: 1.25rem;
+    }
+
+    .analytics-stat-card-component .stat-label {
+        font-size: 0.7rem;
+        margin-bottom: 0.25rem;
+    }
+}

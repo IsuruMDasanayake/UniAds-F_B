@@ -425,56 +425,7 @@ class PostController extends Controller
         ]);
     }
 
-    // Submit Course Application
-    // Submit Course Application
-    public function apiApply(Request $request, $instituteId)
-    {
-        Log::info("Entering apiApply for institute: " . $instituteId);
 
-        $request->validate([
-            'post_id' => 'required|exists:posts,id',
-            'course_title' => 'required|string',
-            'name' => 'required|string',
-            'email' => 'required|email',
-            'phone' => 'required|string',
-            'message' => 'required|string',
-            'privacy_consent' => 'accepted'
-        ]);
-
-        try {
-            // Log the full application details (since ApplyCase currently stores limited info)
-            Log::info("New Course Application: ", $request->all());
-
-            ApplyCase::create([
-                'user_id' => auth()->id(),
-                'institute_id' => $instituteId,
-                'post_id' => $request->post_id,
-                'course_title' => $request->course_title,
-                'applied_at' => now(),
-            ]);
-
-            // Send Email to Institute
-            $institute = Institute::findOrFail($instituteId);
-            $emailData = [
-                'course_title' => $request->course_title,
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'message' => $request->message,
-            ];
-
-            Mail::send('emails.course_application', ['data' => $emailData], function ($message) use ($institute, $request) {
-                $message->to($institute->email)
-                    ->subject('New Course Application: ' . $request->course_title)
-                    ->from($request->email, $request->name);
-            });
-
-            return response()->json(['message' => 'Application submitted successfully']);
-        } catch (\Exception $e) {
-            Log::error("Application Submission Error: " . $e->getMessage());
-            return response()->json(['message' => 'Failed to submit application: ' . $e->getMessage()], 500);
-        }
-    }
 
     // Get paginated posts API
     public function apiIndex()

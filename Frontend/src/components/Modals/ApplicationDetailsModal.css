@@ -1,0 +1,385 @@
+/* ApplicationDetailsModal.css */
+
+.modal-overlay-v2 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.7);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+
+#application-details-modal {
+    background: white;
+    width: 100%;
+    max-width: 900px;
+    max-height: 90vh;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#application-details-modal .modal-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8fafc;
+}
+
+#application-details-modal .header-info h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+#application-details-modal .application-id {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-top: 4px;
+    display: inline-block;
+}
+
+#application-details-modal .close-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 12px;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border-bottom: none;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    color: var(--c-dark);
+}
+
+#application-details-modal .close-btn:hover {
+    transform: rotate(90deg) scale(1.1);
+    background: white;
+    color: #ef4444;
+}
+
+#application-details-modal .modal-body {
+    padding: 2rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+#application-details-modal .modal-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+}
+
+@media (min-width: 768px) {
+    #application-details-modal .modal-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+#application-details-modal .info-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+#application-details-modal .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #475569;
+    margin: 0 0 1rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+#application-details-modal .info-card {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 1.25rem;
+    border: 1px solid #e2e8f0;
+}
+
+#application-details-modal .info-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 1rem;
+}
+
+#application-details-modal .info-row:last-child {
+    margin-bottom: 0;
+}
+
+#application-details-modal .info-row .label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #94a3b8;
+}
+
+#application-details-modal .info-row .value {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+#application-details-modal .student-email-link {
+    color: var(--c-primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#application-details-modal .course-highlight {
+    color: #2563eb !important;
+    font-size: 1.0625rem !important;
+}
+
+#application-details-modal .course-card-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+#application-details-modal .course-info-text {
+    flex: 1;
+}
+
+#application-details-modal .course-post-image {
+    width: 110px;
+    height: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    flex-shrink: 0;
+    background: #f1f5f9;
+}
+
+#application-details-modal .course-post-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+#application-details-modal .course-post-image:hover img {
+    transform: scale(1.1);
+}
+
+#application-details-modal .student-message-box {
+    background: #f1f5f9;
+    padding: 1.25rem;
+    border-radius: 16px;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: #334155;
+    border: 1px dashed #cbd5e1;
+}
+
+#application-details-modal .reply-container {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+#application-details-modal .input-group {
+    margin-bottom: 1.25rem;
+}
+
+#application-details-modal .input-group label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 6px;
+}
+
+#application-details-modal .input-group input,
+#application-details-modal .input-group textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 0.9375rem;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+#application-details-modal .input-group input:focus,
+#application-details-modal .input-group textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.08);
+}
+
+#application-details-modal .send-reply-btn {
+    width: 100%;
+    padding: 0.875rem;
+    background: var(--c-primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+#application-details-modal .send-reply-btn:hover:not(:disabled) {
+    background: var(--c-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(37, 99, 235, 0.2);
+}
+
+#application-details-modal .send-reply-btn.success {
+    background: #10b981;
+}
+
+#application-details-modal .reply-error {
+    background: #fef2f2;
+    color: #b91c1c;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#application-details-modal .reply-hint {
+    font-size: 0.75rem;
+    color: #64748b;
+    text-align: center;
+    margin-top: 1rem;
+}
+
+#application-details-modal .history-trigger {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #64748b;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 10px;
+    transition: all 0.2s;
+}
+
+#application-details-modal .history-trigger:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+#application-details-modal .history-trigger .rotate {
+    transform: rotate(180deg);
+}
+
+#application-details-modal .history-content {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #f1f5f9;
+}
+
+#application-details-modal .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+#application-details-modal .history-item {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+}
+
+#application-details-modal .history-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+#application-details-modal .history-subject {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 0.9rem;
+}
+
+#application-details-modal .history-date {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+#application-details-modal .history-body {
+    font-size: 0.875rem;
+    color: #475569;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+@media (max-width: 768px) {
+    #application-details-modal {
+        max-width: 90%;
+        max-height: 90vh;
+    }
+
+    #application-details-modal .modal-body {
+        padding: 2rem;
+    }
+}
+
+/* Animations */
+#application-details-modal .animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

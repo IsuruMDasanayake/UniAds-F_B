@@ -105,7 +105,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/search', [SearchController::class, 'apiSearch']);
 
     // Course Applications
-    Route::post('/course/apply/{institute}', [PostController::class, 'apiApply']);
+    Route::post('/course/apply/{institute}', [\App\Http\Controllers\CourseApplicationController::class, 'apply']);
 
     // Existing route for storing institute if any...
 
@@ -159,6 +159,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/analytics/subscription', [AnalyticsController::class, 'apiSubscription']);
         Route::get('/analytics/subscriptions', [AnalyticsController::class, 'apiSubscriptions']);
         Route::post('/subscription/cancel', [SubscriptionController::class, 'apiCancelUnified']);
+
+        // Application Management
+        Route::get('/applications', [ApplicationController::class, 'index']);
+        Route::get('/applications/{id}', [ApplicationController::class, 'show']);
+        Route::put('/applications/{id}/view', [ApplicationController::class, 'markAsViewed']);
+        Route::post('/applications/{id}/reply', [ApplicationController::class, 'sendReply']);
+        Route::get('/communications/history', [ApplicationController::class, 'communicationsHistory']);
     });
 });
 
