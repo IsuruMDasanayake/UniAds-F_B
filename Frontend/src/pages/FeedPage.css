@@ -532,8 +532,8 @@
 }
 
 .feed-page-wrapper .event-card-institute {
-    color: var(--c-dark);
-    font-weight: 600;
+    color: var(--c-accent);
+    font-weight: 800;
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -542,7 +542,7 @@
 .feed-page-wrapper .event-card-title {
     font-size: 1rem;
     font-weight: 700;
-    color: var(--c-dark);
+    color: var(--c-primary);
     margin: 0;
     line-height: 1.4;
     display: -webkit-box;
