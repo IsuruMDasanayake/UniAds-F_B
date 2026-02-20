@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axiosClient from '../../lib/axios';
+import { useParams, Link } from 'react-router-dom';
 import StatCard from '../../components/Analytics/StatCard';
 import PeriodFilter from '../../components/Analytics/PeriodFilter';
 import PerformanceSummary from '../../components/Analytics/PerformanceSummary';
@@ -10,6 +11,7 @@ import { motion } from 'framer-motion';
 import './OverviewPage.css';
 
 const OverviewPage = () => {
+    const { slug } = useParams();
     const [period, setPeriod] = useState(30);
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -189,9 +191,9 @@ const OverviewPage = () => {
                         {hasPositiveGrowth ? '🎉 Great Performance!' : '📊 Room for Improvement'}
                     </h3>
                     <p className="cta-text">{ctaMessage}</p>
-                    <a href="/analytics/trends" className="cta-button">
+                    <Link to={`/analytics/${slug}/trends`} className="cta-button">
                         View Detailed Trends
-                    </a>
+                    </Link>
                 </motion.div>
             )}
         </div>

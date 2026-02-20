@@ -159,11 +159,15 @@ const InstitutionsPage = () => {
                                         />
                                     </div>
                                     <div className="ins-card-top">
-                                        <img
-                                            src={inst.profile_photo ? getStorageUrl(inst.profile_photo) : '/images/profile.png'}
-                                            alt={inst.institute_name}
-                                            className="ins-logo-img"
-                                        />
+                                        <Link
+                                            to={(user?.role === 'Institute' && user?.institute?.id === inst.id) ? '/profile' : `/institutions/${inst.slug || inst.id}/profile`}
+                                        >
+                                            <img
+                                                src={inst.profile_photo ? getStorageUrl(inst.profile_photo) : '/images/profile.png'}
+                                                alt={inst.institute_name}
+                                                className="ins-logo-img"
+                                            />
+                                        </Link>
                                         {!!inst.is_premium && (
                                             <div className="ins-premium-tag">
                                                 <BadgeCheck size={16} fill="#ff4757" color="#fff" />
@@ -173,7 +177,12 @@ const InstitutionsPage = () => {
                                     </div>
                                     <div className="ins-card-body">
                                         <h3>
-                                            {inst.institute_name}
+                                            <Link
+                                                to={(user?.role === 'Institute' && user?.institute?.id === inst.id) ? '/profile' : `/institutions/${inst.slug || inst.id}/profile`}
+                                                style={{ textDecoration: 'none', color: 'inherit' }}
+                                            >
+                                                {inst.institute_name}
+                                            </Link>
                                         </h3>
                                         <div className="ins-meta-info">
                                             <span className="ins-location-text">
@@ -187,7 +196,7 @@ const InstitutionsPage = () => {
                                     </div>
                                     <div className="ins-card-actions">
                                         <Link
-                                            to={(user?.role === 'Institute' && user?.institute?.id === inst.id) ? '/profile' : `/institutions/${inst.id}/profile`}
+                                            to={(user?.role === 'Institute' && user?.institute?.id === inst.id) ? '/profile' : `/institutions/${inst.slug || inst.id}/profile`}
                                             className="ins-btn-profile"
                                         >
                                             View Profile

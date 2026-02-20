@@ -172,7 +172,7 @@ function SavedPostsPage() {
                                     <div className="saved-post-content">
                                         <div className="saved-post-header">
                                             <Link
-                                                to={(user?.role === 'Institute' && user?.institute?.id === post.institute?.id) ? '/profile' : `/institutions/${post.institute?.id}/profile`}
+                                                to={(user?.role === 'Institute' && user?.institute?.id === post.institute?.id) ? '/profile' : `/institutions/${post.institute?.slug || post.institute?.id}/profile`}
                                                 className="institute-badge-top"
                                                 style={{ textDecoration: 'none', color: 'inherit' }}
                                             >

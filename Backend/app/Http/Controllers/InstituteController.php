@@ -140,7 +140,8 @@ class InstituteController extends Controller
     {
         $user = auth()->user();
 
-        $institute = Institute::findOrFail($id);
+        $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
+        $id = $institute->id;
 
         $follow = Follower::where('user_id', $user->id)
             ->where('institute_id', $id)
@@ -167,8 +168,9 @@ class InstituteController extends Controller
 
     public function apiShowProfile($id)
     {
-        // Fetch the institute by its ID
-        $institute = Institute::findOrFail($id);
+        // Fetch the institute by ID or Slug
+        $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
+        $id = $institute->id; // Use numeric ID for subsequent queries like AboutSection
         $categories = Category::all();
 
         $posts = $institute->posts()
@@ -191,7 +193,7 @@ class InstituteController extends Controller
 
         $user = auth()->user();
 
-        $aboutSection = \App\Models\AboutSection::where('institute_id', $id)->first();
+        $aboutSection = \App\Models\AboutSection::where('institute_id', $institute->id)->first();
 
         // Track View similar to showProfile but adaptable for API if needed
         // For now, skipping view tracking or could implement same logic if request has IP
@@ -200,7 +202,7 @@ class InstituteController extends Controller
         $isFollowing = false;
         if (Auth::check()) {
             $isFollowing = Follower::where('user_id', Auth::id())
-                ->where('institute_id', $id)
+                ->where('institute_id', $institute->id)
                 ->exists();
         }
 
@@ -217,7 +219,8 @@ class InstituteController extends Controller
     public function apiUpdateProfile(Request $request, $id)
     {
         try {
-            $institute = Institute::findOrFail($id);
+            $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
+            $id = $institute->id; // Ensure we have the numeric ID for subsequent logic
             $user = Auth::user();
 
             // Check if user belongs to this institute
@@ -310,7 +313,8 @@ class InstituteController extends Controller
 
     public function apiStoreAbout(Request $request, $id)
     {
-        $institute = Institute::findOrFail($id);
+        $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
+        $id = $institute->id;
 
         // Authorization check
         $user = Auth::user();
@@ -361,7 +365,9 @@ class InstituteController extends Controller
 
     public function apiUpdateAbout(Request $request, $id)
     {
-        $institute = Institute::findOrFail($id);
+        $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
+        // and using $id for rest of local logic
+        $id = $institute->id; // Ensure we use numeric ID for query
         $about = \App\Models\AboutSection::where('institute_id', $id)->firstOrFail();
 
         // Authorization check
@@ -443,7 +449,8 @@ class InstituteController extends Controller
 
     public function apiDestroyAbout($id)
     {
-        $institute = Institute::findOrFail($id);
+        $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
+        $id = $institute->id;
         $about = \App\Models\AboutSection::where('institute_id', $id)->firstOrFail();
 
         // Authorization check

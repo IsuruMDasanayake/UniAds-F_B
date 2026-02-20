@@ -248,7 +248,7 @@ function EventsPage() {
 
                                     <div className="card-details">
                                         <Link
-                                            to={(user?.role === 'Institute' && user?.institute?.id === event.institute?.id) ? '/profile' : `/institutions/${event.institute?.id}/profile`}
+                                            to={(user?.role === 'Institute' && user?.institute?.id === event.institute?.id) ? '/profile' : `/institutions/${event.institute?.slug || event.institute?.id}/profile`}
                                             className="institute-tag"
                                             style={{ textDecoration: 'none', color: 'inherit' }}
                                         >

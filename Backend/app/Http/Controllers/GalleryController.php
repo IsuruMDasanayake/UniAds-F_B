@@ -11,7 +11,8 @@ class GalleryController extends Controller
 {
     public function index($id)
     {
-        $gallery = InstituteGallery::where('institute_id', $id)->get();
+        $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
+        $gallery = InstituteGallery::where('institute_id', $institute->id)->get();
         return response()->json($gallery);
     }
 
@@ -25,9 +26,12 @@ class GalleryController extends Controller
         // Store the image in the 'institute_gallery' folder within 'public' storage
         $imagePath = $request->file('image')->store('institute_gallery', 'public');
 
+        // Resolve institute
+        $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
+
         // Create a new gallery entry in the database
         $gallery = InstituteGallery::create([
-            'institute_id' => $id, // Associate the image with the institute by its ID
+            'institute_id' => $institute->id, // Associate the image with the institute by its ID
             'image_path' => $imagePath, // Store the path to the uploaded image
         ]);
 

@@ -1,38 +1,58 @@
 import { useEffect, useState } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import axiosClient from '../lib/axios';
+import UnauthorizedAccess from './Analytics/UnauthorizedAccess';
 
 const InstituteRoute = ({ children }) => {
     const [loading, setLoading] = useState(true);
-    const [isInstitute, setIsInstitute] = useState(false);
+    const [accessState, setAccessState] = useState('LOADING'); // LOADING, AUTHORIZED, DENIED_USER, DENIED_NONPREMIUM
 
     useEffect(() => {
-        const checkUser = async () => {
+        const checkAccess = async () => {
             try {
-                const { data } = await axiosClient.get('/api/user');
-                if (data.role === 'Institute') {
-                    setIsInstitute(true);
+                const { data } = await axiosClient.get('/api/profile/me');
+
+                if (data.role !== 'Institute') {
+                    setAccessState('DENIED_USER');
+                } else if (data.institute?.is_premium !== 1) {
+                    setAccessState('DENIED_NONPREMIUM');
+                } else {
+                    setAccessState('AUTHORIZED');
                 }
             } catch (error) {
-                console.error('Auth check failed', error);
+                console.error('Access check failed', error);
+                // If 401, axiosClient interceptor will handle redirect to login
+                // For other errors, we default to denied user to be safe
+                setAccessState('DENIED_USER');
             } finally {
                 setLoading(false);
             }
         };
 
-        checkUser();
+        checkAccess();
     }, []);
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-slate-50">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="loading-overlay-v2">
+                <div className="spinner-box">
+                    <div className="ui-loader loader-blk">
+                        <svg viewBox="22 22 44 44" className="multiColor-loader">
+                            <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="3.6" className="loader-circle loader-circle-animation"></circle>
+                        </svg>
+                    </div>
+                    <p>Verifying access...</p>
+                </div>
             </div>
         );
     }
 
-    if (!isInstitute) {
-        return <Navigate to="/login" replace />;
+    if (accessState === 'DENIED_USER') {
+        return <UnauthorizedAccess type="USER" />;
+    }
+
+    if (accessState === 'DENIED_NONPREMIUM') {
+        return <UnauthorizedAccess type="NON_PREMIUM" />;
     }
 
     return children ? children : <Outlet />;

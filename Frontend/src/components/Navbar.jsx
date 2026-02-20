@@ -166,9 +166,14 @@ function Navbar({ user }) {
                             </button>
                             {dropdownOpen && (
                                 <div className="navbar-dropdown-menu">
-                                    <Link to="/profile">Profile</Link>
+                                    {displayUser?.role === 'Institute' && (
+                                        <Link to="/profile">Profile</Link>
+                                    )}
+                                    {displayUser?.role === 'User' && (
+                                        <Link to="/profile">Profile</Link>
+                                    )}
                                     {displayUser?.role === 'Institute' && displayUser?.institute?.is_premium === 1 && (
-                                        <Link to="/analytics/overview" className="analytics-link">
+                                        <Link to={`/analytics/${displayUser?.institute?.slug || displayUser?.institute?.id}/overview`} className="analytics-link" target="_blank" rel="noopener noreferrer">
                                             Dashboard
                                         </Link>
                                     )}

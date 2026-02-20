@@ -259,7 +259,7 @@ const InstituteManagement = () => {
                                                     </button>
                                                 )}
                                                 <a
-                                                    href={`/institutions/${inst.id}/profile`}
+                                                    href={`/institutions/${inst.slug || inst.id}/profile`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="action-btn-sm view"

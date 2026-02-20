@@ -97,6 +97,12 @@ const MainProfilePage = () => {
                 setEvents(data.events?.data || []);
                 setAbout(data.about);
                 setIsFollowing(!!data.isFollowing);
+
+                // Add redirection logic for numeric IDs to slugs
+                if (/^\d+$/.test(id) && data.institute.slug) {
+                    const newPath = location.pathname.replace(`/institutions/${id}`, `/institutions/${data.institute.slug}`);
+                    navigate(newPath, { replace: true });
+                }
             }
 
             if (!id && data.institute) {

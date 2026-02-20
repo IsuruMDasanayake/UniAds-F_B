@@ -29,8 +29,9 @@ class CourseApplicationController extends Controller
             'privacy_consent' => 'accepted'
         ]);
 
-        // Get the institute by ID
-        $institute = Institute::findOrFail($institute_id);
+        // Get the institute by ID or slug
+        $institute = is_numeric($institute_id) ? Institute::findOrFail($institute_id) : Institute::where('slug', $institute_id)->firstOrFail();
+        $institute_id = $institute->id; // Use numeric ID for subsequent queries
 
         // Store application in apply_cases table
         $alreadyApplied = ApplyCase::where('user_id', Auth::id())

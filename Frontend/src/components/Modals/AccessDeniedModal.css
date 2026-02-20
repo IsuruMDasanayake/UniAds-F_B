@@ -28,11 +28,8 @@
 .access-denied-content .close-btn {
     position: absolute;
     top: 16px;
-    right: 16px;
-    background: transparent;
+    right: 16px; 
     border: none;
-    width: 32px;
-    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -40,11 +37,20 @@
     cursor: pointer;
     color: var(--c-text-muted);
     transition: all 0.2s;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    z-index: 50;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    color: var(--c-dark);
 }
 
 .access-denied-content .close-btn:hover {
-    background: var(--c-slate-100);
-    color: var(--c-text-body);
+    transform: rotate(90deg) scale(1.1);
+    background: white;
+    color: #ef4444;
 }
 
 .access-denied-content .icon-wrapper {

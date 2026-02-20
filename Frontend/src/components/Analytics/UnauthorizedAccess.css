@@ -1,0 +1,196 @@
+.ua-unauthorized-access-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8fafc;
+    position: relative;
+    overflow: hidden;
+    padding: 2rem;
+}
+
+.ua-unauthorized-card {
+    background: rgba(255, 255, 255, 0.8);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 24px;
+    padding: 3rem;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+    position: relative;
+    z-index: 10;
+}
+
+.ua-icon-circle {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+}
+
+.ua-icon-circle.ua-danger {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.ua-icon-circle.ua-warning {
+    background: #fef3c7;
+    color: #f59e0b;
+}
+
+.ua-unauthorized-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+}
+
+.ua-unauthorized-message {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: #64748b;
+    margin-bottom: 2rem;
+}
+
+.ua-unauthorized-message strong {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.ua-countdown-timer {
+    background: #f1f5f9;
+    padding: 0.75rem 1.5rem;
+    border-radius: 999px;
+    display: inline-block;
+    font-size: 0.875rem;
+    color: #475569;
+    margin-bottom: 2.5rem;
+}
+
+.ua-countdown-timer span {
+    font-weight: 700;
+    color: #0f172a;
+    margin-left: 0.25rem;
+}
+
+.ua-unauthorized-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.ua-back-btn,
+.ua-logout-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 48px;
+    padding: 0 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.ua-back-btn {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+}
+
+.ua-back-btn:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
+}
+
+.ua-logout-btn {
+    background: #0f172a;
+    border: 1px solid #0f172a;
+    color: #ffffff;
+}
+
+.ua-logout-btn:hover {
+    background: #1e293b;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.ua-unauthorized-footer {
+    border-top: 1px solid #f1f5f9;
+    padding-top: 1.5rem;
+}
+
+.ua-home-link {
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 0 auto;
+    color: #64748b;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.ua-home-link:hover {
+    color: #2563eb;
+}
+
+.ua-unauthorized-background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.ua-blob {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
+    filter: blur(80px);
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.ua-blob-1 {
+    top: -100px;
+    right: -100px;
+    animation: ua-float 20s infinite alternate;
+}
+
+.ua-blob-2 {
+    bottom: -100px;
+    left: -100px;
+    animation: ua-float 25s infinite alternate-reverse;
+}
+
+@keyframes ua-float {
+    from {
+        transform: translate(0, 0);
+    }
+
+    to {
+        transform: translate(100px, 100px);
+    }
+}
+
+@media (max-width: 640px) {
+    .ua-unauthorized-card {
+        padding: 2rem;
+    }
+}

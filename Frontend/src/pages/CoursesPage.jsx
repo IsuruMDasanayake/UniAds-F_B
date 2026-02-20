@@ -237,7 +237,7 @@ const CoursesPage = () => {
                                         <div className="card-inner">
                                             <div className="inst-row">
                                                 <Link
-                                                    to={(user?.role === 'Institute' && user?.institute?.id === post.institute?.id) ? '/profile' : `/institutions/${post.institute?.id}/profile`}
+                                                    to={(user?.role === 'Institute' && user?.institute?.id === post.institute?.id) ? '/profile' : `/institutions/${post.institute?.slug || post.institute?.id}/profile`}
                                                     style={{ textDecoration: 'none' }}
                                                 >
                                                     <img
@@ -247,7 +247,7 @@ const CoursesPage = () => {
                                                 </Link>
                                                 <div className="inst-meta">
                                                     <Link
-                                                        to={(user?.role === 'Institute' && user?.institute?.id === post.institute?.id) ? '/profile' : `/institutions/${post.institute?.id}/profile`}
+                                                        to={(user?.role === 'Institute' && user?.institute?.id === post.institute?.id) ? '/profile' : `/institutions/${post.institute?.slug || post.institute?.id}/profile`}
                                                         style={{ textDecoration: 'none', color: 'inherit' }}
                                                     >
                                                         <span className="name">

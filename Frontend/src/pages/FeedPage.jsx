@@ -410,7 +410,7 @@ function FeedPage() {
                                 <div className="post-content">
                                     <div className="post-header">
                                         <Link
-                                            to={(user?.role === 'Institute' && user?.institute?.id === post.institute?.id) ? '/profile' : `/institutions/${post.institute?.id}/profile`}
+                                            to={(user?.role === 'Institute' && user?.institute?.id === post.institute?.id) ? '/profile' : `/institutions/${post.institute?.slug || post.institute?.id}/profile`}
                                             className="institute-link"
                                         >
                                             <img
@@ -421,7 +421,7 @@ function FeedPage() {
                                         </Link>
                                         <div className="post-meta">
                                             <Link
-                                                to={(user?.role === 'Institute' && user?.institute?.id === post.institute?.id) ? '/profile' : `/institutions/${post.institute?.id}/profile`}
+                                                to={(user?.role === 'Institute' && user?.institute?.id === post.institute?.id) ? '/profile' : `/institutions/${post.institute?.slug || post.institute?.id}/profile`}
                                                 className="institute-name-link"
                                                 style={{ textDecoration: 'none', color: 'inherit' }}
                                             >

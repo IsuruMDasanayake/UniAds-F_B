@@ -11,6 +11,7 @@ class Institute extends Model
 
     protected $fillable = [
         'institute_name',
+        'slug',
         'location',
         'gov_register_number',
         'email',
@@ -30,6 +31,23 @@ class Institute extends Model
         'reviews_enabled',
         'profile_views',
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($institute) {
+            if (empty($institute->slug)) {
+                $institute->slug = \Illuminate\Support\Str::slug($institute->institute_name);
+            }
+        });
+
+        static::updating(function ($institute) {
+            if (empty($institute->slug)) {
+                $institute->slug = \Illuminate\Support\Str::slug($institute->institute_name);
+            }
+        });
+    }
 
     protected $appends = ['average_rating', 'rating_count'];
 

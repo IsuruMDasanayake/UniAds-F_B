@@ -92,7 +92,7 @@ function App() {
             <Route path="/institutions/:id/events" element={<MainProfilePage />} />
 
             {/* Institute Analytics - Wrapped in InstituteRoute */}
-            <Route path="/analytics/*" element={
+            <Route path="/analytics/:slug/*" element={
               <InstituteRoute>
                 <div className="analytics-module">
                   <AnalyticsLayout />
@@ -110,6 +110,15 @@ function App() {
               <Route path="ads" element={<AdsPlaceholderPage />} />
               <Route path="*" element={<Navigate to="overview" replace />} />
             </Route>
+
+            {/* Fallback for old /analytics/* paths - AnalyticsLayout will handle redirection to :slug */}
+            <Route path="/analytics/*" element={
+              <InstituteRoute>
+                <div className="analytics-module">
+                  <AnalyticsLayout />
+                </div>
+              </InstituteRoute>
+            } />
 
             {/* Admin Routes - Wrapped in Layout and Protected */}
             <Route path="/admin/*" element={

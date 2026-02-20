@@ -136,7 +136,7 @@
             </div>
 
             <div class="social-links">
-                <a href="http://localhost:3000">Visit Website</a> •
+                <a href="http://localhost:3000">Visit Website</a>
 
             </div>
 

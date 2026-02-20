@@ -6,12 +6,14 @@ use Illuminate\Http\Request;
 use App\Models\Rating;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Institute;
 
 class RatingsController extends Controller
 {
     public function apiIndex($id)
     {
-        $ratings = Rating::where('institute_id', $id)
+        $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
+        $ratings = Rating::where('institute_id', $institute->id)
             ->with('user:id,name,profile_picture')
             ->orderBy('created_at', 'desc')
             ->get();
@@ -26,8 +28,10 @@ class RatingsController extends Controller
             'comment' => 'nullable|string|max:500',
         ]);
 
+        $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
+
         $rating = Rating::updateOrCreate(
-            ['user_id' => auth()->id(), 'institute_id' => $id],
+            ['user_id' => auth()->id(), 'institute_id' => $institute->id],
             ['rating' => $request->rating, 'comment' => $request->comment]
         );
 
@@ -56,8 +60,10 @@ class RatingsController extends Controller
             'comment' => 'nullable|string|max:500',
         ]);
 
+        $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
+
         $rating = Rating::updateOrCreate(
-            ['user_id' => auth()->id(), 'institute_id' => $id],
+            ['user_id' => auth()->id(), 'institute_id' => $institute->id],
             ['rating' => $request->rating, 'comment' => $request->comment]
         );
 

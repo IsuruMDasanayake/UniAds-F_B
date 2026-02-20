@@ -18,7 +18,7 @@ class ContactController extends Controller
 
     public function sendContactMessage(Request $request, $id)
     {
-        $institute = Institute::findOrFail($id);
+        $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -69,7 +69,7 @@ class ContactController extends Controller
 
     public function apiSendContactMessage(Request $request, $id)
     {
-        $institute = Institute::findOrFail($id);
+        $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
 
         $request->validate([
             'name' => 'required|string|max:255',

@@ -345,7 +345,8 @@ class EventController extends Controller
                 'event_image' => 'required|image|max:2048',
             ]);
 
-            $institute = Institute::findOrFail($id);
+            $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
+            $id = $institute->id; // Ensure numeric ID for subsequent comparisons
             $user = Auth::user();
 
             // Check if user belongs to this institute

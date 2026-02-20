@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, Outlet, Link, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import {
     LayoutDashboard, TrendingUp, FileText, Calendar,
     Star, CreditCard, Megaphone, Menu, X, ChevronRight, LogOut,
@@ -15,6 +15,8 @@ import './AnalyticsLayout.css';
 const AnalyticsLayout = () => {
     const { settings } = useSettings();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const { slug } = useParams();
+    const navigate = useNavigate();
     const location = useLocation();
     const [user, setUser] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -22,22 +24,30 @@ const AnalyticsLayout = () => {
     const [newInquiriesCount, setNewInquiriesCount] = useState(0);
 
     const navItems = [
-        { path: '/analytics/overview', label: 'Overview', icon: LayoutDashboard },
-        { path: '/analytics/trends', label: 'Trends', icon: TrendingUp },
-        { path: '/analytics/posts', label: 'Posts', icon: FileText },
-        { path: '/analytics/events', label: 'Events', icon: Calendar },
-        { path: '/analytics/ratings', label: 'Reviews', icon: Star },
-        { path: '/analytics/applications', label: 'Applications', icon: UserCheck },
-        { path: '/analytics/inquiries', label: 'Inquiries', icon: Mail },
-        { path: '/analytics/ads', label: 'Ads Manager', icon: Megaphone },
-        { path: '/analytics/subscription', label: 'Subscription', icon: CreditCard },
+        { path: `/analytics/${slug}/overview`, label: 'Overview', icon: LayoutDashboard },
+        { path: `/analytics/${slug}/trends`, label: 'Trends', icon: TrendingUp },
+        { path: `/analytics/${slug}/posts`, label: 'Posts', icon: FileText },
+        { path: `/analytics/${slug}/events`, label: 'Events', icon: Calendar },
+        { path: `/analytics/${slug}/ratings`, label: 'Reviews', icon: Star },
+        { path: `/analytics/${slug}/applications`, label: 'Applications', icon: UserCheck },
+        { path: `/analytics/${slug}/inquiries`, label: 'Inquiries', icon: Mail },
+        { path: `/analytics/${slug}/ads`, label: 'Ads Manager', icon: Megaphone },
+        { path: `/analytics/${slug}/subscription`, label: 'Subscription', icon: CreditCard },
     ];
 
     useEffect(() => {
         try {
             const storedUser = localStorage.getItem('APP_USER');
             if (storedUser) {
-                setUser(JSON.parse(storedUser));
+                const userData = JSON.parse(storedUser);
+                setUser(userData);
+
+                // Handle Redirection if slug is missing
+                if (!slug && userData?.institute?.slug) {
+                    const pathParts = location.pathname.split('/');
+                    const subPath = pathParts[2] || 'overview';
+                    navigate(`/analytics/${userData.institute.slug}/${subPath}`, { replace: true });
+                }
             }
         } catch (error) {
             console.error('Error loading user data:', error);
@@ -45,7 +55,7 @@ const AnalyticsLayout = () => {
 
         fetchNewAppsCount();
         fetchNewInquiriesCount();
-    }, []);
+    }, [slug, navigate, location.pathname]);
 
     const fetchNewAppsCount = async () => {
         try {
@@ -157,13 +167,13 @@ const AnalyticsLayout = () => {
                         >
                             <item.icon size={20} />
                             <span className="nav-label">{item.label}</span>
-                            {item.path === '/analytics/applications' && newAppsCount > 0 && (
+                            {item.path.includes('/applications') && newAppsCount > 0 && (
                                 <span className="nav-badge">{newAppsCount}</span>
                             )}
-                            {item.path === '/analytics/inquiries' && newInquiriesCount > 0 && (
+                            {item.path.includes('/inquiries') && newInquiriesCount > 0 && (
                                 <span className="nav-badge yellow">{newInquiriesCount}</span>
                             )}
-                            {item.path === '/analytics/ads' && (
+                            {item.path.includes('/ads') && (
                                 <span className="badge-soon">SOON</span>
                             )}
                         </NavLink>

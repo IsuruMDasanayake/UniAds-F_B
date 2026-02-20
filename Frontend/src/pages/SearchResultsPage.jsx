@@ -186,7 +186,7 @@ function SearchResultsPage() {
                                     <div className="search-post-content">
                                         <div className="search-post-header">
                                             <Link
-                                                to={`/institutions/${post.institute?.id}/profile`}
+                                                to={(user?.role === 'Institute' && user?.institute?.id === post.institute?.id) ? '/profile' : `/institutions/${post.institute?.slug || post.institute?.id}/profile`}
                                                 className="institute-badge-top"
                                                 style={{ textDecoration: 'none', color: 'inherit' }}
                                             >
