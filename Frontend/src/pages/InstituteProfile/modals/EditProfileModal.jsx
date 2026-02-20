@@ -8,6 +8,7 @@ import '../InstituteModals.css';
 const EditProfileModal = ({ institute, onClose, onUpdate }) => {
     const [formData, setFormData] = useState({
         institute_name: '',
+        institute_type: '',
         location: '',
         email: '',
         contact_number: '',
@@ -29,6 +30,7 @@ const EditProfileModal = ({ institute, onClose, onUpdate }) => {
         if (institute) {
             setFormData({
                 institute_name: institute.institute_name || '',
+                institute_type: institute.institute_type || '',
                 location: institute.location || '',
                 email: institute.email || '',
                 contact_number: institute.contact_number || '',
@@ -192,6 +194,23 @@ const EditProfileModal = ({ institute, onClose, onUpdate }) => {
                                 <div className="form-group">
                                     <label>Institute Name:</label>
                                     <input type="text" name="institute_name" value={formData.institute_name} onChange={handleChange} required />
+                                </div>
+                                <div className="form-group">
+                                    <label>Institute Type:</label>
+                                    <select name="institute_type" value={formData.institute_type} onChange={handleChange} required className="modal-select">
+                                        <option value="">Select Type</option>
+                                        <option value="University">University</option>
+                                        <option value="Higher Education Institute">Higher Education Institute</option>
+                                        <option value="College">College</option>
+                                        <option value="Institute">Institute</option>
+                                        <option value="Training Center">Training Center</option>
+                                        <option value="Vocational Training Center">Vocational Training Center</option>
+                                        <option value="Technical Institute">Technical Institute</option>
+                                        <option value="Professional Institute">Professional Institute</option>
+                                        <option value="Academy">Academy</option>
+                                        <option value="Government Institute">Government Institute</option>
+                                        <option value="International Institute">International Institute</option>
+                                    </select>
                                 </div>
                                 <div className="form-group">
                                     <label>Location:</label>

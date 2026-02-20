@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, MapPin, UserPlus, Check, PlusCircle, Calendar as CalendarIcon, Edit, BarChart3, Star, StarHalf, MessageSquare, BadgeCheck } from 'lucide-react';
+import { Mail, MapPin, UserPlus, Check, PlusCircle, Calendar as CalendarIcon, Edit, BarChart3, Star, StarHalf, MessageSquare, BadgeCheck, Building2 } from 'lucide-react';
 import './ProfileHeader.css';
 
 // Assuming these modals are defined elsewhere and imported
@@ -60,20 +60,20 @@ const ProfileHeader = ({
         const hasHalfStar = rating - fullStars >= 0.5;
 
         for (let i = 0; i < fullStars; i++) {
-            stars.push(<Star key={`full-${i}`} size={16} fill="currentColor" color="currentColor" />);
+            stars.push(<Star key={`full-${i}`} size={14} fill="#ffc107" color="#ffc107" />);
         }
         if (hasHalfStar) {
-            stars.push(<StarHalf key="half" size={16} fill="currentColor" color="currentColor" />);
+            stars.push(<StarHalf key="half" size={14} fill="#ffc107" color="#ffc107" />);
         }
         const remaining = 5 - stars.length;
         for (let i = 0; i < remaining; i++) {
-            stars.push(<Star key={`empty-${i}`} size={16} color="#e2e8f0" />);
+            stars.push(<Star key={`empty-${i}`} size={14} color="#ffc107" />);
         }
 
         return (
-            <div className="flex items-center gap-1 stars-summary">
-                <div className="flex star-display">{stars}</div>
-                <span className="text-sm text-gray-600 font-medium numeric-rating">({rating.toFixed(1)}) - {count} Ratings</span>
+            <div className="stars-summary">
+                <div className="star-display">{stars}</div>
+                <span className="numeric-rating">({rating.toFixed(1)}) - {count} Ratings</span>
             </div>
         );
     };
@@ -125,24 +125,31 @@ const ProfileHeader = ({
                         <p className="profile-bio">{institute.bio || ""}</p>
 
                         <div className="profile-stats-row">
-                            <div className="meta-item">
-                                <MapPin size={16} /> {institute.location}
+                            <div className="profile-stats-grid">
+                                <div className="meta-item">
+                                    <MapPin size={16} /> {institute.location}
+                                </div>
+
+                                {institute.institute_type && (
+                                    <div className="meta-item">
+                                        <Building2 size={16} /> {institute.institute_type}
+                                    </div>
+                                )}
                             </div>
-                            {/* <div className="meta-item">
-                                <Mail size={16} /> {institute.email}
-                            </div> */}
 
-                            {isPremium && institute.followers_enabled == 1 && (
-                                <div className="meta-item accent">
-                                    <UserPlus size={16} /> <strong>{institute.followers_count || 0}</strong> &nbsp;Followers
-                                </div>
-                            )}
+                            <div className="profile-stats-grid">
+                                {isPremium && institute.reviews_enabled == 1 && (
+                                    <div className="meta-item">
+                                        {renderStars()}
+                                    </div>
+                                )}
 
-                            {isPremium && institute.reviews_enabled == 1 && (
-                                <div className="rating-summary-container">
-                                    {renderStars()}
-                                </div>
-                            )}
+                                {isPremium && institute.followers_enabled == 1 && (
+                                    <div className="meta-item">
+                                        <UserPlus size={16} /> <strong>{institute.followers_count || 0}</strong> &nbsp;Followers
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
 

@@ -78,6 +78,7 @@ class RegisteredUserController extends Controller
         $request->validate([
             // Institute fields
             'institute_name' => ['required', 'string', 'max:255'],
+            'institute_type' => ['required', 'string', 'in:University,Higher Education Institute,College,Institute,Training Center,Vocational Training Center,Technical Institute,Professional Institute,Academy,Government Institute,International Institute'],
             'email' => ['required', 'email', 'unique:users,email'],
             'location' => ['required', 'string'],
             'contact_number' => ['required', 'string'],
@@ -102,6 +103,7 @@ class RegisteredUserController extends Controller
             $institute = Institute::create([
                 'user_id' => $user->id,
                 'institute_name' => $request->institute_name,
+                'institute_type' => $request->institute_type,
                 'email' => $request->email,
                 'location' => $request->location,
                 'contact_number' => $request->contact_number,

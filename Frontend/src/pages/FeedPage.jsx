@@ -540,7 +540,6 @@ function FeedPage() {
                                                 <div className="event-card-content">
                                                     <div className="event-meta-row">
                                                         <span className="event-date-badge">
-                                                            <Calendar size={12} style={{ marginRight: '4px' }} />
                                                             {formatDate(event.event_date)}
                                                         </span>
                                                         <span className="event-card-institute">{event.institute?.institute_name}</span>

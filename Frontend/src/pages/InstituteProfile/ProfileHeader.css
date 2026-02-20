@@ -153,9 +153,16 @@
 
 .profile-stats-row {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.profile-stats-grid {
+    display: flex;
     flex-wrap: wrap;
     gap: 12px;
+    justify-content: flex-start;
 }
 
 /* Pill Shaped Meta Items */
@@ -167,12 +174,10 @@
     background: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 100px;
-    /* Pill shape */
-    color: #64748b;
+    color: #475569;
     font-size: 0.95rem;
-    font-weight: 500;
-    white-space: normal;
-    /* Allow wrap for long locations on mobile */
+    font-weight: 600;
+    white-space: nowrap;
     transition: all 0.2s ease;
 }
 
@@ -183,20 +188,21 @@
 }
 
 .meta-item svg {
-    color: var(--c-text-muted);
+    color: #64748b;
 }
 
+/* Accent (Followers) now matches regular */
 .meta-item.accent {
-    background: var(--c-primary-soft);
+    background: #ffffff;
     border-color: #e2e8f0;
-    color: var(--c-text-muted);
+    color: #475569;
 }
 
 .meta-item.accent svg {
-    color: var(--c-primary);
+    color: #64748b;
 }
 
-/* Stars / Ratings Pill */
+/* Stars / Ratings Pill matching meta-item */
 .rating-summary-container {
     display: inline-flex;
 }
@@ -215,18 +221,18 @@
 
 .rating-summary-inline:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .stars-box {
     display: flex;
     align-items: center;
     gap: 2px;
-    color: var(--c-bookmark);
+    color: #ffc107;
 }
 
 .rating-text {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-weight: 600;
     color: #475569;
 }
@@ -470,7 +476,12 @@
     }
 
     .profile-stats-row {
+        align-items: center;
+    }
+
+    .profile-stats-grid {
         justify-content: center;
+        grid-template-columns: repeat(2, minmax(0, auto));
     }
 
     .owner-tools,
@@ -516,23 +527,18 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 6px 16px;
-    background: white;
-    border-radius: 999px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    border: 1px solid #f1f5f9;
 }
 
 .star-display {
     display: flex;
     align-items: center;
     gap: 2px;
-    color: var(--c-bookmark) !important;
+    color: #ffc107 !important;
 }
 
-.stars-summary:hover {
-    transform: scale(1.02);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+.numeric-rating {
+    font-weight: 600;
+    color: #475569;
 }
 
 /* Mobile / Expanded Navbar (< 900px) */
@@ -547,6 +553,20 @@
     .cover-photo-container {
         height: 250px;
         margin-bottom: 80px;
+    }
+
+    .profile-stats-grid {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .meta-item {
+        justify-content: center;
+        width: auto;
+        flex: 0 1 auto;
+        min-width: 0;
+        padding: 6px 14px;
+        font-size: 0.85rem;
     }
 
     .title-row {
@@ -572,38 +592,47 @@
     .owner-tools,
     .visitor-tools {
         flex-wrap: wrap;
+        margin-top: -20px;
     }
 }
 
 @media (max-width: 480px) {
     .profile-content {
-        padding: 20px;
+        padding: 20px 15px;
     }
 
     .photo-inner {
-        width: 120px;
-        height: 120px;
+        width: 130px;
+        height: 130px;
     }
 
-    .profile-tabs {
-        gap: 8px;
-        overflow-x: auto;
-        padding: 0 15px 5px 15px;
-        justify-content: center;
-        /* Center tabs for a balanced look */
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
+    .stars-summary {
+        gap: 4px;
     }
 
-    .profile-tabs::-webkit-scrollbar {
-        display: none;
+    .numeric-rating {
+        font-size: 0.75rem;
     }
+}
 
-    .tab-btn {
-        padding: 12px 10px;
-        font-size: 0.7rem;
-        flex-shrink: 0;
-        letter-spacing: 1px;
-        align-items: center !important;
-    }
+.profile-tabs {
+    gap: 8px;
+    overflow-x: auto;
+    padding: 0 15px 5px 15px;
+    justify-content: center;
+    /* Center tabs for a balanced look */
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.profile-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.tab-btn {
+    padding: 12px 10px;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+    letter-spacing: 1px;
+    align-items: center !important;
 }

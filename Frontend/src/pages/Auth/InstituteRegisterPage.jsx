@@ -12,6 +12,7 @@ const InstituteRegisterPage = () => {
     const { settings } = useSettings();
     const [formData, setFormData] = useState({
         institute_name: '',
+        institute_type: '',
         email: '',
         location: '',
         gov_register_number: '',
@@ -32,6 +33,20 @@ const InstituteRegisterPage = () => {
         website: '',
         password: ''
     });
+
+    const instituteTypes = [
+        "University",
+        "Higher Education Institute",
+        "College",
+        "Institute",
+        "Training Center",
+        "Vocational Training Center",
+        "Technical Institute",
+        "Professional Institute",
+        "Academy",
+        "Government Institute",
+        "International Institute"
+    ];
 
     // Strong password validation (matches Blade template)
     const calculatePasswordStrength = (pass) => {
@@ -137,6 +152,10 @@ const InstituteRegisterPage = () => {
 
         if (!formData.institute_name.trim()) {
             validationErrors.institute_name = "Institute name is required";
+        }
+
+        if (!formData.institute_type) {
+            validationErrors.institute_type = "Institute type is required";
         }
 
         if (!isValidEmail(formData.email)) {
@@ -314,8 +333,8 @@ const InstituteRegisterPage = () => {
                             {errors.institute_name && <span className="error-text">{errors.institute_name}</span>}
                         </div>
 
-                        {/* Email */}
-                        <div className="form-group full-width">
+                        {/* Email and Institute Type */}
+                        <div className="form-group">
                             <label htmlFor="email">Email</label>
                             <input
                                 type="email"
@@ -327,6 +346,24 @@ const InstituteRegisterPage = () => {
                                 required
                             />
                             {errors.email && <span className="error-text">{errors.email}</span>}
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="institute_type">Institute Type</label>
+                            <select
+                                id="institute_type"
+                                name="institute_type"
+                                className={`form-input ${errors.institute_type ? 'input-error' : ''}`}
+                                value={formData.institute_type}
+                                onChange={handleChange}
+                                required
+                            >
+                                <option value="">Select Type</option>
+                                {instituteTypes.map(type => (
+                                    <option key={type} value={type}>{type}</option>
+                                ))}
+                            </select>
+                            {errors.institute_type && <span className="error-text">{errors.institute_type}</span>}
                         </div>
 
                         {/* Location */}

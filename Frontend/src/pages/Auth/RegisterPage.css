@@ -335,7 +335,7 @@
 }
 
 .register-auth-container .institute-btn-bottom {
-    background: linear-gradient(135deg, var(--c-success) 0%, #059669 100%);
+    background: linear-gradient(135deg, var(--c-primary) 0%, #1a1c55 100%);
     color: white;
     text-decoration: none;
     padding: 0.6rem 1.5rem;
@@ -345,7 +345,7 @@
     transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 15px rgba(var(--c-primary), 0.3);
     display: inline-block;
     width: 62%;
     margin: 0 auto;
@@ -353,9 +353,9 @@
 }
 
 .register-auth-container .institute-btn-bottom:hover {
-    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    background: linear-gradient(135deg, #1a1c55 0%, var(--c-primary) 100%);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 6px 20px rgba(var(--c-primary), 0.4);
 }
 
 /* ============================================

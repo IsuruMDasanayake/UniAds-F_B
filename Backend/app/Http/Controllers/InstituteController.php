@@ -233,6 +233,7 @@ class InstituteController extends Controller
             // Validate inputs
             $request->validate([
                 'institute_name' => 'required|string|max:255',
+                'institute_type' => 'required|string|in:University,Higher Education Institute,College,Institute,Training Center,Vocational Training Center,Technical Institute,Professional Institute,Academy,Government Institute,International Institute',
                 'location' => 'required|string|max:255',
                 'email' => [
                     'required',
@@ -267,6 +268,7 @@ class InstituteController extends Controller
 
             // Update fields
             $institute->institute_name = $request->institute_name;
+            $institute->institute_type = $request->institute_type;
             $institute->location = $request->location;
             $institute->email = $request->email;
             $institute->contact_number = $request->contact_number;

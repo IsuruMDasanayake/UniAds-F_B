@@ -12,6 +12,7 @@ class Institute extends Model
     protected $fillable = [
         'institute_name',
         'slug',
+        'institute_type',
         'location',
         'gov_register_number',
         'email',
