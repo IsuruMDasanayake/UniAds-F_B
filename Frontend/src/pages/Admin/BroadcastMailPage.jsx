@@ -206,7 +206,7 @@ const BroadcastMailPage = () => {
     };
 
     return (
-        <div className="broadcast-mail-page admin-page-container">
+        <div className="broadcast-mail-page">
             <div className="page-header mb-8">
                 <div className="header-text">
                     <h1 className="text-2xl font-bold">Broadcast Email</h1>

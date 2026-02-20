@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronUp, Search } from 'lucide-react';
+import { ChevronDown, ChevronUp, Search, Building2 } from 'lucide-react';
 import axiosClient from '../../lib/axios';
 import './FilterComponents.css';
 
