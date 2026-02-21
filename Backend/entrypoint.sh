@@ -24,11 +24,11 @@ done
 
 # Run Migrations
 echo "Running migrations..."
-php artisan migrate --force
+php artisan migrate --force || true
 
 # Run Mail Template Seeder
 echo "Seeding Mail Templates..."
-php artisan db:seed --class=MailTemplateSeeder --force
+php artisan db:seed --class=MailTemplateSeeder --force || true
 
 # Start PHP-FPM
 echo "Starting PHP-FPM..."

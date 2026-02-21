@@ -41,6 +41,8 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Api\ChatConversationController;
+use App\Http\Controllers\Api\ChatMessageController;
 
 // Authentication routes with rate limiting (5 attempts per minute per IP)
 Route::middleware('throttle:auth')->group(function () {
@@ -139,6 +141,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/institutions/{id}/gallery', [GalleryController::class, 'index']);
     Route::post('/institute/gallery/store/{id}', [GalleryController::class, 'store']);
     Route::delete('/institute/gallery/{id}', [GalleryController::class, 'destroy']);
+
+    // Chat API
+    Route::prefix('chat')->group(function () {
+        Route::get('/conversations', [ChatConversationController::class, 'index']);
+        Route::post('/start', [ChatConversationController::class, 'store']);
+
+        Route::get('/{conversation}/messages', [ChatMessageController::class, 'index']);
+        Route::post('/{conversation}/send', [ChatMessageController::class, 'store']);
+        Route::post('/{conversation}/mark-read', [ChatMessageController::class, 'markRead']);
+    });
 
     // Ratings & Reviews
     Route::get('/institutes/{id}/ratings', [RatingsController::class, 'apiIndex']);

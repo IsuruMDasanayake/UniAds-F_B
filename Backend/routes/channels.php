@@ -16,3 +16,16 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
+
+Broadcast::channel('conversation.{id}', function ($user, $id) {
+    $institute = $user->institute;
+
+    return \App\Models\ConversationParticipant::where('conversation_id', $id)
+        ->where(function ($query) use ($user, $institute) {
+            $query->where('user_id', $user->id);
+            if ($institute) {
+                $query->orWhere('institute_id', $institute->id);
+            }
+        })
+        ->exists();
+});

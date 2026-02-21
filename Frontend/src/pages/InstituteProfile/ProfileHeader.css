@@ -341,6 +341,23 @@
     transform: translateY(-1px);
 }
 
+.btn-message {
+    background: var(--c-primary);
+    color: white;
+    border: none;
+}
+
+.btn-message:hover {
+    background: var(--c-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.2);
+}
+
+.btn-message:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
 /* Navigation Tabs */
 .profile-tabs-wrapper {
     margin-top: 30px;

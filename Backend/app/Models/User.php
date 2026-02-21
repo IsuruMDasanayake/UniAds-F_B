@@ -69,9 +69,14 @@ class User extends Authenticatable
         return $this->hasMany(PostLike::class);
     }
 
-    public function chats()
+    public function conversations()
     {
-        return $this->hasMany(Chat::class, 'user1_id')->orWhere('user2_id', $this->id);
+        return $this->hasManyThrough(Conversation::class, ConversationParticipant::class, 'user_id', 'id', 'id', 'conversation_id');
+    }
+
+    public function conversationParticipations()
+    {
+        return $this->hasMany(ConversationParticipant::class);
     }
 
     public function messages()

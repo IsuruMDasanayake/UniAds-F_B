@@ -36,6 +36,9 @@ import AdminInboxPage from './pages/Admin/AdminInboxPage';
 import ActivityLogPage from './pages/Admin/ActivityLogPage';
 
 import { SettingsProvider } from './context/SettingsContext';
+import { ChatProvider } from './context/ChatContext';
+import { useState, useEffect } from 'react';
+import axiosClient from './lib/axios';
 
 // Analytics Module
 import InstituteRoute from './components/InstituteRoute';
@@ -48,106 +51,134 @@ import RatingsPage from './pages/Analytics/RatingsPage';
 import SubscriptionPage from './pages/Analytics/SubscriptionPage';
 import ApplicationsPageInstitute from './pages/Analytics/ApplicationsPage';
 import GeneralInquiriesPage from './pages/Analytics/GeneralInquiriesPage';
+import ChatPage from './pages/Analytics/ChatPage';
 import AdsPlaceholderPage from './pages/Analytics/AdsPlaceholderPage';
 
 import './App.css';
 
 function App() {
+  const [user, setUser] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem('APP_USER');
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await axiosClient.get('/api/user');
+        setUser(response.data);
+        localStorage.setItem('APP_USER', JSON.stringify(response.data));
+      } catch (error) {
+        // User not logged in or token invalid
+      }
+    };
+    if (localStorage.getItem('ACCESS_TOKEN')) {
+      fetchUser();
+    }
+  }, []);
+
   return (
     <SettingsProvider>
-      <Router>
-        <ScrollToTop />
-        <div className="App">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/institutionprofileadd" element={<InstituteRegisterPage />} />
-            <Route path="/institute/dashboard" element={<InstituteDashboard />} />
-            <Route path="/saved-posts" element={<SavedPostsPage />} />
-            <Route path="/institutions" element={<InstitutionsPage />} />
-            <Route path="/courses" element={<CoursesPage />} />
-            <Route path="/courses/:filterType/:filterValue" element={<CoursesPage />} />
-            <Route path="/events" element={<EventsPage />} />
-            <Route path="/feed" element={<FeedPage />} />
-            <Route path="/search" element={<SearchResultsPage />} />
-            <Route path="/pricing" element={<PricingPage />} />
-            <Route path="/profile" element={<ProfileWrapper />} />
-            <Route path="/profile/feed" element={<ProfileWrapper />} />
-            <Route path="/profile/about" element={<ProfileWrapper />} />
-            <Route path="/profile/courses" element={<ProfileWrapper />} />
-            <Route path="/profile/contact" element={<ProfileWrapper />} />
-            <Route path="/profile/events" element={<ProfileWrapper />} />
+      <ChatProvider user={user}>
+        <Router>
+          <ScrollToTop />
+          <div className="App">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/institutionprofileadd" element={<InstituteRegisterPage />} />
+              <Route path="/institute/dashboard" element={<InstituteDashboard />} />
+              <Route path="/saved-posts" element={<SavedPostsPage />} />
+              <Route path="/institutions" element={<InstitutionsPage />} />
+              <Route path="/courses" element={<CoursesPage />} />
+              <Route path="/courses/:filterType/:filterValue" element={<CoursesPage />} />
+              <Route path="/events" element={<EventsPage />} />
+              <Route path="/feed" element={<FeedPage />} />
+              <Route path="/search" element={<SearchResultsPage />} />
+              <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/profile" element={<ProfileWrapper />} />
+              <Route path="/profile/feed" element={<ProfileWrapper />} />
+              <Route path="/profile/about" element={<ProfileWrapper />} />
+              <Route path="/profile/courses" element={<ProfileWrapper />} />
+              <Route path="/profile/contact" element={<ProfileWrapper />} />
+              <Route path="/profile/events" element={<ProfileWrapper />} />
 
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/terms-conditions" element={<TermsConditions />} />
-            <Route path="/refund-policy" element={<RefundPolicy />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-conditions" element={<TermsConditions />} />
+              <Route path="/refund-policy" element={<RefundPolicy />} />
 
-            <Route path="/institutions/:id/profile" element={<MainProfilePage />} />
-            <Route path="/institutions/:id/about" element={<MainProfilePage />} />
-            <Route path="/institutions/:id/courses" element={<MainProfilePage />} />
-            <Route path="/institutions/:id/contact" element={<MainProfilePage />} />
-            <Route path="/institutions/:id/events" element={<MainProfilePage />} />
+              <Route path="/institutions/:id/profile" element={<MainProfilePage />} />
+              <Route path="/institutions/:id/about" element={<MainProfilePage />} />
+              <Route path="/institutions/:id/courses" element={<MainProfilePage />} />
+              <Route path="/institutions/:id/contact" element={<MainProfilePage />} />
+              <Route path="/institutions/:id/events" element={<MainProfilePage />} />
 
-            {/* Institute Analytics - Wrapped in InstituteRoute */}
-            <Route path="/analytics/:slug/*" element={
-              <InstituteRoute>
-                <div className="analytics-module">
-                  <AnalyticsLayout />
-                </div>
-              </InstituteRoute>
-            }>
-              <Route path="overview" element={<OverviewPage />} />
-              <Route path="trends" element={<TrendsPage />} />
-              <Route path="posts" element={<PostsAnalyticsPage />} />
-              <Route path="events" element={<EventsAnalyticsPage />} />
-              <Route path="ratings" element={<RatingsPage />} />
-              <Route path="subscription" element={<SubscriptionPage />} />
-              <Route path="applications" element={<ApplicationsPageInstitute />} />
-              <Route path="inquiries" element={<GeneralInquiriesPage />} />
-              <Route path="ads" element={<AdsPlaceholderPage />} />
-              <Route path="*" element={<Navigate to="overview" replace />} />
-            </Route>
+              {/* Institute Analytics - Wrapped in InstituteRoute */}
+              <Route path="/analytics/:slug/*" element={
+                <InstituteRoute>
+                  <div className="analytics-module">
+                    <AnalyticsLayout />
+                  </div>
+                </InstituteRoute>
+              }>
+                <Route path="overview" element={<OverviewPage />} />
+                <Route path="trends" element={<TrendsPage />} />
+                <Route path="posts" element={<PostsAnalyticsPage />} />
+                <Route path="events" element={<EventsAnalyticsPage />} />
+                <Route path="ratings" element={<RatingsPage />} />
+                <Route path="subscription" element={<SubscriptionPage />} />
+                <Route path="applications" element={<ApplicationsPageInstitute />} />
+                <Route path="inquiries" element={<GeneralInquiriesPage />} />
+                <Route path="chat" element={<ChatPage />} />
+                <Route path="ads" element={<AdsPlaceholderPage />} />
+                <Route path="*" element={<Navigate to="overview" replace />} />
+              </Route>
 
-            {/* Fallback for old /analytics/* paths - AnalyticsLayout will handle redirection to :slug */}
-            <Route path="/analytics/*" element={
-              <InstituteRoute>
-                <div className="analytics-module">
-                  <AnalyticsLayout />
-                </div>
-              </InstituteRoute>
-            } />
+              {/* Fallback for old /analytics/* paths - AnalyticsLayout will handle redirection to :slug */}
+              <Route path="/analytics/*" element={
+                <InstituteRoute>
+                  <div className="analytics-module">
+                    <AnalyticsLayout />
+                  </div>
+                </InstituteRoute>
+              } />
 
-            {/* Admin Routes - Wrapped in Layout and Protected */}
-            <Route path="/admin/*" element={
-              <AdminRoute>
-                <AdminLayout>
-                  <Routes>
-                    <Route path="dashboard" element={<AdminDashboard />} />
-                    <Route path="users" element={<UserManagement />} />
-                    <Route path="institutes" element={<InstituteManagement />} />
-                    <Route path="categories" element={<CategoryManagement />} />
-                    <Route path="posts" element={<PostManagement />} />
-                    <Route path="events" element={<EventManagement />} />
-                    <Route path="subscriptions" element={<SubscriptionManagement />} />
-                    <Route path="ratings" element={<RatingManagement />} />
-                    <Route path="policies" element={<PolicyManagement />} />
-                    <Route path="settings" element={<AdminSettings />} />
-                    <Route path="reports" element={<ReportsPage />} />
-                    <Route path="broadcast-mail" element={<BroadcastMailPage />} />
-                    <Route path="applications" element={<ApplicationsPage />} />
-                    <Route path="inbox" element={<AdminInboxPage />} />
-                    <Route path="activity-logs" element={<ActivityLogPage />} />
-                    <Route path="*" element={<Navigate to="dashboard" replace />} />
-                  </Routes>
-                </AdminLayout>
-              </AdminRoute>
-            } />
-          </Routes>
-        </div>
-      </Router>
+              {/* Admin Routes - Wrapped in Layout and Protected */}
+              <Route path="/admin/*" element={
+                <AdminRoute>
+                  <AdminLayout>
+                    <Routes>
+                      <Route path="dashboard" element={<AdminDashboard />} />
+                      <Route path="users" element={<UserManagement />} />
+                      <Route path="institutes" element={<InstituteManagement />} />
+                      <Route path="categories" element={<CategoryManagement />} />
+                      <Route path="posts" element={<PostManagement />} />
+                      <Route path="events" element={<EventManagement />} />
+                      <Route path="subscriptions" element={<SubscriptionManagement />} />
+                      <Route path="ratings" element={<RatingManagement />} />
+                      <Route path="policies" element={<PolicyManagement />} />
+                      <Route path="settings" element={<AdminSettings />} />
+                      <Route path="reports" element={<ReportsPage />} />
+                      <Route path="broadcast-mail" element={<BroadcastMailPage />} />
+                      <Route path="applications" element={<ApplicationsPage />} />
+                      <Route path="inbox" element={<AdminInboxPage />} />
+                      <Route path="activity-logs" element={<ActivityLogPage />} />
+                      <Route path="*" element={<Navigate to="dashboard" replace />} />
+                    </Routes>
+                  </AdminLayout>
+                </AdminRoute>
+              } />
+            </Routes>
+          </div>
+        </Router>
+      </ChatProvider>
     </SettingsProvider>
   );
 }

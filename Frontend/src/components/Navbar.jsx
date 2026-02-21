@@ -3,7 +3,8 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
     Compass, Building2, GraduationCap, Calendar, Search,
     LogOut, CreditCard, ChevronDown, X, Loader2,
-    BookOpen, MapPin, Star, BarChart3, ChevronRight
+    BookOpen, MapPin, Star, BarChart3, ChevronRight,
+    MessageSquare
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axiosClient from '../lib/axios';
@@ -12,7 +13,10 @@ import { useSettings } from '../context/SettingsContext';
 import ProgrammeInfoModal from './Modals/ProgrammeInfoModal';
 import ApplyNowModal from './Modals/ApplyNowModal';
 import MoreInfoModal from './Modals/MoreInfoModal';
+import MessengerDropdown from './MessengerDropdown';
+import ChatModal from './ChatModal';
 import './Navbar.css';
+import './Messenger.css';
 
 function Navbar({ user }) {
     const { settings } = useSettings();
@@ -21,6 +25,7 @@ function Navbar({ user }) {
     const searchRef = useRef(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [messengerOpen, setMessengerOpen] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
     const [lastScrollY, setLastScrollY] = useState(0);
 
@@ -223,6 +228,17 @@ function Navbar({ user }) {
                                 <span className="nav-label">Pricing</span>
                             </Link>
                         )}
+                        <button
+                            className={`nav-icon-link ${messengerOpen ? 'active' : ''}`}
+                            title="Messages"
+                            onClick={() => setMessengerOpen(!messengerOpen)}
+                        >
+                            <div className="icon-with-badge">
+                                <MessageSquare size={24} />
+                                {/* Add unread badge here if needed */}
+                            </div>
+                            <span className="nav-label">Chats</span>
+                        </button>
                     </nav>
 
                     <div className="navbar-profile-section">
@@ -297,6 +313,13 @@ function Navbar({ user }) {
                         <span className="nav-label">Pricing</span>
                     </Link>
                 )}
+                <button
+                    className={`nav-icon-link mobile ${messengerOpen ? 'active' : ''}`}
+                    onClick={() => setMessengerOpen(!messengerOpen)}
+                >
+                    <MessageSquare size={24} />
+                    <span className="nav-label">Chats</span>
+                </button>
             </nav>
 
             {/* Share Link Direct Modals */}
@@ -332,6 +355,13 @@ function Navbar({ user }) {
                 onClose={() => setShowInfoModal(false)}
                 contactNumber={selectedPost?.institute?.contact_number}
             />
+
+            <MessengerDropdown
+                isOpen={messengerOpen}
+                onClose={() => setMessengerOpen(false)}
+            />
+
+            <ChatModal />
         </>
     );
 }

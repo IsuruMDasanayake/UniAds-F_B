@@ -2,24 +2,40 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Message extends Model
 {
-    use HasFactory;
+    protected $fillable = [
+        'conversation_id',
+        'sender_user_id',
+        'sender_institute_id',
+        'message',
+        'type',
+        'link_preview_data'
+    ];
 
-    protected $fillable = ['chat_id', 'sender_id', 'message'];
+    protected $casts = [
+        'link_preview_data' => 'array',
+    ];
 
-    // Relationship with chat
-    public function chat()
+    public function conversation()
     {
-        return $this->belongsTo(Chat::class);
+        return $this->belongsTo(Conversation::class);
     }
 
-    // Relationship with user
-    public function sender()
+    public function senderUser()
     {
-        return $this->belongsTo(User::class, 'sender_id');
+        return $this->belongsTo(User::class, 'sender_user_id');
+    }
+
+    public function senderInstitute()
+    {
+        return $this->belongsTo(Institute::class, 'sender_institute_id');
+    }
+
+    public function reads()
+    {
+        return $this->hasMany(MessageRead::class);
     }
 }

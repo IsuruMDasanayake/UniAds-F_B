@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Mail, MapPin, UserPlus, Check, PlusCircle, Calendar as CalendarIcon, Edit, BarChart3, Star, StarHalf, MessageSquare, BadgeCheck, Building2 } from 'lucide-react';
+import { Mail, MapPin, UserPlus, Check, PlusCircle, Calendar as CalendarIcon, Edit, BarChart3, Star, StarHalf, MessageSquare, BadgeCheck, Building2, Send } from 'lucide-react';
+import { useChat } from '../../context/ChatContext';
+import ChatService from '../../services/ChatService';
 import './ProfileHeader.css';
 
 // Assuming these modals are defined elsewhere and imported
@@ -28,6 +30,8 @@ const ProfileHeader = ({
     const [showAddEvent, setShowAddEvent] = useState(false);
     const [showReviews, setShowReviews] = useState(false);
     const [showAccessDenied, setShowAccessDenied] = useState(false);
+    const { selectConversation } = useChat();
+    const [isMsgLoading, setIsMsgLoading] = useState(false);
 
     // Helpers
     const isPremium = institute.is_premium == 1 &&
@@ -171,6 +175,26 @@ const ProfileHeader = ({
                             </div>
                         ) : (
                             <div className="visitor-tools">
+                                {currentUser && (
+                                    <button
+                                        className="btn-inst btn-message"
+                                        onClick={async () => {
+                                            if (isMsgLoading) return;
+                                            setIsMsgLoading(true);
+                                            try {
+                                                const res = await ChatService.startConversation('Institute', institute.id);
+                                                selectConversation(res.data.data);
+                                            } catch (e) {
+                                                console.error("Chat start error", e);
+                                            } finally {
+                                                setIsMsgLoading(false);
+                                            }
+                                        }}
+                                        disabled={isMsgLoading}
+                                    >
+                                        <Send size={16} /> {isMsgLoading ? 'Starting...' : 'Message'}
+                                    </button>
+                                )}
                                 {/* Checks based on Blade: Auth check && Not Institute Role && Premium && Active && Enabled */}
                                 {showFollow && isPremium && institute.followers_enabled == 1 && (
                                     <button

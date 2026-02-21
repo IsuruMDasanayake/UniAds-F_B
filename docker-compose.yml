@@ -9,6 +9,8 @@ services:
     working_dir: /var/www
     volumes:
       - ./Backend:/var/www
+    ports:
+      - "8082:8080"
     environment:
       - DB_HOST=db
       - DB_PORT=3306
@@ -83,7 +85,7 @@ services:
       db:
         condition: service_healthy
     ports:
-      - "8080:80"
+      - "8081:80"
     environment:
       PMA_HOST: db
       MYSQL_ROOT_PASSWORD: root

@@ -83,9 +83,14 @@ class Institute extends Model
         return $query->where('status', 'approved');
     }
 
-    public function chats()
+    public function conversations()
     {
-        return $this->hasMany(Chat::class, 'user2_id');
+        return $this->hasManyThrough(Conversation::class, ConversationParticipant::class, 'institute_id', 'id', 'id', 'conversation_id');
+    }
+
+    public function conversationParticipations()
+    {
+        return $this->hasMany(ConversationParticipant::class);
     }
 
     public function user()

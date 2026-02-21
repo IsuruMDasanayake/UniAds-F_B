@@ -3,7 +3,7 @@ import { NavLink, Outlet, Link, useLocation, useParams, useNavigate } from 'reac
 import {
     LayoutDashboard, TrendingUp, FileText, Calendar,
     Star, CreditCard, Megaphone, Menu, X, ChevronRight, LogOut,
-    UserCheck, Mail
+    UserCheck, Mail, MessageSquare
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axiosClient from '../../lib/axios';
@@ -32,6 +32,7 @@ const AnalyticsLayout = () => {
         { path: `/analytics/${slug}/ratings`, label: 'Reviews', icon: Star },
         { path: `/analytics/${slug}/applications`, label: 'Applications', icon: UserCheck },
         { path: `/analytics/${slug}/inquiries`, label: 'Inquiries', icon: Mail },
+        { path: `/analytics/${slug}/chat`, label: 'Messenger', icon: MessageSquare },
         { path: `/analytics/${slug}/ads`, label: 'Ads & Boosting', icon: Megaphone },
         { path: `/analytics/${slug}/subscription`, label: 'Subscription', icon: CreditCard },
     ];
