@@ -420,6 +420,37 @@
     color: white;
 }
 
+.copy-link-btn {
+    position: absolute;
+    top: 4.2rem;
+    right: 1rem;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    background: rgb(255, 255, 255);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 10;
+}
+
+.copy-link-btn:hover {
+    background: white;
+    color: var(--c-primary);
+    transform: scale(1.05);
+}
+
+.copy-link-btn.copied {
+    background: var(--c-success-soft);
+    color: var(--c-success);
+    border-color: var(--c-success);
+}
+
 .no-courses {
     text-align: center;
     padding: 5rem 2rem;

@@ -177,6 +177,42 @@
     transform: translateY(-1px);
 }
 
+.footer-actions-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.search-copy-link-btn {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 50%;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: var(--c-slate-500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Poppins', sans-serif;
+}
+
+.search-copy-link-btn:hover {
+    background: var(--c-success-soft);
+    border-color: var(--c-success);
+    color: var(--c-success);
+    transform: scale(1.05);
+}
+
+.search-copy-link-btn.copied {
+    background: var(--c-success-soft);
+    color: var(--c-success);
+    border-color: var(--c-success);
+}
+
 .save-action-wrapper {
     display: flex;
     align-items: center;

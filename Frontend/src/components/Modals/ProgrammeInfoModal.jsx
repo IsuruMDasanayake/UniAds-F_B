@@ -1,10 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, Info } from 'lucide-react';
+import { X, Send, Info, Link2, Check } from 'lucide-react';
 import { getStorageUrl } from '../../lib/config';
 import './ProgrammeInfoModal.css';
 
 const ProgrammeInfoModal = ({ course, isOpen, onClose, onApply, onMoreInfo, userRole }) => {
+    const [copied, setCopied] = useState(false);
+
+    const handleCopyLink = () => {
+        if (!course?.share_link) return;
+        const url = `${window.location.origin}/post/${course.share_link}`;
+        navigator.clipboard.writeText(url).then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        });
+    };
     return (
         <AnimatePresence>
             {isOpen && course && (
@@ -65,16 +75,18 @@ const ProgrammeInfoModal = ({ course, isOpen, onClose, onApply, onMoreInfo, user
                         </div>
 
                         {/* Fixed Footer */}
-                        {userRole === 'User' && (
-                            <div className="programme-info-modal-footer">
-                                <button className="programme-info-apply-btn" onClick={onApply}>
-                                    Apply Now <Send size={18} />
-                                </button>
-                                <button className="programme-info-info-btn" onClick={onMoreInfo}>
-                                    Get More Info <Info size={18} />
-                                </button>
-                            </div>
-                        )}
+                        <div className="programme-info-modal-footer">
+                            {userRole === 'User' && (
+                                <>
+                                    <button className="programme-info-apply-btn" onClick={onApply}>
+                                        Apply Now <Send size={18} />
+                                    </button>
+                                    <button className="programme-info-info-btn" onClick={onMoreInfo}>
+                                        Get More Info <Info size={18} />
+                                    </button>
+                                </>
+                            )}
+                        </div>
                     </motion.div>
                 </div>
             )}

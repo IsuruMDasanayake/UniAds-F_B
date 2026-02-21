@@ -55,18 +55,39 @@ class SearchController extends Controller
         if (strlen($query) < 2) {
             return response()->json([
                 'posts' => [],
+                'is_share_link_match' => false,
             ]);
         }
 
-        // Search Posts (Courses)
+        // Try to extract UUID if it's a full URL or contains a UUID
+        $searchKey = $query;
+        if (preg_match('/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i', $query, $matches)) {
+            $searchKey = $matches[1];
+        }
+
+        // Check if the query matches a share_link (shareable post link)
+        $sharePost = Post::with('institute')
+            ->where('share_link', $searchKey)
+            ->where('status', 'active')
+            ->first();
+
+        if ($sharePost) {
+            return response()->json([
+                'posts' => [$sharePost],
+                'is_share_link_match' => true,
+            ]);
+        }
+
+        // Normal title search
         $posts = Post::with('institute')
             ->where('title', 'LIKE', "%{$query}%")
             ->where('status', 'active')
             ->latest()
-            ->paginate(15); // Increased limit and added pagination support if needed
+            ->paginate(15);
 
         return response()->json([
             'posts' => $posts,
+            'is_share_link_match' => false,
         ]);
     }
 }

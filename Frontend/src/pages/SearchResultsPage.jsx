@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search, BookOpen, Building2, MapPin, Loader2,
-    Bookmark, CheckCircle2, BadgeCheck, X, Send, Info
+    Bookmark, CheckCircle2, BadgeCheck, X, Send, Info, Link2, Check
 } from 'lucide-react';
 import axiosClient from '../lib/axios';
 import { getStorageUrl } from '../lib/config';
@@ -27,6 +27,7 @@ function SearchResultsPage() {
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [applying, setApplying] = useState(false);
     const [submissionStatus, setSubmissionStatus] = useState({ type: '', message: '' });
+    const [copiedPostId, setCopiedPostId] = useState(null);
     const [applyForm, setApplyForm] = useState({
         name: '',
         email: '',
@@ -48,6 +49,12 @@ function SearchResultsPage() {
                 // The backend now returns paginated posts or an object with 'posts'
                 const results = searchRes.data.posts.data || searchRes.data.posts || [];
                 setPosts(results);
+
+                // If the search was a share_link match, auto-open the modal
+                if (searchRes.data.is_share_link_match && results.length === 1) {
+                    setSelectedPost(results[0]);
+                    axiosClient.post(`/api/posts/${results[0].id}/track-view`).catch(() => { });
+                }
             } catch (error) {
                 console.error('Error fetching search results:', error);
             } finally {
@@ -90,6 +97,15 @@ function SearchResultsPage() {
     const openPostModal = (post) => {
         setSelectedPost(post);
         axiosClient.post(`/api/posts/${post.id}/track-view`).catch(err => console.error(err));
+    };
+
+    const handleCopyPostLink = (post) => {
+        if (!post?.share_link) return;
+        const url = `${window.location.origin}/post/${post.share_link}`;
+        navigator.clipboard.writeText(url).then(() => {
+            setCopiedPostId(post.id);
+            setTimeout(() => setCopiedPostId(null), 2000);
+        });
     };
 
     const closeModals = () => {
@@ -224,24 +240,33 @@ function SearchResultsPage() {
                                             >
                                                 View Programme Information
                                             </button>
-                                            {user?.role === 'User' && (
-                                                <div className="save-action-wrapper">
-                                                    <label className="ui-bookmark">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={isPostSaved(post.id)}
-                                                            onChange={() => handleToggleSave(post.id)}
-                                                        />
-                                                        <div className="bookmark">
-                                                            <svg viewBox="0 0 32 32">
-                                                                <g>
-                                                                    <path d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 0 0 1 4-4h14a4 4 0 0 1 4 4z"></path>
-                                                                </g>
-                                                            </svg>
-                                                        </div>
-                                                    </label>
-                                                </div>
-                                            )}
+                                            <div className="footer-actions-right">
+                                                <button
+                                                    className={`search-copy-link-btn ${copiedPostId === post.id ? 'copied' : ''}`}
+                                                    onClick={() => handleCopyPostLink(post)}
+                                                    title="Copy shareable link"
+                                                >
+                                                    {copiedPostId === post.id ? <Check size={18} /> : <Link2 size={18} />}
+                                                </button>
+                                                {user?.role === 'User' && (
+                                                    <div className="save-action-wrapper">
+                                                        <label className="ui-bookmark">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={isPostSaved(post.id)}
+                                                                onChange={() => handleToggleSave(post.id)}
+                                                            />
+                                                            <div className="bookmark">
+                                                                <svg viewBox="0 0 32 32">
+                                                                    <g>
+                                                                        <path d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 0 0 1 4-4h14a4 4 0 0 1 4 4z"></path>
+                                                                    </g>
+                                                                </svg>
+                                                            </div>
+                                                        </label>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </motion.div>

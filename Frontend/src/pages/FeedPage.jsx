@@ -5,7 +5,7 @@ import {
     Home, Building2, GraduationCap, Calendar, Star, Search,
     Heart, MessageCircle, Bookmark, ChevronRight, User, LogOut,
     Clock, MapPin, CreditCard, ChevronDown, BadgeCheck,
-    X, Send, Info, Loader2
+    X, Send, Info, Loader2, Link2, Check
 } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 import axiosClient from '../lib/axios';
@@ -31,6 +31,7 @@ function FeedPage() {
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [applying, setApplying] = useState(false);
     const [submissionStatus, setSubmissionStatus] = useState({ type: '', message: '' });
+    const [copiedPostId, setCopiedPostId] = useState(null);
     const [applyForm, setApplyForm] = useState({
         name: '',
         email: '',
@@ -250,6 +251,15 @@ function FeedPage() {
         axiosClient.post(`/api/posts/${post.id}/track-view`).catch(() => { });
     };
 
+    const handleCopyPostLink = (post) => {
+        if (!post?.share_link) return;
+        const url = `${window.location.origin}/post/${post.share_link}`;
+        navigator.clipboard.writeText(url).then(() => {
+            setCopiedPostId(post.id);
+            setTimeout(() => setCopiedPostId(null), 2000);
+        });
+    };
+
     const closeModals = () => {
         setSelectedPost(null);
         setSelectedEvent(null);
@@ -451,6 +461,13 @@ function FeedPage() {
                                         >
                                             <span>See More</span>
                                             <Info size={16} />
+                                        </button>
+                                        <button
+                                            className={`post-action-btn btn-copy-link ${copiedPostId === post.id ? 'copied' : ''}`}
+                                            onClick={() => handleCopyPostLink(post)}
+                                            title="Copy shareable link"
+                                        >
+                                            {copiedPostId === post.id ? <Check size={16} /> : <Link2 size={16} />}
                                         </button>
                                         {user?.role === 'User' && (
                                             <button

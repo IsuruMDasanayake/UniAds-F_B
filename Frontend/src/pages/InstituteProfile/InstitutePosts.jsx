@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Heart, Edit2, Trash2, Send, Info } from 'lucide-react';
+import { MapPin, Heart, Edit2, Trash2, Send, Info, Link2, Check } from 'lucide-react';
 import axiosClient from '../../lib/axios';
 import { getStorageUrl } from '../../lib/config';
 import './InstitutePosts.css';
@@ -22,6 +22,7 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [copiedPostId, setCopiedPostId] = useState(null);
 
     // Form States
     const [applyForm, setApplyForm] = useState({
@@ -88,6 +89,15 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
         } catch (error) {
             console.error("Save failed", error);
         }
+    };
+
+    const handleCopyPostLink = (post) => {
+        if (!post?.share_link) return;
+        const url = `${window.location.origin}/post/${post.share_link}`;
+        navigator.clipboard.writeText(url).then(() => {
+            setCopiedPostId(post.id);
+            setTimeout(() => setCopiedPostId(null), 2000);
+        });
     };
 
     const handleDeleteClick = (post) => {
@@ -285,6 +295,15 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
                                                 </label>
                                             </div>
                                         )}
+
+                                        {/* Copy Link Button */}
+                                        <button
+                                            className={`post-copy-btn ${copiedPostId === post.id ? 'copied' : ''}`}
+                                            onClick={() => handleCopyPostLink(post)}
+                                            title="Copy shareable link"
+                                        >
+                                            {copiedPostId === post.id ? <Check size={20} /> : <Link2 size={20} />}
+                                        </button>
 
                                         {/* Like Button */}
                                         <button

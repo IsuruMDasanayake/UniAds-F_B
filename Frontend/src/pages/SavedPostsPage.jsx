@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Home, Building2, GraduationCap, Bookmark, CheckCircle2, BadgeCheck,
-    X, Send, Info, Loader2
+    X, Send, Info, Loader2, Link2, Check
 } from 'lucide-react';
 import axiosClient from '../lib/axios';
 import { getStorageUrl } from '../lib/config';
@@ -23,6 +23,7 @@ function SavedPostsPage() {
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [applying, setApplying] = useState(false);
     const [submissionStatus, setSubmissionStatus] = useState({ type: '', message: '' });
+    const [copiedPostId, setCopiedPostId] = useState(null);
     const [applyForm, setApplyForm] = useState({
         name: '',
         email: '',
@@ -64,6 +65,15 @@ function SavedPostsPage() {
         } catch (error) {
             console.error('Error un-saving post:', error);
         }
+    };
+
+    const handleCopyPostLink = (post) => {
+        if (!post?.share_link) return;
+        const url = `${window.location.origin}/post/${post.share_link}`;
+        navigator.clipboard.writeText(url).then(() => {
+            setCopiedPostId(post.id);
+            setTimeout(() => setCopiedPostId(null), 2000);
+        });
     };
 
     const openPostModal = (post) => {
@@ -211,21 +221,31 @@ function SavedPostsPage() {
                                             >
                                                 View Programme Information
                                             </button>
-                                            <div className="save-action-wrapper">
-                                                <label className="ui-bookmark">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={true}
-                                                        onChange={() => handleToggleSave(post.id)}
-                                                    />
-                                                    <div className="bookmark">
-                                                        <svg viewBox="0 0 32 32">
-                                                            <g>
-                                                                <path d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 0 0 1 4-4h14a4 4 0 0 1 4 4z"></path>
-                                                            </g>
-                                                        </svg>
-                                                    </div>
-                                                </label>
+                                            <div className="footer-actions-right">
+                                                {/* Copy Link Button */}
+                                                <button
+                                                    className={`saved-copy-btn ${copiedPostId === post.id ? 'copied' : ''}`}
+                                                    onClick={() => handleCopyPostLink(post)}
+                                                    title="Copy shareable link"
+                                                >
+                                                    {copiedPostId === post.id ? <Check size={20} /> : <Link2 size={20} />}
+                                                </button>
+                                                <div className="save-action-wrapper">
+                                                    <label className="ui-bookmark">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={true}
+                                                            onChange={() => handleToggleSave(post.id)}
+                                                        />
+                                                        <div className="bookmark">
+                                                            <svg viewBox="0 0 32 32">
+                                                                <g>
+                                                                    <path d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 0 0 1 4-4h14a4 4 0 0 1 4 4z"></path>
+                                                                </g>
+                                                            </svg>
+                                                        </div>
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

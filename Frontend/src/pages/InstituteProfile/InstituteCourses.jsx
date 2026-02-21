@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axiosClient from '../../lib/axios';
 import { motion } from 'framer-motion';
 import { getStorageUrl } from '../../lib/config';
-import { Bookmark } from 'lucide-react';
+import { Bookmark, Link2, Check } from 'lucide-react';
 import ProgrammeInfoModal from '../../components/Modals/ProgrammeInfoModal';
 import ApplyNowModal from '../../components/Modals/ApplyNowModal';
 import MoreInfoModal from '../../components/Modals/MoreInfoModal';
@@ -14,6 +14,7 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [submissionStatus, setSubmissionStatus] = useState({ type: '', message: '' });
     const [applying, setApplying] = useState(false);
+    const [copiedPostId, setCopiedPostId] = useState(null);
 
     const [applyForm, setApplyForm] = useState({
         name: '',
@@ -129,6 +130,16 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
         }
     };
 
+    const handleCopyPostLink = (e, course) => {
+        e.stopPropagation();
+        if (!course?.share_link) return;
+        const url = `${window.location.origin}/post/${course.share_link}`;
+        navigator.clipboard.writeText(url).then(() => {
+            setCopiedPostId(course.id);
+            setTimeout(() => setCopiedPostId(null), 2000);
+        });
+    };
+
     return (
         <div className="courses-page-container">
             <h3 className="courses-title">Courses Offered</h3>
@@ -164,6 +175,14 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
                                     <Bookmark size={18} fill={savedPostIds.includes(course.id) ? "currentColor" : "none"} />
                                 </button>
                             )}
+                            {/* Copy Link Button */}
+                            <button
+                                className={`copy-circle ${copiedPostId === course.id ? 'copied' : ''}`}
+                                onClick={(e) => handleCopyPostLink(e, course)}
+                                title="Copy shareable link"
+                            >
+                                {copiedPostId === course.id ? <Check size={18} /> : <Link2 size={18} />}
+                            </button>
                         </div>
                         <div className="course-content">
                             <h4 className="course-title">{course.title}</h4>

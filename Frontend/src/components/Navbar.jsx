@@ -9,6 +9,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import axiosClient from '../lib/axios';
 import { getStorageUrl } from '../lib/config';
 import { useSettings } from '../context/SettingsContext';
+import ProgrammeInfoModal from './Modals/ProgrammeInfoModal';
+import ApplyNowModal from './Modals/ApplyNowModal';
+import MoreInfoModal from './Modals/MoreInfoModal';
 import './Navbar.css';
 
 function Navbar({ user }) {
@@ -20,6 +23,21 @@ function Navbar({ user }) {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
     const [lastScrollY, setLastScrollY] = useState(0);
+
+    // Modal States for share links
+    const [selectedPost, setSelectedPost] = useState(null);
+    const [showApplyModal, setShowApplyModal] = useState(false);
+    const [showInfoModal, setShowInfoModal] = useState(false);
+    const [isSearchingLink, setIsSearchingLink] = useState(false);
+    const [submissionStatus, setSubmissionStatus] = useState({ type: '', message: '' });
+    const [applying, setApplying] = useState(false);
+    const [applyForm, setApplyForm] = useState({
+        name: '',
+        email: '',
+        phone: '',
+        message: '',
+        privacyConsent: false
+    });
     // Keep a local cached user so brief null/undefined props don't switch the avatar
     const [cachedUser, setCachedUser] = useState(() => {
         try {
@@ -81,9 +99,68 @@ function Navbar({ user }) {
         navigate(path);
     };
 
-    const handleKeyDown = (e) => {
+    const handleKeyDown = async (e) => {
         if (e.key === 'Enter' && searchQuery.trim()) {
-            navigate(`/search?query=${searchQuery}`);
+            const query = searchQuery.trim();
+
+            // Intercept share links (contains a UUID)
+            const uuidPattern = /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i;
+            if (uuidPattern.test(query)) {
+                setIsSearchingLink(true);
+                try {
+                    const response = await axiosClient.get(`/api/search?query=${query}`);
+                    if (response.data.is_share_link_match && response.data.posts.length === 1) {
+                        const post = response.data.posts[0];
+                        setSelectedPost(post);
+                        setSearchQuery(''); // Clear search bar on success
+                        // Track view
+                        axiosClient.post(`/api/posts/${post.id}/track-view`).catch(() => { });
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Error searching link:', error);
+                } finally {
+                    setIsSearchingLink(false);
+                }
+            }
+
+            // Fallback for regular search
+            navigate(`/search?query=${query}`);
+        }
+    };
+
+    const closeModals = () => {
+        setSelectedPost(null);
+        setShowApplyModal(false);
+        setShowInfoModal(false);
+        setSubmissionStatus({ type: '', message: '' });
+    };
+
+    const handleApplySubmit = async (e) => {
+        e.preventDefault();
+        setApplying(true);
+        setSubmissionStatus({ type: '', message: '' });
+
+        try {
+            await axiosClient.post(`/api/course/apply/${selectedPost.institute_id}`, {
+                ...applyForm,
+                course_title: selectedPost.title,
+                post_id: selectedPost.id,
+                privacy_consent: applyForm.privacyConsent
+            });
+
+            setSubmissionStatus({ type: 'success', message: 'Application submitted successfully!' });
+            setApplyForm({ name: '', email: '', phone: '', message: '', privacyConsent: false });
+
+            setTimeout(() => {
+                setShowApplyModal(false);
+                setSubmissionStatus({ type: '', message: '' });
+            }, 5000);
+        } catch (error) {
+            const errorMsg = error.response?.data?.message || "Failed to submit application.";
+            setSubmissionStatus({ type: 'error', message: errorMsg });
+        } finally {
+            setApplying(false);
         }
     };
 
@@ -100,16 +177,22 @@ function Navbar({ user }) {
                     <div className="navbar-search-container" ref={searchRef}>
                         <div className="navbar-search-bar">
                             <div className="search-icon-box">
-                                <Search size={18} />
+                                <Search size={18} className={isSearchingLink ? 'searching-animate' : ''} />
                             </div>
                             <input
                                 type="text"
-                                placeholder="Search courses..."
+                                placeholder="Search courses or links..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyDown={handleKeyDown}
+                                disabled={isSearchingLink}
                             />
-                            {searchQuery && (
+                            {isSearchingLink && (
+                                <div className="search-spinner">
+                                    <Loader2 size={16} className="animate-spin" />
+                                </div>
+                            )}
+                            {searchQuery && !isSearchingLink && (
                                 <button className="search-clear-btn" onClick={clearSearch}>
                                     <X size={16} />
                                 </button>
@@ -215,6 +298,40 @@ function Navbar({ user }) {
                     </Link>
                 )}
             </nav>
+
+            {/* Share Link Direct Modals */}
+            <ProgrammeInfoModal
+                course={selectedPost}
+                isOpen={!!selectedPost && !showApplyModal && !showInfoModal}
+                onClose={closeModals}
+                onApply={() => setShowApplyModal(true)}
+                onMoreInfo={() => setShowInfoModal(true)}
+                userRole={displayUser?.role}
+            />
+
+            <ApplyNowModal
+                isOpen={showApplyModal}
+                onClose={() => setShowApplyModal(false)}
+                courseTitle={selectedPost?.title}
+                form={{ ...applyForm, privacy_consent: applyForm.privacyConsent }}
+                onChange={(e) => {
+                    const { name, value, checked, type } = e.target;
+                    if (name === 'privacy_consent') {
+                        setApplyForm({ ...applyForm, privacyConsent: checked });
+                    } else {
+                        setApplyForm({ ...applyForm, [name]: type === 'checkbox' ? checked : value });
+                    }
+                }}
+                onSubmit={handleApplySubmit}
+                isSubmitting={applying}
+                status={submissionStatus}
+            />
+
+            <MoreInfoModal
+                isOpen={showInfoModal}
+                onClose={() => setShowInfoModal(false)}
+                contactNumber={selectedPost?.institute?.contact_number}
+            />
         </>
     );
 }

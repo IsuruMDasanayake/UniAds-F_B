@@ -31,6 +31,7 @@ const UserProfilePage = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [profileData, setProfileData] = useState(null);
+    const avatarSeedRef = useRef(null); // Stable seed for avatar — set once on load
     const [activeTab, setActiveTab] = useState('profile');
     const [formData, setFormData] = useState({
         name: '',
@@ -63,6 +64,10 @@ const UserProfilePage = () => {
             const response = await axiosClient.get('/api/profile/me');
             const userData = response.data.user;
             setProfileData(response.data);
+            // Capture avatar seed once so name changes don't affect the avatar
+            if (!avatarSeedRef.current) {
+                avatarSeedRef.current = userData.name || 'User';
+            }
             setFormData(prev => ({
                 ...prev,
                 name: userData.name || '',
@@ -173,10 +178,10 @@ const UserProfilePage = () => {
     const user = profileData?.user;
     const savedPosts = user?.saved_posts || [];
 
-    // Fallback avatar using user initials or dicebear properly
+    // Use a stable seed (captured once on load) so avatar doesn't change on profile updates
     const avatarSrc = user?.profile_picture
         ? getStorageUrl(user.profile_picture)
-        : `https://api.dicebear.com/7.x/initials/svg?seed=${user?.name || 'User'}&backgroundColor=ffc107`;
+        : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(avatarSeedRef.current || user?.name || 'User')}&backgroundColor=ffc107`;
 
     return (
         <div className="user-profile-page">

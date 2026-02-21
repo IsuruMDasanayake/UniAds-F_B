@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axiosClient from '../../lib/axios';
 import DataTable from '../../components/Analytics/DataTable';
-import { BadgeCheck, Ban, Eye, FileText, Image as ImageIcon, ChevronRight, Edit3, Heart, Trash2, RefreshCw } from 'lucide-react';
+import { BadgeCheck, Ban, Eye, FileText, Image as ImageIcon, ChevronRight, Edit3, Heart, Trash2, RefreshCw, Link2, Check } from 'lucide-react';
 import { getStorageUrl } from '../../lib/config';
 
 // Modals
@@ -38,6 +38,16 @@ const PostsAnalyticsPage = () => {
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [copiedPostId, setCopiedPostId] = useState(null);
+
+    const handleCopyPostLink = (post) => {
+        if (!post?.share_link) return;
+        const url = `${window.location.origin}/post/${post.share_link}`;
+        navigator.clipboard.writeText(url).then(() => {
+            setCopiedPostId(post.id);
+            setTimeout(() => setCopiedPostId(null), 2000);
+        });
+    };
 
     const fetchPosts = useCallback(async (isInitial = false, isSilent = false) => {
         if (isInitial) setLoading(true);
@@ -218,6 +228,13 @@ const PostsAnalyticsPage = () => {
             header: 'Actions',
             render: (row) => (
                 <div className="action-buttons-v2" onClick={(e) => e.stopPropagation()}>
+                    <button
+                        className={`action-btn-v2 copy ${copiedPostId === row.id ? 'copied' : ''}`}
+                        onClick={() => handleCopyPostLink(row)}
+                        title="Copy shareable link"
+                    >
+                        {copiedPostId === row.id ? <Check size={18} /> : <Link2 size={18} />}
+                    </button>
                     <button
                         onClick={() => handleToggleStatus(row.id, row.status)}
                         className={`action-btn-v2 ${row.status === 'active' ? 'deactivate' : 'activate'}`}

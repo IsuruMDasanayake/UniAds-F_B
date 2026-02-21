@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Post extends Model
 {
@@ -28,7 +29,19 @@ class Post extends Model
         'status',
         'is_boosted',
         'boost_expires_at',
+        'share_link',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($post) {
+            if (empty($post->share_link)) {
+                $post->share_link = (string) Str::uuid();
+            }
+        });
+    }
 
     public function institute()
     {

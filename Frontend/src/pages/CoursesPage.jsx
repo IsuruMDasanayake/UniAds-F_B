@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search, ChevronDown, ChevronUp, Clock, MapPin,
     BookOpen, GraduationCap, BadgeCheck, X, Send,
-    Info, Bookmark, Heart, Loader2, Star, ChevronRight
+    Info, Bookmark, Heart, Loader2, Star, ChevronRight, Link2, Check
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import axiosClient from '../lib/axios';
@@ -30,6 +30,7 @@ const CoursesPage = () => {
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [applying, setApplying] = useState(false);
     const [submissionStatus, setSubmissionStatus] = useState({ type: '', message: '' });
+    const [copiedPostId, setCopiedPostId] = useState(null);
     const [applyForm, setApplyForm] = useState({
         name: '',
         email: '',
@@ -107,6 +108,15 @@ const CoursesPage = () => {
         setSelectedPost(post);
         // Track view
         axiosClient.post(`/api/posts/${post.id}/track-view`).catch(err => console.error(err));
+    };
+
+    const handleCopyPostLink = (post) => {
+        if (!post?.share_link) return;
+        const url = `${window.location.origin}/post/${post.share_link}`;
+        navigator.clipboard.writeText(url).then(() => {
+            setCopiedPostId(post.id);
+            setTimeout(() => setCopiedPostId(null), 2000);
+        });
     };
 
     const closeModals = () => {
@@ -233,6 +243,14 @@ const CoursesPage = () => {
                                                     <Bookmark size={18} fill={post.is_saved ? "currentColor" : "none"} />
                                                 </button>
                                             )}
+                                            {/* Copy Link Button - Visible to all roles */}
+                                            <button
+                                                className={`copy-link-btn ${copiedPostId === post.id ? 'copied' : ''}`}
+                                                onClick={(e) => { e.preventDefault(); handleCopyPostLink(post); }}
+                                                title="Copy shareable link"
+                                            >
+                                                {copiedPostId === post.id ? <Check size={18} /> : <Link2 size={18} />}
+                                            </button>
                                         </div>
                                         <div className="card-inner">
                                             <div className="inst-row">
