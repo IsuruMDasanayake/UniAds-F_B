@@ -1,4 +1,6 @@
+import React, { useState, useEffect, useRef } from 'react';
 import { Bell, UserPlus, AlertTriangle, Check, Trash2, Shield, Info, Building2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import axiosClient from '../../lib/axios';
 import './AdminNotificationDropdown.css';
 
