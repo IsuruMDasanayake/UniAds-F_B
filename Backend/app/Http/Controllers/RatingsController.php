@@ -7,6 +7,7 @@ use App\Models\Rating;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Institute;
+use App\Models\Notification;
 
 class RatingsController extends Controller
 {
@@ -34,6 +35,19 @@ class RatingsController extends Controller
             ['user_id' => auth()->id(), 'institute_id' => $institute->id],
             ['rating' => $request->rating, 'comment' => $request->comment]
         );
+
+        // Trigger Notification
+        Notification::create([
+            'institute_id' => $institute->id,
+            'user_id' => auth()->id(),
+            'type' => 'review_new',
+            'title' => 'New Review Received',
+            'message' => auth()->user()->name . " gave you a {$request->rating}-star review.",
+            'data' => [
+                'rating_id' => $rating->id,
+                'rating' => $request->rating
+            ]
+        ]);
 
         return response()->json([
             'message' => 'Thank you for your feedback!',
@@ -97,6 +111,18 @@ class RatingsController extends Controller
         $rating->update([
             'is_reported' => true,
             'report_reason' => $request->report_reason,
+        ]);
+
+        // Trigger Notification for reported review
+        Notification::create([
+            'institute_id' => $rating->institute_id,
+            'type' => 'review_reported',
+            'title' => 'Review Reported',
+            'message' => "A review has been reported for: {$request->report_reason}",
+            'data' => [
+                'rating_id' => $rating->id,
+                'reason' => $request->report_reason
+            ]
         ]);
 
         return response()->json(['message' => 'Report submitted successfully.']);

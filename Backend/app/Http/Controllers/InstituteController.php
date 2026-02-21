@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\InstituteApprovedMail;
 use App\Mail\InstituteUnapprovedMail;
 use App\Models\InstituteProfileView;
+use App\Models\Notification;
 use App\Services\AdminActivityLogger;
 
 class InstituteController extends Controller
@@ -157,6 +158,20 @@ class InstituteController extends Controller
                 'institute_id' => $id
             ]);
             $institute->increment('followers_count');
+
+            // Trigger Notification
+            Notification::create([
+                'institute_id' => $id,
+                'user_id' => $user->id,
+                'type' => 'follower_new',
+                'title' => 'New Follower',
+                'message' => $user->name . ' started following your institute.',
+                'data' => [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name
+                ]
+            ]);
+
             $status = 'followed';
         }
 

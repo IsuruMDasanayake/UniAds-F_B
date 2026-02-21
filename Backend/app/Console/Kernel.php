@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('events:delete-past')->daily();
         $schedule->command('analytics:cleanup')->daily();
         $schedule->command('emails:fetch')->everyFiveMinutes();
+        $schedule->command('notifications:send-scheduled')->dailyAt('09:00');
     }
 
     /**

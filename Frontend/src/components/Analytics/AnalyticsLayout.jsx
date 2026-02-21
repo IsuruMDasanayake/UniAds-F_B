@@ -10,6 +10,7 @@ import axiosClient from '../../lib/axios';
 import { getStorageUrl } from '../../lib/config';
 import { useSettings } from '../../context/SettingsContext';
 import EditProfileModal from '../../pages/InstituteProfile/modals/EditProfileModal';
+import NotificationDropdown from './NotificationDropdown';
 import './AnalyticsLayout.css';
 
 const AnalyticsLayout = () => {
@@ -112,7 +113,7 @@ const AnalyticsLayout = () => {
                     <button onClick={toggleMobileMenu} className="mobile-menu-btn">
                         <Menu size={24} />
                     </button>
-                    <span className="mobile-brand">Analytics</span>
+                    <NotificationDropdown />
                 </div>
 
                 <div className="header-user mobile" onClick={() => setShowEditModal(true)}>
@@ -208,13 +209,18 @@ const AnalyticsLayout = () => {
                         <h1 className="page-title">{getCurrentTitle()}</h1>
                         <p className="page-subtitle">Welcome to your Analytics dashboard</p>
                     </div>
-                    <div className="header-user" onClick={() => setShowEditModal(true)} style={{ cursor: 'pointer' }}>
-                        <div className="user-info">
-                            <p className="user-role">{instituteName}</p>
-                            <p className="user-status">Premium Member</p>
-                        </div>
-                        <div className="user-avatar">
-                            <img src={profilePhoto} alt={instituteName} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+
+                    <div className="header-actions">
+                        <NotificationDropdown />
+
+                        <div className="header-user" onClick={() => setShowEditModal(true)} style={{ cursor: 'pointer' }}>
+                            <div className="user-info">
+                                <p className="user-role">{instituteName}</p>
+                                <p className="user-status">Premium Member</p>
+                            </div>
+                            <div className="user-avatar">
+                                <img src={profilePhoto} alt={instituteName} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                            </div>
                         </div>
                     </div>
                 </header>

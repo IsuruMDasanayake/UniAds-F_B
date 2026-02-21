@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\EventUserInterest;
 use Illuminate\Http\Request;
 use App\Models\Post;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -209,6 +210,20 @@ class EventController extends Controller
             // Update interested count
             $event->increment('interested_count');
 
+            // Trigger Notification
+            Notification::create([
+                'institute_id' => $event->institute_id,
+                'user_id' => auth()->id(),
+                'type' => 'event_interest',
+                'title' => 'New Event Interest',
+                'message' => auth()->user()->name . " is interested in your event: {$event->event_title}",
+                'data' => [
+                    'event_id' => $event->id,
+                    'event_title' => $event->event_title,
+                    'image' => $event->event_image
+                ]
+            ]);
+
             // Track view if not already viewed (Optional, but keeping for stats)
             $alreadyViewed = EventView::where('user_id', $userId)
                 ->where('event_id', $eventId)
@@ -223,7 +238,7 @@ class EventController extends Controller
                 $event->increment('view_count');
             }
 
-            return response()->json(['status' => 'success']);
+            return response()->json(['status' => 'interested']);
         }
     }
 

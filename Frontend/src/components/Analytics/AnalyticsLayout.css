@@ -399,10 +399,19 @@
     font-weight: 500;
 }
 
-#analytics-layout-wrapper .header-user {
+#analytics-layout-wrapper .header-actions {
     display: flex;
     align-items: center;
-    gap: 1.25rem;
+    gap: 20px;
+}
+
+.header-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px;
+    border-radius: 12px;
+    transition: all 0.2s ease;
 }
 
 #analytics-layout-wrapper .user-info {

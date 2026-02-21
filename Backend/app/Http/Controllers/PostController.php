@@ -17,6 +17,7 @@ use App\Services\AdminActivityLogger;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\ApplyCase;
+use App\Models\Notification;
 
 class PostController extends Controller
 {
@@ -234,6 +235,20 @@ class PostController extends Controller
             $post->likes()->create(['user_id' => $userId]);
             $post->increment('likes_count');
             $liked = true;
+
+            // Trigger Notification
+            Notification::create([
+                'institute_id' => $post->institute_id,
+                'user_id' => $userId,
+                'type' => 'post_like',
+                'title' => 'New Like on Post',
+                'message' => auth()->user()->name . ' liked your post: ' . $post->title,
+                'data' => [
+                    'post_id' => $post->id,
+                    'post_title' => $post->title,
+                    'image' => $post->image
+                ]
+            ]);
         }
 
         // Return the updated like count and liked status

@@ -9,6 +9,7 @@ use App\Models\Institute;
 use App\Models\ApplyCase;
 use App\Models\Post;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Log;
 
 
@@ -40,7 +41,7 @@ class CourseApplicationController extends Controller
             ->exists();
 
         if (! $alreadyApplied) {
-            ApplyCase::create([
+            $application = ApplyCase::create([
                 'user_id'       => Auth::id(),
                 'institute_id'  => $institute_id,
                 'post_id'       => $validated['post_id'],
@@ -51,6 +52,22 @@ class CourseApplicationController extends Controller
                 'message'       => $validated['message'],
                 'status'        => 'new',
                 'applied_at'    => now(),
+            ]);
+
+            // Fetch post for image
+            $post = \App\Models\Post::find($validated['post_id']);
+
+            // Trigger Notification
+            Notification::create([
+                'institute_id' => $institute_id,
+                'type' => 'application_new',
+                'title' => 'New Course Application',
+                'message' => $validated['name'] . ' applied for ' . $validated['course_title'],
+                'data' => [
+                    'application_id' => $application->id,
+                    'post_id' => $validated['post_id'],
+                    'image' => $post ? $post->image : null
+                ]
             ]);
         }
 

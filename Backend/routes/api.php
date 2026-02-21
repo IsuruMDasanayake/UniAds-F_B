@@ -40,6 +40,7 @@ use App\Http\Controllers\MailTemplateController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\InquiryController;
+use App\Http\Controllers\NotificationController;
 
 // Authentication routes with rate limiting (5 attempts per minute per IP)
 Route::middleware('throttle:auth')->group(function () {
@@ -160,6 +161,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/analytics/subscription', [AnalyticsController::class, 'apiSubscription']);
         Route::get('/analytics/subscriptions', [AnalyticsController::class, 'apiSubscriptions']);
         Route::post('/subscription/cancel', [SubscriptionController::class, 'apiCancelUnified']);
+
+        // Notification Routes
+        Route::get('/notifications', [NotificationController::class, 'index']);
+        Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+        Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);
 
         // Application Management
         Route::get('/applications', [ApplicationController::class, 'index']);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Institute;
+use App\Models\Notification;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -110,6 +111,17 @@ class RegisteredUserController extends Controller
                 'gov_register_number' => $request->gov_register_number,
                 'website' => $request->website,
                 'bio' => $request->description,  // Map description to bio column
+            ]);
+
+            // Trigger Welcome Notification
+            Notification::create([
+                'institute_id' => $institute->id,
+                'type' => 'system',
+                'title' => 'Welcome to UniAds!',
+                'message' => 'Congratulations on joining our platform! You can now start posting courses and events to reach more students.',
+                'data' => [
+                    'welcome' => true
+                ]
             ]);
 
             event(new Registered($user));
