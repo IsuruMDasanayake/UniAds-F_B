@@ -203,15 +203,6 @@ const ProfileHeader = ({
                                 {tab.toUpperCase()}
                             </button>
                         ))}
-                        {/* {isOwner && isPremium && (
-                            <button
-                                className={`tab-btn analytics-tab ${activeTab === 'analytics' ? 'active' : ''}`}
-                                onClick={() => setActiveTab('analytics')}
-                                style={{ color: 'gold' }}
-                            >
-                                <BarChart3 size={18} /> ANALYTICS
-                            </button>
-                        )} */}
                     </div>
                 </div>
             </div>
