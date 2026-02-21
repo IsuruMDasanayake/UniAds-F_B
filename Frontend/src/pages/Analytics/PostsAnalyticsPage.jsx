@@ -80,8 +80,17 @@ const PostsAnalyticsPage = () => {
         const timer = setTimeout(() => {
             fetchPosts(!posts.length);
         }, search ? 500 : 0);
-        return () => clearTimeout(timer);
-    }, [search, status, sortConfig, page, fetchPosts]);
+
+        // Polling every 30 seconds
+        const intervalId = setInterval(() => {
+            fetchPosts(false);
+        }, 30000);
+
+        return () => {
+            clearTimeout(timer);
+            clearInterval(intervalId);
+        };
+    }, [search, status, sortConfig, page, fetchPosts, posts.length === 0]);
 
     const handleToggleStatus = async (id, currentStatus) => {
         // Optimistic update

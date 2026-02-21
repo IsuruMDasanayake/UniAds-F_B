@@ -179,7 +179,7 @@
 .notif-title {
     margin: 0 0 4px 0;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 700 !important;
     color: #1e293b;
 }
 

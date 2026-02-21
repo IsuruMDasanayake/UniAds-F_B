@@ -405,6 +405,7 @@ class PostController extends Controller
     public function apiToggleSave($postId)
     {
         $post = Post::findOrFail($postId);
+        /** @var \App\Models\User $user */
         $user = auth()->user();
 
         if ($user->role !== 'User') {
@@ -424,6 +425,7 @@ class PostController extends Controller
     // Get all Saved Posts for the authenticated user
     public function getSavedPosts()
     {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
 
         if ($user->role !== 'User') {
@@ -446,6 +448,7 @@ class PostController extends Controller
     public function apiIndex()
     {
         $user = auth()->user();
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $posts */
         $posts = Post::with(['institute', 'likes'])
             ->where('status', 'active')
             ->latest()
@@ -453,7 +456,8 @@ class PostController extends Controller
 
         // Apply user-specific liked and saved status
         $userId = $user ? $user->id : null;
-        $posts->through(function ($post) use ($userId, $user) {
+        /** @var \App\Models\User $user */
+        $posts->getCollection()->transform(function ($post) use ($userId, $user) {
             $post->is_liked_by_user = $user ? $post->likes()->where('user_id', $user->id)->exists() : false;
             $post->is_saved_by_user = ($user && $user->role === 'User') ? $user->savedPosts()->where('post_id', $post->id)->exists() : false;
             return $post;

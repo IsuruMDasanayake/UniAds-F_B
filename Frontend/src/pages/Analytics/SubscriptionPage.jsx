@@ -34,6 +34,13 @@ const SubscriptionPage = () => {
 
     useEffect(() => {
         fetchSubscriptionData();
+
+        // Polling every 30 seconds
+        const intervalId = setInterval(() => {
+            fetchSubscriptionData(true);
+        }, 30000);
+
+        return () => clearInterval(intervalId);
     }, []);
 
     const handleCancelConfirm = async (reason) => {

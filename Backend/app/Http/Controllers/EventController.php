@@ -325,6 +325,7 @@ class EventController extends Controller
             $query->whereNotIn('id', $declinedIds);
         }
 
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $events */
         $events = $query->orderBy('event_date', 'asc')
             ->paginate(12);
 

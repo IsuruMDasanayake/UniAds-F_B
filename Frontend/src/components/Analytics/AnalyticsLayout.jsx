@@ -114,6 +114,10 @@ const AnalyticsLayout = () => {
                         <Menu size={24} />
                     </button>
                     <NotificationDropdown />
+                    <div className="live-status-mobile">
+                        <span className="live-dot pulse"></span>
+                        <span className="live-text">LIVE</span>
+                    </div>
                 </div>
 
                 <div className="header-user mobile" onClick={() => setShowEditModal(true)}>
@@ -206,7 +210,13 @@ const AnalyticsLayout = () => {
                 {/* Desktop Header */}
                 <header className="desktop-header">
                     <div>
-                        <h1 className="page-title">{getCurrentTitle()}</h1>
+                        <div className="title-row">
+                            <h1 className="page-title">{getCurrentTitle()}</h1>
+                            <div className="live-badge">
+                                <span className="live-dot pulse"></span>
+                                <span className="live-text">LIVE DATA</span>
+                            </div>
+                        </div>
                         <p className="page-subtitle">Welcome to your Analytics dashboard</p>
                     </div>
 

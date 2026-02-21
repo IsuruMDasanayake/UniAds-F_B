@@ -67,8 +67,17 @@ const EventsAnalyticsPage = () => {
         const timer = setTimeout(() => {
             fetchEvents(!events.length);
         }, search ? 500 : 0);
-        return () => clearTimeout(timer);
-    }, [search, page, status, sortConfig, fetchEvents]);
+
+        // Polling every 30 seconds
+        const intervalId = setInterval(() => {
+            fetchEvents(false);
+        }, 30000);
+
+        return () => {
+            clearTimeout(timer);
+            clearInterval(intervalId);
+        };
+    }, [search, page, status, sortConfig, fetchEvents, events.length === 0]);
 
     const handleToggleStatus = async (id, currentIsActive) => {
         // Optimistic update

@@ -37,7 +37,12 @@ const OverviewPage = () => {
         };
 
         fetchStats();
-    }, [period]);
+
+        // Polling every 30 seconds
+        const intervalId = setInterval(fetchStats, 30000);
+
+        return () => clearInterval(intervalId);
+    }, [period, stats === null]); // stats === null is a trick to only show loading once
 
     // Unified loading state for components
     const isInitialLoading = loading && !stats;

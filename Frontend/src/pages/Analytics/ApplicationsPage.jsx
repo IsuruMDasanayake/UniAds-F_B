@@ -89,8 +89,17 @@ const ApplicationsPage = () => {
         const timer = setTimeout(() => {
             fetchApplications(!applications.length);
         }, search ? 500 : 0);
-        return () => clearTimeout(timer);
-    }, [search, status, page, fetchApplications]);
+
+        // Polling every 30 seconds
+        const intervalId = setInterval(() => {
+            fetchApplications(false);
+        }, 30000);
+
+        return () => {
+            clearTimeout(timer);
+            clearInterval(intervalId);
+        };
+    }, [search, status, page, fetchApplications, applications.length === 0]);
 
     useEffect(() => {
         const fetchTrends = async () => {

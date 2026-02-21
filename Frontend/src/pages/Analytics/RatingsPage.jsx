@@ -65,8 +65,17 @@ const RatingsAnalyticsPage = () => {
         const timer = setTimeout(() => {
             fetchRatings(!reviews.length);
         }, search ? 500 : 0);
-        return () => clearTimeout(timer);
-    }, [search, rating, reported, sort, page, fetchRatings]);
+
+        // Polling every 30 seconds
+        const intervalId = setInterval(() => {
+            fetchRatings(false);
+        }, 30000);
+
+        return () => {
+            clearTimeout(timer);
+            clearInterval(intervalId);
+        };
+    }, [search, rating, reported, sort, page, fetchRatings, reviews.length === 0]);
 
     const handleReportSubmit = async (reason) => {
         setIsReporting(true);

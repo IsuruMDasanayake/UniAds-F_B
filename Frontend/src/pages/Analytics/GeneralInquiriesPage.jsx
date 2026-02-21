@@ -79,8 +79,17 @@ const GeneralInquiriesPage = () => {
         const timer = setTimeout(() => {
             fetchInquiries(!inquiries.length);
         }, search ? 500 : 0);
-        return () => clearTimeout(timer);
-    }, [search, status, page, fetchInquiries]);
+
+        // Polling every 30 seconds
+        const intervalId = setInterval(() => {
+            fetchInquiries(false);
+        }, 30000);
+
+        return () => {
+            clearTimeout(timer);
+            clearInterval(intervalId);
+        };
+    }, [search, status, page, fetchInquiries, inquiries.length === 0]);
 
     const handleViewDetails = async (inquiry) => {
         setSelectedInquiry(inquiry);

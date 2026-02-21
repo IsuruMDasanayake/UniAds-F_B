@@ -40,7 +40,14 @@ const TrendsPage = () => {
         };
 
         fetchTrends();
-    }, [range, compare]);
+
+        // Polling every 30 seconds
+        const intervalId = setInterval(() => {
+            fetchTrends();
+        }, 30000);
+
+        return () => clearInterval(intervalId);
+    }, [range, compare, data === null]);
 
     // Unified loading state
     const isInitialLoading = loading && !data;
