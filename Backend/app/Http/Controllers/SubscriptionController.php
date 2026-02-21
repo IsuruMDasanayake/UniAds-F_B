@@ -299,6 +299,7 @@ class SubscriptionController extends Controller
             $subscription->update([
                 'status' => 'active', // Stays active until ends_at
                 'cancelled_at' => now(),
+                'cancel_reason' => $request->input('reason'),
             ]);
             // Premium benefits remain until premium_expires_at
             return response()->json(['message' => 'Subscription cancelled successfully.']);
@@ -316,6 +317,7 @@ class SubscriptionController extends Controller
                 'started_at' => now(), // Assume started now for record
                 'ends_at' => $institute->premium_expires_at, // Sync expiry
                 'cancelled_at' => now(),
+                'cancel_reason' => $request->input('reason'),
                 'is_trial' => false,
             ]);
 
@@ -346,6 +348,7 @@ class SubscriptionController extends Controller
         $institute->update([
             'trial_status' => 'cancelled',
             'trial_cancelled_at' => now(),
+            'trial_cancel_reason' => $request->input('reason'),
             'is_premium' => false,
             'premium_expires_at' => null,
         ]);

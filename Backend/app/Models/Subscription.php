@@ -20,6 +20,7 @@ class Subscription extends Model
         'started_at',
         'ends_at',
         'cancelled_at',
+        'cancel_reason',
         'created_at',
         'updated_at',
     ];

@@ -258,6 +258,7 @@ const SubscriptionManagement = () => {
                                             <th>Started At</th>
                                             <th>Ends At</th>
                                             <th>Cancelled At</th>
+                                            <th>Reason</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -276,6 +277,7 @@ const SubscriptionManagement = () => {
                                                 <td>{sub.started_at ? new Date(sub.started_at).toLocaleDateString() : '-'}</td>
                                                 <td>{sub.ends_at ? new Date(sub.ends_at).toLocaleDateString() : '-'}</td>
                                                 <td>{sub.cancelled_at ? new Date(sub.cancelled_at).toLocaleDateString() : '—'}</td>
+                                                <td>{sub.cancel_reason || sub.trial_cancel_reason || '—'}</td>
                                             </tr>
                                         ))}
                                     </tbody>

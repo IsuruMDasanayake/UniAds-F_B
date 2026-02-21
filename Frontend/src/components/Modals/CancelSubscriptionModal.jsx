@@ -1,11 +1,29 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Ban, Loader2, AlertTriangle } from 'lucide-react';
+import { X, Ban, Loader2, AlertTriangle, ChevronDown } from 'lucide-react';
 import './CancelSubscriptionModal.css';
 
+const PREDEFINED_REASONS = [
+    "Too expensive",
+    "Missing features",
+    "Switching to another platform",
+    "Difficult to use",
+    "Other"
+];
+
 const CancelSubscriptionModal = ({ isOpen, onClose, onConfirm, loading, planName }) => {
+    const [reason, setReason] = React.useState('');
+    const [otherReason, setOtherReason] = React.useState('');
+
     if (!isOpen) return null;
+
+    const handleConfirm = () => {
+        const finalReason = reason === 'Other' ? otherReason : reason;
+        onConfirm(finalReason);
+    };
+
+    const isConfirmDisabled = !reason || (reason === 'Other' && !otherReason.trim()) || loading;
 
     return createPortal(
         <AnimatePresence>
@@ -28,7 +46,7 @@ const CancelSubscriptionModal = ({ isOpen, onClose, onConfirm, loading, planName
 
                         <h3>Cancel {planName}?</h3>
 
-                        <div className="cancel-sub-info-box">   
+                        <div className="cancel-sub-info-box">
                             <p>
                                 {planName?.toLowerCase().includes('trial') ? (
                                     <>
@@ -45,6 +63,41 @@ const CancelSubscriptionModal = ({ isOpen, onClose, onConfirm, loading, planName
                             </p>
                         </div>
 
+                        <div className="cancel-sub-reason-section">
+                            <label className="reason-label">Why are you cancelling?</label>
+                            <div className="reason-select-wrapper">
+                                <select
+                                    className="reason-select"
+                                    value={reason}
+                                    onChange={(e) => setReason(e.target.value)}
+                                    disabled={loading}
+                                >
+                                    <option value="" disabled>Select a reason</option>
+                                    {PREDEFINED_REASONS.map((r) => (
+                                        <option key={r} value={r}>{r}</option>
+                                    ))}
+                                </select>
+                                <ChevronDown className="select-icon" size={18} />
+                            </div>
+
+                            {reason === 'Other' && (
+                                <motion.div
+                                    className="other-reason-container"
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                >
+                                    <textarea
+                                        className="other-reason-input"
+                                        placeholder="Please tell us more..."
+                                        value={otherReason}
+                                        onChange={(e) => setOtherReason(e.target.value)}
+                                        disabled={loading}
+                                        rows={3}
+                                    />
+                                </motion.div>
+                            )}
+                        </div>
+
                         <div className="cancel-sub-actions">
                             <button
                                 type="button"
@@ -57,8 +110,8 @@ const CancelSubscriptionModal = ({ isOpen, onClose, onConfirm, loading, planName
                             <button
                                 type="button"
                                 className="btn-primary danger"
-                                onClick={onConfirm}
-                                disabled={loading}
+                                onClick={handleConfirm}
+                                disabled={isConfirmDisabled}
                             >
                                 {loading ? <Loader2 className="cancel-sub-animate-spin" size={18} /> : 'Confirm Cancellation'}
                             </button>

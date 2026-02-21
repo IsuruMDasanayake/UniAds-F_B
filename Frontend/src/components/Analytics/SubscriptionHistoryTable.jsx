@@ -46,6 +46,10 @@ const SubscriptionHistoryTable = ({ history, loading, onCancel }) => {
             render: (row) => formatDate(row.cancelled_at)
         },
         {
+            header: 'Cancel Reason',
+            render: (row) => row.cancel_reason || row.trial_cancel_reason || '-'
+        },
+        {
             header: 'Action',
             key: 'id',
             render: (row) => {

@@ -3,14 +3,14 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
-# Generate app key if it's not set
-if [ -z "$APP_KEY" ]; then
+# Generate app key if it's not set in .env or environment
+if ! grep -q "APP_KEY=base64:" .env && [ -z "$APP_KEY" ]; then
     echo "Generating app key..."
     php artisan key:generate --force
 fi
 
 # Create storage link if it doesn't exist
-if [ ! -L public/storage ]; then
+if [ ! -d public/storage ]; then
     echo "Creating storage link..."
     php artisan storage:link
 fi

@@ -5,6 +5,7 @@ import { CheckCircle, AlertCircle, Rocket, Shield, BarChart2, Users, Star, Faceb
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSettings } from '../context/SettingsContext';
 import Navbar from '../components/Navbar';
+import CancelSubscriptionModal from '../components/Modals/CancelSubscriptionModal';
 import './PricingPage.css';
 
 const PricingPage = () => {
@@ -144,11 +145,11 @@ const PricingPage = () => {
     };
 
     // Actual Cancellation Logic
-    const confirmCancelTrial = async () => {
+    const confirmCancelTrial = async (reason) => {
         setShowCancelTrialModal(false);
         try {
             setSubmitting(true);
-            await axiosClient.post('/api/trial/cancel');
+            await axiosClient.post('/api/institute/subscription/cancel', { reason });
             await fetchPricingData();
             // Show Success Alert
             setShowSuccess(true);
@@ -161,11 +162,11 @@ const PricingPage = () => {
         }
     };
 
-    const confirmCancelSubscription = async () => {
+    const confirmCancelSubscription = async (reason) => {
         setShowCancelSubModal(false);
         try {
             setSubmitting(true);
-            await axiosClient.post('/api/pricing/cancel');
+            await axiosClient.post('/api/institute/subscription/cancel', { reason });
             await fetchPricingData();
             // Show Success Alert
             setShowSuccess(true);
@@ -459,74 +460,22 @@ const PricingPage = () => {
             )}
 
             {/* Cancel Trial Modal */}
-            <AnimatePresence>
-                {showCancelTrialModal && (
-                    <div className="modal-overlay" onClick={() => setShowCancelTrialModal(false)}>
-                        <motion.div
-                            className="modal-content delete-modal"
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
-                            onClick={e => e.stopPropagation()}
-                        >
-                            <button className="modal-close-trigger" onClick={() => setShowCancelTrialModal(false)}>
-                                <X size={24} />
-                            </button>
-
-                            <div className="modal-icon-container">
-                                <AlertTriangle size={50} />
-                            </div>
-
-                            <h3>Cancel Free Trial?</h3>
-                            <p>Are you sure you want to cancel your free trial? Once cancelled, you cannot reactivate it.</p>
-
-                            <div className="modal-actions-confirm">
-                                <button className="btn-modal-secondary" onClick={() => setShowCancelTrialModal(false)}>
-                                    Keep Trial
-                                </button>
-                                <button className="btn-modal-danger" onClick={confirmCancelTrial}>
-                                    Yes, Cancel Trial
-                                </button>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
+            <CancelSubscriptionModal
+                isOpen={showCancelTrialModal}
+                onClose={() => setShowCancelTrialModal(false)}
+                onConfirm={confirmCancelTrial}
+                loading={submitting}
+                planName="Free Trial"
+            />
 
             {/* Cancel Subscription Modal */}
-            <AnimatePresence>
-                {showCancelSubModal && (
-                    <div className="modal-overlay" onClick={() => setShowCancelSubModal(false)}>
-                        <motion.div
-                            className="modal-content delete-modal"
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
-                            onClick={e => e.stopPropagation()}
-                        >
-                            <button className="modal-close-trigger" onClick={() => setShowCancelSubModal(false)}>
-                                <X size={24} />
-                            </button>
-
-                            <div className="modal-icon-container">
-                                <AlertTriangle size={50} />
-                            </div>
-
-                            <h3>Cancel Subscription?</h3>
-                            <p>Are you sure? Your premium access will remain active until the end of the current billing period.</p>
-
-                            <div className="modal-actions-confirm">
-                                <button className="btn-modal-secondary" onClick={() => setShowCancelSubModal(false)}>
-                                    Keep Subscription
-                                </button>
-                                <button className="btn-modal-danger" onClick={confirmCancelSubscription}>
-                                    Yes, Cancel Sub
-                                </button>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
+            <CancelSubscriptionModal
+                isOpen={showCancelSubModal}
+                onClose={() => setShowCancelSubModal(false)}
+                onConfirm={confirmCancelSubscription}
+                loading={submitting}
+                planName="Premium Subscription"
+            />
 
             <AnimatePresence>
                 {/* {showSuccess && (

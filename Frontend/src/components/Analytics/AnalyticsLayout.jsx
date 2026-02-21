@@ -31,7 +31,7 @@ const AnalyticsLayout = () => {
         { path: `/analytics/${slug}/ratings`, label: 'Reviews', icon: Star },
         { path: `/analytics/${slug}/applications`, label: 'Applications', icon: UserCheck },
         { path: `/analytics/${slug}/inquiries`, label: 'Inquiries', icon: Mail },
-        { path: `/analytics/${slug}/ads`, label: 'Ads Manager', icon: Megaphone },
+        { path: `/analytics/${slug}/ads`, label: 'Ads & Boosting', icon: Megaphone },
         { path: `/analytics/${slug}/subscription`, label: 'Subscription', icon: CreditCard },
     ];
 
@@ -173,9 +173,9 @@ const AnalyticsLayout = () => {
                             {item.path.includes('/inquiries') && newInquiriesCount > 0 && (
                                 <span className="nav-badge yellow">{newInquiriesCount}</span>
                             )}
-                            {item.path.includes('/ads') && (
+                            {/* {item.path.includes('/ads') && (
                                 <span className="badge-soon">SOON</span>
-                            )}
+                            )} */}
                         </NavLink>
                     ))}
 
@@ -206,7 +206,7 @@ const AnalyticsLayout = () => {
                 <header className="desktop-header">
                     <div>
                         <h1 className="page-title">{getCurrentTitle()}</h1>
-                        <p className="page-subtitle">Welcome to your institute dashboard</p>
+                        <p className="page-subtitle">Welcome to your Analytics dashboard</p>
                     </div>
                     <div className="header-user" onClick={() => setShowEditModal(true)} style={{ cursor: 'pointer' }}>
                         <div className="user-info">

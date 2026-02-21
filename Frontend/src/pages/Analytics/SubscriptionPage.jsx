@@ -36,11 +36,11 @@ const SubscriptionPage = () => {
         fetchSubscriptionData();
     }, []);
 
-    const handleCancelConfirm = async () => {
+    const handleCancelConfirm = async (reason) => {
         setCancelling(true);
         try {
             const isTrial = data?.current_plan?.type === 'trial';
-            await axiosClient.post('/api/institute/subscription/cancel');
+            await axiosClient.post('/api/institute/subscription/cancel', { reason });
 
             if (isTrial) {
                 // If trial is cancelled, redirect immediately as access is revoked
