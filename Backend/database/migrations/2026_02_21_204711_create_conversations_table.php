@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('conversations', function (Blueprint $table) {
             $table->id();
+            $table->enum('type', ['student_institute', 'institute_institute']);
             $table->timestamps();
         });
     }
