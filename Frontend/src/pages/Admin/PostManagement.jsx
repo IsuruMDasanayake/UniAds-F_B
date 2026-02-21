@@ -48,7 +48,6 @@ const PostManagement = () => {
 
     useEffect(() => {
         fetchPosts();
-        fetchInstitutes();
 
         const intervalId = setInterval(() => fetchPosts(true), 30000);
         return () => clearInterval(intervalId);

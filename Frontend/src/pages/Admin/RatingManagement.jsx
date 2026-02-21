@@ -40,7 +40,6 @@ const RatingManagement = () => {
 
     useEffect(() => {
         fetchRatings();
-        fetchInstitutes();
 
         const intervalId = setInterval(() => fetchRatings(true), 30000);
         return () => clearInterval(intervalId);

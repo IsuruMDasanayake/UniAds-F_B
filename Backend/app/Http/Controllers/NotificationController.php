@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Notification;
+use App\Models\AdminNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -69,13 +70,11 @@ class NotificationController extends Controller
     {
         $userId = Auth::id();
 
-        $notifications = Notification::whereNull('institute_id')
-            ->where('user_id', $userId)
+        $notifications = AdminNotification::where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        $unreadCount = Notification::whereNull('institute_id')
-            ->where('user_id', $userId)
+        $unreadCount = AdminNotification::where('user_id', $userId)
             ->where('is_read', false)
             ->count();
 
@@ -88,8 +87,7 @@ class NotificationController extends Controller
     public function adminMarkAsRead($id)
     {
         $userId = Auth::id();
-        $notification = Notification::whereNull('institute_id')
-            ->where('user_id', $userId)
+        $notification = AdminNotification::where('user_id', $userId)
             ->findOrFail($id);
 
         $notification->update([
@@ -104,8 +102,7 @@ class NotificationController extends Controller
     {
         $userId = Auth::id();
 
-        Notification::whereNull('institute_id')
-            ->where('user_id', $userId)
+        AdminNotification::where('user_id', $userId)
             ->where('is_read', false)
             ->update([
                 'is_read' => true,
@@ -118,8 +115,7 @@ class NotificationController extends Controller
     public function adminDestroy($id)
     {
         $userId = Auth::id();
-        $notification = Notification::whereNull('institute_id')
-            ->where('user_id', $userId)
+        $notification = AdminNotification::where('user_id', $userId)
             ->findOrFail($id);
 
         $notification->delete();

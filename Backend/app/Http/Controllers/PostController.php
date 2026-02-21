@@ -88,9 +88,8 @@ class PostController extends Controller
             // Notify Admins
             $admins = User::where('role', 'Admin')->get();
             foreach ($admins as $admin) {
-                Notification::create([
+                AdminNotification::create([
                     'user_id' => $admin->id,
-                    'institute_id' => null,
                     'type' => 'post_new',
                     'title' => 'New Post Created',
                     'message' => "{$institute->institute_name} has created a new post: {$post->title}",

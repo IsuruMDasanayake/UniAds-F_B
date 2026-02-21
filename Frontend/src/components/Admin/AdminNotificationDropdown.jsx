@@ -1,6 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Bell, UserPlus, AlertTriangle, Check, Trash2, Shield, Info } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Bell, UserPlus, AlertTriangle, Check, Trash2, Shield, Info, Building2 } from 'lucide-react';
 import axiosClient from '../../lib/axios';
 import './AdminNotificationDropdown.css';
 
@@ -75,6 +73,8 @@ const AdminNotificationDropdown = () => {
     const getIcon = (type) => {
         switch (type) {
             case 'new_institute_registration':
+                return <div className="notif-icon-container registration"><Building2 size={20} /></div>;
+            case 'new_user_registration':
                 return <div className="notif-icon-container registration"><UserPlus size={20} /></div>;
             case 'review_reported':
                 return <div className="notif-icon-container report"><AlertTriangle size={20} /></div>;

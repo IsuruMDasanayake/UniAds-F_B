@@ -23,6 +23,7 @@ use App\Models\Category;
 use App\Models\Subscription;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use App\Models\AdminNotification;
 
 
 class AnalyticsController extends Controller
@@ -757,12 +758,29 @@ class AnalyticsController extends Controller
             'reason' => 'required|string',
         ]);
 
-        $rating = Rating::where('institute_id', auth()->user()->institute->id)
+        $institute = auth()->user()->institute;
+        $rating = Rating::where('institute_id', $institute->id)
             ->findOrFail($id);
 
         $rating->is_reported = true;
         $rating->report_reason = $request->reason;
         $rating->save();
+
+        // Notify Admins
+        $admins = User::where('role', 'Admin')->get();
+        foreach ($admins as $admin) {
+            AdminNotification::create([
+                'user_id' => $admin->id,
+                'type' => 'review_reported',
+                'title' => 'Review Reported',
+                'message' => "A review for {$institute->institute_name} has been reported.",
+                'data' => [
+                    'rating_id' => $rating->id,
+                    'institute_id' => $institute->id,
+                    'reason' => $request->reason
+                ]
+            ]);
+        }
 
         return response()->json(['message' => 'Review reported successfully']);
     }

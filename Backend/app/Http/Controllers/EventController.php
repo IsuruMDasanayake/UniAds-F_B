@@ -12,6 +12,7 @@ use App\Models\EventUserInterest;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Models\Notification;
+use App\Models\AdminNotification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -387,9 +388,8 @@ class EventController extends Controller
             // Notify Admins
             $admins = User::where('role', 'Admin')->get();
             foreach ($admins as $admin) {
-                Notification::create([
+                AdminNotification::create([
                     'user_id' => $admin->id,
-                    'institute_id' => null,
                     'type' => 'event_new',
                     'title' => 'New Event Created',
                     'message' => "{$institute->institute_name} has created a new event: {$event->event_title}",

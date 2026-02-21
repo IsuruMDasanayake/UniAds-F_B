@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Institute;
 use App\Models\Notification;
+use App\Models\AdminNotification;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -62,9 +63,8 @@ class RegisteredUserController extends Controller
         // Notify Admins about the new user registration
         $admins = User::where('role', 'Admin')->get();
         foreach ($admins as $admin) {
-            Notification::create([
+            AdminNotification::create([
                 'user_id' => $admin->id,
-                'institute_id' => null, // Admin notification
                 'type' => 'new_user_registration',
                 'title' => 'New User Registered',
                 'message' => "A new user \"{$user->name}\" has registered on the platform.",

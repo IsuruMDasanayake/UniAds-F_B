@@ -8,6 +8,7 @@ use App\Models\Institute;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\Models\Notification;
+use App\Models\AdminNotification;
 use App\Models\User;
 
 class SubscriptionController extends Controller
@@ -102,9 +103,8 @@ class SubscriptionController extends Controller
         // Notify Admins
         $admins = User::where('role', 'Admin')->get();
         foreach ($admins as $admin) {
-            Notification::create([
+            AdminNotification::create([
                 'user_id' => $admin->id,
-                'institute_id' => null,
                 'type' => 'subscription_new',
                 'title' => 'New Trial Started',
                 'message' => "{$institute->institute_name} has started a 30-day free trial.",
@@ -283,9 +283,8 @@ class SubscriptionController extends Controller
                         // Notify Admins
                         $admins = User::where('role', 'Admin')->get();
                         foreach ($admins as $admin) {
-                            Notification::create([
+                            AdminNotification::create([
                                 'user_id' => $admin->id,
-                                'institute_id' => null,
                                 'type' => 'subscription_new',
                                 'title' => $orderType === 'TRIAL' ? 'New Trial Started' : 'New Subscription Received',
                                 'message' => "{$institute->institute_name} has " . ($orderType === 'TRIAL' ? "started a free trial." : "purchased a premium subscription."),

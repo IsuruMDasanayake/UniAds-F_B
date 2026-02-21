@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Institute;
 use App\Models\Notification;
+use App\Models\AdminNotification;
 use App\Models\User;
 
 class RatingsController extends Controller
@@ -99,7 +100,7 @@ class RatingsController extends Controller
     public function report(Request $request, $id)
     {
         $request->validate([
-            'report_reason' => 'required|string|max:500',
+            'reason' => 'required|string|max:500',
         ]);
 
         $rating = Rating::findOrFail($id);
@@ -111,7 +112,7 @@ class RatingsController extends Controller
 
         $rating->update([
             'is_reported' => true,
-            'report_reason' => $request->report_reason,
+            'report_reason' => $request->reason,
         ]);
 
         // Trigger Notification for reported review
@@ -119,26 +120,25 @@ class RatingsController extends Controller
             'institute_id' => $rating->institute_id,
             'type' => 'review_reported',
             'title' => 'Review Reported',
-            'message' => "A review has been reported for: {$request->report_reason}",
+            'message' => "A review has been reported for: {$request->reason}",
             'data' => [
                 'rating_id' => $rating->id,
-                'reason' => $request->report_reason
+                'reason' => $request->reason
             ]
         ]);
 
         // Notify Admins
         $admins = User::where('role', 'Admin')->get();
         foreach ($admins as $admin) {
-            Notification::create([
+            AdminNotification::create([
                 'user_id' => $admin->id,
-                'institute_id' => null, // Admin notification
                 'type' => 'review_reported',
                 'title' => 'Review Reported',
                 'message' => "A review for {$rating->institute->institute_name} has been reported.",
                 'data' => [
                     'rating_id' => $rating->id,
                     'institute_id' => $rating->institute_id,
-                    'reason' => $request->report_reason
+                    'reason' => $request->reason
                 ]
             ]);
         }

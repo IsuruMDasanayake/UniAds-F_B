@@ -49,7 +49,6 @@ const EventManagement = () => {
 
     useEffect(() => {
         fetchEvents();
-        fetchInstitutes();
 
         const intervalId = setInterval(() => fetchEvents(true), 30000);
         return () => clearInterval(intervalId);
