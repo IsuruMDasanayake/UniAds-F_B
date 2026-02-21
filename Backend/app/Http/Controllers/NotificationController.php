@@ -62,4 +62,68 @@ class NotificationController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    // --- Admin Notification Methods ---
+
+    public function adminIndex()
+    {
+        $userId = Auth::id();
+
+        $notifications = Notification::whereNull('institute_id')
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        $unreadCount = Notification::whereNull('institute_id')
+            ->where('user_id', $userId)
+            ->where('is_read', false)
+            ->count();
+
+        return response()->json([
+            'notifications' => $notifications,
+            'unreadCount' => $unreadCount
+        ]);
+    }
+
+    public function adminMarkAsRead($id)
+    {
+        $userId = Auth::id();
+        $notification = Notification::whereNull('institute_id')
+            ->where('user_id', $userId)
+            ->findOrFail($id);
+
+        $notification->update([
+            'is_read' => true,
+            'read_at' => now()
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function adminMarkAllAsRead()
+    {
+        $userId = Auth::id();
+
+        Notification::whereNull('institute_id')
+            ->where('user_id', $userId)
+            ->where('is_read', false)
+            ->update([
+                'is_read' => true,
+                'read_at' => now()
+            ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function adminDestroy($id)
+    {
+        $userId = Auth::id();
+        $notification = Notification::whereNull('institute_id')
+            ->where('user_id', $userId)
+            ->findOrFail($id);
+
+        $notification->delete();
+
+        return response()->json(['success' => true]);
+    }
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Institute;
 use App\Models\Notification;
+use App\Models\User;
 
 class RatingsController extends Controller
 {
@@ -124,6 +125,23 @@ class RatingsController extends Controller
                 'reason' => $request->report_reason
             ]
         ]);
+
+        // Notify Admins
+        $admins = User::where('role', 'Admin')->get();
+        foreach ($admins as $admin) {
+            Notification::create([
+                'user_id' => $admin->id,
+                'institute_id' => null, // Admin notification
+                'type' => 'review_reported',
+                'title' => 'Review Reported',
+                'message' => "A review for {$rating->institute->institute_name} has been reported.",
+                'data' => [
+                    'rating_id' => $rating->id,
+                    'institute_id' => $rating->institute_id,
+                    'reason' => $request->report_reason
+                ]
+            ]);
+        }
 
         return response()->json(['message' => 'Report submitted successfully.']);
     }

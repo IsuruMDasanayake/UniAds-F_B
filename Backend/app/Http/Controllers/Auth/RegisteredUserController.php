@@ -59,6 +59,22 @@ class RegisteredUserController extends Controller
             'role' => 'User',
         ]);
 
+        // Notify Admins about the new user registration
+        $admins = User::where('role', 'Admin')->get();
+        foreach ($admins as $admin) {
+            Notification::create([
+                'user_id' => $admin->id,
+                'institute_id' => null, // Admin notification
+                'type' => 'new_user_registration',
+                'title' => 'New User Registered',
+                'message' => "A new user \"{$user->name}\" has registered on the platform.",
+                'data' => [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name
+                ]
+            ]);
+        }
+
         event(new Registered($user));
 
         // Login user with session (cookie-based)
@@ -123,6 +139,22 @@ class RegisteredUserController extends Controller
                     'welcome' => true
                 ]
             ]);
+
+            // Notify Admins about the new registration
+            $admins = User::where('role', 'Admin')->get();
+            foreach ($admins as $admin) {
+                Notification::create([
+                    'user_id' => $admin->id,
+                    'institute_id' => null, // Admin notification
+                    'type' => 'new_institute_registration',
+                    'title' => 'New Institute Registered',
+                    'message' => "A new institute \"{$request->institute_name}\" has registered and is pending approval.",
+                    'data' => [
+                        'institute_id' => $institute->id,
+                        'institute_name' => $request->institute_name
+                    ]
+                ]);
+            }
 
             event(new Registered($user));
 

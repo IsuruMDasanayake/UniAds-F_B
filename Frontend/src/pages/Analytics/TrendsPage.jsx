@@ -24,9 +24,9 @@ const TrendsPage = () => {
     const [compare, setCompare] = useState(false);
 
     useEffect(() => {
-        const fetchTrends = async () => {
+        const fetchTrends = async (isSilent = false) => {
             if (!data) setLoading(true);
-            else setIsUpdating(true);
+            else if (!isSilent) setIsUpdating(true);
 
             try {
                 const response = await axiosClient.get(`/api/institute/analytics/trends?range=${range}&compare=${compare}`);
@@ -41,10 +41,10 @@ const TrendsPage = () => {
 
         fetchTrends();
 
-        // Polling every 30 seconds
+        // Polling every 60 seconds
         const intervalId = setInterval(() => {
-            fetchTrends();
-        }, 30000);
+            fetchTrends(true);
+        }, 60000);
 
         return () => clearInterval(intervalId);
     }, [range, compare, data === null]);

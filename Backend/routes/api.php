@@ -271,4 +271,10 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     // Activity Logs
     Route::get('/activity-logs', [ActivityLogController::class, 'index']);
     Route::get('/activity-logs/filters', [ActivityLogController::class, 'getFilters']);
+
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'adminIndex']);
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'adminMarkAsRead']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'adminMarkAllAsRead']);
+    Route::delete('/notifications/{id}', [NotificationController::class, 'adminDestroy']);
 });

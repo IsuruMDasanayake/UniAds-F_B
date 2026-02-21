@@ -39,9 +39,9 @@ const PostsAnalyticsPage = () => {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const fetchPosts = useCallback(async (isInitial = false) => {
+    const fetchPosts = useCallback(async (isInitial = false, isSilent = false) => {
         if (isInitial) setLoading(true);
-        else setIsUpdating(true);
+        else if (!isSilent) setIsUpdating(true);
 
         try {
             const { data } = await axiosClient.get(`/api/institute/analytics/posts`, {
@@ -81,10 +81,10 @@ const PostsAnalyticsPage = () => {
             fetchPosts(!posts.length);
         }, search ? 500 : 0);
 
-        // Polling every 30 seconds
+        // Polling every 60 seconds
         const intervalId = setInterval(() => {
-            fetchPosts(false);
-        }, 30000);
+            fetchPosts(false, true);
+        }, 60000);
 
         return () => {
             clearTimeout(timer);

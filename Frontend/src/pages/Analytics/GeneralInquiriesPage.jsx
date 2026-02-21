@@ -45,9 +45,9 @@ const GeneralInquiriesPage = () => {
     const [showHistoryModal, setShowHistoryModal] = useState(false);
     const [fetchingHistory, setFetchingHistory] = useState(false);
 
-    const fetchInquiries = useCallback(async (isInitial = false) => {
+    const fetchInquiries = useCallback(async (isInitial = false, isSilent = false) => {
         if (isInitial) setLoading(true);
-        else setIsUpdating(true);
+        else if (!isSilent) setIsUpdating(true);
 
         try {
             const { data } = await axiosClient.get('/api/institute/inquiries', {
@@ -80,10 +80,10 @@ const GeneralInquiriesPage = () => {
             fetchInquiries(!inquiries.length);
         }, search ? 500 : 0);
 
-        // Polling every 30 seconds
+        // Polling every 60 seconds
         const intervalId = setInterval(() => {
-            fetchInquiries(false);
-        }, 30000);
+            fetchInquiries(false, true);
+        }, 60000);
 
         return () => {
             clearTimeout(timer);

@@ -22,21 +22,23 @@ const InstituteManagement = () => {
     });
     const [isProcessingAction, setIsProcessingAction] = useState(false);
 
-    useEffect(() => {
-        fetchInstitutes();
-    }, []);
-
-    const fetchInstitutes = async () => {
+    const fetchInstitutes = async (isSilent = false) => {
         try {
-            setLoading(true);
+            if (!isSilent) setLoading(true);
             const response = await axiosClient.get('/api/admin/institutes');
             setInstitutes(response.data);
         } catch (error) {
             console.error('Error fetching institutes:', error);
         } finally {
-            setLoading(false);
+            if (!isSilent) setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchInstitutes();
+        const interval = setInterval(() => fetchInstitutes(true), 30000);
+        return () => clearInterval(interval);
+    }, []);
 
     const handleApprove = (id) => {
         setConfirmModal({

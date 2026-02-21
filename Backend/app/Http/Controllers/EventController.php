@@ -384,6 +384,22 @@ class EventController extends Controller
 
 
 
+            // Notify Admins
+            $admins = User::where('role', 'Admin')->get();
+            foreach ($admins as $admin) {
+                Notification::create([
+                    'user_id' => $admin->id,
+                    'institute_id' => null,
+                    'type' => 'event_new',
+                    'title' => 'New Event Created',
+                    'message' => "{$institute->institute_name} has created a new event: {$event->event_title}",
+                    'data' => [
+                        'event_id' => $event->id,
+                        'institute_id' => $institute->id
+                    ]
+                ]);
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Event created successfully!',

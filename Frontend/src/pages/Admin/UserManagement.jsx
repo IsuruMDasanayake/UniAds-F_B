@@ -189,21 +189,23 @@ const UserManagement = () => {
     });
     const [isDeleting, setIsDeleting] = useState(false);
 
-    useEffect(() => {
-        fetchUsers();
-    }, []);
-
-    const fetchUsers = async () => {
+    const fetchUsers = async (isSilent = false) => {
         try {
-            setLoading(true);
+            if (!isSilent) setLoading(true);
             const response = await axiosClient.get('/api/admin/users');
             setUsers(response.data);
         } catch (error) {
             console.error('Error fetching users:', error);
         } finally {
-            setLoading(false);
+            if (!isSilent) setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchUsers();
+        const interval = setInterval(() => fetchUsers(true), 30000);
+        return () => clearInterval(interval);
+    }, []);
 
     const handleAddUser = () => {
         setModalMode('add');

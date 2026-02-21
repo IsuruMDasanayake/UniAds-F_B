@@ -41,18 +41,24 @@ const AdminDashboard = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchData = async (isSilent = false) => {
+            if (!isSilent) setLoading(true);
             try {
                 const response = await axiosClient.get('/api/admin/dashboard');
                 setData(response.data);
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
             } finally {
-                setLoading(false);
+                if (!isSilent) setLoading(false);
             }
         };
 
         fetchData();
+
+        // Polling every 30 seconds
+        const intervalId = setInterval(() => fetchData(true), 30000);
+
+        return () => clearInterval(intervalId);
     }, []);
 
     if (loading) {

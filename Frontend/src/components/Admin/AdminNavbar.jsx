@@ -135,6 +135,8 @@ const AdminProfileModal = ({ isOpen, onClose, user, onUpdate }) => {
     );
 };
 
+import AdminNotificationDropdown from './AdminNotificationDropdown';
+
 const AdminNavbar = ({ toggleSidebar }) => {
     const location = useLocation();
     const [pageTitle, setPageTitle] = useState('Dashboard');
@@ -180,6 +182,10 @@ const AdminNavbar = ({ toggleSidebar }) => {
                         <span className="bc-separator">/</span>
                         <span className="bc-current">{pageTitle}</span>
                     </div>
+                    <div className="admin-live-badge desktop-only">
+                        <span className="live-dot pulse"></span>
+                        <span className="live-text">LIVE</span>
+                    </div>
                 </div>
 
                 <div className="navbar-right">
@@ -189,10 +195,7 @@ const AdminNavbar = ({ toggleSidebar }) => {
                     </div>
 
                     <div className="navbar-actions">
-                        <button className="action-btn">
-                            <Bell size={20} />
-                            <span className="notification-badge"></span>
-                        </button>
+                        <AdminNotificationDropdown />
 
                         <div
                             className="user-profile-summary clickable"

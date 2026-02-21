@@ -55,9 +55,9 @@ const ApplicationsPage = () => {
     const [showHistoryModal, setShowHistoryModal] = useState(false);
     const [fetchingHistory, setFetchingHistory] = useState(false);
 
-    const fetchApplications = useCallback(async (isInitial = false) => {
+    const fetchApplications = useCallback(async (isInitial = false, isSilent = false) => {
         if (isInitial) setLoading(true);
-        else setIsUpdating(true);
+        else if (!isSilent) setIsUpdating(true);
 
         try {
             const { data } = await axiosClient.get('/api/institute/applications', {
@@ -90,10 +90,10 @@ const ApplicationsPage = () => {
             fetchApplications(!applications.length);
         }, search ? 500 : 0);
 
-        // Polling every 30 seconds
+        // Polling every 60 seconds
         const intervalId = setInterval(() => {
-            fetchApplications(false);
-        }, 30000);
+            fetchApplications(false, true);
+        }, 60000);
 
         return () => {
             clearTimeout(timer);

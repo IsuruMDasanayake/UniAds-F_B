@@ -27,21 +27,23 @@ const SubscriptionManagement = () => {
     const [targetStatus, setTargetStatus] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
 
-    useEffect(() => {
-        fetchSubscriptions();
-    }, []);
-
-    const fetchSubscriptions = async () => {
+    const fetchSubscriptions = async (isSilent = false) => {
         try {
-            setLoading(true);
+            if (!isSilent) setLoading(true);
             const response = await axiosClient.get('/api/admin/subscriptions');
             setSubscriptions(response.data);
         } catch (error) {
             console.error('Error fetching subscriptions:', error);
         } finally {
-            setLoading(false);
+            if (!isSilent) setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchSubscriptions();
+        const interval = setInterval(() => fetchSubscriptions(true), 30000);
+        return () => clearInterval(interval);
+    }, []);
 
     const handleToggleStatus = (id, currentStatus) => {
         let newStatus = "";

@@ -35,31 +35,25 @@ const EventManagement = () => {
 
     const API_BASE_URL = 'http://localhost:8000';
 
-    useEffect(() => {
-        fetchEvents();
-        fetchInstitutes();
-    }, []);
-
-    const fetchInstitutes = async () => {
+    const fetchEvents = async (isSilent = false) => {
         try {
-            const response = await axiosClient.get('/api/institutions');
-            setInstitutes(response.data);
-        } catch (error) {
-            console.error('Error fetching institutes:', error);
-        }
-    };
-
-    const fetchEvents = async () => {
-        try {
-            setLoading(true);
+            if (!isSilent) setLoading(true);
             const response = await axiosClient.get('/api/admin/events');
             setEvents(response.data);
         } catch (error) {
             console.error('Error fetching events:', error);
         } finally {
-            setLoading(false);
+            if (!isSilent) setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchEvents();
+        fetchInstitutes();
+
+        const intervalId = setInterval(() => fetchEvents(true), 30000);
+        return () => clearInterval(intervalId);
+    }, []);
 
     const handleToggleClick = (event) => {
         setToggleModal({

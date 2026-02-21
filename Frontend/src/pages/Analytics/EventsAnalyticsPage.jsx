@@ -34,9 +34,9 @@ const EventsAnalyticsPage = () => {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const fetchEvents = useCallback(async (isInitial = false) => {
+    const fetchEvents = useCallback(async (isInitial = false, isSilent = false) => {
         if (isInitial) setLoading(true);
-        else setIsUpdating(true);
+        else if (!isSilent) setIsUpdating(true);
 
         try {
             const { data } = await axiosClient.get(`/api/institute/analytics/events`, {
@@ -68,10 +68,10 @@ const EventsAnalyticsPage = () => {
             fetchEvents(!events.length);
         }, search ? 500 : 0);
 
-        // Polling every 30 seconds
+        // Polling every 60 seconds
         const intervalId = setInterval(() => {
-            fetchEvents(false);
-        }, 30000);
+            fetchEvents(false, true);
+        }, 60000);
 
         return () => {
             clearTimeout(timer);

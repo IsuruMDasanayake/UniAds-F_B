@@ -85,6 +85,22 @@ class PostController extends Controller
                 'status' => 'active'
             ]);
 
+            // Notify Admins
+            $admins = User::where('role', 'Admin')->get();
+            foreach ($admins as $admin) {
+                Notification::create([
+                    'user_id' => $admin->id,
+                    'institute_id' => null,
+                    'type' => 'post_new',
+                    'title' => 'New Post Created',
+                    'message' => "{$institute->institute_name} has created a new post: {$post->title}",
+                    'data' => [
+                        'post_id' => $post->id,
+                        'institute_id' => $institute->id
+                    ]
+                ]);
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Post created successfully!',

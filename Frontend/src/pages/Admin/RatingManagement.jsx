@@ -26,31 +26,25 @@ const RatingManagement = () => {
     const [ratingToDelete, setRatingToDelete] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    useEffect(() => {
-        fetchRatings();
-        fetchInstitutes();
-    }, []);
-
-    const fetchInstitutes = async () => {
+    const fetchRatings = async (isSilent = false) => {
         try {
-            const response = await axiosClient.get('/api/institutions');
-            setInstitutes(response.data);
-        } catch (error) {
-            console.error('Error fetching institutes:', error);
-        }
-    };
-
-    const fetchRatings = async () => {
-        try {
-            setLoading(true);
+            if (!isSilent) setLoading(true);
             const response = await axiosClient.get('/api/admin/ratings');
             setRatings(response.data);
         } catch (error) {
             console.error('Error fetching ratings:', error);
         } finally {
-            setLoading(false);
+            if (!isSilent) setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchRatings();
+        fetchInstitutes();
+
+        const intervalId = setInterval(() => fetchRatings(true), 30000);
+        return () => clearInterval(intervalId);
+    }, []);
 
     const handleDeleteClick = (id) => {
         setRatingToDelete(id);

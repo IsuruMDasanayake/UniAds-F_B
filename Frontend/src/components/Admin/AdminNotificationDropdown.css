@@ -1,0 +1,264 @@
+.admin-notification-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.admin-notification-wrapper .notif-bell-btn {
+    position: relative;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--admin-text-muted);
+    padding: 8px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-notification-wrapper .notif-bell-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--admin-primary);
+    transform: translateY(-1px);
+}
+
+.admin-notification-wrapper .notif-bell-btn.has-unread {
+    color: var(--admin-primary);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.admin-notification-wrapper .notif-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ef4444;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    border: 2px solid #0f172a;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+#admin-notification-dropdown {
+    position: absolute;
+    top: calc(100% + 15px);
+    right: 0;
+    width: 380px;
+    background: rgba(15, 23, 42, 0.95);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    overflow: hidden;
+    transform-origin: top right;
+}
+
+.admin-notification-wrapper .notif-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.admin-notification-wrapper .notif-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.admin-notification-wrapper .mark-all-btn {
+    background: transparent;
+    border: none;
+    color: var(--admin-primary);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.admin-notification-wrapper .mark-all-btn:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.admin-notification-wrapper .notif-list {
+    max-height: 450px;
+    overflow-y: auto;
+}
+
+/* Custom Scrollbar for dark theme */
+.admin-notification-wrapper .notif-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.admin-notification-wrapper .notif-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.admin-notification-wrapper .notif-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.admin-notification-wrapper .notif-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.admin-notification-wrapper .notif-item {
+    padding: 16px 20px;
+    display: flex;
+    gap: 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    position: relative;
+    align-items: flex-start;
+}
+
+.admin-notification-wrapper .notif-item:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.admin-notification-wrapper .notif-item.unread {
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.admin-notification-wrapper .notif-item.unread::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    background: var(--admin-primary);
+    border-radius: 50%;
+}
+
+.admin-notification-wrapper .notif-icon-container {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--admin-text-muted);
+}
+
+.admin-notification-wrapper .notif-icon-container.registration {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.admin-notification-wrapper .notif-icon-container.report {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.admin-notification-wrapper .notif-icon-container.system {
+    color: var(--admin-primary);
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.admin-notification-wrapper .notif-content {
+    flex: 1;
+}
+
+.admin-notification-wrapper .notif-title {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.admin-notification-wrapper .notif-msg {
+    margin: 0 0 6px 0;
+    font-size: 13px;
+    color: var(--admin-text-muted);
+    line-height: 1.4;
+}
+
+.admin-notification-wrapper .notif-time {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.3);
+    font-weight: 500;
+}
+
+.admin-notification-wrapper .notif-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+}
+
+.admin-notification-wrapper .notif-item:hover .notif-actions {
+    opacity: 1;
+}
+
+.admin-notification-wrapper .notif-action-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--admin-text-muted);
+}
+
+.admin-notification-wrapper .notif-action-btn.check:hover {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.admin-notification-wrapper .notif-action-btn.delete:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.admin-notification-wrapper .notif-empty {
+    padding: 60px 40px;
+    text-align: center;
+    color:  white !important;
+}
+
+.admin-notification-wrapper .empty-icon {
+    margin-bottom: 15px;
+    opacity: 0.1;
+}
+
+@media (max-width: 768px) {
+    #admin-notification-dropdown {
+        position: fixed;
+        top: 70px;
+        left: 20px;
+        right: 20px;
+        width: calc(100vw - 40px);
+        max-height: calc(100vh - 100px);
+        transform-origin: top center;
+    }
+}

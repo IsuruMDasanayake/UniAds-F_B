@@ -18,8 +18,8 @@ const SubscriptionPage = () => {
     const [cancelling, setCancelling] = useState(false);
 
     const fetchSubscriptionData = async (isSilent = false) => {
-        if (!isSilent) setLoading(true);
-        else setIsUpdating(true);
+        if (!data) setLoading(true);
+        else if (!isSilent) setIsUpdating(true);
 
         try {
             const { data } = await axiosClient.get('/api/institute/analytics/subscriptions');
@@ -35,10 +35,10 @@ const SubscriptionPage = () => {
     useEffect(() => {
         fetchSubscriptionData();
 
-        // Polling every 30 seconds
+        // Polling every 60 seconds
         const intervalId = setInterval(() => {
             fetchSubscriptionData(true);
-        }, 30000);
+        }, 60000);
 
         return () => clearInterval(intervalId);
     }, []);

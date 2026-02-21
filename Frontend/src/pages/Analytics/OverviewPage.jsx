@@ -18,10 +18,10 @@ const OverviewPage = () => {
     const [isUpdating, setIsUpdating] = useState(false);
 
     useEffect(() => {
-        const fetchStats = async () => {
+        const fetchStats = async (isSilent = false) => {
             if (!stats) {
                 setLoading(true);
-            } else {
+            } else if (!isSilent) {
                 setIsUpdating(true);
             }
 
@@ -38,8 +38,8 @@ const OverviewPage = () => {
 
         fetchStats();
 
-        // Polling every 30 seconds
-        const intervalId = setInterval(fetchStats, 30000);
+        // Polling every 60 seconds
+        const intervalId = setInterval(() => fetchStats(true), 60000);
 
         return () => clearInterval(intervalId);
     }, [period, stats === null]); // stats === null is a trick to only show loading once

@@ -42,8 +42,8 @@ const ActivityLogPage = () => {
         }
     };
 
-    const fetchLogs = async (page = 1) => {
-        setLoading(true);
+    const fetchLogs = async (page = 1, isSilent = false) => {
+        if (!isSilent) setLoading(true);
         try {
             const params = {
                 page,
@@ -64,12 +64,14 @@ const ActivityLogPage = () => {
         } catch (error) {
             console.error('Error fetching logs', error);
         } finally {
-            setLoading(false);
+            if (!isSilent) setLoading(false);
         }
     };
 
     useEffect(() => {
         fetchFilters();
+        const intervalId = setInterval(() => fetchLogs(pagination.current_page, true), 30000);
+        return () => clearInterval(intervalId);
     }, []);
 
     useEffect(() => {

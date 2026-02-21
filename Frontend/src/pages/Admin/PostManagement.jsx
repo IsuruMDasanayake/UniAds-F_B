@@ -34,31 +34,25 @@ const PostManagement = () => {
 
     const API_BASE_URL = 'http://localhost:8000';
 
-    useEffect(() => {
-        fetchPosts();
-        fetchInstitutes();
-    }, []);
-
-    const fetchInstitutes = async () => {
+    const fetchPosts = async (isSilent = false) => {
         try {
-            const response = await axiosClient.get('/api/institutions');
-            setInstitutes(response.data);
-        } catch (error) {
-            console.error('Error fetching institutes:', error);
-        }
-    };
-
-    const fetchPosts = async () => {
-        try {
-            setLoading(true);
+            if (!isSilent) setLoading(true);
             const response = await axiosClient.get('/api/admin/posts');
             setPosts(response.data);
         } catch (error) {
             console.error('Error fetching posts:', error);
         } finally {
-            setLoading(false);
+            if (!isSilent) setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchPosts();
+        fetchInstitutes();
+
+        const intervalId = setInterval(() => fetchPosts(true), 30000);
+        return () => clearInterval(intervalId);
+    }, []);
 
     const handleToggleClick = (post) => {
         setToggleModal({

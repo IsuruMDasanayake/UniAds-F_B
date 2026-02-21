@@ -7,6 +7,8 @@ use App\Models\Subscription;
 use App\Models\Institute;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use App\Models\Notification;
+use App\Models\User;
 
 class SubscriptionController extends Controller
 {
@@ -96,6 +98,22 @@ class SubscriptionController extends Controller
             'is_premium' => true,
             'premium_expires_at' => now()->addDays($trialDays),
         ]);
+
+        // Notify Admins
+        $admins = User::where('role', 'Admin')->get();
+        foreach ($admins as $admin) {
+            Notification::create([
+                'user_id' => $admin->id,
+                'institute_id' => null,
+                'type' => 'subscription_new',
+                'title' => 'New Trial Started',
+                'message' => "{$institute->institute_name} has started a 30-day free trial.",
+                'data' => [
+                    'institute_id' => $institute->id,
+                    'type' => 'trial'
+                ]
+            ]);
+        }
 
         return response()->json(['message' => 'Trial started successfully.', 'institute' => $institute]);
     }
@@ -260,8 +278,24 @@ class SubscriptionController extends Controller
                         $institute->update([
                             'is_premium' => true,
                             'premium_expires_at' => now()->addDays(30),
-                            // 'trial_status' => 'expired' // Optionally expire trial if they subscribe? User said "After 30 days... then subscribe visible". So trial usually used up.
                         ]);
+
+                        // Notify Admins
+                        $admins = User::where('role', 'Admin')->get();
+                        foreach ($admins as $admin) {
+                            Notification::create([
+                                'user_id' => $admin->id,
+                                'institute_id' => null,
+                                'type' => 'subscription_new',
+                                'title' => $orderType === 'TRIAL' ? 'New Trial Started' : 'New Subscription Received',
+                                'message' => "{$institute->institute_name} has " . ($orderType === 'TRIAL' ? "started a free trial." : "purchased a premium subscription."),
+                                'data' => [
+                                    'institute_id' => $institute->id,
+                                    'order_type' => $orderType,
+                                    'order_id' => $orderId
+                                ]
+                            ]);
+                        }
                     }
                 }
             }
