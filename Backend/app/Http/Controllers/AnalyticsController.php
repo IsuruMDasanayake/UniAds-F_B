@@ -822,6 +822,7 @@ class AnalyticsController extends Controller
                 'started_at' => $activeSubscription->started_at,
                 'ends_at' => $activeSubscription->ends_at,
                 'cancelled_at' => $activeSubscription->cancelled_at,
+                'cancel_reason' => $activeSubscription->cancel_reason,
                 'is_trial' => false
             ];
         } else if ($institute->trial_status === 'active' || $institute->trial_status === 'cancelled') {
@@ -835,6 +836,7 @@ class AnalyticsController extends Controller
                 'started_at' => $institute->trial_expires_at ? Carbon::parse($institute->trial_expires_at)->subDays(30) : null,
                 'ends_at' => $institute->trial_expires_at,
                 'cancelled_at' => $institute->trial_cancelled_at,
+                'trial_cancel_reason' => $institute->trial_cancel_reason,
                 'is_trial' => true
             ];
         } else {
@@ -865,6 +867,7 @@ class AnalyticsController extends Controller
                     'started_at' => $sub->started_at,
                     'ends_at' => $sub->ends_at,
                     'cancelled_at' => $sub->cancelled_at,
+                    'cancel_reason' => $sub->cancel_reason,
                     'is_trial' => false
                 ];
             });
@@ -890,6 +893,7 @@ class AnalyticsController extends Controller
                 'started_at' => $institute->trial_expires_at ? Carbon::parse($institute->trial_expires_at)->subDays(30) : null,
                 'ends_at' => $institute->trial_expires_at,
                 'cancelled_at' => $institute->trial_cancelled_at,
+                'trial_cancel_reason' => $institute->trial_cancel_reason,
                 'is_trial' => true
             ]);
         }
