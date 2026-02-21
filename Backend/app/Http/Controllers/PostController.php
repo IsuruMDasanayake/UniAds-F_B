@@ -7,7 +7,6 @@ use App\Models\Post;
 use App\Models\PostView;
 use App\Models\Category;
 use App\Models\Institute;
-use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;

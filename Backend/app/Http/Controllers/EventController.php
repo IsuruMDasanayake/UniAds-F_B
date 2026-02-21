@@ -7,7 +7,6 @@ use App\Models\Event;
 use App\Models\EventView;
 use App\Models\EventUserDeclines;
 use App\Models\Institute;
-use App\Models\Notification;
 use App\Models\User;
 use App\Models\EventUserInterest;
 use Illuminate\Http\Request;
@@ -65,14 +64,7 @@ class EventController extends Controller
 
 
 
-        // Create a single notification for the post (exclude the creator from receiving the notification)
-        Notification::create([
-            'title' => 'New Post Added',
-            'message' => 'An institute has added a new post about their program.',
-            'type' => 'event', // or 'event' for events
-            'created_by' => $userId, // The ID of the user who uploaded the post
-            'institute_id' => $instituteId, // Institute that added the post
-        ]);
+
 
 
 
@@ -374,14 +366,7 @@ class EventController extends Controller
                 'is_active' => true
             ]);
 
-            // Create a notification
-            Notification::create([
-                'title' => 'New Event Added',
-                'message' => "{$institute->institute_name} has added a new event: {$request->event_title}.",
-                'type' => 'event',
-                'created_by' => $user->id,
-                'institute_id' => $institute->id,
-            ]);
+
 
             return response()->json([
                 'success' => true,
