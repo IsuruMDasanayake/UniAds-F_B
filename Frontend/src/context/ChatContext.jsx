@@ -21,7 +21,7 @@ export const ChatProvider = ({ children, user }) => {
             window.Pusher = Pusher;
             const echoInstance = new Echo({
                 broadcaster: 'reverb',
-                key: 'uniads_key', // This should match backend .env
+                key: 'ysnvqfuqsvtqq2wklhre',
                 wsHost: 'localhost',
                 wsPort: 8082,
                 forceTLS: false,

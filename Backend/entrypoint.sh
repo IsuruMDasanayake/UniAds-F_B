@@ -30,6 +30,11 @@ php artisan migrate --force || true
 echo "Seeding Mail Templates..."
 php artisan db:seed --class=MailTemplateSeeder --force || true
 
-# Start PHP-FPM
-echo "Starting PHP-FPM..."
-php-fpm
+# Execute the specified command if provided, otherwise start PHP-FPM
+if [ $# -gt 0 ]; then
+    echo "Executing command: $@"
+    exec "$@"
+else
+    echo "Starting PHP-FPM..."
+    exec php-fpm
+fi

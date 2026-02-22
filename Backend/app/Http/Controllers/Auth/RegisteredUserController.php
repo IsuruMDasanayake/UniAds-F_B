@@ -143,9 +143,8 @@ class RegisteredUserController extends Controller
             // Notify Admins about the new registration
             $admins = User::where('role', 'Admin')->get();
             foreach ($admins as $admin) {
-                Notification::create([
+                AdminNotification::create([
                     'user_id' => $admin->id,
-                    'institute_id' => null, // Admin notification
                     'type' => 'new_institute_registration',
                     'title' => 'New Institute Registered',
                     'message' => "A new institute \"{$request->institute_name}\" has registered and is pending approval.",
