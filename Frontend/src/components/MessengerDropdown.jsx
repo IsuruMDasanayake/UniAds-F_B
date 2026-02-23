@@ -1,19 +1,47 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, X, CheckCheck, User } from 'lucide-react';
+import { MessageSquare, X, CheckCheck, User, Search, MoreHorizontal, Maximize2, Edit3, ChevronRight, BadgeCheck, Loader2 } from 'lucide-react';
 import { useChat } from '../context/ChatContext';
+import ChatService from '../services/ChatService';
 import { getStorageUrl } from '../lib/config';
 import { formatDistanceToNow } from 'date-fns';
 
 const MessengerDropdown = ({ isOpen, onClose }) => {
-    const { conversations, selectConversation, fetchConversations } = useChat();
+    const { conversations, selectConversation, fetchConversations, setActiveConversation } = useChat();
     const dropdownRef = useRef(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [activeTab, setActiveTab] = useState('All');
+
+    useEffect(() => {
+        if (conversations.length === 0 && activeTab === 'All') {
+            setActiveTab('Discover');
+        }
+    }, [conversations, activeTab]);
+    const [institutions, setInstitutions] = useState([]);
+    const [isLoadingInst, setIsLoadingInst] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
             fetchConversations();
+            fetchPremiumInstitutions();
         }
     }, [isOpen, fetchConversations]);
+
+    const fetchPremiumInstitutions = async () => {
+        setIsLoadingInst(true);
+        try {
+            const res = await ChatService.getInstitutions();
+            // Handle both raw array and { data: [...] } structure
+            const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+            // Filter for premium partners
+            setInstitutions(data.filter(i => Boolean(i.is_premium)));
+        } catch (error) {
+            console.error('Failed to fetch institutions:', error);
+            setInstitutions([]);
+        } finally {
+            setIsLoadingInst(false);
+        }
+    };
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -25,6 +53,42 @@ const MessengerDropdown = ({ isOpen, onClose }) => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [onClose]);
 
+    const startConversationWith = async (inst) => {
+        try {
+            const res = await ChatService.startConversation('Institute', inst.id);
+            const newConv = res.data.data;
+            setActiveConversation(newConv);
+            onClose();
+        } catch (error) {
+            console.error('Failed to start conversation:', error);
+        }
+    };
+
+    const filteredConversations = conversations.filter(conv => {
+        const name = conv.other_participant?.institute?.institute_name || conv.other_participant?.user?.name || '';
+        const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase());
+
+        if (activeTab === 'Unread') return matchesSearch && conv.unread_count > 0;
+        return matchesSearch;
+    });
+
+    const filteredInstitutions = institutions.filter(inst =>
+        inst.institute_name.toLowerCase().includes(searchTerm.toLowerCase())
+    ).map(inst => {
+        // Find existing conversation with this institute
+        const conversation = conversations.find(c =>
+            c.participants?.some(p => p.institute_id === inst.id)
+        );
+        return {
+            ...inst,
+            latest_message: conversation?.latest_message,
+            unread_count: conversation?.unread_count || 0,
+            conversation_id: conversation?.id
+        };
+    });
+
+    const categories = ['All', 'Unread', 'Discover'];
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -34,63 +98,115 @@ const MessengerDropdown = ({ isOpen, onClose }) => {
                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
                 >
                     <div className="messenger-header">
-                        <h3>Messages</h3>
-                        <button onClick={onClose} className="close-dropdown">
-                            <X size={18} />
-                        </button>
+                        <div className="header-top">
+                            <h3>Chats</h3>
+                        </div>
+
+                        <div className="messenger-search-bar">
+                            <Search size={14} className="text-muted" />
+                            <input
+                                type="text"
+                                placeholder="Search"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
                     </div>
 
-                    <div className="messenger-body">
-                        {conversations.length === 0 ? (
-                            <div className="empty-messenger">
-                                <MessageSquare size={48} />
-                                <p>No conversations yet</p>
+                    <div className="messenger-body premium-scroll">
+                        {isLoadingInst ? (
+                            <div className="discovery-loading" style={{ display: 'flex', justifyContent: 'center', height: '100%' }}>
+                                <Loader2 className="animate-spin" size={24} />
                             </div>
                         ) : (
-                            conversations.map(conv => (
-                                <div
-                                    key={conv.id}
-                                    className={`conversation-item ${conv.unread_count > 0 ? 'unread' : ''}`}
-                                    onClick={() => {
-                                        selectConversation(conv);
-                                        onClose();
-                                    }}
-                                >
-                                    <div className="participant-avatar">
-                                        {conv.other_participant?.institute?.profile_photo ? (
-                                            <img src={getStorageUrl(conv.other_participant.institute.profile_photo)} alt="Avatar" />
-                                        ) : (
-                                            <div className="avatar-placeholder">
-                                                <User size={20} />
+                            <div className="discovery-section">
+                                <p className="discovery-hint">Connect with Premium Partners</p>
+                                {filteredInstitutions.length > 0 ? (
+                                    filteredInstitutions.map(inst => (
+                                        <div key={inst.id} className="discovery-item" onClick={() => startConversationWith(inst)}>
+                                            <div className="inst-avatar-mini">
+                                                {inst.profile_photo ? (
+                                                    <img src={getStorageUrl(inst.profile_photo)} alt={inst.institute_name} />
+                                                ) : (
+                                                    <div className="avatar-placeholder">
+                                                        <User size={20} />
+                                                    </div>
+                                                )}
+                                                {inst.unread_count > 0 && <span className="unread-badge-dot"></span>}
                                             </div>
-                                        )}
-                                        {conv.unread_count > 0 && <span className="unread-dot"></span>}
-                                    </div>
-                                    <div className="conversation-info">
-                                        <div className="conv-top">
-                                            <span className="participant-name">
-                                                {conv.other_participant?.institute?.institute_name || conv.other_participant?.user?.name || 'Unknown'}
-                                            </span>
-                                            <span className="conv-time">
-                                                {conv.latest_message ? formatDistanceToNow(new Date(conv.latest_message.created_at), { addSuffix: false }) : ''}
-                                            </span>
+                                            <div className="inst-mini-info">
+                                                <div className="inst-mini-name">{inst.institute_name}</div>
+                                                <div className="inst-mini-last-message">
+                                                    {inst.latest_message ? (
+                                                        <span className={inst.unread_count > 0 ? 'unread-text' : ''}>
+                                                            {inst.latest_message.message}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="location-hint">{inst.location || 'Premium Partner'}</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <ChevronRight size={14} className="discovery-arrow" />
                                         </div>
-                                        <div className="conv-bottom">
-                                            <p className="latest-msg">
-                                                {conv.latest_message?.message || 'No messages yet'}
-                                            </p>
-                                            {conv.latest_message && <CheckCheck size={14} className="message-status" />}
-                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="empty-messenger">
+                                        <p>No premium partners found.</p>
                                     </div>
-                                </div>
-                            ))
+                                )}
+                            </div>
                         )}
+
+                        {conversations.length > 0 && (
+                            <div className="recent-chats-sep" style={{ margin: '12px 0', borderTop: '1px solid var(--c-slate-100)', padding: '12px 12px 4px' }}>
+                                <p className="discovery-hint" style={{ padding: 0 }}>Recent Conversations</p>
+                            </div>
+                        )}
+
+                        {conversations.length > 0 && conversations
+                            .filter(conv => {
+                                const participant = conv.participants?.find(p => p.id !== user?.id);
+                                return participant?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+                            })
+                            .map(conv => {
+                                const otherUser = conv.participants?.find(p => p.id !== user?.id);
+                                return (
+                                    <div
+                                        key={conv.id}
+                                        className={`conversation-item ${conv.unread_count > 0 ? 'unread' : ''}`}
+                                        onClick={() => {
+                                            setActiveConversation(conv);
+                                            onClose();
+                                        }}
+                                    >
+                                        <div className="participant-avatar">
+                                            {otherUser?.profile_photo ? (
+                                                <img src={getStorageUrl(otherUser.profile_photo)} alt={otherUser.name} />
+                                            ) : (
+                                                <div className="avatar-placeholder">
+                                                    {otherUser?.name?.charAt(0)}
+                                                </div>
+                                            )}
+                                            {conv.unread_count > 0 && <div className="unread-dot-vibrant" />}
+                                        </div>
+                                        <div className="conversation-info">
+                                            <div className="conv-top">
+                                                <span className="participant-name">{otherUser?.name}</span>
+                                            </div>
+                                            <p className="latest-msg">
+                                                {conv.latest_message?.body || 'Start a conversation'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        }
                     </div>
+
                     <div className="messenger-footer">
-                        <button className="view-all-chats">View All in Messenger</button>
+                        <button className="view-all-chats"></button>
                     </div>
                 </motion.div>
             )}
@@ -99,3 +215,4 @@ const MessengerDropdown = ({ isOpen, onClose }) => {
 };
 
 export default MessengerDropdown;
+

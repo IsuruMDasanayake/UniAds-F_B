@@ -16,7 +16,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('analytics:cleanup')->daily();
         $schedule->command('emails:fetch')->everyFiveMinutes();
         $schedule->command('notifications:send-scheduled')->dailyAt('09:00');
+        $schedule->command('chat:cleanup')->daily();
     }
+
 
     /**
      * Register the commands for the application.

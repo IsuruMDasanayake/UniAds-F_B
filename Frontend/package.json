@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/poppins": "^5.2.7",
+    "@fortawesome/fontawesome-free": "^7.2.0",
     "axios": "^1.13.2",
     "chart.js": "^4.5.1",
     "date-fns": "^4.1.0",

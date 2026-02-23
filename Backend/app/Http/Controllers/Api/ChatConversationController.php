@@ -28,11 +28,29 @@ class ChatConversationController extends Controller
             ->with(['participants.user', 'participants.institute', 'messages' => function ($q) {
                 $q->latest()->take(1);
             }])
+            ->withCount(['messages as unread_count' => function ($query) use ($userId, $instituteId) {
+                $query->whereDoesntHave('reads', function ($q) use ($userId, $instituteId) {
+                    if ($instituteId) {
+                        $q->where('institute_id', $instituteId);
+                    } else {
+                        $q->where('user_id', $userId);
+                    }
+                })->where(function ($q) use ($userId, $instituteId) {
+                    if ($instituteId) {
+                        $q->where('sender_institute_id', '!=', $instituteId)->orWhereNull('sender_institute_id');
+                    } else {
+                        $q->where('sender_user_id', '!=', $userId)->orWhereNull('sender_user_id');
+                    }
+                });
+            }])
             ->get()
             ->map(function ($conversation) use ($userId, $instituteId) {
                 // Determine the "other" participant for easy mapping on frontend
                 $otherParticipant = $conversation->participants->first(function ($participant) use ($userId, $instituteId) {
-                    return $participant->user_id !== $userId && $participant->institute_id !== $instituteId;
+                    if ($instituteId) {
+                        return $participant->institute_id !== $instituteId;
+                    }
+                    return $participant->user_id !== $userId;
                 });
 
                 $conversation->other_participant = $otherParticipant;
@@ -41,6 +59,7 @@ class ChatConversationController extends Controller
 
                 return $conversation;
             });
+
 
         return response()->json([
             'status' => 'success',
@@ -128,15 +147,30 @@ class ChatConversationController extends Controller
 
     private function isAuthorizedToChat($user, $institute, $targetType, $targetId)
     {
-        // Add premium/authorization logic here based on requirements
-        // E.g. Check if either side is a premium institute
-        $isInitiatorPremium = $institute && $institute->is_premium && $institute->premium_expires_at > now();
+        // Require initiator institute to be premium if they are the one starting it
+        if ($institute && !$institute->is_premium) {
+            return false;
+        }
 
-        $targetInstitute = $targetType === 'institute' ? Institute::find($targetId) : null;
-        $isTargetPremium = $targetInstitute && $targetInstitute->is_premium && $targetInstitute->premium_expires_at > now();
+        // 1. If initiator is a Student
+        if (!$institute) {
+            // Student can only chat with Premium Institute
+            if ($targetType !== 'institute') return false;
 
-        // Allow if at least one side is a premium institute
-        // (Assuming student-to-student is not allowed based on structure)
-        return $isInitiatorPremium || $isTargetPremium;
+            $targetInstitute = Institute::find($targetId);
+            return $targetInstitute && $targetInstitute->is_premium;
+        }
+
+        // 2. If initiator is an Institute (already checked initiator is premium above)
+        // Can chat with Students
+        if ($targetType === 'user') return true;
+
+        // Can chat with other PREMIUM institutes
+        if ($targetType === 'institute') {
+            $targetInstitute = Institute::find($targetId);
+            return $targetInstitute && $targetInstitute->is_premium;
+        }
+
+        return false;
     }
 }

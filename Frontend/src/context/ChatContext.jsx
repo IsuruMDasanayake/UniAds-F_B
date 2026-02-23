@@ -1,6 +1,4 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import Echo from 'laravel-echo';
-import Pusher from 'pusher-js';
 import { BACKEND_URL } from '../lib/config';
 import ChatService from '../services/ChatService';
 
@@ -13,33 +11,6 @@ export const ChatProvider = ({ children, user }) => {
     const [activeConversation, setActiveConversation] = useState(null);
     const [messages, setMessages] = useState([]);
     const [unreadTotal, setUnreadTotal] = useState(0);
-    const [echo, setEcho] = useState(null);
-
-    // Initialize Echo
-    useEffect(() => {
-        if (user && !echo) {
-            window.Pusher = Pusher;
-            const echoInstance = new Echo({
-                broadcaster: 'reverb',
-                key: 'ysnvqfuqsvtqq2wklhre',
-                wsHost: 'localhost',
-                wsPort: 8082,
-                forceTLS: false,
-                enabledTransports: ['ws', 'wss'],
-                authEndpoint: `${BACKEND_URL}/api/broadcasting/auth`,
-                auth: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('ACCESS_TOKEN')}`
-                    }
-                }
-            });
-            setEcho(echoInstance);
-
-            return () => {
-                echoInstance.disconnect();
-            };
-        }
-    }, [user]);
 
     const fetchConversations = useCallback(async () => {
         if (!user) return;
@@ -48,10 +19,28 @@ export const ChatProvider = ({ children, user }) => {
             setConversations(response.data.data);
 
             // Calculate unread total
-            // (Note: This depends on backend mapping unread flag/count to conversation model)
-            // For now we'll assume conversations have that data or we fetch it
+            const totalUnread = response.data.data.reduce((acc, conv) => acc + (conv.unread_count || 0), 0);
+            setUnreadTotal(totalUnread);
         } catch (error) {
             console.error('Failed to fetch conversations:', error);
+        }
+    }, [user]);
+
+    const refreshMessages = useCallback(async (conversationId) => {
+        if (!user || !conversationId) return;
+        try {
+            const response = await ChatService.getMessages(conversationId);
+            const newMessages = response.data.data.data;
+
+            // Simple optimization to avoid unnecessary re-renders
+            setMessages(prev => {
+                if (prev.length === newMessages.length && prev[0]?.id === newMessages[0]?.id) {
+                    return prev;
+                }
+                return newMessages;
+            });
+        } catch (error) {
+            console.error('Failed to refresh messages:', error);
         }
     }, [user]);
 
@@ -59,47 +48,28 @@ export const ChatProvider = ({ children, user }) => {
         fetchConversations();
     }, [fetchConversations]);
 
-    // Handle incoming messages globally
+    // Dual-interval Polling
     useEffect(() => {
-        if (echo && user) {
-            conversations.forEach(conv => {
-                echo.private(`conversation.${conv.id}`)
-                    .listen('.message.sent', (data) => {
-                        handleIncomingMessage(data.message);
-                    });
-            });
+        if (!user) return;
+
+        // 1. Poll Conversations (every 15 seconds)
+        const convInterval = setInterval(() => {
+            fetchConversations();
+        }, 15000);
+
+        // 2. Poll Active Messages (every 5 seconds)
+        let msgInterval;
+        if (activeConversation) {
+            msgInterval = setInterval(() => {
+                refreshMessages(activeConversation.id);
+            }, 5000);
         }
 
         return () => {
-            if (echo) {
-                conversations.forEach(conv => {
-                    echo.leave(`conversation.${conv.id}`);
-                });
-            }
+            clearInterval(convInterval);
+            if (msgInterval) clearInterval(msgInterval);
         };
-    }, [echo, conversations, user]);
-
-    const handleIncomingMessage = (newMessage) => {
-        // Update messages if conversation is active
-        if (activeConversation && activeConversation.id === newMessage.conversation_id) {
-            setMessages(prev => [newMessage, ...prev]);
-            // Mark as read if active
-            ChatService.markRead(newMessage.conversation_id);
-        }
-
-        // Update conversation list latest message
-        setConversations(prev => prev.map(conv => {
-            if (conv.id === newMessage.conversation_id) {
-                return {
-                    ...conv,
-                    latest_message: newMessage,
-                    // Increment unread if not active
-                    unread_count: (activeConversation?.id === conv.id) ? 0 : (conv.unread_count || 0) + 1
-                };
-            }
-            return conv;
-        }));
-    };
+    }, [user, fetchConversations, refreshMessages, activeConversation]);
 
     const selectConversation = async (conversation) => {
         setActiveConversation(conversation);
@@ -148,7 +118,8 @@ export const ChatProvider = ({ children, user }) => {
         selectConversation,
         sendMessage,
         fetchConversations,
-        setActiveConversation
+        setActiveConversation,
+        displayUser: user
     };
 
     return (

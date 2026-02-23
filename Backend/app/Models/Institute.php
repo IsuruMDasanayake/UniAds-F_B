@@ -119,6 +119,7 @@ class Institute extends Model
     }
 
     protected $casts = [
+        'is_premium' => 'boolean',
         'followers_enabled' => 'boolean',
         'reviews_enabled' => 'boolean',
     ];

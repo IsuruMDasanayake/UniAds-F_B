@@ -14,7 +14,7 @@ const InstituteRoute = ({ children }) => {
 
                 if (data.role !== 'Institute') {
                     setAccessState('DENIED_USER');
-                } else if (data.institute?.is_premium !== 1) {
+                } else if (!data.institute?.is_premium) {
                     setAccessState('DENIED_NONPREMIUM');
                 } else {
                     setAccessState('AUTHORIZED');

@@ -16,7 +16,9 @@ const ChatService = {
         axiosClient.post(`/api/chat/${conversationId}/send`, { message }),
 
     markRead: (conversationId) => 
-        axiosClient.post(`/api/chat/${conversationId}/mark-read`)
+        axiosClient.post(`/api/chat/${conversationId}/mark-read`),
+
+    getInstitutions: () => axiosClient.get('/api/institutions')
 };
 
 export default ChatService;

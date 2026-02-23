@@ -1,8 +1,8 @@
 
 # ===============================
-# PHP 8.2 + FPM for production
+# PHP 8.3 + FPM for production
 # ===============================
-FROM php:8.2-fpm
+FROM php:8.3-fpm
 
 # System dependencies + docker-php-extension-installer
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/

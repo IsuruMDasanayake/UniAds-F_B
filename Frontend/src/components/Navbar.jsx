@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import axiosClient from '../lib/axios';
 import { getStorageUrl } from '../lib/config';
 import { useSettings } from '../context/SettingsContext';
+import { useChat } from '../context/ChatContext';
 import ProgrammeInfoModal from './Modals/ProgrammeInfoModal';
 import ApplyNowModal from './Modals/ApplyNowModal';
 import MoreInfoModal from './Modals/MoreInfoModal';
@@ -20,7 +21,9 @@ import './Messenger.css';
 
 function Navbar({ user }) {
     const { settings } = useSettings();
+    const { unreadTotal } = useChat();
     const navigate = useNavigate();
+
     const location = useLocation();
     const searchRef = useRef(null);
     const [searchQuery, setSearchQuery] = useState('');
@@ -228,17 +231,26 @@ function Navbar({ user }) {
                                 <span className="nav-label">Pricing</span>
                             </Link>
                         )}
-                        <button
-                            className={`nav-icon-link ${messengerOpen ? 'active' : ''}`}
-                            title="Messages"
-                            onClick={() => setMessengerOpen(!messengerOpen)}
-                        >
-                            <div className="icon-with-badge">
-                                <MessageSquare size={24} />
-                                {/* Add unread badge here if needed */}
+                        {displayUser?.role === 'User' && (
+                            <div className="navbar-messenger-container" style={{ position: 'relative' }}>
+                                <button
+                                    className={`nav-icon-link ${messengerOpen ? 'active' : ''}`}
+                                    title="Messages"
+                                    onClick={() => setMessengerOpen(!messengerOpen)}
+                                >
+                                    <div className="icon-with-badge">
+                                        <MessageSquare size={24} />
+                                        {unreadTotal > 0 && <span className="unread-count-badge">{unreadTotal}</span>}
+                                    </div>
+                                    <span className="nav-label">Chats</span>
+                                </button>
+                                <MessengerDropdown
+                                    isOpen={messengerOpen}
+                                    onClose={() => setMessengerOpen(false)}
+                                />
                             </div>
-                            <span className="nav-label">Chats</span>
-                        </button>
+                        )}
+
                     </nav>
 
                     <div className="navbar-profile-section">
@@ -271,7 +283,7 @@ function Navbar({ user }) {
                                     {displayUser?.role === 'User' && (
                                         <Link to="/profile">Profile</Link>
                                     )}
-                                    {displayUser?.role === 'Institute' && displayUser?.institute?.is_premium === 1 && (
+                                    {displayUser?.role === 'Institute' && Boolean(displayUser?.institute?.is_premium) && (
                                         <Link to={`/analytics/${displayUser?.institute?.slug || displayUser?.institute?.id}/overview`} className="analytics-link" target="_blank" rel="noopener noreferrer">
                                             Dashboard
                                         </Link>
@@ -313,13 +325,19 @@ function Navbar({ user }) {
                         <span className="nav-label">Pricing</span>
                     </Link>
                 )}
-                <button
-                    className={`nav-icon-link mobile ${messengerOpen ? 'active' : ''}`}
-                    onClick={() => setMessengerOpen(!messengerOpen)}
-                >
-                    <MessageSquare size={24} />
-                    <span className="nav-label">Chats</span>
-                </button>
+                {displayUser?.role === 'User' && (
+                    <button
+                        className={`nav-icon-link mobile ${messengerOpen ? 'active' : ''}`}
+                        onClick={() => setMessengerOpen(!messengerOpen)}
+                    >
+                        <div className="icon-with-badge">
+                            <MessageSquare size={24} />
+                            {unreadTotal > 0 && <span className="unread-count-badge mobile">{unreadTotal}</span>}
+                        </div>
+                        <span className="nav-label">Chats</span>
+                    </button>
+                )}
+
             </nav>
 
             {/* Share Link Direct Modals */}
@@ -354,11 +372,6 @@ function Navbar({ user }) {
                 isOpen={showInfoModal}
                 onClose={() => setShowInfoModal(false)}
                 contactNumber={selectedPost?.institute?.contact_number}
-            />
-
-            <MessengerDropdown
-                isOpen={messengerOpen}
-                onClose={() => setMessengerOpen(false)}
             />
 
             <ChatModal />

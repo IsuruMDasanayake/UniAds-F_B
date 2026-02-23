@@ -100,11 +100,12 @@ class InstituteController extends Controller
 
     public function apiIndex()
     {
-        $approvedInstitutes = Institute::where('status', 'approved')
+        $institutes = Institute::where('status', 'approved')
+            ->orWhere('is_premium', true)
             ->orderBy('institute_name', 'asc')
             ->get();
 
-        return response()->json($approvedInstitutes);
+        return response()->json($institutes);
     }
 
 
