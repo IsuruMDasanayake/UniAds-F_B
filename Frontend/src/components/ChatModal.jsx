@@ -128,10 +128,23 @@ const ChatModal = () => {
                                         </div>
                                     )}
                                     <div className={`message-bubble-fb ${msg.link_preview_data?.is_internal_post ? 'internal-post' : ''}`}>
-                                        {(!msg.link_preview_data || !msg.link_preview_data.is_internal_post) && (
-                                            <span>{msg.message}</span>
-                                        )}
-                                        {msg.link_preview_data && <LinkPreview data={msg.link_preview_data} />}
+                                        {(() => {
+                                            const isInternalLink = msg.message?.match(/\/post\/([a-fA-F0-9\-]+)/);
+                                            const hasBackendPreview = msg.link_preview_data;
+
+                                            if (isInternalLink && !hasBackendPreview) {
+                                                return <LinkPreview url={msg.message} />;
+                                            } else if (hasBackendPreview) {
+                                                return (
+                                                    <>
+                                                        {!msg.link_preview_data.is_internal_post && <span>{msg.message}</span>}
+                                                        <LinkPreview data={msg.link_preview_data} />
+                                                    </>
+                                                );
+                                            } else {
+                                                return <span>{msg.message}</span>;
+                                            }
+                                        })()}
                                     </div>
                                 </div>
                             );

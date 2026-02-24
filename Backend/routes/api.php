@@ -81,6 +81,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Posts
     Route::get('/posts', [PostController::class, 'apiIndex']);
+    Route::get('/posts/share/{share_link}', [PostController::class, 'showByShareLink']);
     Route::post('/posts/{postId}/toggle-like', [PostController::class, 'toggleLike']);
     Route::get('/posts/saved', [PostController::class, 'getSavedPosts']);
     Route::post('/posts/{postId}/save', [PostController::class, 'apiToggleSave']);

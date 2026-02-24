@@ -507,4 +507,14 @@ class PostController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Post status updated', 'status' => $post->status]);
     }
+
+    public function showByShareLink($share_link)
+    {
+        try {
+            $post = Post::where('share_link', $share_link)->with('institute')->firstOrFail();
+            return response()->json($post);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Post not found'], 404);
+        }
+    }
 }

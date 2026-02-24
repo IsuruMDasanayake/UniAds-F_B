@@ -172,8 +172,23 @@ const ChatPage = () => {
                                 return (
                                     <div key={msg.id || index} className={`message-row ${isMine ? 'mine' : 'theirs'}`}>
                                         <div className="message-bubble-full">
-                                            {msg.message}
-                                            {msg.link_preview_data && <LinkPreview data={msg.link_preview_data} showApplyButton={false} />}
+                                            {(() => {
+                                                const isInternalLink = msg.message?.match(/\/post\/([a-fA-F0-9\-]+)/);
+                                                const hasBackendPreview = msg.link_preview_data;
+
+                                                if (isInternalLink && !hasBackendPreview) {
+                                                    return <LinkPreview url={msg.message} showApplyButton={false} />;
+                                                } else if (hasBackendPreview) {
+                                                    return (
+                                                        <>
+                                                            {!msg.link_preview_data.is_internal_post && <span>{msg.message}</span>}
+                                                            <LinkPreview data={msg.link_preview_data} showApplyButton={false} />
+                                                        </>
+                                                    );
+                                                } else {
+                                                    return <span>{msg.message}</span>;
+                                                }
+                                            })()}
                                             <span className="message-time">
                                                 {format(new Date(msg.created_at), 'HH:mm')}
                                             </span>

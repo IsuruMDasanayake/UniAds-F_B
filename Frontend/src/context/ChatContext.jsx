@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { BACKEND_URL } from '../lib/config';
 import ChatService from '../services/ChatService';
+import EncryptionService from '../services/EncryptionService';
 
 const ChatContext = createContext();
 
@@ -16,10 +17,23 @@ export const ChatProvider = ({ children, user }) => {
         if (!user) return;
         try {
             const response = await ChatService.getConversations();
-            setConversations(response.data.data);
+            const rawConversations = response.data.data;
+
+            // Decrypt latest_message for each conversation
+            const decryptedConversations = await Promise.all(rawConversations.map(async (conv) => {
+                if (conv.latest_message) {
+                    conv.latest_message.message = await EncryptionService.decrypt(
+                        conv.latest_message.message,
+                        conv.id
+                    );
+                }
+                return conv;
+            }));
+
+            setConversations(decryptedConversations);
 
             // Calculate unread total
-            const totalUnread = response.data.data.reduce((acc, conv) => acc + (conv.unread_count || 0), 0);
+            const totalUnread = decryptedConversations.reduce((acc, conv) => acc + (conv.unread_count || 0), 0);
             setUnreadTotal(totalUnread);
         } catch (error) {
             console.error('Failed to fetch conversations:', error);
@@ -30,22 +44,28 @@ export const ChatProvider = ({ children, user }) => {
         if (!user || !conversationId) return;
         try {
             const response = await ChatService.getMessages(conversationId);
-            const newMessages = response.data.data.data;
+            const rawMessages = response.data.data.data;
+
+            // Decrypt all messages
+            const decryptedMessages = await Promise.all(rawMessages.map(async (msg) => {
+                msg.message = await EncryptionService.decrypt(msg.message, conversationId);
+                return msg;
+            }));
 
             let gotNewMessages = false;
 
             // Simple optimization to avoid unnecessary re-renders
             setMessages(prev => {
-                if (prev.length === newMessages.length && prev[0]?.id === newMessages[0]?.id) {
+                if (prev.length === decryptedMessages.length && prev[0]?.id === decryptedMessages[0]?.id) {
                     return prev;
                 }
 
                 // If we got new messages, mark them as read since the chat is open
-                if (newMessages.length > prev.length) {
+                if (decryptedMessages.length > prev.length) {
                     gotNewMessages = true;
                 }
 
-                return newMessages;
+                return decryptedMessages;
             });
 
             if (gotNewMessages) {
@@ -92,7 +112,15 @@ export const ChatProvider = ({ children, user }) => {
         }
         try {
             const response = await ChatService.getMessages(conversation.id);
-            setMessages(response.data.data.data);
+            const rawMessages = response.data.data.data;
+
+            // Decrypt all messages
+            const decryptedMessages = await Promise.all(rawMessages.map(async (msg) => {
+                msg.message = await EncryptionService.decrypt(msg.message, conversation.id);
+                return msg;
+            }));
+
+            setMessages(decryptedMessages);
 
             // Update unread total dynamically
             const unreadInConv = conversation.unread_count || 0;
@@ -105,8 +133,7 @@ export const ChatProvider = ({ children, user }) => {
                 c.id === conversation.id ? { ...c, unread_count: 0 } : c
             ));
 
-            // Wait until the backend has registered the markRead, 
-            // ensuring any subsequent polling gets the updated counts natively.
+            // Mark as read in backend
             await ChatService.markRead(conversation.id);
         } catch (error) {
             console.error('Failed to fetch messages:', error);
@@ -116,8 +143,14 @@ export const ChatProvider = ({ children, user }) => {
     const sendMessage = async (content) => {
         if (!activeConversation) return;
         try {
-            const response = await ChatService.sendMessage(activeConversation.id, content);
+            // Encrypt message content before sending to API
+            const encryptedContent = await EncryptionService.encrypt(content, activeConversation.id);
+
+            const response = await ChatService.sendMessage(activeConversation.id, encryptedContent);
             const sentMessage = response.data.data;
+
+            // Update locally with decrypted version (original content)
+            sentMessage.message = content;
 
             setMessages(prev => [sentMessage, ...prev]);
 

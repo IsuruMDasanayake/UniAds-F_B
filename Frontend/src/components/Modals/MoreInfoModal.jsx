@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, ChevronDown, MessageSquare, Loader2 } from 'lucide-react';
 import { useChat } from '../../context/ChatContext';
 import ChatService from '../../services/ChatService';
+import EncryptionService from '../../services/EncryptionService';
 import './MoreInfoModal.css';
 
 const MoreInfoModal = ({ isOpen, onClose, course }) => {
@@ -49,8 +50,12 @@ const MoreInfoModal = ({ isOpen, onClose, course }) => {
             // Fire and forget (or rather, background processing)
             (async () => {
                 try {
-                    await ChatService.sendMessage(conversation.id, postUrl);
-                    await ChatService.sendMessage(conversation.id, messageText);
+                    // Encrypt both messages before background sending
+                    const encryptedUrl = await EncryptionService.encrypt(postUrl, conversation.id);
+                    const encryptedText = await EncryptionService.encrypt(messageText, conversation.id);
+
+                    await ChatService.sendMessage(conversation.id, encryptedUrl);
+                    await ChatService.sendMessage(conversation.id, encryptedText);
                     // Single refresh after both are sent
                     await fetchConversations();
                 } catch (e) {

@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import { ExternalLink, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ExternalLink, CheckCircle, Loader2 } from 'lucide-react';
 import axiosClient from '../lib/axios';
 import ApplyNowModal from './Modals/ApplyNowModal';
 import './Messenger.css';
 
-const LinkPreview = ({ data, showApplyButton = true }) => {
+const LinkPreview = ({ data: initialData, url: initialUrl, showApplyButton = true }) => {
+    const [data, setData] = useState(initialData);
+    const [loading, setLoading] = useState(false);
     const [showApplyModal, setShowApplyModal] = useState(false);
     const [applying, setApplying] = useState(false);
     const [submissionStatus, setSubmissionStatus] = useState({ type: '', message: '' });
@@ -16,6 +18,41 @@ const LinkPreview = ({ data, showApplyButton = true }) => {
         privacyConsent: false
     });
 
+    // Fetch data if we only have a URL
+    useEffect(() => {
+        const fetchMetadata = async () => {
+            const urlToProbe = initialUrl || initialData?.url;
+            if (!urlToProbe || (data && data.title)) return;
+
+            // Check if it's an internal post link
+            const postMatch = urlToProbe.match(/\/post\/([a-fA-F0-9\-]+)/);
+            if (postMatch) {
+                const uuid = postMatch[1];
+                setLoading(true);
+                try {
+                    const response = await axiosClient.get(`/api/posts/share/${uuid}`);
+                    const post = response.data;
+                    setData({
+                        url: urlToProbe,
+                        title: post.course_name || post.title,
+                        description: post.small_description,
+                        image: post.image ? `${axiosClient.defaults.baseURL.replace('/api', '')}/storage/${post.image}` : null,
+                        is_internal_post: true,
+                        post_id: post.id,
+                        institute_id: post.institute_id
+                    });
+                } catch (error) {
+                    console.error('Failed to fetch link metadata:', error);
+                } finally {
+                    setLoading(false);
+                }
+            }
+        };
+
+        fetchMetadata();
+    }, [initialUrl, initialData, data]);
+
+    if (loading) return <div className="link-preview-loading"><Loader2 className="animate-spin" size={16} /> Loading preview...</div>;
     if (!data) return null;
 
     const { url, title, description, image } = data;
