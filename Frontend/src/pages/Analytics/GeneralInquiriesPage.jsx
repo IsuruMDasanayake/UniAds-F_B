@@ -139,7 +139,7 @@ const GeneralInquiriesPage = () => {
         }
     };
 
-    const columns = [
+    const columns = React.useMemo(() => [
         {
             header: 'Sender',
             render: (row) => (
@@ -189,7 +189,7 @@ const GeneralInquiriesPage = () => {
                 </div>
             )
         }
-    ];
+    ], []);
 
     return (
         <div id="general-inquiries-page" className={`general-inquiries-page ${isUpdating ? 'updating' : ''}`}>

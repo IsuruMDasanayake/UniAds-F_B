@@ -63,7 +63,8 @@ const OverviewPage = () => {
     const hasPositiveGrowth = cta?.hasPositiveGrowth || false;
     const ctaMessage = cta?.message || "Analyzing your performance data...";
 
-    const sections = [
+    // Memoize static sections to prevent re-calculating on every render
+    const sections = React.useMemo(() => [
         {
             title: 'Visibility',
             items: [
@@ -133,7 +134,7 @@ const OverviewPage = () => {
                 },
             ]
         }
-    ];
+    ], [metrics, content_health]);
 
     return (
         <div id="analytics-overview-page" className={isUpdating ? 'updating' : ''}>

@@ -57,16 +57,37 @@ const ChatPage = () => {
         }
     };
 
-    const filteredConversations = conversations.filter(conv => {
-        const other = conv.other_participant;
-        const name = other?.institute?.institute_name || other?.user?.name || '';
-        const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase());
+    const filteredConversations = React.useMemo(() => {
+        return conversations.filter(conv => {
+            const other = conv.other_participant;
+            const name = other?.institute?.institute_name || other?.user?.name || '';
+            const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase());
 
-        const isInstitute = other?.role === 'Institute' || !!other?.institute;
-        const matchesCategory = activeCategory === 'Institutes' ? isInstitute : !isInstitute;
+            const isInstitute = other?.role === 'Institute' || !!other?.institute;
+            const matchesCategory = activeCategory === 'Institutes' ? isInstitute : !isInstitute;
 
-        return matchesSearch && matchesCategory;
-    });
+            return matchesSearch && matchesCategory;
+        });
+    }, [conversations, searchTerm, activeCategory]);
+
+    // Memoize the message renderer to avoid re-calculating link matches on every render
+    const renderMessage = React.useCallback((msg) => {
+        const isInternalLink = msg.message?.match(/\/post\/([a-fA-F0-9\-]+)/);
+        const hasBackendPreview = msg.link_preview_data;
+
+        if (isInternalLink && !hasBackendPreview) {
+            return <LinkPreview url={msg.message} showApplyButton={false} />;
+        } else if (hasBackendPreview) {
+            return (
+                <>
+                    {!msg.link_preview_data.is_internal_post && <span>{msg.message}</span>}
+                    <LinkPreview data={msg.link_preview_data} showApplyButton={false} />
+                </>
+            );
+        } else {
+            return <span>{msg.message}</span>;
+        }
+    }, []);
 
     return (
         <div className={`full-chat-container ${activeConversation ? 'mobile-chat-active' : ''}`}>
@@ -172,23 +193,7 @@ const ChatPage = () => {
                                 return (
                                     <div key={msg.id || index} className={`message-row ${isMine ? 'mine' : 'theirs'}`}>
                                         <div className="message-bubble-full">
-                                            {(() => {
-                                                const isInternalLink = msg.message?.match(/\/post\/([a-fA-F0-9\-]+)/);
-                                                const hasBackendPreview = msg.link_preview_data;
-
-                                                if (isInternalLink && !hasBackendPreview) {
-                                                    return <LinkPreview url={msg.message} showApplyButton={false} />;
-                                                } else if (hasBackendPreview) {
-                                                    return (
-                                                        <>
-                                                            {!msg.link_preview_data.is_internal_post && <span>{msg.message}</span>}
-                                                            <LinkPreview data={msg.link_preview_data} showApplyButton={false} />
-                                                        </>
-                                                    );
-                                                } else {
-                                                    return <span>{msg.message}</span>;
-                                                }
-                                            })()}
+                                            {renderMessage(msg)}
                                             <span className="message-time">
                                                 {format(new Date(msg.created_at), 'HH:mm')}
                                             </span>

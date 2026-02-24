@@ -134,7 +134,7 @@ const PostsAnalyticsPage = () => {
         setDeleteModalOpen(true);
     };
 
-    const handleConfirmDelete = async () => {
+    const handleConfirmDelete = React.useCallback(async () => {
         if (!selectedPost) return;
         setIsDeleting(true);
         try {
@@ -147,14 +147,15 @@ const PostsAnalyticsPage = () => {
         } finally {
             setIsDeleting(false);
         }
-    };
+    }, [selectedPost, fetchPosts]);
 
-    const handlePostUpdated = (updatedPost) => {
+    const handlePostUpdated = React.useCallback((updatedPost) => {
         setPosts(prev => prev.map(p => p.id === updatedPost.id ? { ...p, ...updatedPost } : p));
         // Also refresh stats if necessary
-    };
+    }, []);
 
-    const columns = [
+    // Memoize columns to prevent DataTable re-renders
+    const columns = React.useMemo(() => [
         {
             header: 'Course Information',
             accessor: 'title',
@@ -259,7 +260,7 @@ const PostsAnalyticsPage = () => {
                 </div>
             )
         }
-    ];
+    ], [copiedPostId, handleToggleStatus, handleEditClick, handleDeleteClick]);
 
     return (
         <div id="analytics-posts" className={isUpdating ? 'updating' : ''}>

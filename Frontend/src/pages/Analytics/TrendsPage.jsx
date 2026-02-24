@@ -77,8 +77,8 @@ const TrendsPage = () => {
         insights = []
     } = data || {};
 
-    // Helper for multi-dataset charts
-    const getTrafficDatasets = () => {
+    // Helper for multi-dataset charts - Memoize to prevent chart re-renders
+    const trafficDatasets = React.useMemo(() => {
         const sets = [
             { label: 'Post Views', data: postViews.data, borderColor: '#3b82f6', backgroundColor: 'transparent' },
             { label: 'Event Views', data: eventViews.data, borderColor: '#10b981', backgroundColor: 'transparent' },
@@ -91,9 +91,9 @@ const TrendsPage = () => {
         }
 
         return sets;
-    };
+    }, [postViews, eventViews, profileViews, compare]);
 
-    const getPostEngagementDatasets = () => {
+    const postEngagementDatasets = React.useMemo(() => {
         const sets = [
             { label: 'Post Views', data: postViews.data, borderColor: '#3b82f6', backgroundColor: 'transparent' },
             { label: 'Post Likes', data: postLikes.data, borderColor: '#ef4444', backgroundColor: 'transparent' }
@@ -105,9 +105,9 @@ const TrendsPage = () => {
         }
 
         return sets;
-    };
+    }, [postViews, postLikes, compare]);
 
-    const getEventEngagementDatasets = () => {
+    const eventEngagementDatasets = React.useMemo(() => {
         const sets = [
             { label: 'Event Views', data: eventViews.data, borderColor: '#3b82f6', backgroundColor: 'transparent' },
             { label: 'Interests', data: eventInterests.data, borderColor: '#10b981', backgroundColor: 'transparent' },
@@ -121,9 +121,9 @@ const TrendsPage = () => {
         }
 
         return sets;
-    };
+    }, [eventViews, eventInterests, eventDeclines, compare]);
 
-    const getSingleDataset = (metricData, label, color) => {
+    const getSingleDataset = React.useCallback((metricData, label, color) => {
         const sets = [{
             label,
             data: metricData.data,
@@ -149,7 +149,7 @@ const TrendsPage = () => {
             });
         }
         return sets;
-    };
+    }, [compare, range]);
 
     return (
         <div id="analytics-trends-v2" className={isUpdating ? 'updating' : ''}>
@@ -188,7 +188,7 @@ const TrendsPage = () => {
                     <div style={{ height: '400px' }}>
                         <LineChart
                             labels={postViews.labels}
-                            datasets={getTrafficDatasets()}
+                            datasets={trafficDatasets}
                             showLegend={true}
                         />
                     </div>
@@ -203,7 +203,7 @@ const TrendsPage = () => {
                     <div style={{ height: '300px' }}>
                         <LineChart
                             labels={postViews.labels}
-                            datasets={getPostEngagementDatasets()}
+                            datasets={postEngagementDatasets}
                         />
                     </div>
                 </ChartCard>
@@ -235,7 +235,7 @@ const TrendsPage = () => {
                     <div style={{ height: '300px' }}>
                         <LineChart
                             labels={eventInterests.labels}
-                            datasets={getEventEngagementDatasets()}
+                            datasets={eventEngagementDatasets}
                         />
                     </div>
                 </ChartCard>
