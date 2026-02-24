@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, X, CheckCheck, User, Search, MoreHorizontal, Maximize2, Edit3, ChevronRight, BadgeCheck, Loader2 } from 'lucide-react';
 import { useChat } from '../context/ChatContext';
@@ -7,10 +8,20 @@ import { getStorageUrl } from '../lib/config';
 import { formatDistanceToNow } from 'date-fns';
 
 const MessengerDropdown = ({ isOpen, onClose }) => {
-    const { conversations, selectConversation, fetchConversations, setActiveConversation } = useChat();
+    const { conversations, selectConversation, fetchConversations, setActiveConversation, displayUser } = useChat();
     const dropdownRef = useRef(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState('All');
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const mediaQuery = window.matchMedia("(max-width: 900px)");
+        const handleResize = (e) => setIsMobile(e.matches);
+
+        setIsMobile(mediaQuery.matches);
+        mediaQuery.addEventListener('change', handleResize);
+        return () => mediaQuery.removeEventListener('change', handleResize);
+    }, []);
 
     useEffect(() => {
         if (conversations.length === 0 && activeTab === 'All') {
@@ -55,9 +66,18 @@ const MessengerDropdown = ({ isOpen, onClose }) => {
 
     const startConversationWith = async (inst) => {
         try {
-            const res = await ChatService.startConversation('Institute', inst.id);
+            if (inst.conversation_id) {
+                const existingConv = conversations.find(c => c.id === inst.conversation_id);
+                if (existingConv) {
+                    selectConversation(existingConv);
+                    onClose();
+                    return;
+                }
+            }
+
+            const res = await ChatService.startConversation('institute', inst.id);
             const newConv = res.data.data;
-            setActiveConversation(newConv);
+            selectConversation(newConv);
             onClose();
         } catch (error) {
             console.error('Failed to start conversation:', error);
@@ -89,129 +109,157 @@ const MessengerDropdown = ({ isOpen, onClose }) => {
 
     const categories = ['All', 'Unread', 'Discover'];
 
-    return (
+    const content = (
         <AnimatePresence>
             {isOpen && (
-                <motion.div
-                    ref={dropdownRef}
-                    className="messenger-dropdown"
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                >
-                    <div className="messenger-header">
-                        <div className="header-top">
-                            <h3>Chats</h3>
-                        </div>
+                <>
+                    {/* Dark Overlay for Mobile */}
+                    {isMobile && (
+                        <motion.div
+                            className="messenger-mobile-overlay"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={onClose}
+                        />
+                    )}
 
-                        <div className="messenger-search-bar">
-                            <Search size={14} className="text-muted" />
-                            <input
-                                type="text"
-                                placeholder="Search"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="messenger-body premium-scroll">
-                        {isLoadingInst ? (
-                            <div className="discovery-loading" style={{ display: 'flex', justifyContent: 'center', height: '100%' }}>
-                                <Loader2 className="animate-spin" size={24} />
+                    <motion.div
+                        ref={dropdownRef}
+                        className="messenger-dropdown"
+                        initial={{
+                            opacity: 0,
+                            y: isMobile ? "100%" : 10,
+                            scale: isMobile ? 1 : 0.95
+                        }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{
+                            opacity: 0,
+                            y: isMobile ? "100%" : 10,
+                            scale: isMobile ? 1 : 0.95
+                        }}
+                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                    >
+                        <div className="messenger-header">
+                            <div className="header-top">
+                                <h3>Chats</h3>
                             </div>
-                        ) : (
-                            <div className="discovery-section">
-                                <p className="discovery-hint">Connect with Premium Partners</p>
-                                {filteredInstitutions.length > 0 ? (
-                                    filteredInstitutions.map(inst => (
-                                        <div key={inst.id} className="discovery-item" onClick={() => startConversationWith(inst)}>
-                                            <div className="inst-avatar-mini">
-                                                {inst.profile_photo ? (
-                                                    <img src={getStorageUrl(inst.profile_photo)} alt={inst.institute_name} />
-                                                ) : (
-                                                    <div className="avatar-placeholder">
-                                                        <User size={20} />
-                                                    </div>
-                                                )}
-                                                {inst.unread_count > 0 && <span className="unread-badge-dot"></span>}
-                                            </div>
-                                            <div className="inst-mini-info">
-                                                <div className="inst-mini-name">{inst.institute_name}</div>
-                                                <div className="inst-mini-last-message">
-                                                    {inst.latest_message ? (
-                                                        <span className={inst.unread_count > 0 ? 'unread-text' : ''}>
-                                                            {inst.latest_message.message}
-                                                        </span>
+
+                            <div className="messenger-search-bar">
+                                <Search size={14} className="text-muted" />
+                                <input
+                                    type="text"
+                                    placeholder="Search"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="messenger-body premium-scroll">
+                            {isLoadingInst ? (
+                                <div className="discovery-loading" style={{ display: 'flex', justifyContent: 'center', height: '100%' }}>
+                                    <Loader2 className="animate-spin" size={24} />
+                                </div>
+                            ) : (
+                                <div className="discovery-section">
+                                    <p className="discovery-hint">Connect with Premium Partners</p>
+                                    {filteredInstitutions.length > 0 ? (
+                                        filteredInstitutions.map(inst => (
+                                            <div key={inst.id} className="discovery-item" onClick={() => startConversationWith(inst)}>
+                                                <div className="inst-avatar-mini">
+                                                    {inst.profile_photo ? (
+                                                        <img src={getStorageUrl(inst.profile_photo)} alt={inst.institute_name} />
                                                     ) : (
-                                                        <span className="location-hint">{inst.location || 'Premium Partner'}</span>
+                                                        <div className="avatar-placeholder">
+                                                            <User size={20} />
+                                                        </div>
                                                     )}
+                                                    {inst.unread_count > 0 && <span className="unread-badge-dot"></span>}
                                                 </div>
+                                                <div className="inst-mini-info">
+                                                    <div className="inst-mini-name">{inst.institute_name}</div>
+                                                    <div className="inst-mini-last-message">
+                                                        {inst.latest_message ? (
+                                                            <span className={inst.unread_count > 0 ? 'unread-text' : ''}>
+                                                                {inst.latest_message.message}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="location-hint">{inst.location || 'Premium Partner'}</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <ChevronRight size={14} className="discovery-arrow" />
                                             </div>
-                                            <ChevronRight size={14} className="discovery-arrow" />
+                                        ))
+                                    ) : (
+                                        <div className="empty-messenger">
+                                            <p>No premium partners found.</p>
                                         </div>
-                                    ))
-                                ) : (
-                                    <div className="empty-messenger">
-                                        <p>No premium partners found.</p>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                                    )}
+                                </div>
+                            )}
 
-                        {conversations.length > 0 && (
+                            {/* {conversations.length > 0 && (
                             <div className="recent-chats-sep" style={{ margin: '12px 0', borderTop: '1px solid var(--c-slate-100)', padding: '12px 12px 4px' }}>
                                 <p className="discovery-hint" style={{ padding: 0 }}>Recent Conversations</p>
                             </div>
-                        )}
+                        )} */}
 
-                        {conversations.length > 0 && conversations
-                            .filter(conv => {
-                                const participant = conv.participants?.find(p => p.id !== user?.id);
-                                return participant?.name?.toLowerCase().includes(searchTerm.toLowerCase());
-                            })
-                            .map(conv => {
-                                const otherUser = conv.participants?.find(p => p.id !== user?.id);
-                                return (
-                                    <div
-                                        key={conv.id}
-                                        className={`conversation-item ${conv.unread_count > 0 ? 'unread' : ''}`}
-                                        onClick={() => {
-                                            setActiveConversation(conv);
-                                            onClose();
-                                        }}
-                                    >
-                                        <div className="participant-avatar">
-                                            {otherUser?.profile_photo ? (
-                                                <img src={getStorageUrl(otherUser.profile_photo)} alt={otherUser.name} />
-                                            ) : (
-                                                <div className="avatar-placeholder">
-                                                    {otherUser?.name?.charAt(0)}
-                                                </div>
-                                            )}
-                                            {conv.unread_count > 0 && <div className="unread-dot-vibrant" />}
-                                        </div>
-                                        <div className="conversation-info">
-                                            <div className="conv-top">
-                                                <span className="participant-name">{otherUser?.name}</span>
+                            {conversations.length > 0 && conversations
+                                .filter(conv => {
+                                    const participant = conv.participants?.find(p => p.id !== displayUser?.id);
+                                    return participant?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+                                })
+                                .map(conv => {
+                                    const otherUser = conv.participants?.find(p => p.id !== displayUser?.id);
+                                    return (
+                                        <div
+                                            key={conv.id}
+                                            className={`conversation-item ${conv.unread_count > 0 ? 'unread' : ''}`}
+                                            onClick={() => {
+                                                selectConversation(conv);
+                                                onClose();
+                                            }}
+                                        >
+                                            <div className="participant-avatar">
+                                                {otherUser?.profile_photo ? (
+                                                    <img src={getStorageUrl(otherUser.profile_photo)} alt={otherUser.name} />
+                                                ) : (
+                                                    <div className="avatar-placeholder">
+                                                        {otherUser?.name?.charAt(0)}
+                                                    </div>
+                                                )}
+                                                {conv.unread_count > 0 && <div className="unread-dot-vibrant" />}
                                             </div>
-                                            <p className="latest-msg">
-                                                {conv.latest_message?.body || 'Start a conversation'}
-                                            </p>
+                                            <div className="conversation-info">
+                                                <div className="conv-top">
+                                                    <span className="participant-name">{otherUser?.name}</span>
+                                                </div>
+                                                <p className="latest-msg">
+                                                    {conv.latest_message?.body || 'Start a conversation'}
+                                                </p>
+                                            </div>
                                         </div>
-                                    </div>
-                                );
-                            })
-                        }
-                    </div>
+                                    );
+                                })
+                            }
+                        </div>
 
-                    <div className="messenger-footer">
-                        <button className="view-all-chats"></button>
-                    </div>
-                </motion.div>
+                        <div className="messenger-footer">
+                            <button className="view-all-chats"></button>
+                        </div>
+                    </motion.div>
+                </>
             )}
         </AnimatePresence>
     );
+
+    if (isMobile) {
+        return createPortal(content, document.body);
+    }
+
+    return content;
 };
 
 export default MessengerDropdown;

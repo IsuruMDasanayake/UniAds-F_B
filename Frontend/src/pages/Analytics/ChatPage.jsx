@@ -123,7 +123,7 @@ const ChatPage = () => {
                                 )}
                                 <div>
                                     <h3>{activeConversation.other_participant?.institute?.institute_name || activeConversation.other_participant?.user?.name}</h3>
-                                    <span className="online-status">Online</span>
+                                    {/* <span className="online-status">Online</span> */}
                                 </div>
                             </div>
                             <div className="header-actions-full">
@@ -142,7 +142,7 @@ const ChatPage = () => {
                                     <div key={msg.id || index} className={`message-row ${isMine ? 'mine' : 'theirs'}`}>
                                         <div className="message-bubble-full">
                                             {msg.message}
-                                            {msg.link_preview_data && <LinkPreview data={msg.link_preview_data} />}
+                                            {msg.link_preview_data && <LinkPreview data={msg.link_preview_data} showApplyButton={false} />}
                                             <span className="message-time">
                                                 {format(new Date(msg.created_at), 'HH:mm')}
                                             </span>

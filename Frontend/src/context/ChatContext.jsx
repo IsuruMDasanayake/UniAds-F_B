@@ -32,17 +32,30 @@ export const ChatProvider = ({ children, user }) => {
             const response = await ChatService.getMessages(conversationId);
             const newMessages = response.data.data.data;
 
+            let gotNewMessages = false;
+
             // Simple optimization to avoid unnecessary re-renders
             setMessages(prev => {
                 if (prev.length === newMessages.length && prev[0]?.id === newMessages[0]?.id) {
                     return prev;
                 }
+
+                // If we got new messages, mark them as read since the chat is open
+                if (newMessages.length > prev.length) {
+                    gotNewMessages = true;
+                }
+
                 return newMessages;
             });
+
+            if (gotNewMessages) {
+                await ChatService.markRead(conversationId);
+                await fetchConversations(); // Re-fetch to update unread counts after DB is marked read
+            }
         } catch (error) {
             console.error('Failed to refresh messages:', error);
         }
-    }, [user]);
+    }, [user, fetchConversations]);
 
     useEffect(() => {
         fetchConversations();
@@ -76,12 +89,21 @@ export const ChatProvider = ({ children, user }) => {
         try {
             const response = await ChatService.getMessages(conversation.id);
             setMessages(response.data.data.data);
-            ChatService.markRead(conversation.id);
+
+            // Update unread total dynamically
+            const unreadInConv = conversation.unread_count || 0;
+            if (unreadInConv > 0) {
+                setUnreadTotal(prev => Math.max(0, prev - unreadInConv));
+            }
 
             // Clear unread for this conversation locally
             setConversations(prev => prev.map(c =>
                 c.id === conversation.id ? { ...c, unread_count: 0 } : c
             ));
+
+            // Wait until the backend has registered the markRead, 
+            // ensuring any subsequent polling gets the updated counts natively.
+            await ChatService.markRead(conversation.id);
         } catch (error) {
             console.error('Failed to fetch messages:', error);
         }

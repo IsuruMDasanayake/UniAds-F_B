@@ -68,11 +68,37 @@ class ChatMessageController extends Controller
         $type = 'text';
         $linkPreviewData = null;
 
-        preg_match_all('/https?:\/\/[^\s]+/', $messageContent, $matches);
-        if (!empty($matches[0])) {
+        // First check for internal post links: http(s)://.../post/{uuid}
+        if (preg_match('/https?:\/\/[^\s]+\/post\/([a-fA-F0-9\-]+)/', $messageContent, $postMatch)) {
+            $postUuid = $postMatch[1];
+            $post = \App\Models\Post::where('share_link', $postUuid)->first();
+
+            if (!$post) {
+                return response()->json(['message' => 'Invalid post link.'], 422);
+            }
+
             $type = 'link';
-            // Extract metadata for the first link found
-            $linkPreviewData = $this->extractLinkMetadata($matches[0][0]);
+
+            $linkPreviewData = [
+                'is_internal_post' => true,
+                'url' => $postMatch[0],
+                'title' => $post->title,
+                'description' => $post->small_description,
+                'image' => $post->image ? url('storage/' . $post->image) : null,
+                'post_id' => $post->id,
+                'institute_id' => $post->institute_id,
+            ];
+
+            // Clear the actual text so the bubble ONLY shows the preview card
+            // We can just set it to a placeholder since the frontend shouldn't render it anyway
+            $messageContent = '';
+        } else {
+            // General external link parsing
+            preg_match_all('/https?:\/\/[^\s]+/', $messageContent, $matches);
+            if (!empty($matches[0])) {
+                $type = 'link';
+                $linkPreviewData = $this->extractLinkMetadata($matches[0][0]);
+            }
         }
 
         $message = $conversation->messages()->create([

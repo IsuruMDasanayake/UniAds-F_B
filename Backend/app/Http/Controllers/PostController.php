@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\ApplyCase;
 use App\Models\Notification;
+use App\Models\AdminNotification;
 
 class PostController extends Controller
 {

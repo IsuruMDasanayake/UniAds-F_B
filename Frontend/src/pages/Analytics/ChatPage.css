@@ -3,7 +3,6 @@
 .full-chat-container {
     display: flex;
     height: calc(100vh - 180px);
-    /* Adjusted for layout header/padding */
     background: white;
     border-radius: 24px;
     overflow: hidden;
@@ -245,13 +244,13 @@
 }
 
 .mine .message-bubble-full {
-    background: var(--c-primary);
-    color: white;
+    background: white;
+    color: var(--c-dark);
     border-bottom-right-radius: 4px;
 }
 
 .theirs .message-bubble-full {
-    background: white;
+    background: var(--c-slate-300);
     color: var(--c-dark);
     border-bottom-left-radius: 4px;
     border: 1px solid #f1f3f5;

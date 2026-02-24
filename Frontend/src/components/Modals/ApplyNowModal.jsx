@@ -1,14 +1,15 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2 } from 'lucide-react';
 import './ApplyNowModal.css';
 
 const ApplyNowModal = ({ isOpen, onClose, courseTitle, form, onChange, onSubmit, isSubmitting, status }) => {
-    return (
+    return createPortal(
         <AnimatePresence>
             {isOpen && (
-                <div className="courses-modal-overlay" onClick={onClose}>
+                <div className="courses-modal-overlay" onClick={onClose} style={{ zIndex: 99999 }}>
                     <motion.div
                         className="courses-modal-content apply-modal"
                         initial={{ scale: 0.9, opacity: 0 }}
@@ -86,7 +87,8 @@ const ApplyNowModal = ({ isOpen, onClose, courseTitle, form, onChange, onSubmit,
                     </motion.div>
                 </div>
             )}
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
     );
 };
 
