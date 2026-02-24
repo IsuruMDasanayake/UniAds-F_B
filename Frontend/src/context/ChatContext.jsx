@@ -86,6 +86,10 @@ export const ChatProvider = ({ children, user }) => {
 
     const selectConversation = async (conversation) => {
         setActiveConversation(conversation);
+        if (!conversation) {
+            setMessages([]);
+            return;
+        }
         try {
             const response = await ChatService.getMessages(conversation.id);
             setMessages(response.data.data.data);

@@ -10,11 +10,13 @@ import axiosClient from '../../lib/axios';
 import { getStorageUrl } from '../../lib/config';
 import { useSettings } from '../../context/SettingsContext';
 import EditProfileModal from '../../pages/InstituteProfile/modals/EditProfileModal';
+import { useChat } from '../../context/ChatContext';
 import NotificationDropdown from './NotificationDropdown';
 import './AnalyticsLayout.css';
 
 const AnalyticsLayout = () => {
     const { settings } = useSettings();
+    const { unreadTotal } = useChat();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const { slug } = useParams();
     const navigate = useNavigate();
@@ -178,6 +180,9 @@ const AnalyticsLayout = () => {
                             )}
                             {item.path.includes('/inquiries') && newInquiriesCount > 0 && (
                                 <span className="nav-badge yellow">{newInquiriesCount}</span>
+                            )}
+                            {item.path.includes('/chat') && unreadTotal > 0 && (
+                                <span className="nav-badge">{unreadTotal}</span>
                             )}
                             {/* {item.path.includes('/ads') && (
                                 <span className="badge-soon">SOON</span>

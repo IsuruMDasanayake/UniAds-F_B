@@ -305,6 +305,7 @@
 #analytics-layout-wrapper .sidebar-footer {
     margin-top: 0.5rem;
     padding-top: 0rem;
+    margin-bottom: -1.2rem;
     border-top: 1px solid var(--c-slate-200);
 }
 
@@ -375,7 +376,7 @@
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-    padding: 1.25rem 2.5rem;
+    padding: 1.1rem 2.5rem;
     align-items: center;
     justify-content: space-between;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);

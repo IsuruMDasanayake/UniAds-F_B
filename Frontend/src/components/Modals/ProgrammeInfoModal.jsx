@@ -4,7 +4,7 @@ import { X, Send, Info, Link2, Check } from 'lucide-react';
 import { getStorageUrl } from '../../lib/config';
 import './ProgrammeInfoModal.css';
 
-const ProgrammeInfoModal = ({ course, isOpen, onClose, onApply, onMoreInfo, userRole }) => {
+const ProgrammeInfoModal = ({ course, isOpen, onClose, onApply, onMoreInfo, userRole, isPremium }) => {
     const [copied, setCopied] = useState(false);
 
     const handleCopyLink = () => {
@@ -81,9 +81,11 @@ const ProgrammeInfoModal = ({ course, isOpen, onClose, onApply, onMoreInfo, user
                                     <button className="programme-info-apply-btn" onClick={onApply}>
                                         Apply Now <Send size={18} />
                                     </button>
-                                    <button className="programme-info-info-btn" onClick={onMoreInfo}>
-                                        Get More Info <Info size={18} />
-                                    </button>
+                                    {isPremium && (
+                                        <button className="programme-info-info-btn" onClick={onMoreInfo}>
+                                            Get More Info <Info size={18} />
+                                        </button>
+                                    )}
                                 </>
                             )}
                         </div>

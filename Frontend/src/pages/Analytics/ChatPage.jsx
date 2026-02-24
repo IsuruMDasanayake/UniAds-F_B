@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Send, User, MoreVertical, Paperclip, Smile, Phone, Video, Info } from 'lucide-react';
+import { Search, Send, User, MoreVertical, Paperclip, Smile, Phone, Video, Info, X } from 'lucide-react';
 import { useChat } from '../../context/ChatContext';
 import { getStorageUrl } from '../../lib/config';
 import LinkPreview from '../../components/LinkPreview';
@@ -13,13 +13,22 @@ const ChatPage = () => {
         messages,
         selectConversation,
         sendMessage,
-        fetchConversations
+        fetchConversations,
+        displayUser
     } = useChat();
 
     const [searchTerm, setSearchTerm] = useState('');
     const [msgInput, setMsgInput] = useState('');
+    const [activeCategory, setActiveCategory] = useState('Students');
     const [isSending, setIsSending] = useState(false);
     const messagesEndRef = useRef(null);
+
+    const getInitials = (name) => {
+        if (!name) return '?';
+        const parts = name.split(' ');
+        if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+        return name[0].toUpperCase();
+    };
 
     useEffect(() => {
         fetchConversations();
@@ -49,21 +58,41 @@ const ChatPage = () => {
     };
 
     const filteredConversations = conversations.filter(conv => {
-        const name = conv.other_participant?.institute?.institute_name || conv.other_participant?.user?.name || '';
-        return name.toLowerCase().includes(searchTerm.toLowerCase());
+        const other = conv.other_participant;
+        const name = other?.institute?.institute_name || other?.user?.name || '';
+        const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase());
+
+        const isInstitute = other?.role === 'Institute' || !!other?.institute;
+        const matchesCategory = activeCategory === 'Institutes' ? isInstitute : !isInstitute;
+
+        return matchesSearch && matchesCategory;
     });
 
     return (
-        <div className="full-chat-container">
+        <div className={`full-chat-container ${activeConversation ? 'mobile-chat-active' : ''}`}>
             {/* Left Sidebar: Conversations */}
             <div className="chat-sidebar">
                 <div className="sidebar-header-chat">
                     <h2>Messages</h2>
+                    <div className="sidebar-tabs">
+                        <button
+                            className={`tab-btn ${activeCategory === 'Students' ? 'active' : ''}`}
+                            onClick={() => setActiveCategory('Students')}
+                        >
+                            Students
+                        </button>
+                        <button
+                            className={`tab-btn ${activeCategory === 'Institutes' ? 'active' : ''}`}
+                            onClick={() => setActiveCategory('Institutes')}
+                        >
+                            Institutes
+                        </button>
+                    </div>
                     <div className="chat-search-wrapper">
                         <Search size={18} />
                         <input
                             type="text"
-                            placeholder="Search conversations..."
+                            placeholder={`Search ${activeCategory.toLowerCase()}...`}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -86,7 +115,7 @@ const ChatPage = () => {
                                         <img src={getStorageUrl(other.institute.profile_photo)} alt="Profile" />
                                     ) : (
                                         <div className="avatar-placeholder-full">
-                                            <User size={24} />
+                                            {getInitials(other?.institute?.institute_name || other?.user?.name)}
                                         </div>
                                     )}
                                     {conv.unread_count > 0 && <span className="unread-badge-full">{conv.unread_count}</span>}
@@ -118,7 +147,7 @@ const ChatPage = () => {
                                     <img src={getStorageUrl(activeConversation.other_participant.institute.profile_photo)} alt="Avatar" />
                                 ) : (
                                     <div className="avatar-placeholder-small">
-                                        <User size={18} />
+                                        {getInitials(activeConversation.other_participant?.institute?.institute_name || activeConversation.other_participant?.user?.name)}
                                     </div>
                                 )}
                                 <div>
@@ -127,16 +156,18 @@ const ChatPage = () => {
                                 </div>
                             </div>
                             <div className="header-actions-full">
-                                <button title="Voice Call"><Phone size={20} /></button>
-                                <button title="Video Call"><Video size={20} /></button>
-                                <button title="Info"><Info size={20} /></button>
-                                <button title="Menu"><MoreVertical size={20} /></button>
+                                <button className="close-chat-btn" onClick={() => selectConversation(null)} title="Close Chat">
+                                    <X size={20} />
+                                    <span className="mobile-only-back">Back</span>
+                                </button>
                             </div>
                         </div>
 
                         <div className="messages-container-full">
                             {messages.slice().reverse().map((msg, index) => {
-                                const isMine = msg.sender_institute_id ? true : false; // Placeholder logic
+                                const isMine = displayUser?.role === 'Institute'
+                                    ? (msg.sender_institute_id === displayUser?.institute?.id)
+                                    : (msg.sender_user_id === displayUser?.id);
 
                                 return (
                                     <div key={msg.id || index} className={`message-row ${isMine ? 'mine' : 'theirs'}`}>
@@ -155,8 +186,8 @@ const ChatPage = () => {
 
                         <form className="chat-input-full" onSubmit={handleSend}>
                             <div className="input-actions-full">
-                                <button type="button"><Smile size={22} /></button>
-                                <button type="button"><Paperclip size={22} /></button>
+                                {/* <button type="button"><Smile size={22} /></button>
+                                <button type="button"><Paperclip size={22} /></button> */}
                             </div>
                             <input
                                 type="text"
