@@ -42,7 +42,8 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
 
     const handleLike = async (postId) => {
         // Optimistic UI Update
-        const updatedPosts = localPosts.map(p => {
+        const previousPosts = [...localPosts];
+        setLocalPosts(prev => prev.map(p => {
             if (p.id === postId) {
                 const isLiked = !p.is_liked_by_user;
                 return {
@@ -52,12 +53,10 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
                 };
             }
             return p;
-        });
-        setLocalPosts(updatedPosts);
+        }));
 
         try {
             const response = await axiosClient.post(`/api/posts/${postId}/toggle-like`);
-            // Sync with actual server data if needed, but local fallback is often enough
             if (response.data.status === 'success') {
                 setLocalPosts(current => current.map(p =>
                     p.id === postId ? { ...p, likes_count: response.data.likes_count, is_liked_by_user: response.data.liked } : p
@@ -65,19 +64,19 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
             }
         } catch (error) {
             console.error("Like failed", error);
-            // Revert on error? Or just leave it.
+            setLocalPosts(previousPosts);
         }
     };
 
     const handleSave = async (postId) => {
         // Optimistic UI Update
-        const updatedPosts = localPosts.map(p => {
+        const previousPosts = [...localPosts];
+        setLocalPosts(prev => prev.map(p => {
             if (p.id === postId) {
                 return { ...p, is_saved_by_user: !p.is_saved_by_user };
             }
             return p;
-        });
-        setLocalPosts(updatedPosts);
+        }));
 
         try {
             const response = await axiosClient.post(`/api/posts/${postId}/save`);
@@ -88,6 +87,7 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
             }
         } catch (error) {
             console.error("Save failed", error);
+            setLocalPosts(previousPosts);
         }
     };
 

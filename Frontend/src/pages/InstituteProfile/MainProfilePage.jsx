@@ -144,11 +144,27 @@ const MainProfilePage = () => {
             navigate('/login');
             return;
         }
+
+        const previousFollowing = isFollowing;
+        const previousFollowersCount = institute.followers_count;
+
+        // Optimistic update
+        setIsFollowing(!isFollowing);
+        setInstitute(prev => ({
+            ...prev,
+            followers_count: !isFollowing ? (prev.followers_count + 1) : Math.max(0, prev.followers_count - 1)
+        }));
+
         try {
             const res = await axiosClient.post(`/api/institutions/${institute.id}/follow`);
             setIsFollowing(res.data.status === 'followed');
             setInstitute(prev => ({ ...prev, followers_count: res.data.followers_count }));
-        } catch (e) { console.error("Follow error", e); }
+        } catch (e) {
+            console.error("Follow error", e);
+            // Rollback
+            setIsFollowing(previousFollowing);
+            setInstitute(prev => ({ ...prev, followers_count: previousFollowersCount }));
+        }
     };
 
     const handleAddPost = () => {

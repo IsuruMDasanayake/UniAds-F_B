@@ -5,7 +5,7 @@ const ChatService = {
     
     startConversation: (targetType, targetId) => 
         axiosClient.post('/api/chat/start', { 
-            target_type: targetType, 
+            target_type: targetType.toLowerCase(), // backend validates 'user' | 'institute' (lowercase)
             target_id: targetId 
         }),
 

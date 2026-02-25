@@ -172,58 +172,103 @@ function FeedPage() {
 
 
     const handleLike = async (postId) => {
+        // Optimistic Update
+        const previousPosts = [...posts];
+        let postToUpdate = null;
+
+        setPosts(prevPosts => prevPosts.map(post => {
+            if (post.id === postId) {
+                postToUpdate = { ...post };
+                const isLiked = !post.is_liked_by_user;
+                return {
+                    ...post,
+                    is_liked_by_user: isLiked,
+                    likes_count: isLiked ? (post.likes_count + 1) : (post.likes_count - 1)
+                };
+            }
+            return post;
+        }));
+
         try {
             const response = await axiosClient.post(`/api/posts/${postId}/toggle-like`);
-            setPosts(posts.map(post =>
+            // Sync with actual backend data just in case counts differ
+            setPosts(prevPosts => prevPosts.map(post =>
                 post.id === postId
                     ? { ...post, likes_count: response.data.likes_count, is_liked_by_user: response.data.liked }
                     : post
             ));
         } catch (error) {
             console.error('Error liking post:', error);
+            // Rollback
+            setPosts(previousPosts);
         }
     };
 
     const handleSavePost = async (postId) => {
+        // Optimistic Update
+        const previousPosts = [...posts];
+        setPosts(prevPosts => prevPosts.map(post =>
+            post.id === postId ? { ...post, is_saved_by_user: !post.is_saved_by_user } : post
+        ));
+
         try {
             const response = await axiosClient.post(`/api/posts/${postId}/save`);
-            // Update the post's is_saved status in the local state
-            setPosts(posts.map(post =>
-                post.id === postId
-                    ? { ...post, is_saved_by_user: response.data.saved }
-                    : post
+            setPosts(prevPosts => prevPosts.map(post =>
+                post.id === postId ? { ...post, is_saved_by_user: response.data.saved } : post
             ));
         } catch (error) {
             console.error('Error saving post:', error);
+            // Rollback
+            setPosts(previousPosts);
         }
     };
 
     const handleEventInterest = async (eventId) => {
+        // Optimistic Update
+        const previousEvents = [...events];
+        setEvents(prevEvents => prevEvents.map(event => {
+            if (event.id === eventId) {
+                const isInterested = !event.is_interested;
+                return {
+                    ...event,
+                    is_interested: isInterested,
+                    interested_count: isInterested ? (event.interested_count + 1) : (event.interested_count - 1)
+                };
+            }
+            return event;
+        }));
+
         try {
             const resp = await axiosClient.post(`/api/events/${eventId}/interest`);
             const isRemoving = resp.data.status === 'uninterested';
 
-            setEvents(events.map(event =>
+            setEvents(prevEvents => prevEvents.map(event =>
                 event.id === eventId
                     ? {
                         ...event,
-                        interested_count: isRemoving ? (event.interested_count - 1) : (event.interested_count + 1),
+                        interested_count: resp.data.interested_count ?? (isRemoving ? (event.interested_count) : (event.interested_count)),
                         is_interested: !isRemoving
                     }
                     : event
             ));
         } catch (error) {
             console.error('Error registering event interest:', error);
+            // Rollback
+            setEvents(previousEvents);
         }
     };
 
     const handleEventDecline = async (eventId) => {
+        // Optimistic Update
+        const previousEvents = [...events];
+        setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
+
         try {
             await axiosClient.post(`/api/events/${eventId}/decline`);
-            // Set animation or remove immediately
-            setEvents(events.filter(event => event.id !== eventId));
         } catch (error) {
             console.error('Error declining event:', error);
+            // Rollback
+            setEvents(previousEvents);
         }
     };
 

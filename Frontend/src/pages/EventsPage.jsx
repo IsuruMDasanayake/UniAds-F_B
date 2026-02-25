@@ -20,7 +20,7 @@ function EventsPage() {
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
-    const [processingId, setProcessingId] = useState(null);
+    const processingIds = useRef(new Set());
     const [showAddEventModal, setShowAddEventModal] = useState(false);
 
     useEffect(() => {
@@ -52,46 +52,70 @@ function EventsPage() {
     };
 
     const handleMarkInterest = async (eventId) => {
-        if (processingId) return;
-        setProcessingId(eventId);
+        // Prevent duplicate in-flight requests for the same event
+        if (processingIds.current.has(eventId)) return;
+        processingIds.current.add(eventId);
+
+        // Snapshot for rollback
+        const previousEvents = [...events];
+        const previousSelected = selectedEvent ? { ...selectedEvent } : null;
+
+        // Optimistic UI update
+        const applyToggle = (ev) => {
+            if (ev.id !== eventId) return ev;
+            const isInterested = !ev.is_interested;
+            return {
+                ...ev,
+                is_interested: isInterested,
+                interested_count: isInterested ? (ev.interested_count + 1) : Math.max(0, ev.interested_count - 1)
+            };
+        };
+
+        setEvents(prev => prev.map(applyToggle));
+        if (selectedEvent?.id === eventId) {
+            setSelectedEvent(prev => applyToggle(prev));
+        }
+
         try {
             const resp = await axiosClient.post(`/api/events/${eventId}/interest`);
             const isRemoving = resp.data.status === 'uninterested';
 
+            // Sync with server truth
             setEvents(prev => prev.map(ev =>
-                ev.id === eventId
-                    ? {
-                        ...ev,
-                        interested_count: isRemoving ? (ev.interested_count - 1) : (ev.interested_count + 1),
-                        is_interested: !isRemoving
-                    }
-                    : ev
+                ev.id === eventId ? { ...ev, is_interested: !isRemoving } : ev
             ));
-
-            if (selectedEvent && selectedEvent.id === eventId) {
-                setSelectedEvent(prev => ({
-                    ...prev,
-                    interested_count: isRemoving ? (prev.interested_count - 1) : (prev.interested_count + 1),
-                    is_interested: !isRemoving
-                }));
+            if (selectedEvent?.id === eventId) {
+                setSelectedEvent(prev => prev ? { ...prev, is_interested: !isRemoving } : prev);
             }
         } catch (error) {
             console.error('Error marking interest:', error);
+            // Rollback
+            setEvents(previousEvents);
+            if (previousSelected) setSelectedEvent(previousSelected);
         } finally {
-            setProcessingId(null);
+            processingIds.current.delete(eventId);
         }
     };
 
     const handleDecline = async (eventId) => {
-        if (processingId) return;
-        setProcessingId(eventId);
+        if (processingIds.current.has(eventId)) return;
+        processingIds.current.add(eventId);
+
+        // Snapshot for rollback
+        const previousEvents = [...events];
+
+        // Optimistic: remove card immediately
+        setEvents(prev => prev.filter(ev => ev.id !== eventId));
+        if (selectedEvent?.id === eventId) setSelectedEvent(null);
+
         try {
             await axiosClient.post(`/api/events/${eventId}/decline`);
-            setEvents(prev => prev.filter(ev => ev.id !== eventId));
         } catch (error) {
             console.error('Error declining event:', error);
+            // Rollback
+            setEvents(previousEvents);
         } finally {
-            setProcessingId(null);
+            processingIds.current.delete(eventId);
         }
     };
 
@@ -238,7 +262,7 @@ function EventsPage() {
                                             <span className="month">{formatDate(event.event_date, 'month')}</span>
                                         </div>
                                         <button
-                                            className={`decline-float-btn ${processingId === event.id ? 'pulsing' : ''}`}
+                                            className="decline-float-btn"
                                             onClick={() => handleDecline(event.id)}
                                             title="Not Interested"
                                         >
@@ -270,7 +294,7 @@ function EventsPage() {
 
                                         <div className="card-actions">
                                             <button
-                                                className={`interest-toggle-btn ${event.is_interested ? 'interested' : ''} ${processingId === event.id ? 'loading' : ''}`}
+                                                className={`interest-toggle-btn ${event.is_interested ? 'interested' : ''}`}
                                                 onClick={() => handleMarkInterest(event.id)}
                                             >
                                                 {event.is_interested ? <Heart size={16} fill="white" /> : <Star size={16} />}
