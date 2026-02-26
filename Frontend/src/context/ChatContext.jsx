@@ -83,12 +83,14 @@ export const ChatProvider = ({ children, user }) => {
 
     // Dual-interval Polling
     useEffect(() => {
-        if (!user) return;
+        if (!user || !localStorage.getItem('ACCESS_TOKEN')) return;
 
         // 1. Poll Conversations (every 15 seconds)
-        const convInterval = setInterval(() => {
+        const fetchAndScheduleConv = () => {
             fetchConversations();
-        }, 15000);
+        };
+
+        const convInterval = setInterval(fetchAndScheduleConv, 15000);
 
         // 2. Poll Active Messages (every 5 seconds)
         let msgInterval;

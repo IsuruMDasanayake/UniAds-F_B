@@ -59,7 +59,7 @@ const AnalyticsLayout = () => {
 
         fetchNewAppsCount();
         fetchNewInquiriesCount();
-    }, [slug, navigate, location.pathname]);
+    }, [slug, navigate]);
 
     const fetchNewAppsCount = async () => {
         try {

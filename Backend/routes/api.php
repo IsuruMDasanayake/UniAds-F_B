@@ -151,6 +151,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{conversation}/messages', [ChatMessageController::class, 'index']);
         Route::post('/{conversation}/send', [ChatMessageController::class, 'store']);
         Route::post('/{conversation}/mark-read', [ChatMessageController::class, 'markRead']);
+        Route::delete('/{conversation}', [ChatConversationController::class, 'destroy']);
     });
 
     // Ratings & Reviews

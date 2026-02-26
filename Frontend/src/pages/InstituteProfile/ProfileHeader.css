@@ -348,9 +348,7 @@
 }
 
 .btn-message:hover {
-    background: var(--c-primary-hover);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.2);
 }
 
 .btn-message:disabled {

@@ -42,7 +42,7 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, isDeleting, title }) =
 
                         <h2 style={{ marginBottom: '15px', fontSize: '1.5rem', fontWeight: '800', color: '#1e293b' }}>Confirm Deletion</h2>
                         <p style={{ color: '#64748b', marginBottom: '30px', lineHeight: '1.6', fontSize: '0.95rem' }}>
-                            Are you sure you want to delete this? <br /> This cannot be undone.
+                            Are you sure you want to delete this? <br /> <span style={{ fontWeight: '700' }}>This cannot be undone</span>
                         </p>
 
                         <div style={{ display: 'flex', gap: '12px' }}>

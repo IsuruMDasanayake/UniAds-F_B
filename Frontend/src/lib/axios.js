@@ -1,17 +1,19 @@
 import axios from 'axios';
 
+import { BACKEND_URL } from './config';
+
 const axiosClient = axios.create({
-    baseURL: 'http://localhost:8000',
+    baseURL: BACKEND_URL,
     headers: {
         'Accept': 'application/json',
     },
-    withCredentials: false, // Use token-based auth only
+    withCredentials: false,
 });
 
 // Request interceptor to add the Bearer token
 axiosClient.interceptors.request.use((config) => {
     const token = localStorage.getItem('ACCESS_TOKEN');
-    if (token) {
+    if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -26,19 +28,19 @@ axiosClient.interceptors.response.use(
         const { response, config } = error;
         
         // Don't auto-logout for login/register/password-reset endpoints
-        const publicEndpoints = ['/api/login', '/api/register', '/api/register-institute', '/api/password/forgot', '/api/password/reset'];
+        const publicEndpoints = ['/api/login', '/api/register', '/api/register-institute', '/api/password/forgot', '/api/password/reset', '/api/user'];
         const isPublicEndpoint = publicEndpoints.some(endpoint => config?.url?.includes(endpoint));
         
         if (response && response.status === 401 && !isPublicEndpoint) {
-            // Only clear and redirect if we're actually authenticated
             const token = localStorage.getItem('ACCESS_TOKEN');
             
             if (token) {
+                console.warn('Unauthorized request. Clearing token and redirecting...', config.url);
                 localStorage.removeItem('ACCESS_TOKEN');
                 localStorage.removeItem('APP_USER');
                 
-                // Only redirect if we're not already on a public page
-                if (!window.location.pathname.match(/^\/(login|register|$)/)) {
+                // Avoid infinite redirect if already navigating to /
+                if (window.location.pathname !== '/' && !window.location.pathname.match(/^\/(login|register)/)) {
                     window.location.href = '/';
                 }
             }

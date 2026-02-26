@@ -1,0 +1,18 @@
+﻿
+Protocol tcp Port Exclusion Ranges
+
+Start Port    End Port      
+----------    --------      
+      2400        2499      
+      2500        2599      
+      2600        2699      
+      2700        2799      
+      2847        2946      
+      2947        3046      
+      3913        4012      
+      9001        9001      
+     27339       27339      
+     50000       50059     *
+
+* - Administered port exclusions.
+

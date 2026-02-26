@@ -169,7 +169,15 @@
 }
 
 .notif-icon-default {
-    color: #64748b;
+    color: #6366f1;
+}
+
+.notif-icon-heart {
+    color: #ef4444;
+}
+
+.notif-icon-event {
+    color: #f97316;
 }
 
 .notif-content {

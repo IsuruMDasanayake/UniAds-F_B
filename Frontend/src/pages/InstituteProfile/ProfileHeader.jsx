@@ -175,7 +175,7 @@ const ProfileHeader = ({
                             </div>
                         ) : (
                             <div className="visitor-tools">
-                                {currentUser && (
+                                {currentUser && isPremium && (
                                     <button
                                         className="btn-inst btn-message"
                                         onClick={async () => {

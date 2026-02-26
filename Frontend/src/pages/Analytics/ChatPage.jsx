@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Send, User, MoreVertical, Paperclip, Smile, Phone, Video, Info, X } from 'lucide-react';
+import { Search, Send, User, MoreVertical, Paperclip, Smile, Phone, Video, Info, X, Building2, Trash2 } from 'lucide-react';
 import { useChat } from '../../context/ChatContext';
 import { getStorageUrl } from '../../lib/config';
+import axiosClient from '../../lib/axios';
+import ChatService from '../../services/ChatService';
+import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import LinkPreview from '../../components/LinkPreview';
 import { format } from 'date-fns';
 import './ChatPage.css';
@@ -22,6 +25,10 @@ const ChatPage = () => {
     const [activeCategory, setActiveCategory] = useState('Students');
     const [isSending, setIsSending] = useState(false);
     const messagesEndRef = useRef(null);
+    const [institutes, setInstitutes] = useState([]);
+    const [institutesLoading, setInstitutesLoading] = useState(false);
+    const [deleteTarget, setDeleteTarget] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const getInitials = (name) => {
         if (!name) return '?';
@@ -29,6 +36,20 @@ const ChatPage = () => {
         if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
         return name[0].toUpperCase();
     };
+
+    // Fetch premium institutes when Institutes tab is active
+    useEffect(() => {
+        if (activeCategory !== 'Institutes') return;
+        setInstitutesLoading(true);
+        ChatService.getInstitutions()
+            .then(res => {
+                // Filter to only premium institutes
+                const premiumOnly = (res.data.data || res.data || []).filter(inst => inst.is_premium);
+                setInstitutes(premiumOnly);
+            })
+            .catch(err => console.error('Failed to load institutes:', err))
+            .finally(() => setInstitutesLoading(false));
+    }, [activeCategory]);
 
     useEffect(() => {
         fetchConversations();
@@ -57,6 +78,23 @@ const ChatPage = () => {
         }
     };
 
+    const handleDeleteConversation = async () => {
+        if (!deleteTarget) return;
+        setIsDeleting(true);
+        try {
+            await axiosClient.delete(`/api/chat/${deleteTarget.id}`);
+            if (activeConversation?.id === deleteTarget.id) {
+                selectConversation(null);
+            }
+            await fetchConversations();
+        } catch (error) {
+            console.error('Failed to delete conversation:', error);
+        } finally {
+            setIsDeleting(false);
+            setDeleteTarget(null);
+        }
+    };
+
     const filteredConversations = React.useMemo(() => {
         return conversations.filter(conv => {
             const other = conv.other_participant;
@@ -69,6 +107,19 @@ const ChatPage = () => {
             return matchesSearch && matchesCategory;
         });
     }, [conversations, searchTerm, activeCategory]);
+
+    // Unread counts per tab
+    const unreadCounts = React.useMemo(() => {
+        let students = 0, institutes = 0;
+        conversations.forEach(conv => {
+            if ((conv.unread_count || 0) > 0) {
+                const isInst = conv.other_participant?.role === 'Institute' || !!conv.other_participant?.institute;
+                if (isInst) institutes += conv.unread_count;
+                else students += conv.unread_count;
+            }
+        });
+        return { students, institutes };
+    }, [conversations]);
 
     // Memoize the message renderer to avoid re-calculating link matches on every render
     const renderMessage = React.useCallback((msg) => {
@@ -101,12 +152,14 @@ const ChatPage = () => {
                             onClick={() => setActiveCategory('Students')}
                         >
                             Students
+                            {unreadCounts.students > 0 && <span className="acp-tab-badge">{unreadCounts.students}</span>}
                         </button>
                         <button
                             className={`acp-tab-btn ${activeCategory === 'Institutes' ? 'acp-active' : ''}`}
                             onClick={() => setActiveCategory('Institutes')}
                         >
                             Institutes
+                            {unreadCounts.institutes > 0 && <span className="acp-tab-badge">{unreadCounts.institutes}</span>}
                         </button>
                     </div>
                     <div className="acp-search-wrapper">
@@ -121,6 +174,7 @@ const ChatPage = () => {
                 </div>
 
                 <div className="acp-conversation-list">
+                    {/* Existing conversations always shown first */}
                     {filteredConversations.map(conv => {
                         const other = conv.other_participant;
                         const isActive = activeConversation?.id === conv.id;
@@ -144,17 +198,88 @@ const ChatPage = () => {
                                 <div className="acp-conv-content">
                                     <div className="acp-conv-header">
                                         <span className="acp-conv-name">{other?.institute?.institute_name || other?.user?.name || 'User'}</span>
-                                        <span className="acp-conv-time">
-                                            {conv.latest_message ? format(new Date(conv.latest_message.created_at), 'HH:mm') : ''}
-                                        </span>
+                                        <div className="acp-conv-actions">
+                                            <span className="acp-conv-time">
+                                                {conv.latest_message ? format(new Date(conv.latest_message.created_at), 'HH:mm') : ''}
+                                            </span>
+                                        </div>
                                     </div>
                                     <p className="acp-conv-preview">
                                         {conv.latest_message?.message || 'Started a new conversation'}
                                     </p>
+                                    <div className="acp-conv-actions">  
+                                        <button
+                                                className="acp-delete-btn"
+                                                title="Delete conversation"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setDeleteTarget(conv);
+                                                }}
+                                            >
+                                                <Trash2 size={13} />
+                                            </button>
+                                    </div>
                                 </div>
                             </div>
                         );
                     })}
+
+                    {/* Institute Discovery: show premium institutes not yet in a conversation */}
+                    {activeCategory === 'Institutes' && (
+                        institutesLoading ? (
+                            <div className="acp-empty-hint">Loading institutes...</div>
+                        ) : (
+                            (() => {
+                                // IDs of institutes already in existing conversations
+                                const existingInstIds = new Set(
+                                    conversations
+                                        .filter(c => c.other_participant?.institute)
+                                        .map(c => c.other_participant.institute.id)
+                                );
+                                const currentInstId = displayUser?.institute?.id;
+                                const discoverable = institutes.filter(inst =>
+                                    inst.id !== currentInstId &&
+                                    !existingInstIds.has(inst.id) &&
+                                    inst.institute_name.toLowerCase().includes(searchTerm.toLowerCase())
+                                );
+                                if (discoverable.length === 0 && filteredConversations.length === 0) {
+                                    return <div className="acp-empty-hint">No premium institutes found.</div>;
+                                }
+                                return discoverable.map(inst => (
+                                    <div
+                                        key={`discover-${inst.id}`}
+                                        className="acp-conv-item acp-discovery-item"
+                                        onClick={async () => {
+                                            try {
+                                                const res = await ChatService.startConversation('institute', inst.id);
+                                                await fetchConversations();
+                                                selectConversation(res.data.data);
+                                            } catch (e) {
+                                                console.error('Failed to start conversation:', e);
+                                            }
+                                        }}
+                                    >
+                                        <div className="acp-avatar-wrapper">
+                                            {inst.profile_photo ? (
+                                                <img src={getStorageUrl(inst.profile_photo)} alt={inst.institute_name} />
+                                            ) : (
+                                                <div className="acp-avatar-placeholder">
+                                                    {getInitials(inst.institute_name)}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="acp-conv-content">
+                                            <div className="acp-conv-header">
+                                                <span className="acp-conv-name">{inst.institute_name}</span>
+                                                <span className="acp-premium-badge">Premium</span>
+                                            </div>
+                                            <p className="acp-conv-preview">{inst.location || 'Click to start chatting'}</p>
+                                        </div>
+                                    </div>
+                                ));
+                            })()
+                        )
+                    )}
                 </div>
             </div>
 
@@ -235,6 +360,14 @@ const ChatPage = () => {
                     </div>
                 )}
             </div>
+
+            <DeleteConfirmModal
+                isOpen={!!deleteTarget}
+                onClose={() => setDeleteTarget(null)}
+                onConfirm={handleDeleteConversation}
+                isDeleting={isDeleting}
+                title="Delete Conversation"
+            />
         </div>
     );
 };

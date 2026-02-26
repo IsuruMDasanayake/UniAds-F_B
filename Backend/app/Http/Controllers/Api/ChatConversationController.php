@@ -22,8 +22,10 @@ class ChatConversationController extends Controller
         $instituteId = $request->user()->institute ? $request->user()->institute->id : null;
 
         $conversations = Conversation::whereHas('participants', function ($query) use ($userId, $instituteId) {
-            $query->where('user_id', $userId)
-                ->orWhere('institute_id', $instituteId);
+            $query->where(function ($q) use ($userId, $instituteId) {
+                $q->where('user_id', $userId)
+                    ->orWhere('institute_id', $instituteId);
+            })->whereNull('hidden_at');
         })
             ->with(['participants.user', 'participants.institute', 'messages' => function ($q) {
                 $q->latest()->take(1);
@@ -172,5 +174,32 @@ class ChatConversationController extends Controller
         }
 
         return false;
+    }
+
+    /**
+     * Hide a conversation for the current user/institute (one-sided delete)
+     */
+    public function destroy(Request $request, $conversationId)
+    {
+        $userId = $request->user()->id;
+        $instituteId = $request->user()->institute ? $request->user()->institute->id : null;
+
+        $participant = ConversationParticipant::where('conversation_id', $conversationId)
+            ->where(function ($q) use ($userId, $instituteId) {
+                if ($instituteId) {
+                    $q->where('institute_id', $instituteId);
+                } else {
+                    $q->where('user_id', $userId);
+                }
+            })
+            ->first();
+
+        if (!$participant) {
+            return response()->json(['message' => 'Conversation not found'], 404);
+        }
+
+        $participant->update(['hidden_at' => now()]);
+
+        return response()->json(['status' => 'success', 'message' => 'Conversation hidden']);
     }
 }

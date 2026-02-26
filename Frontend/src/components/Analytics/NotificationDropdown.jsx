@@ -100,7 +100,7 @@ const NotificationDropdown = () => {
             case 'application_new': return <User className="notif-icon-user" size={18} />;
             case 'review_new': return <Star className="notif-icon-review" size={18} />;
             case 'post_like': return <Heart className="notif-icon-heart" size={18} />;
-            case 'follower_new':
+            case 'follower_new': return <User className="notif-icon-user" size={18} />;
             case 'event_interest': return <Info className="notif-icon-info" size={18} />;
             case 'event_starting': return <Calendar className="notif-icon-event" size={18} />;
             case 'subscription_expiring':
