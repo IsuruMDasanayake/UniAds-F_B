@@ -1,0 +1,309 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+/* ============================================
+   EMAIL VERIFICATION PAGE - Theme Variables
+   ============================================ */
+.verification-auth-container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    background: var(--c-bg);
+    font-family: 'Poppins', sans-serif;
+}
+
+/* ============================================
+   Left Side - Visual
+   ============================================ */
+.verification-auth-container .auth-left {
+    flex: 1;
+    background: var(--c-dark);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 1.5rem;
+    color: white;
+    position: relative;
+    text-align: center;
+    overflow: hidden;
+}
+
+.verification-auth-container .auth-left::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.verification-visual {
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 1;
+}
+
+.mail-icon-anim {
+    color: var(--c-accent);
+    filter: drop-shadow(0 0 15px rgba(29, 55, 92, 0.5));
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.verification-auth-container .auth-welcome-title {
+    font-size: 2.25rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+    position: relative;
+    z-index: 1;
+    color: white !important;
+}
+
+.verification-auth-container .auth-description {
+    font-size: 1.1rem;
+    opacity: 0.95;
+    max-width: 400px;
+    line-height: 1.6;
+    position: relative;
+    z-index: 1;
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* ============================================
+   Right Side - Form
+   ============================================ */
+.verification-auth-container .auth-right {
+    flex: 1.2;
+    background-color: var(--c-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    position: relative;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.05);
+}
+
+.verification-auth-container .auth-form-wrapper {
+    width: 100%;
+    max-width: 440px;
+    margin: auto;
+}
+
+.verification-auth-container .auth-header {
+    margin-bottom: 2.5rem;
+    text-align: center;
+}
+
+.verification-auth-container .auth-header h2 {
+    font-size: 2rem;
+    color: var(--c-dark);
+    margin-bottom: 0.5rem;
+    font-weight: 800;
+}
+
+.timer-highlight {
+    color: var(--c-primary);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   OTP Inputs
+   ============================================ */
+.otp-input-container {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.otp-input {
+    width: 50px;
+    height: 60px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    background: white;
+    transition: all 0.2s ease;
+    color: var(--c-dark);
+}
+
+.otp-input:focus {
+    border-color: var(--c-primary);
+    outline: none;
+    box-shadow: 0 0 0 4px var(--c-focus-primary);
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+.verification-auth-container .auth-submit-btn {
+    width: 100%;
+    background: var(--c-accent) !important;
+    color: white !important;
+    padding: 0.6rem 1rem !important;
+    border-radius: 20px !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(29, 55, 92, 0.3) !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.verification-auth-container .auth-submit-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(29, 55, 92, 0.4);
+}
+
+.verification-auth-container .auth-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.resend-btn {
+    background: none;
+    border: none;
+    color: var(--c-primary);
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.resend-btn:hover:not(:disabled) {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+.resend-btn:disabled {
+    color: var(--c-text-muted);
+    cursor: not-allowed;
+}
+
+/* ============================================
+   Messages
+   ============================================ */
+.verification-auth-container .auth-error-message {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+.verification-auth-container .auth-success-message {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* ============================================
+   Floating Home Button
+   ============================================ */
+.verification-auth-container .back-home-floating {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    z-index: 20;
+    transition: all 0.3s ease;
+    background: rgba(0, 0, 0, 0.15);
+    padding: 0.65rem 1.25rem;
+    border-radius: 50px;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.verification-auth-container .back-home-floating:hover {
+    background: rgba(0, 0, 0, 0.25);
+    transform: translateX(-3px);
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 768px) {
+    .verification-auth-container {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .verification-auth-container .auth-left {
+        min-height: 300px;
+    }
+
+    .otp-input {
+        width: 42px;
+        height: 52px;
+        font-size: 1.25rem;
+    }
+
+    .back-text {
+        display: none;
+    }
+}

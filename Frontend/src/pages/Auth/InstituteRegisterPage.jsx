@@ -201,15 +201,10 @@ const InstituteRegisterPage = () => {
 
             console.log("Institute Registration Success:", response.data);
 
-            // Save token and user for immediate login
-            if (response.data.token) {
-                localStorage.setItem('ACCESS_TOKEN', response.data.token);
-                if (response.data.user) {
-                    localStorage.setItem('APP_USER', JSON.stringify(response.data.user));
-                }
-            }
+            // Save verification email for the verification page
+            localStorage.setItem('VERIFICATION_EMAIL', formData.email);
 
-            navigate('/login');
+            navigate('/email-verification', { state: { email: formData.email } });
 
         } catch (err) {
             console.error('Institute Registration error:', err);

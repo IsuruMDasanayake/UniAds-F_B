@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\EventController;
@@ -54,6 +55,10 @@ Route::middleware('throttle:auth')->group(function () {
 // Password Reset API routes (no auth required)
 Route::post('/password/forgot', [ForgotPasswordController::class, 'apiSendResetCode']);
 Route::post('/password/reset', [ForgotPasswordController::class, 'apiResetPassword']);
+
+// Email Verification routes (Public access for new registrations)
+Route::post('/email/verify-otp', [EmailVerificationController::class, 'verifyOTP']);
+Route::post('/email/resend-otp', [EmailVerificationController::class, 'resendOTP']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     $user = $request->user();

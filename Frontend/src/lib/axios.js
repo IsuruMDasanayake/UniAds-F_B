@@ -7,7 +7,7 @@ const axiosClient = axios.create({
     headers: {
         'Accept': 'application/json',
     },
-    withCredentials: false,
+    withCredentials: true,
 });
 
 // Request interceptor to add the Bearer token

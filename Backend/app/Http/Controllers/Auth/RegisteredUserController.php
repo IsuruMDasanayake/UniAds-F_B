@@ -8,13 +8,18 @@ use App\Models\Institute;
 use App\Models\Notification;
 use App\Models\AdminNotification;
 use App\Providers\RouteServiceProvider;
+use App\Http\Controllers\Auth\EmailVerificationController;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules;
+use App\Mail\WelcomeUserMail;
+use App\Mail\WelcomeInstituteMail;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
@@ -77,6 +82,13 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
+        // Send Welcome Email to User
+        try {
+            Mail::to($user->email)->send(new WelcomeUserMail($user));
+        } catch (\Exception $e) {
+            Log::error('Welcome email failed: ' . $e->getMessage());
+        }
+
         // Login user with session (cookie-based)
         Auth::login($user);
         $request->session()->regenerate();
@@ -106,72 +118,21 @@ class RegisteredUserController extends Controller
         ]);
 
         try {
-            DB::beginTransaction();
-
-            // Create User with Institute role (use institute_name as user name)
-            $user = User::create([
-                'name' => $request->institute_name,  // Use institute name as user name
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'role' => 'Institute',
+            // Store pending registration data in session
+            session([
+                'pending_registration' => $request->all(),
+                'pending_registration_type' => 'Institute'
             ]);
 
-            // Create Institute linked to User
-            $institute = Institute::create([
-                'user_id' => $user->id,
-                'institute_name' => $request->institute_name,
-                'institute_type' => $request->institute_type,
-                'email' => $request->email,
-                'location' => $request->location,
-                'contact_number' => $request->contact_number,
-                'gov_register_number' => $request->gov_register_number,
-                'website' => $request->website,
-                'bio' => $request->description,  // Map description to bio column
-            ]);
+            // Ensure session is saved before returning
+            session()->save();
 
-            // Trigger Welcome Notification
-            Notification::create([
-                'institute_id' => $institute->id,
-                'type' => 'system',
-                'title' => 'Welcome to UniAds!',
-                'message' => 'Congratulations on joining our platform! You can now start posting courses and events to reach more students.',
-                'data' => [
-                    'welcome' => true
-                ]
-            ]);
-
-            // Notify Admins about the new registration
-            $admins = User::where('role', 'Admin')->get();
-            foreach ($admins as $admin) {
-                AdminNotification::create([
-                    'user_id' => $admin->id,
-                    'type' => 'new_institute_registration',
-                    'title' => 'New Institute Registered',
-                    'message' => "A new institute \"{$request->institute_name}\" has registered and is pending approval.",
-                    'data' => [
-                        'institute_id' => $institute->id,
-                        'institute_name' => $request->institute_name
-                    ]
-                ]);
-            }
-
-            event(new Registered($user));
-
-            DB::commit();
-
-            // Login user with session (cookie-based)
-            Auth::login($user);
-            $request->session()->regenerate();
-
-            return response()->json([
-                'message' => 'Institute registration successful',
-                'user' => $user,
-                'institute' => $institute,
-            ], 201);
+            // Send verification OTP using a custom method for guests
+            $otpController = new EmailVerificationController();
+            return $otpController->sendOTPGuest($request->email, $request);
         } catch (\Exception $e) {
-            DB::rollBack();
             return response()->json([
-                'message' => 'Registration failed. Please try again.',
+                'message' => 'Registration initiation failed. Please try again.',
                 'error' => $e->getMessage()
             ], 500);
         }

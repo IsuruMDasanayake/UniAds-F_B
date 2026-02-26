@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
-import { LoginPage, RegisterPage, ForgotPasswordPage, ResetPasswordPage, InstituteRegisterPage } from './pages/Auth';
+import { LoginPage, RegisterPage, ForgotPasswordPage, ResetPasswordPage, InstituteRegisterPage, EmailVerification } from './pages/Auth';
 import InstituteDashboard from './pages/InstituteDashboard';
 import SavedPostsPage from './pages/SavedPostsPage';
 import InstitutionsPage from './pages/InstitutionsPage';
@@ -94,6 +94,7 @@ function App() {
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/institutionprofileadd" element={<InstituteRegisterPage />} />
+              <Route path="/email-verification" element={<EmailVerification />} />
               <Route path="/institute/dashboard" element={<InstituteDashboard />} />
               <Route path="/saved-posts" element={<SavedPostsPage />} />
               <Route path="/institutions" element={<InstitutionsPage />} />

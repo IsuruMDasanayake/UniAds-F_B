@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use App\Mail\PasswordResetMail;
 
 class ForgotPasswordController extends Controller
 {
@@ -34,10 +36,7 @@ class ForgotPasswordController extends Controller
         // Send the reset code via email
         $user = User::where('email', $request->email)->first();
         try {
-            Mail::raw("Your password reset code is: $resetCode", function ($message) use ($user) {
-                $message->to($user->email)
-                    ->subject('Password Reset Code');
-            });
+            Mail::to($user->email)->send(new PasswordResetMail($resetCode));
         } catch (\Exception $e) {
             \Log::error('Mail sending failed: ' . $e->getMessage());
             return back()->withErrors(['email' => 'Failed to send email. Please try again.']);
@@ -65,10 +64,7 @@ class ForgotPasswordController extends Controller
         // Send the reset code via email
         $user = User::where('email', $request->email)->first();
         try {
-            Mail::raw("Your password reset code is: $resetCode", function ($message) use ($user) {
-                $message->to($user->email)
-                    ->subject('Password Reset Code');
-            });
+            Mail::to($user->email)->send(new PasswordResetMail($resetCode));
         } catch (\Exception $e) {
             \Log::error('Mail sending failed: ' . $e->getMessage());
             return response()->json([

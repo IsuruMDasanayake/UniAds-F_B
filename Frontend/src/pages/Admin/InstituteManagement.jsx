@@ -227,9 +227,8 @@ const InstituteManagement = () => {
                                         <td className="text-sm font-mono">{inst.gov_register_number || '-'}</td>
                                         <td className="text-sm font-semibold" style={{ textAlign: 'center' }}>{inst.followers_count || 0}</td>
                                         <td>
-                                            <span className={`status-pill ${(inst.status || '').toLowerCase()}`}>
+                                            <span className={`status-pill ${(inst.status || '').toLowerCase()}`} title={inst.status ? inst.status.charAt(0).toUpperCase() + inst.status.slice(1) : 'Unknown'}>
                                                 {inst.status === 'approved' ? <CheckCircle size={14} /> : <AlertCircle size={14} />}
-                                                {inst.status ? inst.status.charAt(0).toUpperCase() + inst.status.slice(1) : 'Unknown'}
                                             </span>
                                         </td>
                                         <td>
