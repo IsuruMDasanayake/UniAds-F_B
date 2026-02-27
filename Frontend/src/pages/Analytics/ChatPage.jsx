@@ -37,6 +37,18 @@ const ChatPage = () => {
         return name[0].toUpperCase();
     };
 
+    // Derive other_participant when it isn't pre-computed (e.g. freshly started conversations)
+    const resolveOtherParticipant = (conversation) => {
+        if (conversation.other_participant) return conversation;
+        if (!conversation.participants) return conversation;
+        const myInstId = displayUser?.institute?.id;
+        const myUserId = displayUser?.id;
+        const other = conversation.participants.find(p =>
+            myInstId ? p.institute_id !== myInstId : p.user_id !== myUserId
+        );
+        return { ...conversation, other_participant: other || null };
+    };
+
     // Fetch premium institutes when Institutes tab is active
     useEffect(() => {
         if (activeCategory !== 'Institutes') return;
@@ -207,17 +219,17 @@ const ChatPage = () => {
                                     <p className="acp-conv-preview">
                                         {conv.latest_message?.message || 'Started a new conversation'}
                                     </p>
-                                    <div className="acp-conv-actions">  
+                                    <div className="acp-conv-actions">
                                         <button
-                                                className="acp-delete-btn"
-                                                title="Delete conversation"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setDeleteTarget(conv);
-                                                }}
-                                            >
-                                                <Trash2 size={13} />
-                                            </button>
+                                            className="acp-delete-btn"
+                                            title="Delete conversation"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setDeleteTarget(conv);
+                                            }}
+                                        >
+                                            <Trash2 size={13} />
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -253,7 +265,7 @@ const ChatPage = () => {
                                             try {
                                                 const res = await ChatService.startConversation('institute', inst.id);
                                                 await fetchConversations();
-                                                selectConversation(res.data.data);
+                                                selectConversation(resolveOtherParticipant(res.data.data));
                                             } catch (e) {
                                                 console.error('Failed to start conversation:', e);
                                             }
@@ -289,15 +301,20 @@ const ChatPage = () => {
                     <>
                         <div className="acp-header">
                             <div className="acp-header-info">
-                                {activeConversation.other_participant?.institute?.profile_photo ? (
-                                    <img src={getStorageUrl(activeConversation.other_participant.institute.profile_photo)} alt="Avatar" />
-                                ) : (
-                                    <div className="acp-avatar-placeholder-small">
-                                        {getInitials(activeConversation.other_participant?.institute?.institute_name || activeConversation.other_participant?.user?.name)}
-                                    </div>
-                                )}
+                                {(() => {
+                                    const other = activeConversation.other_participant;
+                                    const photo = other?.institute?.profile_photo || other?.user?.profile_picture;
+                                    const name = other?.institute?.institute_name || other?.user?.name;
+                                    return photo ? (
+                                        <img src={getStorageUrl(photo)} alt={name || 'User'} />
+                                    ) : (
+                                        <div className="acp-avatar-placeholder-small">
+                                            {getInitials(name)}
+                                        </div>
+                                    );
+                                })()}
                                 <div>
-                                    <h3>{activeConversation.other_participant?.institute?.institute_name || activeConversation.other_participant?.user?.name}</h3>
+                                    <h3>{activeConversation.other_participant?.institute?.institute_name || activeConversation.other_participant?.user?.name || 'User'}</h3>
                                     {/* <span className="online-status">Online</span> */}
                                 </div>
                             </div>
