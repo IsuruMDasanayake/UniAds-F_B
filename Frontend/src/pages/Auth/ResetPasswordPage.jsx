@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff, ArrowLeft, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import axiosClient from '../../lib/axios';
 import { useSettings } from '../../context/SettingsContext';
 import AccessDeniedModal from '../../components/Modals/AccessDeniedModal';
@@ -10,8 +11,10 @@ import './ResetPasswordPage.css';
 const ResetPasswordPage = () => {
     const { settings } = useSettings();
     const navigate = useNavigate();
+    const location = useLocation();
+    const email = location.state?.email || '';
 
-    const [resetCode, setResetCode] = useState('');
+    const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const [password, setPassword] = useState('');
     const [passwordConfirmation, setPasswordConfirmation] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -21,9 +24,68 @@ const ResetPasswordPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [passwordStrength, setPasswordStrength] = useState('');
     const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', message: '' });
+    const [timer, setTimer] = useState(120); // 2 minutes
+    const [isResending, setIsResending] = useState(false);
     const [liveValidation, setLiveValidation] = useState({
         password: ''
     });
+
+    useEffect(() => {
+        const countdown = setInterval(() => {
+            setTimer((prev) => (prev > 0 ? prev - 1 : 0));
+        }, 1000);
+
+        return () => clearInterval(countdown);
+    }, []);
+
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    const handleOtpChange = (index, value) => {
+        if (isNaN(value)) return;
+
+        const newOtp = [...otp];
+        newOtp[index] = value.substring(value.length - 1);
+        setOtp(newOtp);
+
+        // Auto focus next input
+        if (value && index < 5) {
+            document.getElementById(`otp-${index + 1}`).focus();
+        }
+
+        if (errors.reset_code) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors.reset_code;
+                return newErrors;
+            });
+        }
+    };
+
+    const handleOtpKeyDown = (index, e) => {
+        if (e.key === 'Backspace' && !otp[index] && index > 0) {
+            document.getElementById(`otp-${index - 1}`).focus();
+        }
+    };
+
+    const handleResendCode = async () => {
+        if (timer > 0 || !email) return;
+        setIsResending(true);
+        setErrors({});
+
+        try {
+            await axiosClient.post('/api/password/forgot', { email });
+            setTimer(120);
+            setOtp(['', '', '', '', '', '']);
+        } catch (err) {
+            setErrors({ general: 'Failed to resend code. Please try again.' });
+        } finally {
+            setIsResending(false);
+        }
+    };
 
     // Strong password validation (matches Blade template / Register page)
     const calculatePasswordStrength = (pass) => {
@@ -68,8 +130,8 @@ const ResetPasswordPage = () => {
 
         const validationErrors = {};
 
-        if (!resetCode.trim()) {
-            validationErrors.reset_code = 'Please enter the reset code from your email';
+        if (otp.join('').length !== 6) {
+            validationErrors.reset_code = 'Please enter the full 6-digit reset code from your email';
         }
 
         if (passwordStrength !== 'strong') {
@@ -91,7 +153,7 @@ const ResetPasswordPage = () => {
             await axiosClient.get('/sanctum/csrf-cookie');
 
             await axiosClient.post('/api/password/reset', {
-                reset_code: resetCode,
+                reset_code: otp.join(''),
                 password: password,
                 password_confirmation: passwordConfirmation
             });
@@ -99,23 +161,28 @@ const ResetPasswordPage = () => {
             setSuccess(true);
             setTimeout(() => {
                 navigate('/login');
-            }, 5000);
+            }, 3000);
 
         } catch (err) {
             console.error('Reset password error:', err);
             if (err.response && err.response.status === 422) {
                 const backendErrors = err.response.data.errors || {};
+                const message = err.response.data.message;
                 const processedErrors = {};
-                Object.keys(backendErrors).forEach(key => {
-                    processedErrors[key] = Array.isArray(backendErrors[key]) ? backendErrors[key][0] : backendErrors[key];
-                });
+
+                if (Object.keys(backendErrors).length > 0) {
+                    Object.keys(backendErrors).forEach(key => {
+                        processedErrors[key] = Array.isArray(backendErrors[key]) ? backendErrors[key][0] : backendErrors[key];
+                    });
+                } else if (message) {
+                    // Map generic message to reset_code for visual feedback
+                    processedErrors.reset_code = message;
+                }
                 setErrors(processedErrors);
             } else if (err.response && err.response.status === 429) {
                 setErrors({ general: 'Too many requests. Please wait a moment and try again' });
-            } else if (err.response && err.response.status === 400) {
-                setErrors({ general: 'Invalid or expired reset code' });
             } else {
-                setErrors({ general: 'Unable to reset password. Please try again later' });
+                setErrors({ general: err.response?.data?.message || 'Unable to reset password. Please try again later' });
             }
         } finally {
             setIsLoading(false);
@@ -156,48 +223,59 @@ const ResetPasswordPage = () => {
                         <p>Enter the code and your new password</p>
                     </div>
 
-                    {/* Error Alert - Show all errors */}
-                    {Object.keys(errors).length > 0 && (
-                        <div className="auth-error-message">
-                            <strong>Please fix the following:</strong>
-                            <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem', fontSize: '0.85rem' }}>
-                                {Object.entries(errors).map(([field, message]) => (
-                                    <li key={field}>
-                                        {message}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
+                    {/* Error and Success Alerts */}
+                    <AnimatePresence mode="wait">
+                        {Object.keys(errors).length > 0 && (
+                            <motion.div
+                                className="auth-error-message shake-anim"
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                            >
+                                <div className="error-alert-header">
+                                    <AlertCircle size={18} />
+                                    <strong>Password Reset Failed</strong>
+                                </div>
+                                <ul className="error-list">
+                                    {Object.entries(errors).map(([field, message]) => (
+                                        <li key={field}>{message}</li>
+                                    ))}
+                                </ul>
+                            </motion.div>
+                        )}
 
-                    {success && (
-                        <div className="auth-success-message">
-                            Password reset successful! Redirecting to login in 5 seconds...
-                        </div>
-                    )}
+                        {success && (
+                            <motion.div
+                                className="auth-success-message"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                            >
+                                <CheckCircle2 size={18} />
+                                <span>Password reset successful! Redirecting to login...</span>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
                     <form className="auth-form" onSubmit={handleSubmit}>
                         <div className="form-group">
-                            <label htmlFor="resetCode">RESET CODE</label>
-                            <input
-                                type="text"
-                                id="resetCode"
-                                className={`form-input ${errors.reset_code ? 'input-error' : ''}`}
-                                placeholder="Enter code from email"
-                                value={resetCode}
-                                onChange={(e) => {
-                                    setResetCode(e.target.value);
-                                    if (errors.reset_code) {
-                                        setErrors(prev => {
-                                            const newErrors = { ...prev };
-                                            delete newErrors.reset_code;
-                                            return newErrors;
-                                        });
-                                    }
-                                }}
-                                required
-                                disabled={success}
-                            />
+                            <label>RESET CODE</label>
+                            <p className="timer-text">Expires in <span className="timer-highlight">{formatTime(timer)}</span></p>
+                            <div className="otp-input-container">
+                                {otp.map((digit, index) => (
+                                    <input
+                                        key={index}
+                                        id={`otp-${index}`}
+                                        type="text"
+                                        className={`otp-input ${errors.reset_code ? 'input-error' : ''}`}
+                                        value={digit}
+                                        onChange={(e) => handleOtpChange(index, e.target.value)}
+                                        onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                                        maxLength={1}
+                                        autoComplete="off"
+                                        disabled={success}
+                                    />
+                                ))}
+                            </div>
                             {errors.reset_code && <span className="error-text">{errors.reset_code}</span>}
                         </div>
 
@@ -237,7 +315,7 @@ const ResetPasswordPage = () => {
                                         <div className={`strength-fill ${passwordStrength}`}></div>
                                     </div>
                                     <span className={`strength-text ${passwordStrength}`}>
-                                        {passwordStrength === 'weak' ? 'Weak Password' : 'Strong Password'}
+                                        {passwordStrength === 'weak' ? '' : ''}
                                     </span>
                                 </div>
                             )}
@@ -287,7 +365,20 @@ const ResetPasswordPage = () => {
                     </form>
 
                     <div className="auth-footer">
-                        <p>Remember your password? <Link to="/login" onClick={(e) => {
+                        <p>Didn't receive the code?</p>
+                        <button
+                            type="button"
+                            onClick={handleResendCode}
+                            className="resend-link-btn"
+                            disabled={timer > 0 || isResending || !email}
+                        >
+                            {isResending ? (
+                                <RefreshCw size={16} className="spin" />
+                            ) : (
+                                timer > 0 ? `Resend in ${formatTime(timer)}` : 'Resend Code'
+                            )}
+                        </button>
+                        <p style={{ marginTop: '1rem' }}>Remember your password? <Link to="/login" onClick={(e) => {
                             if (!settings.allow_login) {
                                 e.preventDefault();
                                 setModalConfig({

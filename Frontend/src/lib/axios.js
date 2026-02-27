@@ -33,9 +33,10 @@ axiosClient.interceptors.response.use(
         
         if (response && response.status === 401 && !isPublicEndpoint) {
             const token = localStorage.getItem('ACCESS_TOKEN');
+            const user = localStorage.getItem('APP_USER');
             
-            if (token) {
-                console.warn('Unauthorized request. Clearing token and redirecting...', config.url);
+            if (token || user) {
+                console.warn('Unauthorized request. Clearing local state and redirecting...', config.url);
                 localStorage.removeItem('ACCESS_TOKEN');
                 localStorage.removeItem('APP_USER');
                 

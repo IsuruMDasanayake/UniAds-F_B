@@ -352,7 +352,7 @@ const ChatPage = () => {
                                 <Send size={48} />
                             </div>
                             <h2>Welcome to Institute Messenger</h2>
-                            <p>Select a conversation to start chatting with students or other institutes.</p>
+                            <p>Select a conversation to start chatting with students or other premium institutes.</p>
                             <span className="acp-encryption-notice">
                                 <Info size={14} /> End-to-end encrypted messaging
                             </span>

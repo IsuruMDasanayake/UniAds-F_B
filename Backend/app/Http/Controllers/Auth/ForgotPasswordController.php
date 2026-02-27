@@ -96,7 +96,7 @@ class ForgotPasswordController extends Controller
         ]);
 
         // Check if the entered reset code matches the one in session and if it hasn't expired
-        if (now()->diffInMinutes(session('reset_code_time')) > 15) {
+        if (now()->diffInMinutes(session('reset_code_time')) > 2) {
             session()->forget('reset_code');
             session()->forget('reset_code_time');
             return back()->withErrors(['reset_code' => 'The reset code has expired.']);
@@ -137,7 +137,7 @@ class ForgotPasswordController extends Controller
         ]);
 
         // Check if the entered reset code matches the one in session and if it hasn't expired
-        if (now()->diffInMinutes(session('reset_code_time')) > 15) {
+        if (now()->diffInMinutes(session('reset_code_time')) > 2) {
             session()->forget('reset_code');
             session()->forget('reset_code_time');
             return response()->json([

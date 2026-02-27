@@ -73,7 +73,11 @@ function App() {
         setUser(response.data);
         localStorage.setItem('APP_USER', JSON.stringify(response.data));
       } catch (error) {
-        // User not logged in or token invalid
+        if (error.response?.status === 401) {
+          setUser(null);
+          localStorage.removeItem('APP_USER');
+          localStorage.removeItem('ACCESS_TOKEN');
+        }
       }
     };
     if (localStorage.getItem('ACCESS_TOKEN')) {

@@ -14,7 +14,7 @@ export const ChatProvider = ({ children, user }) => {
     const [unreadTotal, setUnreadTotal] = useState(0);
 
     const fetchConversations = useCallback(async () => {
-        if (!user) return;
+        if (!user || !localStorage.getItem('ACCESS_TOKEN')) return;
         try {
             const response = await ChatService.getConversations();
             const rawConversations = response.data.data;
