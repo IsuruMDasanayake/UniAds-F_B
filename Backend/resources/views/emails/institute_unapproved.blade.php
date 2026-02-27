@@ -2,127 +2,128 @@
 <html>
 
 <head>
+    <meta charset="utf-8">
     <title>Institute Status Update</title>
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f4f6f8;
-            padding: 20px;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #1e293b;
             margin: 0;
+            padding: 0;
+            background-color: #f8fafc;
+        }
+
+        .wrapper {
+            width: 100%;
+            table-layout: fixed;
+            background-color: #f8fafc;
+            padding: 40px 0;
         }
 
         .container {
             max-width: 600px;
             margin: 0 auto;
-            background: #ffffff;
+            background-color: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .header {
+            background-color: #0f172a;
             padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .logo-container {
             text-align: center;
-            margin-bottom: 20px;
         }
 
-        .logo {
-            height: 150px;
-            width: auto;
-        }
-
-        h2 {
-            color: #ef4444;
-            text-align: center;
-            margin-top: 0;
+        .header h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
         }
 
         .content {
-            color: #374151;
-            line-height: 1.6;
+            padding: 40px 30px;
+        }
+
+        .greeting {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #0f172a;
         }
 
         .reason-box {
-            background-color: #fff1f2;
+            background-color: #fef2f2;
             border-left: 4px solid #ef4444;
-            padding: 15px;
-            margin: 20px 0;
+            padding: 24px;
+            border-radius: 12px;
+            margin: 24px 0;
             color: #991b1b;
+            font-size: 16px;
         }
 
         .contact-info {
-            background: #f3f4f6;
-            padding: 15px 20px;
+            background-color: #f1f5f9;
+            padding: 24px;
+            border-radius: 12px;
+            margin: 24px 0;
+            color: #334155;
             list-style: none;
-            border-radius: 6px;
-            margin: 0;
         }
 
         .contact-info li {
             margin-bottom: 8px;
         }
 
-        .contact-info li:last-child {
-            margin-bottom: 0;
-        }
-
         .footer {
-            margin-top: 30px;
-            font-size: 12px;
-            color: #6b7280;
+            padding: 30px;
             text-align: center;
-            border-top: 1px solid #e5e7eb;
-            padding-top: 20px;
+            font-size: 13px;
+            color: #64748b;
+            background-color: #f8fafc;
         }
     </style>
 </head>
 
 <body>
-
-    <div class="container">
-        <div class="logo-container">
-            @php
-                $settings = \App\Models\PlatformSetting::getInstance();
-                $logoPath = public_path('images/logo.png');
-                if ($settings->logo_path && file_exists(public_path('storage/' . $settings->logo_path))) {
-                    $logoPath = public_path('storage/' . $settings->logo_path);
-                }
-            @endphp
-            <img src="{{ $message->embed($logoPath) }}" alt="{{ $settings->site_name }}" class="logo">
-        </div>
-
-        <h2>Account Status Update</h2>
-
-        <div class="content">
-            <p>Dear <strong>{{ $institute->institute_name }}</strong>,</p>
-
-            <p>We regret to inform you that your institute account status has been changed to
-                <strong>Unapproved/Pending</strong>.
-            </p>
-
-            <p>This means your access to creating posts, events, and other public features has been temporarily revoked.
-            </p>
-
-            <div class="reason-box">
-                <p style="margin: 0;"><strong>Reason:</strong> Please contact the administration for more details
-                    regarding this action.</p>
+    <div class="wrapper">
+        <div class="container">
+            <div class="header">
+                <h1>Account Status Update</h1>
             </div>
+            <div class="content">
+                <div class="greeting">Dear <strong>{{ $institute->institute_name }}</strong>,</div>
 
-            <p>To resolve this issue or appeal the decision, please contact our support team immediately using the
-                credentials below:</p>
+                <p>We regret to inform you that your institute account status has been changed to
+                    <strong>Unapproved/Pending</strong>.
+                </p>
 
-            <ul class="contact-info">
-                <li><strong>Email:</strong> admin@uniads.com</li>
-                <li><strong>Phone:</strong> +94 123 456 789</li>
-            </ul>
+                <p>This means your access to creating posts, events, and other public features has been temporarily
+                    revoked.
+                </p>
 
-            <p>We hope to resolve this matter with you soon.</p>
-        </div>
+                <div class="reason-box">
+                    <p style="margin: 0;"><strong>Reason:</strong> Please contact the administration for more details
+                        regarding this action.</p>
+                </div>
 
-        <div class="footer">
-            &copy; {{ date('Y') }} UniAds. All rights reserved.
+                <p>To resolve this issue or appeal the decision, please contact our support team immediately using the
+                    credentials below:</p>
+
+                <ul class="contact-info">
+                    <li><strong>Email:</strong> {{ $platformSettings->support_email }}</li>
+                    <li><strong>Phone:</strong> {{ $platformSettings->support_phone }}</li>
+                </ul>
+
+                <p>We hope to resolve this matter with you soon.</p>
+            </div>
+            <div class="footer">
+                <p>&copy; {{ date('Y') }} UniAds. All rights reserved.</p>
+            </div>
         </div>
     </div>
-
 </body>
 
 </html>

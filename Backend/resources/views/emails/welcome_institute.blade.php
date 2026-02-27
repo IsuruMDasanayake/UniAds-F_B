@@ -6,59 +6,72 @@
     <title>Welcome to UniAds</title>
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f4f6f8;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #1e293b;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            background-color: #f8fafc;
+        }
+
+        .wrapper {
+            width: 100%;
+            table-layout: fixed;
+            background-color: #f8fafc;
+            padding: 40px 0;
         }
 
         .container {
             max-width: 600px;
             margin: 0 auto;
-            background: #ffffff;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            background-color: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
-        .logo-container {
+        .header {
+            background-color: #0f172a;
+            padding: 30px;
             text-align: center;
-            margin-bottom: 30px;
         }
 
-        .logo {
-            height: 60px;
-            width: auto;
-        }
-
-        h2 {
-            color: #1d375c;
-            text-align: center;
-            font-size: 26px;
-            margin-bottom: 20px;
+        .header h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
         }
 
         .content {
-            color: #4b5563;
-            line-height: 1.8;
-            font-size: 16px;
+            padding: 40px 30px;
+        }
+
+        .greeting {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #0f172a;
         }
 
         .feature-list {
-            background: #f8fafc;
+            background-color: #f1f5f9;
+            padding: 24px;
             border-radius: 12px;
-            padding: 25px;
-            margin: 30px 0;
+            border-left: 4px solid #2563eb;
+            margin: 24px 0;
+            color: #334155;
+            font-size: 16px;
         }
 
         .feature-item {
+            margin-bottom: 12px;
             display: flex;
             align-items: flex-start;
-            margin-bottom: 15px;
         }
 
         .feature-icon {
-            color: #e42a19;
+            color: #2563eb;
             margin-right: 12px;
             font-weight: bold;
         }
@@ -69,67 +82,58 @@
         }
 
         .btn {
-            background-color: #1d375c;
+            background-color: #2563eb;
             color: #ffffff !important;
             padding: 14px 30px;
             text-decoration: none;
-            border-radius: 50px;
+            border-radius: 8px;
             font-weight: 700;
             display: inline-block;
-            transition: all 0.3s ease;
         }
 
         .footer {
-            margin-top: 40px;
-            font-size: 13px;
-            color: #9ca3af;
+            padding: 30px;
             text-align: center;
-            border-top: 1px solid #e5e7eb;
-            padding-top: 25px;
+            font-size: 13px;
+            color: #64748b;
+            background-color: #f8fafc;
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <div class="logo-container">
-            @php
-                $settings = \App\Models\PlatformSetting::getInstance();
-                $logoPath = public_path('images/logo.png');
-                if ($settings->logo_path && file_exists(public_path('storage/' . $settings->logo_path))) {
-                    $logoPath = public_path('storage/' . $settings->logo_path);
-                }
-            @endphp
-            <img src="{{ $message->embed($logoPath) }}" alt="{{ $settings->site_name }}" class="logo">
-        </div>
-
-        <h2>Welcome to the Family!</h2>
-
-        <div class="content">
-            <p>Dear <strong>{{ $institute->institute_name }}</strong>,</p>
-            <p>Congratulations! Your institute has successfully registered with UniAds. We are thrilled to have you on
-                board as we connect students with world-class education.</p>
-
-            <div class="feature-list">
-                <p><strong>What's Next?</strong></p>
-                <div class="feature-item"><span class="feature-icon">✓</span> Complete your profile with photos and
-                    details.</div>
-                <div class="feature-item"><span class="feature-icon">✓</span> Post your courses and attracting
-                    prospective students.</div>
-                <div class="feature-item"><span class="feature-icon">✓</span> Build your following and engage with
-                    students.</div>
+    <div class="wrapper">
+        <div class="container">
+            <div class="header">
+                <h1>Welcome to the Family!</h1>
             </div>
+            <div class="content">
+                <div class="greeting">Dear <strong>{{ $institute->institute_name }}</strong>,</div>
+                <p>Congratulations! Your institute has successfully registered with UniAds. We are thrilled to have you
+                    on
+                    board as we connect students with world-class education.</p>
 
-            <p>Our team is currently reviewing your registration. You will receive another email once your profile is
-                fully approved for public listing.</p>
+                <div class="feature-list">
+                    <p style="margin-top: 0; font-weight: 700; color: #0f172a;">What's Next?</p>
+                    <div class="feature-item"><span class="feature-icon">✓</span> Complete your profile with photos and
+                        details.</div>
+                    <div class="feature-item"><span class="feature-icon">✓</span> Post your courses and attracting
+                        prospective students.</div>
+                    <div class="feature-item"><span class="feature-icon">✓</span> Build your following and engage with
+                        students.</div>
+                </div>
 
-            <div class="btn-container">
-                <a href="{{ url('/profile') }}" class="btn">Access Your Profile</a>
+                <p>Our team is currently reviewing your registration. You will receive another email once your profile
+                    is
+                    fully approved for public listing.</p>
+
+                <div class="btn-container">
+                    <a href="{{ url('/profile') }}" class="btn">Access Your Profile</a>
+                </div>
             </div>
-        </div>
-
-        <div class="footer">
-            &copy; {{ date('Y') }} {{ $settings->site_name }}. All rights reserved.<br>
+            <div class="footer">
+                <p>&copy; {{ date('Y') }} UniAds. All rights reserved.</p>
+            </div>
         </div>
     </div>
 </body>

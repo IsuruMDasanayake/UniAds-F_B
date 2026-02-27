@@ -27,49 +27,44 @@
         }
 
         .logo {
-            height: 60px;
-            width: auto;
+            background-color: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
-        h2 {
-            color: #1d375c;
+        .header {
+            background-color: #0f172a;
+            padding: 30px;
             text-align: center;
-            font-size: 26px;
-            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
         }
 
         .content {
-            color: #4b5563;
-            line-height: 1.8;
-            font-size: 16px;
+            padding: 40px 30px;
         }
 
-        .hero {
-            background: linear-gradient(135deg, #1d375c 0%, #e42a19 100%);
-            color: white;
-            padding: 30px;
+        .greeting {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #0f172a;
+        }
+
+        .message-box {
+            background-color: #f1f5f9;
+            padding: 24px;
             border-radius: 12px;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .hero h3 {
-            margin: 0;
-            font-size: 22px;
-        }
-
-        .feature-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin: 30px 0;
-        }
-
-        .feature-item {
-            background: #f8fafc;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
+            border-left: 4px solid #2563eb;
+            margin: 24px 0;
+            color: #334155;
+            font-size: 16px;
         }
 
         .btn-container {
@@ -78,68 +73,34 @@
         }
 
         .btn {
-            background-color: #e42a19;
+            background-color: #2563eb;
             color: #ffffff !important;
             padding: 14px 30px;
             text-decoration: none;
-            border-radius: 50px;
+            border-radius: 8px;
             font-weight: 700;
             display: inline-block;
         }
 
         .footer {
-            margin-top: 40px;
-            font-size: 13px;
-            color: #9ca3af;
+            padding: 30px;
             text-align: center;
-            border-top: 1px solid #e5e7eb;
-            padding-top: 25px;
+            font-size: 13px;
+            color: #64748b;
+            background-color: #f8fafc;
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <div class="logo-container">
-            @php
-                $settings = \App\Models\PlatformSetting::getInstance();
-                $logoPath = public_path('images/logo.png');
-                if ($settings->logo_path && file_exists(public_path('storage/' . $settings->logo_path))) {
-                    $logoPath = public_path('storage/' . $settings->logo_path);
-                }
-            @endphp
-            <img src="{{ $message->embed($logoPath) }}" alt="{{ $settings->site_name }}" class="logo">
-        </div>
+    <div class="btn-container">
+        <a href="{{ url('/feed') }}" class="btn">Start Exploring</a>
+    </div>
+    </div>
 
-        <div class="hero">
-            <h3>Welcome to UniAds, {{ $user->name }}!</h3>
-        </div>
-
-        <div class="content">
-            <p>We are delighted to have you as part of our community. UniAds is your gateway to explore courses, events,
-                and opportunities from top institutes across the country.</p>
-
-            <p><strong>Start your journey today:</strong></p>
-
-            <div class="feature-grid">
-                <div class="feature-item"><strong>Find Courses</strong><br><small>Explore diverse academic
-                        options</small></div>
-                <div class="feature-item"><strong>Stay Updated</strong><br><small>Track upcoming campus events</small>
-                </div>
-                <div class="feature-item"><strong>Direct Contact</strong><br><small>Message institutes instantly</small>
-                </div>
-                <div class="feature-item"><strong>Save Favorites</strong><br><small>Bookmark your top choices</small>
-                </div>
-            </div>
-
-            <div class="btn-container">
-                <a href="{{ url('/feed') }}" class="btn">Start Exploring</a>
-            </div>
-        </div>
-
-        <div class="footer">
-            &copy; {{ date('Y') }} {{ $settings->site_name }}. All rights reserved.<br>
-        </div>
+    <div class="footer">
+        &copy; {{ date('Y') }} {{ $settings->site_name }}. All rights reserved.<br>
+    </div>
     </div>
 </body>
 

@@ -2,146 +2,105 @@
 <html>
 
 <head>
+    <meta charset="utf-8">
     <title>{{ $mailTitle }}</title>
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f4f6f8;
-            padding: 20px;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #1e293b;
             margin: 0;
+            padding: 0;
+            background-color: #f8fafc;
+        }
+
+        .wrapper {
+            width: 100%;
+            table-layout: fixed;
+            background-color: #f8fafc;
+            padding: 40px 0;
         }
 
         .container {
             max-width: 600px;
             margin: 0 auto;
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .logo-container {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .logo {
-            height: 120px;
-            width: auto;
+            background-color: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
         .header {
-            color: #374151;
-            padding: 20px;
-            border-radius: 8px;
+            background-color: #0f172a;
+            padding: 30px;
             text-align: center;
-            margin-bottom: 30px;
         }
 
         .header h1 {
+            color: #ffffff;
             margin: 0;
             font-size: 24px;
-            font-weight: 600;
-        }
-
-        .greeting {
-            color: #1d375c;
-            font-size: 18px;
-            margin-bottom: 20px;
+            font-weight: 700;
         }
 
         .content {
-            color: #374151;
-            line-height: 1.8;
-            font-size: 15px;
+            padding: 40px 30px;
+        }
+
+        .greeting {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #0f172a;
+        }
+
+        .message-box {
+            background-color: #f1f5f9;
+            padding: 24px;
+            border-radius: 12px;
+            margin: 24px 0;
+            color: #334155;
+            font-size: 16px;
             white-space: pre-wrap;
             word-wrap: break-word;
         }
 
-        .divider {
-            height: 1px;
-            background: linear-gradient(to right, transparent, #e5e7eb, transparent);
-            margin: 30px 0;
-        }
-
         .footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 2px solid #e5e7eb;
+            padding: 30px;
             text-align: center;
-        }
-
-        .footer-text {
             font-size: 13px;
-            color: #6b7280;
-            margin-bottom: 10px;
+            color: #64748b;
+            background-color: #f8fafc;
         }
 
-        .footer-brand {
-            font-size: 12px;
-            color: #9ca3af;
-        }
-
-        .footer-brand strong {
-            color: #e42a19;
-            font-weight: 600;
-        }
-
-        .social-links {
-            margin: 20px 0;
-        }
-
-        .social-links a {
-            display: inline-block;
-            margin: 0 10px;
-            color: #6b7280;
+        .social-link {
+            color: #2563eb;
             text-decoration: none;
-            font-size: 12px;
-        }
-
-        .social-links a:hover {
-            color: #e42a19;
+            font-weight: 600;
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <div class="logo-container">
-            @php
-                $settings = \App\Models\PlatformSetting::getInstance();
-                $logoPath = public_path('images/logo.png');
-                if ($settings->logo_path && file_exists(public_path('storage/' . $settings->logo_path))) {
-                    $logoPath = public_path('storage/' . $settings->logo_path);
-                }
-            @endphp
-            <img src="{{ $message->embed($logoPath) }}" alt="{{ $settings->site_name }}" class="logo">
-        </div>
-
-        <div class="header">
-            <h1>{{ $mailTitle }}</h1>
-        </div>
-
-        <div class="greeting">
-            Hello {{ $recipientName }},
-        </div>
-
-        <div class="content">{{ $mailMessage }}</div>
-
-        <div class="divider"></div>
-
-        <div class="footer">
-            <div class="footer-text">
-                This email was sent to you by the UniAds administration team.
+    <div class="wrapper">
+        <div class="container">
+            <div class="header">
+                <h1>{{ $mailTitle }}</h1>
             </div>
-
-            <div class="social-links">
-                <a href="http://localhost:3000">Visit Website</a>
-
+            <div class="content">
+                <div class="greeting">Hello {{ $recipientName }},</div>
+                <div class="message-box">
+                    {{ $mailMessage }}
+                </div>
+                <p style="text-align: center; margin-top: 32px;">
+                    <a href="http://localhost:3000" class="social-link">Visit Our Website</a>
+                </p>
+                <p style="color: #64748b; font-size: 13px; text-align: center; margin-top: 24px;">
+                    This email was sent to you by the UniAds administration team.
+                </p>
             </div>
-
-            <div class="footer-brand">
-                &copy; {{ date('Y') }} UniAds. All rights reserved.
+            <div class="footer">
+                <p>&copy; {{ date('Y') }} UniAds. All rights reserved.</p>
             </div>
         </div>
     </div>
