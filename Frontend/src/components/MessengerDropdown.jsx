@@ -92,18 +92,19 @@ const MessengerDropdown = ({ isOpen, onClose }) => {
         return matchesSearch;
     });
 
-    const filteredInstitutions = institutions.filter(inst =>
-        inst.institute_name.toLowerCase().includes(searchTerm.toLowerCase())
-    ).map(inst => {
-        // Find existing conversation with this institute
-        const conversation = conversations.find(c =>
+    const filteredInstitutions = institutions.filter(inst => {
+        const matchesSearch = inst.institute_name.toLowerCase().includes(searchTerm.toLowerCase());
+        // Exclude if an active conversation already exists with this institute
+        const hasConversation = conversations.some(c =>
             c.participants?.some(p => p.institute_id === inst.id)
         );
+        return matchesSearch && !hasConversation;
+    }).map(inst => {
         return {
             ...inst,
-            latest_message: conversation?.latest_message,
-            unread_count: conversation?.unread_count || 0,
-            conversation_id: conversation?.id
+            latest_message: null, // No longer need this here as they won't have conversations
+            unread_count: 0,
+            conversation_id: null
         };
     });
 
@@ -157,46 +158,42 @@ const MessengerDropdown = ({ isOpen, onClose }) => {
                         </div>
 
                         <div className="messenger-body premium-scroll">
-                            {isLoadingInst ? (
-                                <div className="discovery-loading" style={{ display: 'flex', justifyContent: 'center', height: '100%' }}>
-                                    <Loader2 className="animate-spin" size={24} />
-                                </div>
-                            ) : (
+                            {!isLoadingInst && filteredInstitutions.length > 0 && (
                                 <div className="discovery-section">
                                     <p className="discovery-hint">Connect with Premium Partners</p>
-                                    {filteredInstitutions.length > 0 ? (
-                                        filteredInstitutions.map(inst => (
-                                            <div key={inst.id} className="discovery-item" onClick={() => startConversationWith(inst)}>
-                                                <div className="inst-avatar-mini">
-                                                    {inst.profile_photo ? (
-                                                        <img src={getStorageUrl(inst.profile_photo)} alt={inst.institute_name} />
-                                                    ) : (
-                                                        <div className="avatar-placeholder">
-                                                            <User size={20} />
-                                                        </div>
-                                                    )}
-                                                    {inst.unread_count > 0 && <span className="unread-badge-dot"></span>}
-                                                </div>
-                                                <div className="inst-mini-info">
-                                                    <div className="inst-mini-name">{inst.institute_name}</div>
-                                                    <div className="inst-mini-last-message">
-                                                        {inst.latest_message ? (
-                                                            <span className={inst.unread_count > 0 ? 'unread-text' : ''}>
-                                                                {inst.latest_message.message}
-                                                            </span>
-                                                        ) : (
-                                                            <span className="location-hint">{inst.location || 'Premium Partner'}</span>
-                                                        )}
+                                    {filteredInstitutions.map(inst => (
+                                        <div key={inst.id} className="discovery-item" onClick={() => startConversationWith(inst)}>
+                                            <div className="inst-avatar-mini">
+                                                {inst.profile_photo ? (
+                                                    <img src={getStorageUrl(inst.profile_photo)} alt={inst.institute_name} />
+                                                ) : (
+                                                    <div className="avatar-placeholder">
+                                                        <User size={20} />
                                                     </div>
-                                                </div>
-                                                <ChevronRight size={14} className="discovery-arrow" />
+                                                )}
+                                                {inst.unread_count > 0 && <span className="unread-badge-dot"></span>}
                                             </div>
-                                        ))
-                                    ) : (
-                                        <div className="empty-messenger">
-                                            <p>No premium partners found.</p>
+                                            <div className="inst-mini-info">
+                                                <div className="inst-mini-name">{inst.institute_name}</div>
+                                                <div className="inst-mini-last-message">
+                                                    {inst.latest_message ? (
+                                                        <span className={inst.unread_count > 0 ? 'unread-text' : ''}>
+                                                            {inst.latest_message.message}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="location-hint">{inst.location || 'Premium Partner'}</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <ChevronRight size={14} className="discovery-arrow" />
                                         </div>
-                                    )}
+                                    ))}
+                                </div>
+                            )}
+
+                            {isLoadingInst && (
+                                <div className="discovery-loading" style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
+                                    <Loader2 className="animate-spin" size={24} />
                                 </div>
                             )}
 
@@ -206,13 +203,12 @@ const MessengerDropdown = ({ isOpen, onClose }) => {
                             </div>
                         )} */}
 
-                            {conversations.length > 0 && conversations
-                                .filter(conv => {
-                                    const participant = conv.participants?.find(p => p.id !== displayUser?.id);
-                                    return participant?.name?.toLowerCase().includes(searchTerm.toLowerCase());
-                                })
+                            {filteredConversations.length > 0 && filteredConversations
                                 .map(conv => {
-                                    const otherUser = conv.participants?.find(p => p.id !== displayUser?.id);
+                                    const other = conv.other_participant;
+                                    const name = other?.institute?.institute_name || other?.user?.name || 'User';
+                                    const photo = other?.institute?.profile_photo || other?.user?.profile_photo;
+
                                     return (
                                         <div
                                             key={conv.id}
@@ -223,21 +219,21 @@ const MessengerDropdown = ({ isOpen, onClose }) => {
                                             }}
                                         >
                                             <div className="participant-avatar">
-                                                {otherUser?.profile_photo ? (
-                                                    <img src={getStorageUrl(otherUser.profile_photo)} alt={otherUser.name} />
+                                                {photo ? (
+                                                    <img src={getStorageUrl(photo)} alt={name} />
                                                 ) : (
                                                     <div className="avatar-placeholder">
-                                                        {otherUser?.name?.charAt(0)}
+                                                        {name.charAt(0)}
                                                     </div>
                                                 )}
                                                 {conv.unread_count > 0 && <div className="unread-dot-vibrant" />}
                                             </div>
                                             <div className="conversation-info">
                                                 <div className="conv-top">
-                                                    <span className="participant-name">{otherUser?.name}</span>
+                                                    <span className="participant-name">{name}</span>
                                                 </div>
                                                 <p className="latest-msg">
-                                                    {conv.latest_message?.body || 'Start a conversation'}
+                                                    {conv.latest_message?.message || 'Start a conversation'}
                                                 </p>
                                             </div>
                                         </div>

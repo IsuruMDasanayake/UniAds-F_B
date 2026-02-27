@@ -156,13 +156,21 @@ export const ChatProvider = ({ children, user }) => {
 
             setMessages(prev => [sentMessage, ...prev]);
 
-            // Update conversation list
-            setConversations(prev => prev.map(conv => {
-                if (conv.id === activeConversation.id) {
-                    return { ...conv, latest_message: sentMessage };
-                }
-                return conv;
-            }));
+            // Update conversation list and move to top
+            setConversations(prev => {
+                const updatedConvIndex = prev.findIndex(c => c.id === activeConversation.id);
+                if (updatedConvIndex === -1) return prev;
+
+                const updatedConv = {
+                    ...prev[updatedConvIndex],
+                    latest_message: sentMessage,
+                    updated_at: new Date().toISOString() // Update timestamp for immediate sorting
+                };
+
+                const newConversations = [...prev];
+                newConversations.splice(updatedConvIndex, 1);
+                return [updatedConv, ...newConversations];
+            });
 
             return sentMessage;
         } catch (error) {

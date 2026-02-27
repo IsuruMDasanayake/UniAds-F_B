@@ -30,6 +30,7 @@ class ChatConversationController extends Controller
             ->with(['participants.user', 'participants.institute', 'messages' => function ($q) {
                 $q->latest()->take(1);
             }])
+            ->orderBy('updated_at', 'desc')
             ->withCount(['messages as unread_count' => function ($query) use ($userId, $instituteId) {
                 $query->whereDoesntHave('reads', function ($q) use ($userId, $instituteId) {
                     if ($instituteId) {
