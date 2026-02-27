@@ -129,8 +129,19 @@ const MainProfilePage = () => {
         }
     };
 
+    const trackProfileView = async (instId) => {
+        try {
+            await axiosClient.post(`/api/institutions/${instId}/track-view`);
+        } catch (e) {
+            console.error("Error tracking profile view", e);
+        }
+    };
+
     useEffect(() => {
         loadProfile();
+        if (id) {
+            trackProfileView(id);
+        }
     }, [id, navigate]);
 
     const refreshData = () => {

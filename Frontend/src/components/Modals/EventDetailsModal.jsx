@@ -2,6 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, MapPin, Users } from 'lucide-react';
+import axiosClient from '../../lib/axios';
 import { getStorageUrl } from '../../lib/config';
 
 // Ensure the CSS file that contains .modern-modal-overlay etc is imported.
@@ -12,6 +13,14 @@ import { getStorageUrl } from '../../lib/config';
 import './EventDetailsModal.css';
 
 const EventDetailsModal = ({ isOpen, event, onClose, onInterestToggle }) => {
+
+    React.useEffect(() => {
+        if (isOpen && event?.id) {
+            axiosClient.post(`/api/events/${event.id}/track-view`).catch(err => {
+                console.error("Failed to track event view:", err);
+            });
+        }
+    }, [isOpen, event?.id]);
 
     // Internal helper for date formatting to match EventsPage logic
     const formatDate = (dateString) => {

@@ -9,7 +9,7 @@ class InstituteProfileView extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['institute_id', 'user_id', 'ip_address', 'viewed_at'];
+    protected $fillable = ['institute_id', 'user_id', 'ip_address', 'viewed_at', 'unique_key'];
     public $timestamps = false;
 
     public function institute()
@@ -21,5 +21,4 @@ class InstituteProfileView extends Model
     {
         return $this->belongsTo(User::class);
     }
-
 }

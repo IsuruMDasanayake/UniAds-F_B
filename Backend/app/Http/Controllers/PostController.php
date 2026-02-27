@@ -331,43 +331,51 @@ class PostController extends Controller
     public function trackView(Request $request, $id)
     {
         $post = Post::findOrFail($id);
-        $user = auth()->user();
+        // Use sanctum guard explicitly to identify user even on public route
+        $user = Auth::guard('sanctum')->user();
+        $ip = $request->ip();
+        $today = now()->toDateString();
 
         // Skip increment if the user is an institute AND owns the post
-        if ($user && $user->role === 'Institute') {
-            // Assuming Post model has institute_id and User has institute id relation
-            // Adjust this if your relationship is different
-            if ($post->institute_id === $user->institute->id) {
-                // Don't count own post views
-                return response()->json(['status' => 'ignored_own_post']);
-            }
+        if ($user && $user->role === 'Institute' && $user->institute && $post->institute_id === $user->institute->id) {
+            return response()->json(['status' => 'ignored_own_post']);
         }
 
-        if ($user) {
-            $alreadyViewed = PostView::where('user_id', $user->id)
-                ->where('post_id', $post->id)
-                ->exists();
+        // Generate a unique key for the database to enforce daily uniqueness
+        // Pattern: P:{post_id}:{U/G}:{id/ip}:{date}
+        $uniqueKey = $user
+            ? "P:{$post->id}:U:{$user->id}:{$today}"
+            : "P:{$post->id}:G:{$ip}:{$today}";
 
-            if (!$alreadyViewed) {
-                $post->increment('view_count');
+        try {
+            DB::transaction(function () use ($post, $user, $ip, $uniqueKey) {
+                // Attempt to create the view record. 
+                // DB unique constraint on unique_key will prevent duplicates.
                 PostView::create([
-                    'user_id' => $user->id,
+                    'user_id' => $user ? $user->id : null,
                     'post_id' => $post->id,
                     'viewed_at' => now(),
+                    'ip_address' => $ip,
+                    'unique_key' => $uniqueKey
                 ]);
-            }
-        } else {
-            $viewedPosts = session()->get('viewed_posts', []);
-            if (!in_array($post->id, $viewedPosts)) {
+
+                // If create succeeds, increment the main counter
                 $post->increment('view_count');
-                $viewedPosts[] = $post->id;
-                session()->put('viewed_posts', $viewedPosts);
+            });
+
+            return response()->json(['status' => 'success']);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Error code 23000 is for unique constraint violations in MySQL
+            if ($e->getCode() == '23000') {
+                return response()->json(['status' => 'already_viewed']);
             }
+            Log::error("Failed to track post view: " . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        } catch (\Exception $e) {
+            Log::error("General error in track post view: " . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
-
-        return response()->json(['status' => 'success']);
     }
-
 
 
 

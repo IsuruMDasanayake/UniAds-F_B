@@ -2,10 +2,19 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Info, Link2, Check } from 'lucide-react';
 import { getStorageUrl } from '../../lib/config';
+import axiosClient from '../../lib/axios';
 import './ProgrammeInfoModal.css';
 
 const ProgrammeInfoModal = ({ course, isOpen, onClose, onApply, onMoreInfo, userRole, isPremium }) => {
     const [copied, setCopied] = useState(false);
+
+    React.useEffect(() => {
+        if (isOpen && course?.id) {
+            axiosClient.post(`/api/posts/${course.id}/track-view`).catch(err => {
+                console.error("Failed to track post view:", err);
+            });
+        }
+    }, [isOpen, course?.id]);
 
     const handleCopyLink = () => {
         if (!course?.share_link) return;

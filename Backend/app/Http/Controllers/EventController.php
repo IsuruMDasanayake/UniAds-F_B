@@ -225,9 +225,10 @@ class EventController extends Controller
                 ]
             ]);
 
-            // Track view if not already viewed (Optional, but keeping for stats)
+            // Track view if not already viewed today
             $alreadyViewed = EventView::where('user_id', $userId)
                 ->where('event_id', $eventId)
+                ->where('created_at', '>=', now()->startOfDay())
                 ->exists();
 
             if (!$alreadyViewed) {
@@ -275,41 +276,50 @@ class EventController extends Controller
     // Track event views
     public function trackView(Request $request, $id)
     {
-        Log::info("TrackView called for event $id by user " . (auth()->id() ?? 'guest'));
-
         $event = Event::findOrFail($id);
-        $user = auth()->user();
+        // Use sanctum guard explicitly to identify user even on public route
+        $user = Auth::guard('sanctum')->user();
+        $ip = $request->ip();
+        $today = now()->toDateString();
 
-        // Prevent owner from incrementing their own event views (optional)
-        if ($user && $user->role === 'Institute' && $event->institute_id === $user->institute->id) {
+        // Prevent owner from incrementing their own event views
+        if ($user && $user->role === 'Institute' && $user->institute && $event->institute_id === $user->institute->id) {
             return response()->json(['status' => 'ignored_own_event']);
         }
 
-        if ($user) {
-            // Track unique views per user, if needed
-            $alreadyViewed = EventView::where('user_id', $user->id)
-                ->where('event_id', $event->id)
-                ->exists();
+        // Generate a unique key for the database to enforce daily uniqueness
+        // Pattern: E:{event_id}:{U/G}:{id/ip}:{date}
+        $uniqueKey = $user
+            ? "E:{$event->id}:U:{$user->id}:{$today}"
+            : "E:{$event->id}:G:{$ip}:{$today}";
 
-            if (!$alreadyViewed) {
-                $event->increment('view_count');
+        try {
+            DB::transaction(function () use ($event, $user, $ip, $uniqueKey) {
+                // Attempt to create the view record.
+                // DB unique constraint on unique_key will prevent duplicates.
                 EventView::create([
-                    'user_id' => $user->id,
+                    'user_id' => $user ? $user->id : null,
                     'event_id' => $event->id,
                     'viewed_at' => now(),
+                    'ip_address' => $ip,
+                    'unique_key' => $uniqueKey
                 ]);
-            }
-        } else {
-            // Track via session for guests
-            $viewedEvents = session()->get('viewed_events', []);
-            if (!in_array($event->id, $viewedEvents)) {
-                $event->increment('view_count');
-                $viewedEvents[] = $event->id;
-                session()->put('viewed_events', $viewedEvents);
-            }
-        }
 
-        return response()->json(['status' => 'success']);
+                // If create succeeds, increment the main counter
+                $event->increment('view_count');
+            });
+            return response()->json(['status' => 'success']);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Error code 23000 is for unique constraint violations in MySQL
+            if ($e->getCode() == '23000') {
+                return response()->json(['status' => 'already_viewed']);
+            }
+            Log::error("Failed to track event view: " . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        } catch (\Exception $e) {
+            Log::error("General error in track event view: " . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
 
     // Get paginated upcoming events API

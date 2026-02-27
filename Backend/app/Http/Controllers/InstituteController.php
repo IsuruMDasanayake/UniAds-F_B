@@ -9,6 +9,8 @@ use App\Models\Follower;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -633,5 +635,53 @@ class InstituteController extends Controller
         );
 
         return response()->json(['success' => true, 'message' => 'Institute updated successfully', 'institute' => $institute]);
+    }
+    // Track Institute Profile Views
+    public function trackView(Request $request, $id)
+    {
+        $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
+        // Use sanctum guard explicitly to identify user even on public route
+        $user = Auth::guard('sanctum')->user();
+        $ip = $request->ip();
+        $today = now()->toDateString();
+
+        // Prevent owner from incrementing their own profile views
+        if ($user && $user->role === 'Institute' && $user->institute && $institute->id === $user->institute->id) {
+            return response()->json(['status' => 'ignored_own_profile']);
+        }
+
+        // Generate a unique key for the database to enforce daily uniqueness
+        // Pattern: I:{inst_id}:{U/G}:{id/ip}:{date}
+        $uniqueKey = $user
+            ? "I:{$institute->id}:U:{$user->id}:{$today}"
+            : "I:{$institute->id}:G:{$ip}:{$today}";
+
+        try {
+            DB::transaction(function () use ($institute, $user, $ip, $uniqueKey) {
+                // Attempt to create the view record.
+                // DB unique constraint on unique_key will prevent duplicates.
+                InstituteProfileView::create([
+                    'user_id' => $user ? $user->id : null,
+                    'institute_id' => $institute->id,
+                    'viewed_at' => now(),
+                    'ip_address' => $ip,
+                    'unique_key' => $uniqueKey
+                ]);
+
+                // If create succeeds, increment the main counter
+                $institute->increment('profile_views');
+            });
+            return response()->json(['status' => 'success']);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Error code 23000 is for unique constraint violations in MySQL
+            if ($e->getCode() == '23000') {
+                return response()->json(['status' => 'already_viewed']);
+            }
+            Log::error("Failed to track profile view: " . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        } catch (\Exception $e) {
+            Log::error("General error in track profile view: " . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
 }

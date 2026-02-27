@@ -90,7 +90,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/posts/{postId}/toggle-like', [PostController::class, 'toggleLike']);
     Route::get('/posts/saved', [PostController::class, 'getSavedPosts']);
     Route::post('/posts/{postId}/save', [PostController::class, 'apiToggleSave']);
-    Route::post('/posts/{id}/track-view', [PostController::class, 'trackView']);
     Route::post('/institutes/{id}/posts', [PostController::class, 'apiStore']);
     Route::post('/posts/{id}/update', [PostController::class, 'apiUpdate']);
     Route::delete('/posts/{id}', [PostController::class, 'apiDestroy']);
@@ -98,7 +97,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Events
     Route::get('/events', [EventController::class, 'apiIndex']);
-    Route::post('/events/{id}/track-view', [EventController::class, 'trackView']);
     Route::post('/events/{event}/interest', [EventController::class, 'markInterest']);
     Route::post('/events/{event}/decline', [EventController::class, 'markDecline']);
     Route::post('/institutes/{id}/events', [EventController::class, 'apiStore']);
@@ -297,3 +295,6 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::post('/notifications/read-all', [NotificationController::class, 'adminMarkAllAsRead']);
     Route::delete('/notifications/{id}', [NotificationController::class, 'adminDestroy']);
 });
+Route::post('/posts/{id}/track-view', [PostController::class, 'trackView']);
+Route::post('/events/{id}/track-view', [EventController::class, 'trackView']);
+Route::post('/institutions/{id}/track-view', [InstituteController::class, 'trackView']);
