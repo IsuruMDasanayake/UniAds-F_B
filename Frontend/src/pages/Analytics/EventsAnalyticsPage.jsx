@@ -14,6 +14,8 @@ import EventsStatCards from '../../components/Analytics/EventsStatCards';
 import EventsTableCard from '../../components/Analytics/EventsTableCard';
 import SkeletonTable from '../../components/Analytics/SkeletonTable';
 import EmptyState from '../../components/Analytics/EmptyState';
+import LineChart from '../../components/Analytics/LineChart';
+import ChartCard from '../../components/Analytics/ChartCard';
 import './EventsAnalyticsPage.css';
 
 const EventsAnalyticsPage = () => {
@@ -21,6 +23,8 @@ const EventsAnalyticsPage = () => {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [trendData, setTrendData] = useState(null);
+    const [loadingTrend, setLoadingTrend] = useState(true);
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const [status, setStatus] = useState('all');
@@ -62,6 +66,23 @@ const EventsAnalyticsPage = () => {
             setIsUpdating(false);
         }
     }, [page, search, status, sortConfig]);
+
+    useEffect(() => {
+        const fetchTrends = async () => {
+            setLoadingTrend(true);
+            try {
+                const { data } = await axiosClient.get('/api/institute/analytics/trends', {
+                    params: { range: '90', compare: 'false' }
+                });
+                setTrendData(data || null);
+            } catch (error) {
+                console.error('Error fetching event trends:', error);
+            } finally {
+                setLoadingTrend(false);
+            }
+        };
+        fetchTrends();
+    }, []);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -269,6 +290,63 @@ const EventsAnalyticsPage = () => {
 
             {/* Stat Cards */}
             <EventsStatCards stats={stats} loading={loading} />
+
+            {/* Event Trends Chart */}
+            <div className="chart-section">
+                <ChartCard
+                    title="Event Performance (90 Days)"
+                    subtitle="Track event views, interests and declines over the last 3 months"
+                    loading={loadingTrend || loading}
+                >
+                    <div className="event-trend-chart-wrapper">
+                        <LineChart
+                            labels={trendData?.eventViews?.labels || []}
+                            datasets={[
+                                {
+                                    label: 'Views',
+                                    data: trendData?.eventViews?.data || [],
+                                    borderColor: '#3b82f6',
+                                    backgroundColor: (context) => {
+                                        const ctx = context.chart.ctx;
+                                        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                                        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.25)');
+                                        gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+                                        return gradient;
+                                    },
+                                    fill: true
+                                },
+                                {
+                                    label: 'Interests',
+                                    data: trendData?.eventInterests?.data || [],
+                                    borderColor: '#10b981',
+                                    backgroundColor: (context) => {
+                                        const ctx = context.chart.ctx;
+                                        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                                        gradient.addColorStop(0, 'rgba(16, 185, 129, 0.2)');
+                                        gradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
+                                        return gradient;
+                                    },
+                                    fill: true
+                                },
+                                {
+                                    label: 'Declines',
+                                    data: trendData?.eventDeclines?.data || [],
+                                    borderColor: '#ef4444',
+                                    backgroundColor: (context) => {
+                                        const ctx = context.chart.ctx;
+                                        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                                        gradient.addColorStop(0, 'rgba(239, 68, 68, 0.2)');
+                                        gradient.addColorStop(1, 'rgba(239, 68, 68, 0)');
+                                        return gradient;
+                                    },
+                                    fill: true
+                                }
+                            ]}
+                            showLegend={true}
+                        />
+                    </div>
+                </ChartCard>
+            </div>
 
             {/* Main Table Card */}
             <EventsTableCard

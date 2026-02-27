@@ -15,6 +15,8 @@ import PostsStatCards from '../../components/Analytics/PostsStatCards';
 import PostsTableCard from '../../components/Analytics/PostsTableCard';
 import SkeletonTable from '../../components/Analytics/SkeletonTable';
 import EmptyState from '../../components/Analytics/EmptyState';
+import LineChart from '../../components/Analytics/LineChart';
+import ChartCard from '../../components/Analytics/ChartCard';
 
 // Styling
 import './PostsAnalyticsPage.css';
@@ -24,6 +26,8 @@ const PostsAnalyticsPage = () => {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [trendData, setTrendData] = useState(null);
+    const [loadingTrend, setLoadingTrend] = useState(true);
 
     // Filters
     const [page, setPage] = useState(1);
@@ -84,6 +88,23 @@ const PostsAnalyticsPage = () => {
             setIsUpdating(false);
         }
     }, [page, search, status, sortConfig]);
+
+    useEffect(() => {
+        const fetchTrends = async () => {
+            setLoadingTrend(true);
+            try {
+                const { data } = await axiosClient.get('/api/institute/analytics/trends', {
+                    params: { range: '90', compare: 'false' }
+                });
+                setTrendData(data || null);
+            } catch (error) {
+                console.error('Error fetching post trends:', error);
+            } finally {
+                setLoadingTrend(false);
+            }
+        };
+        fetchTrends();
+    }, []);
 
     // Effect for search/status/sort change (with debounce for search)
     useEffect(() => {
@@ -276,6 +297,63 @@ const PostsAnalyticsPage = () => {
 
             {/* Stat Cards */}
             <PostsStatCards stats={stats} loading={loading} />
+
+            {/* Post Trends Chart */}
+            <div className="chart-section">
+                <ChartCard
+                    title="Post Performance (90 Days)"
+                    subtitle="Track post views, likes and applications over the last 3 months"
+                    loading={loadingTrend || loading}
+                >
+                    <div className="post-trend-chart-wrapper">
+                        <LineChart
+                            labels={trendData?.postViews?.labels || []}
+                            datasets={[
+                                {
+                                    label: 'Views',
+                                    data: trendData?.postViews?.data || [],
+                                    borderColor: '#3b82f6',
+                                    backgroundColor: (context) => {
+                                        const ctx = context.chart.ctx;
+                                        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                                        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.25)');
+                                        gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+                                        return gradient;
+                                    },
+                                    fill: true
+                                },
+                                {
+                                    label: 'Likes',
+                                    data: trendData?.postLikes?.data || [],
+                                    borderColor: '#ec4899',
+                                    backgroundColor: (context) => {
+                                        const ctx = context.chart.ctx;
+                                        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                                        gradient.addColorStop(0, 'rgba(236, 72, 153, 0.2)');
+                                        gradient.addColorStop(1, 'rgba(236, 72, 153, 0)');
+                                        return gradient;
+                                    },
+                                    fill: true
+                                },
+                                {
+                                    label: 'Applications',
+                                    data: trendData?.applications?.data || [],
+                                    borderColor: '#f59e0b',
+                                    backgroundColor: (context) => {
+                                        const ctx = context.chart.ctx;
+                                        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                                        gradient.addColorStop(0, 'rgba(245, 158, 11, 0.2)');
+                                        gradient.addColorStop(1, 'rgba(245, 158, 11, 0)');
+                                        return gradient;
+                                    },
+                                    fill: true
+                                }
+                            ]}
+                            showLegend={true}
+                        />
+                    </div>
+                </ChartCard>
+            </div>
 
             {/* Main Table Card */}
             <PostsTableCard

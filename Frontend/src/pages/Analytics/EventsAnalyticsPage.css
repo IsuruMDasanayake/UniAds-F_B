@@ -86,6 +86,22 @@
     }
 }
 
+/* Chart Section */
+#analytics-events-v2 .chart-section {
+    margin-top: 2rem;
+}
+
+.event-trend-chart-wrapper {
+    height: 220px;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .event-trend-chart-wrapper {
+        height: 250px;
+    }
+}
+
 /* Table Card Layout */
 .analytics-card-v2 {
     background: var(--c-white);
