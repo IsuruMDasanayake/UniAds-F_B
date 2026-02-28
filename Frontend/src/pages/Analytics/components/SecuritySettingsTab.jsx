@@ -29,7 +29,6 @@ const SecuritySettingsTab = () => {
 
         if (!pwdData.current_password) {
             setErrorMsg("Current password is required.");
-            // Shake animation could be added here by toggling a class
             return;
         }
 
@@ -129,7 +128,7 @@ const SecuritySettingsTab = () => {
     };
 
     return (
-        <div className="settings-security-wrapper">
+        <div className="sp-security-wrapper">
             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1e293b', marginBottom: '1.5rem' }}>Change Password</h3>
 
             {errorMsg && (
@@ -145,10 +144,10 @@ const SecuritySettingsTab = () => {
                     <span style={{ fontSize: '0.95rem', fontWeight: 500 }}>{successMsg}</span>
                 </div>
             )}
-            <div className="settings-form-container">
+            <div className="sp-form-container">
                 {step === 1 ? (
                     <form onSubmit={requestOtp}>
-                        <div className="settings-form-group" style={{ maxWidth: '500px' }}>
+                        <div className="sp-form-group" style={{ maxWidth: '500px' }}>
                             <label>Current Password</label>
                             <input
                                 type="password"
@@ -161,7 +160,7 @@ const SecuritySettingsTab = () => {
                             <p style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '0.5rem' }}>We need your current password to send a secure verification code to your email.</p>
                         </div>
 
-                        <button type="submit" className="settings-save-btn" disabled={isLoading || !pwdData.current_password}>
+                        <button type="submit" className="sp-save-btn" disabled={isLoading || !pwdData.current_password}>
                             {isLoading ? (
                                 <>Processing...</>
                             ) : (
@@ -171,7 +170,7 @@ const SecuritySettingsTab = () => {
                     </form>
                 ) : (
                     <form onSubmit={updatePassword}>
-                        <div className="settings-form-group" style={{ maxWidth: '500px' }}>
+                        <div className="sp-form-group" style={{ maxWidth: '500px' }}>
                             <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                     <Mail size={16} className="text-blue-500" /> Verification Code (OTP)
@@ -205,8 +204,8 @@ const SecuritySettingsTab = () => {
                             />
                         </div>
 
-                        <div className="settings-form-row">
-                            <div className="settings-form-group">
+                        <div className="sp-form-row">
+                            <div className="sp-form-group">
                                 <label>New Password</label>
                                 <input
                                     type="password"
@@ -218,7 +217,7 @@ const SecuritySettingsTab = () => {
                                     minLength="8"
                                 />
                             </div>
-                            <div className="settings-form-group">
+                            <div className="sp-form-group">
                                 <label>Confirm New Password</label>
                                 <input
                                     type="password"
@@ -233,7 +232,7 @@ const SecuritySettingsTab = () => {
                         </div>
 
                         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                            <button type="submit" className="settings-save-btn" disabled={isLoading || !pwdData.otp || !pwdData.new_password || !pwdData.new_password_confirmation}>
+                            <button type="submit" className="sp-save-btn" disabled={isLoading || !pwdData.otp || !pwdData.new_password || !pwdData.new_password_confirmation}>
                                 {isLoading ? (
                                     <>Updating Password...</>
                                 ) : (
@@ -249,7 +248,7 @@ const SecuritySettingsTab = () => {
                                     setErrorMsg(null);
                                 }}
                                 disabled={isLoading}
-                                className="settings-cancel-btn"
+                                className="sp-cancel-btn"
                             >
                                 Cancel
                             </button>
@@ -258,12 +257,12 @@ const SecuritySettingsTab = () => {
                 )}
             </div>
 
-            <div className="danger-zone">
+            <div className="sp-danger-zone">
                 <h3>Device Management</h3>
                 <p>If you notice suspicious activity, you can securely log out of all active sessions across all browsers and devices.</p>
 
                 <button
-                    className="danger-btn"
+                    className="sp-danger-btn"
                     onClick={() => setIsLogoutModalOpen(true)}
                     disabled={logoutLoading}
                 >

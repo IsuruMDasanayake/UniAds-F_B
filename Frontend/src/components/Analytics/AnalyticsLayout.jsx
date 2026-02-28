@@ -194,6 +194,7 @@ const AnalyticsLayout = () => {
                         <Link
                             to={`/analytics/${slug}/settings`}
                             className="footer-link"
+                            onClick={closeMobileMenu}
                         >
                             <Settings size={20} />
                             <span className="nav-label">Settings</span>

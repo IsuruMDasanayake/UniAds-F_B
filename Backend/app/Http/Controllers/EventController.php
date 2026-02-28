@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Models\Notification;
 use App\Models\AdminNotification;
+use App\Services\InstituteActivityLogger;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -146,11 +147,13 @@ class EventController extends Controller
         $eventId = $event->id;
         $event->delete();
 
-        AdminActivityLogger::log(
-            'Deleted Event',
+
+        InstituteActivityLogger::log(
+            'Event Deleted',
+            "Deleted event: \"{$eventTitle}\"",
+            'Content',
             'Event',
-            $eventId,
-            auth()->user()->name . " deleted event \"{$eventTitle}\""
+            $eventId
         );
 
         return response()->json(['success' => true, 'message' => 'Event deleted successfully.']);
@@ -410,6 +413,14 @@ class EventController extends Controller
                 ]);
             }
 
+            InstituteActivityLogger::log(
+                'Event Created',
+                "Created a new event: \"{$event->event_title}\"",
+                'Content',
+                'Event',
+                $event->id
+            );
+
             return response()->json([
                 'success' => true,
                 'message' => 'Event created successfully!',
@@ -470,6 +481,14 @@ class EventController extends Controller
 
             // Save the event
             $event->save();
+
+            InstituteActivityLogger::log(
+                'Event Updated',
+                "Updated event: \"{$event->event_title}\"",
+                'Content',
+                'Event',
+                $event->id
+            );
 
             return response()->json([
                 'success' => true,

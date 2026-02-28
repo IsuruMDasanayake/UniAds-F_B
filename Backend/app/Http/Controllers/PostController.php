@@ -19,6 +19,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\ApplyCase;
 use App\Models\Notification;
 use App\Models\AdminNotification;
+use App\Services\InstituteActivityLogger;
 
 class PostController extends Controller
 {
@@ -101,6 +102,14 @@ class PostController extends Controller
                 ]);
             }
 
+            InstituteActivityLogger::log(
+                'Post Created',
+                "Created a new post: \"{$post->title}\"",
+                'Content',
+                'Post',
+                $post->id
+            );
+
             return response()->json([
                 'success' => true,
                 'message' => 'Post created successfully!',
@@ -178,6 +187,14 @@ class PostController extends Controller
                 'attendance_type' => $request->attendance_type,
             ]);
 
+            InstituteActivityLogger::log(
+                'Post Updated',
+                "Updated post: \"{$post->title}\"",
+                'Content',
+                'Post',
+                $post->id
+            );
+
             return response()->json([
                 'success' => true,
                 'message' => 'Post updated successfully!',
@@ -186,10 +203,8 @@ class PostController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['message' => 'Validation failed', 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'An error occurred', 'error' => $e->getMessage()], 500);
         }
     }
-
 
     public function apiDestroy($id)
     {
@@ -206,11 +221,12 @@ class PostController extends Controller
             $postId = $post->id;
             $post->delete();
 
-            AdminActivityLogger::log(
-                'Deleted Post',
+            InstituteActivityLogger::log(
+                'Post Deleted',
+                "Deleted post: \"{$postTitle}\"",
+                'Content',
                 'Post',
-                $postId,
-                auth()->user()->name . " deleted post \"{$postTitle}\""
+                $postId
             );
 
             return response()->json([

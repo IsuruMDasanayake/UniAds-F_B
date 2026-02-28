@@ -1,4 +1,8 @@
-.logout-modal-overlay {
+/* ========================
+   LogoutConfirmModal — scoped with .lm- prefix
+   ======================== */
+
+.lm-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -14,7 +18,7 @@
     z-index: 1000000;
 }
 
-.logout-modal-card {
+.lm-card {
     background: white;
     width: 100%;
     max-width: 440px;
@@ -26,7 +30,7 @@
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.logout-modal-close {
+.lm-close {
     position: absolute;
     top: 20px;
     right: 20px;
@@ -45,13 +49,13 @@
     color: var(--c-dark);
 }
 
-.logout-modal-close:hover {
+.lm-close:hover {
     transform: rotate(90deg) scale(1.1);
     background: white;
     color: #ef4444;
 }
 
-.logout-modal-icon-wrapper {
+.lm-icon-wrapper {
     width: 80px;
     height: 80px;
     background: #fff1f2;
@@ -63,7 +67,7 @@
     margin: 0 auto 24px;
 }
 
-.logout-modal-title {
+.lm-title {
     font-size: 1.625rem;
     font-weight: 800;
     color: #1e293b;
@@ -71,26 +75,26 @@
     letter-spacing: -0.02em;
 }
 
-.logout-modal-description {
+.lm-description {
     color: #64748b;
     font-size: 1rem;
     line-height: 1.6;
     margin-bottom: 32px;
 }
 
-.logout-modal-description span {
+.lm-description span {
     display: block;
     margin-top: 8px;
     font-weight: 600;
     color: #475569;
 }
 
-.logout-modal-actions {
+.lm-actions {
     display: flex;
     gap: 12px;
 }
 
-.logout-modal-btn {
+.lm-btn {
     flex: 1;
     padding: 14px;
     border-radius: 14px;
@@ -105,33 +109,33 @@
     gap: 8px;
 }
 
-.logout-modal-btn.cancel {
+.lm-btn.cancel {
     background: #f1f5f9;
     color: #475569;
 }
 
-.logout-modal-btn.cancel:hover {
+.lm-btn.cancel:hover {
     background: #e2e8f0;
     color: #1e293b;
 }
 
-.logout-modal-btn.confirm {
+.lm-btn.confirm {
     background: #f43f5e;
     color: white;
     box-shadow: 0 4px 14px rgba(244, 63, 94, 0.3);
 }
 
-.logout-modal-btn.confirm:hover:not(:disabled) {
+.lm-btn.confirm:hover:not(:disabled) {
     background: #e11d48;
     transform: translateY(-1px);
     box-shadow: 0 6px 20px rgba(244, 63, 94, 0.4);
 }
 
-.logout-modal-btn:active:not(:disabled) {
+.lm-btn:active:not(:disabled) {
     transform: translateY(0);
 }
 
-.logout-modal-btn:disabled {
+.lm-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }

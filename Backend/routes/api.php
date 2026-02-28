@@ -198,6 +198,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/inquiries', [InquiryController::class, 'index']);
         Route::put('/inquiries/{id}/view', [InquiryController::class, 'markAsViewed']);
         Route::post('/inquiries/{id}/reply', [InquiryController::class, 'sendReply']);
+
+        // Activity Logs
+        Route::get('/activity-logs', [\App\Http\Controllers\InstituteActivityLogController::class, 'index']);
+        Route::get('/activity-logs/export', [\App\Http\Controllers\InstituteActivityLogController::class, 'exportCsv']);
+        Route::delete('/activity-logs/clear', [\App\Http\Controllers\InstituteActivityLogController::class, 'clearLogs']);
+
+        // Reports
+        Route::get('/reports/download', [\App\Http\Controllers\InstituteReportController::class, 'download']);
     });
 });
 

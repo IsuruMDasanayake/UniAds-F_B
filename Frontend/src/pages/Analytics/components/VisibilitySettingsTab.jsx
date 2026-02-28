@@ -66,33 +66,33 @@ const VisibilitySettingsTab = ({ institute, onRefresh }) => {
     ];
 
     return (
-        <div className="settings-visibility-wrapper">
+        <div className="sp-visibility-wrapper">
             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1e293b', marginBottom: '1.5rem' }}>Visibility & Engagement</h3>
 
             {errorMsg && <div className="p-3 mb-4 rounded bg-red-50 text-red-600 border border-red-200">{errorMsg}</div>}
             {successMsg && <div className="p-3 mb-4 rounded bg-green-50 text-green-600 border border-green-200">{successMsg}</div>}
 
-            <div className="toggle-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div className="sp-toggle-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {toggles.map((toggle) => (
-                    <div key={toggle.key} className="settings-toggle-group">
-                        <div className="settings-toggle-info">
+                    <div key={toggle.key} className="sp-toggle-group">
+                        <div className="sp-toggle-info">
                             <h4>{toggle.label}</h4>
                             <p>{toggle.desc}</p>
                         </div>
-                        <label className="toggle-switch">
+                        <label className="sp-toggle-switch">
                             <input
                                 type="checkbox"
                                 checked={settings[toggle.key]}
                                 onChange={() => handleToggle(toggle.key)}
                             />
-                            <span className="toggle-slider"></span>
+                            <span className="sp-toggle-slider"></span>
                         </label>
                     </div>
                 ))}
             </div>
 
             <button
-                className="settings-save-btn"
+                className="sp-save-btn"
                 onClick={handleSave}
                 disabled={loading}
             >

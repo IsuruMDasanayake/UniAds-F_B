@@ -1,4 +1,8 @@
-.settings-page-wrapper {
+/* ========================
+   SettingsPage — scoped with .sp- prefix
+   ======================== */
+
+.sp-page-wrapper {
     padding: 0rem;
     max-width: 1200px;
     margin: 0 auto;
@@ -6,11 +10,11 @@
     animation: fadeIn 0.6s ease-out;
 }
 
-.settings-header {
+.sp-header {
     margin-bottom: 2rem;
 }
 
-.settings-header h2 {
+.sp-header h2 {
     font-size: 1.875rem;
     font-weight: 800;
     color: #1e293b;
@@ -18,20 +22,20 @@
     margin-bottom: 0.5rem;
 }
 
-.settings-header p {
+.sp-header p {
     color: #64748b;
     font-size: 1rem;
 }
 
 /* Tabs Navigation */
-.settings-tabs {
+.sp-tabs {
     display: flex;
     gap: 1rem;
     border-bottom: 2px solid #f1f5f9;
     margin-bottom: 2rem;
 }
 
-.settings-tab-btn {
+.sp-tab-btn {
     padding: 0.75rem 1.5rem;
     background: none;
     border: none;
@@ -45,20 +49,19 @@
     align-items: center;
     gap: 0.5rem;
     margin-bottom: -2px;
-    /* Pull down to overlap the container border */
 }
 
-.settings-tab-btn:hover {
+.sp-tab-btn:hover {
     color: #1e293b;
 }
 
-.settings-tab-btn.active {
+.sp-tab-btn.active {
     color: var(--c-primary);
     border-bottom-color: var(--c-primary);
 }
 
-/* Tab Content Areas */
-.settings-tab-content {
+/* Tab Content Area */
+.sp-tab-content {
     background: white;
     border-radius: 16px;
     padding: 2.5rem;
@@ -67,12 +70,12 @@
     min-height: 400px;
 }
 
-/* Form Styles used across tabs */
-.settings-form-group {
+/* Form Styles shared across tabs */
+.sp-form-group {
     margin-bottom: 1.5rem;
 }
 
-.settings-form-group label {
+.sp-form-group label {
     display: block;
     font-size: 0.9rem;
     font-weight: 600;
@@ -80,11 +83,11 @@
     margin-bottom: 0.5rem;
 }
 
-.settings-form-group input[type="text"],
-.settings-form-group input[type="email"],
-.settings-form-group input[type="password"],
-.settings-form-group select,
-.settings-form-group textarea {
+.sp-form-group input[type="text"],
+.sp-form-group input[type="email"],
+.sp-form-group input[type="password"],
+.sp-form-group select,
+.sp-form-group textarea {
     width: 100%;
     padding: 0.75rem 1rem;
     border: 1px solid #e2e8f0;
@@ -93,25 +96,25 @@
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.settings-form-group input:focus,
-.settings-form-group select:focus,
-.settings-form-group textarea:focus {
+.sp-form-group input:focus,
+.sp-form-group select:focus,
+.sp-form-group textarea:focus {
     outline: none;
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.settings-form-row {
+.sp-form-row {
     display: flex;
     gap: 1.5rem;
 }
 
-.settings-form-row .settings-form-group {
+.sp-form-row .sp-form-group {
     flex: 1;
 }
 
-/* Toggle Switch Styling */
-.settings-toggle-group {
+/* Toggle Switch */
+.sp-toggle-group {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -119,35 +122,35 @@
     border-bottom: 1px solid #f1f5f9;
 }
 
-.settings-toggle-group:last-child {
+.sp-toggle-group:last-child {
     border-bottom: none;
 }
 
-.settings-toggle-info h4 {
+.sp-toggle-info h4 {
     font-size: 1rem;
     color: #1e293b;
     margin-bottom: 0.25rem;
 }
 
-.settings-toggle-info p {
+.sp-toggle-info p {
     font-size: 0.85rem;
     color: #64748b;
 }
 
-.toggle-switch {
+.sp-toggle-switch {
     position: relative;
     display: inline-block;
     width: 48px;
     height: 24px;
 }
 
-.toggle-switch input {
+.sp-toggle-switch input {
     opacity: 0;
     width: 0;
     height: 0;
 }
 
-.toggle-slider {
+.sp-toggle-slider {
     position: absolute;
     cursor: pointer;
     top: 0;
@@ -159,7 +162,7 @@
     border-radius: 34px;
 }
 
-.toggle-slider:before {
+.sp-toggle-slider:before {
     position: absolute;
     content: "";
     height: 18px;
@@ -171,20 +174,20 @@
     border-radius: 50%;
 }
 
-input:checked+.toggle-slider {
-    background-color: #10b981;
+.sp-toggle-switch input:checked+.sp-toggle-slider {
+    background-color: var(--c-accent);
 }
 
-input:focus+.toggle-slider {
-    box-shadow: 0 0 1px #10b981;
+.sp-toggle-switch input:focus+.sp-toggle-slider {
+    box-shadow: 0 0 1px var(--c-accent);
 }
 
-input:checked+.toggle-slider:before {
+.sp-toggle-switch input:checked+.sp-toggle-slider:before {
     transform: translateX(24px);
 }
 
 /* Buttons */
-.settings-save-btn {
+.sp-save-btn {
     background: #1e293b;
     color: white;
     border: none;
@@ -200,18 +203,18 @@ input:checked+.toggle-slider:before {
     margin-top: 1rem;
 }
 
-.settings-save-btn:hover:not(:disabled) {
+.sp-save-btn:hover:not(:disabled) {
     background: #334155;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(30, 41, 59, 0.15);
 }
 
-.settings-save-btn:disabled {
+.sp-save-btn:disabled {
     background: #94a3b8;
     cursor: not-allowed;
 }
 
-.settings-cancel-btn {
+.sp-cancel-btn {
     background: var(--c-accent);
     color: white;
     border: none;
@@ -225,16 +228,15 @@ input:checked+.toggle-slider:before {
     align-items: center;
     gap: 0.5rem;
     margin-top: 1rem;
-    
 }
 
-.settings-cancel-btn:hover:not(:disabled) {
+.sp-cancel-btn:hover:not(:disabled) {
     background: var(--c-accent-hover);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(30, 41, 59, 0.15);
 }
 
-.danger-btn {
+.sp-danger-btn {
     background: white;
     color: #ef4444;
     border: 1.5px solid #ef4444;
@@ -249,43 +251,83 @@ input:checked+.toggle-slider:before {
     gap: 0.5rem;
 }
 
-.danger-btn:hover:not(:disabled) {
+.sp-danger-btn:hover:not(:disabled) {
     background: #fef2f2;
 }
 
-.danger-btn:disabled {
+.sp-danger-btn:disabled {
     opacity: 0.7;
     cursor: not-allowed;
 }
 
 /* Danger Zone */
-.danger-zone {
+.sp-danger-zone {
     margin-top: 2rem;
     padding-top: 2rem;
     border-top: 1px solid #e2e8f0;
 }
 
-.danger-zone h3 {
+.sp-danger-zone h3 {
     color: #ef4444;
     font-size: 1.1rem;
     margin-bottom: 0.5rem;
 }
 
-.danger-zone p {
+.sp-danger-zone p {
     color: #64748b;
     font-size: 0.9rem;
     margin-bottom: 1.5rem;
 }
 
+/* Profile Tab */
+.sp-profile-wrapper {
+    /* container for profile tab content */
+}
+
 @media (max-width: 768px) {
-    .settings-form-row {
+    .sp-header {
+        font-size: 1.75rem;
+        margin-top: 2rem;
+        text-align: center !important;
+    }
+
+    .sp-header p {
+        font-size: 1rem;
+    }
+
+    .sp-form-row {
         flex-direction: column;
         gap: 0;
     }
 
-    .settings-tabs {
-        overflow-x: auto;
-        white-space: nowrap;
+    .sp-tabs {
+        flex-wrap: wrap;
+        gap: 0.5rem;
         padding-bottom: 0.5rem;
+        border-bottom: none;
+    }
+
+    .sp-tab-btn {
+        flex: 1 1 calc(50% - 0.5rem);
+        justify-content: center;
+        padding: 0.6rem 0.5rem;
+        font-size: 0.85rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        margin-bottom: 0;
+    }
+
+    .sp-tab-btn.active {
+        background: var(--c-primary-soft);
+        border-color: var(--c-primary);
+        color: var(--c-primary);
+    }
+
+    .sp-tab-btn:not(.active) {
+        background: #f8fafc;
+    }
+
+    .sp-tab-content {
+        padding: 1.5rem 1rem;
     }
 }

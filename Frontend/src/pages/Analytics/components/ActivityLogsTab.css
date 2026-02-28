@@ -1,0 +1,294 @@
+/* ========================
+   ActivityLogsTab — scoped with .al- prefix
+   ======================== */
+
+.al-container {
+    padding: 1rem;
+    background: white;
+    border-radius: 12px;
+}
+
+.al-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.al-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.al-title h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #1e293b;
+    font-weight: 700;
+}
+
+.al-title p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.al-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.al-btn-export,
+.al-btn-clear,
+.al-btn-reset {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.al-btn-export {
+    background: #f8fafc;
+    color: #1e293b;
+    border: 1px solid #e2e8f0;
+}
+
+.al-btn-export:hover:not(:disabled) {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.al-btn-clear {
+    background: #fff1f2;
+    color: #e11d48;
+    border: 1px solid #fee2e2;
+}
+
+.al-btn-clear:hover:not(:disabled) {
+    background: #ffe4e6;
+    border-color: #fecaca;
+}
+
+.al-btn-reset {
+    background: #f8fafc;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+    align-self: flex-end;
+}
+
+.al-btn-reset:hover {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.al-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1.5rem;
+    padding: 1.25rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    border: 1px solid #f1f5f9;
+}
+
+.al-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.al-filter-group label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.al-filter-group select,
+.al-date-input input {
+    width: 100%;
+    padding: 0.625rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: #1e293b;
+    background: white;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.al-filter-group select:focus,
+.al-date-input input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.al-date-input {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.al-date-input svg {
+    position: absolute;
+    left: 0.75rem;
+    color: #94a3b8;
+    pointer-events: none;
+}
+
+.al-date-input input {
+    padding-left: 2.25rem;
+}
+
+.al-table-wrapper {
+    background: white;
+    border: 1px solid #f1f5f9;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.al-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.al-table th {
+    text-align: left;
+    padding: 1rem;
+    background: var(--c-primary);
+    color: var(--text-invert);
+    font-weight: 600;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.al-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: #1e293b;
+}
+
+.al-description-cell {
+    max-width: 300px;
+}
+
+.al-cat-badge {
+    padding: 0.25rem 0.625rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.al-cat-content {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.al-cat-app {
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.al-cat-account {
+    background: #fdf2f8;
+    color: #be185d;
+}
+
+.al-cat-sub {
+    background: #faf5ff;
+    color: #7e22ce;
+}
+
+.al-cat-general {
+    background: #f8fafc;
+    color: #475569;
+}
+
+.al-loading,
+.al-empty {
+    padding: 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: #64748b;
+}
+
+.al-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: #f8fafc;
+}
+
+.al-pag-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #1e293b;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.al-pag-btn:hover:not(:disabled) {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.al-pag-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.al-pag-info {
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.al-total-count {
+    margin-left: 0.5rem;
+    opacity: 0.7;
+    font-size: 0.75rem;
+}
+
+@media (max-width: 768px) {
+    .al-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+
+    .al-actions {
+        width: 100%;
+    }
+
+    .al-btn-export,
+    .al-btn-clear {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .al-filters {
+        grid-template-columns: 1fr;
+    }
+
+    .al-description-cell {
+        max-width: 150px;
+    }
+}

@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, LogOut, Loader2, AlertCircle } from 'lucide-react';
 import './LogoutConfirmModal.css';
 
 const LogoutConfirmModal = ({ isOpen, onClose, onConfirm, isLoading }) => {
-    const [mounted, setMounted] = useState(false);
+    const [mounted, setMounted] = React.useState(false);
 
-    useEffect(() => {
+    React.useEffect(() => {
         setMounted(true);
         return () => setMounted(false);
     }, []);
 
-    useEffect(() => {
+    React.useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';
         } else {
@@ -26,40 +26,40 @@ const LogoutConfirmModal = ({ isOpen, onClose, onConfirm, isLoading }) => {
     return createPortal(
         <AnimatePresence>
             {isOpen && (
-                <div className="logout-modal-overlay" onClick={onClose}>
+                <div className="lm-overlay" onClick={onClose}>
                     <motion.div
-                        className="logout-modal-card"
+                        className="lm-card"
                         initial={{ scale: 0.9, opacity: 0, y: 20 }}
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.9, opacity: 0, y: 20 }}
                         transition={{ type: "spring", duration: 0.5, bounce: 0.3 }}
                         onClick={e => e.stopPropagation()}
                     >
-                        <button className="logout-modal-close" onClick={onClose}>
+                        <button className="lm-close" onClick={onClose}>
                             <X size={20} />
                         </button>
 
-                        <div className="logout-modal-icon-wrapper">
+                        <div className="lm-icon-wrapper">
                             <AlertCircle size={48} />
                         </div>
 
-                        <h2 className="logout-modal-title">Sign Out All Devices?</h2>
-                        <p className="logout-modal-description">
+                        <h2 className="lm-title">Sign Out All Devices?</h2>
+                        <p className="lm-description">
                             Are you sure you want to log out from all devices?
                             <br />
                             <span>You will be signed out from this current session as well.</span>
                         </p>
 
-                        <div className="logout-modal-actions">
+                        <div className="lm-actions">
                             <button
-                                className="logout-modal-btn cancel"
+                                className="lm-btn cancel"
                                 onClick={onClose}
                                 disabled={isLoading}
                             >
                                 Stay Signed In
                             </button>
                             <button
-                                className="logout-modal-btn confirm"
+                                className="lm-btn confirm"
                                 onClick={onConfirm}
                                 disabled={isLoading}
                             >

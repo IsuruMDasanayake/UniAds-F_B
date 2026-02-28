@@ -19,6 +19,7 @@ use App\Mail\InstituteUnapprovedMail;
 use App\Models\InstituteProfileView;
 use App\Models\Notification;
 use App\Services\AdminActivityLogger;
+use App\Services\InstituteActivityLogger;
 
 class InstituteController extends Controller
 {
@@ -361,6 +362,12 @@ class InstituteController extends Controller
                 }
                 $userRecord->save();
             }
+
+            InstituteActivityLogger::log(
+                'Profile Updated',
+                "Updated institute profile and preferences.",
+                'Account'
+            );
 
             return response()->json([
                 'success' => true,

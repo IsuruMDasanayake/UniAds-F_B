@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
+use App\Services\InstituteActivityLogger;
 
 class ApplicationController extends Controller
 {
@@ -156,6 +157,14 @@ class ApplicationController extends Controller
                     ->subject('[No-Reply] ' . $request->subject)
                     ->from($institute->email, $institute->institute_name);
             });
+
+            InstituteActivityLogger::log(
+                'Application Replied',
+                "Replied to application from {$application->student_name} for \"{$application->course_title}\"",
+                'Application',
+                'ApplyCase',
+                $application->id
+            );
 
             DB::commit();
 

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use App\Services\InstituteActivityLogger;
 
 class InquiryController extends Controller
 {
@@ -115,6 +116,14 @@ class InquiryController extends Controller
                     ->subject('[No-Reply] ' . $request->subject)
                     ->from($institute->email, $institute->institute_name);
             });
+
+            InstituteActivityLogger::log(
+                'Inquiry Replied',
+                "Replied to inquiry from {$inquiry->name} regarding \"{$inquiry->subject}\"",
+                'Application', // Grouping with applications since it's a student lead
+                'InstituteInquiry',
+                $inquiry->id
+            );
 
             DB::commit();
 

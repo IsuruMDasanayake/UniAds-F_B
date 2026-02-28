@@ -147,10 +147,10 @@ const ProfileSettingsTab = ({ institute, onRefresh }) => {
     };
 
     return (
-        <div className="settings-profile-wrapper">
+        <div className="sp-profile-wrapper">
             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1e293b', marginBottom: '1.5rem' }}>Public Profile Information</h3>
 
-            <div className="form-notice" style={{ color: '#ef4444', backgroundColor: '#fef2f2', padding: '10px', borderRadius: '6px', marginBottom: '1.5rem', fontSize: '0.85rem', border: '1px solid #fee2e2' }}>
+            <div className="sp-form-notice" style={{ color: '#ef4444', backgroundColor: '#fef2f2', padding: '10px', borderRadius: '6px', marginBottom: '1.5rem', fontSize: '0.85rem', border: '1px solid #fee2e2' }}>
                 <strong>Note:</strong> Primary identity details (Name, Type, Location, Email, Contact No, and Website) are locked. Please contact UniAds Administration for any changes.
             </div>
 
@@ -161,7 +161,7 @@ const ProfileSettingsTab = ({ institute, onRefresh }) => {
                 <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
                     {/* Left Column - Photos */}
                     <div style={{ flex: '1', minWidth: '300px' }}>
-                        <div className="settings-form-group">
+                        <div className="sp-form-group">
                             <label>Profile Photo (Max 2MB)</label>
                             <div style={{ width: '120px', height: '120px', borderRadius: '50%', overflow: 'hidden', marginBottom: '1rem', border: '2px solid #e2e8f0' }}>
                                 <img src={previewProfile} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -169,7 +169,7 @@ const ProfileSettingsTab = ({ institute, onRefresh }) => {
                             <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'profile')} style={{ fontSize: '0.85rem' }} />
                         </div>
 
-                        <div className="settings-form-group" style={{ marginTop: '2rem' }}>
+                        <div className="sp-form-group" style={{ marginTop: '2rem' }}>
                             <label>Cover Photo (Max 2MB)</label>
                             <div style={{ width: '100%', height: '120px', borderRadius: '8px', overflow: 'hidden', marginBottom: '1rem', border: '2px solid #e2e8f0' }}>
                                 <img src={previewCover} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -177,7 +177,7 @@ const ProfileSettingsTab = ({ institute, onRefresh }) => {
                             <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'cover')} style={{ fontSize: '0.85rem' }} />
                         </div>
 
-                        <div className="settings-form-group">
+                        <div className="sp-form-group">
                             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><MapPin size={16} /> Exact Map Location</label>
                             <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '0.5rem' }}>Click on the map to pin your institute's exact location for students.</p>
                             <div style={{ height: '300px', width: '100%', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
@@ -193,40 +193,40 @@ const ProfileSettingsTab = ({ institute, onRefresh }) => {
 
                     {/* Right Column - Details */}
                     <div style={{ flex: '2', minWidth: '300px' }}>
-                        <div className="settings-form-row">
-                            <div className="settings-form-group">
+                        <div className="sp-form-row">
+                            <div className="sp-form-group">
                                 <label>Institute Name</label>
                                 <input type="text" name="institute_name" value={formData.institute_name} disabled style={{ backgroundColor: '#f8fafc', color: '#64748b' }} />
                             </div>
-                            <div className="settings-form-group">
+                            <div className="sp-form-group">
                                 <label>Institute Type</label>
                                 <input type="text" name="institute_type" value={formData.institute_type} disabled style={{ backgroundColor: '#f8fafc', color: '#64748b' }} />
                             </div>
                         </div>
 
-                        <div className="settings-form-row">
-                            <div className="settings-form-group">
+                        <div className="sp-form-row">
+                            <div className="sp-form-group">
                                 <label>Email Address</label>
                                 <input type="email" name="email" value={formData.email} disabled style={{ backgroundColor: '#f8fafc', color: '#64748b' }} />
                             </div>
-                            <div className="settings-form-group">
+                            <div className="sp-form-group">
                                 <label>Contact Number</label>
                                 <input type="text" name="contact_number" value={formData.contact_number} disabled style={{ backgroundColor: '#f8fafc', color: '#64748b' }} />
                             </div>
                         </div>
 
-                        <div className="settings-form-row">
-                            <div className="settings-form-group">
+                        <div className="sp-form-row">
+                            <div className="sp-form-group">
                                 <label>Standard Location</label>
                                 <input type="text" name="location" value={formData.location} disabled style={{ backgroundColor: '#f8fafc', color: '#64748b' }} />
                             </div>
-                            <div className="settings-form-group">
+                            <div className="sp-form-group">
                                 <label>Website</label>
                                 <input type="text" name="website" value={formData.website} disabled style={{ backgroundColor: '#f8fafc', color: '#64748b' }} />
                             </div>
                         </div>
 
-                        <div className="settings-form-group">
+                        <div className="sp-form-group">
                             <label>Profile URL Slug</label>
                             <div style={{ display: 'flex', alignItems: 'center' }}>
                                 <span style={{ padding: '0.75rem 1rem', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRight: 'none', borderRadius: '8px 0 0 8px', color: '#64748b', fontSize: '0.95rem', fontWeight: 500 }}>uniads.com/institute/</span>
@@ -242,9 +242,9 @@ const ProfileSettingsTab = ({ institute, onRefresh }) => {
                             <p style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '0.25rem' }}>This uniquely identifies your profile. Keep it short and readable.</p>
                         </div>
 
-                        <div className="settings-form-group">
+                        <div className="sp-form-group">
                             <label>Bio / Description</label>
-                            <textarea name="bio" rows="6" value={formData.bio} onChange={handleChange} placeholder="Tell students about your institute..."></textarea>
+                            <textarea className="sp-form-group" name="bio" rows="6" value={formData.bio} onChange={handleChange} placeholder="Tell students about your institute..."></textarea>
                         </div>
 
 
@@ -252,7 +252,7 @@ const ProfileSettingsTab = ({ institute, onRefresh }) => {
                 </div>
 
                 <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <button type="submit" className="settings-save-btn" disabled={loading} style={{ marginTop: 0 }}>
+                    <button type="submit" className="sp-save-btn" disabled={loading} style={{ marginTop: 0 }}>
                         {loading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
                         {loading ? `Saving (${uploadProgress}%)` : 'Save Profile Settings'}
                     </button>
