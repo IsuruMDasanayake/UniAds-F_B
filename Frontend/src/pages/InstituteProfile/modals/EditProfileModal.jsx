@@ -233,7 +233,7 @@ const EditProfileModal = ({ institute, onClose, onUpdate }) => {
                                 </div>
                                 <div className="form-group">
                                     <label>Bio:</label>
-                                    <textarea name="bio" rows="3" value={formData.bio} onChange={handleChange}></textarea>
+                                    <textarea name="bio" rows="10" value={formData.bio} onChange={handleChange}></textarea>
                                 </div>
 
 
