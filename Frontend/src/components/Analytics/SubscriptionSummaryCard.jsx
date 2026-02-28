@@ -41,12 +41,12 @@ const SubscriptionSummaryCard = ({ currentPlan, onCancelPlan, onUpgrade }) => {
                     <p className="card-subtitle-v2">Details of your active subscription</p>
                 </div>
                 <div className="plan-actions-v2">
-                    {isActive && !isCancelled && (
+                    {/* {isActive && !isCancelled && (
                         <button className="action-btn-v2 cancel" onClick={onCancelPlan}>
                             <Ban size={18} />
                             <span>{isTrial ? 'Cancel Trial' : 'Cancel Subscription'}</span>
                         </button>
-                    )}
+                    )} */}
                     {isTrial && isActive && (
                         <button className="action-btn-v2 upgrade" onClick={onUpgrade}>
                             <Sparkles size={18} />
