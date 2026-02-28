@@ -131,27 +131,102 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function apiUpdatePassword(Request $request)
+    public function apiSendOtpForPasswordChange(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'current_password' => 'required|string',
-            'new_password' => 'required|string|confirmed|min:8',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        if (!Hash::check($request->current_password, Auth::user()->password)) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
             return response()->json(['errors' => ['current_password' => ['The current password is incorrect.']]], 422);
+        }
+
+        // Generate 6-digit OTP
+        $otp = rand(100000, 999999);
+
+        // Store OTP and timestamp in session
+        session([
+            'password_change_otp' => $otp,
+            'password_change_otp_time' => now()
+        ]);
+
+        try {
+            // Using existing OTPVerificationMail since it just takes a number
+            \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\OTPVerificationMail($otp));
+            $request->session()->save();
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Mail sending failed: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send verification email. Please try again.'
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Verification code sent to your email.'
+        ]);
+    }
+
+    public function apiUpdatePassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'otp' => 'required|numeric',
+            'new_password' => [
+                'required',
+                'string',
+                'confirmed',
+                \Illuminate\Validation\Rules\Password::min(8)
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols()
+            ],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $sessionOtp = session('password_change_otp');
+        $otpTime = session('password_change_otp_time');
+
+        if (!$sessionOtp || !$otpTime) {
+            return response()->json([
+                'errors' => ['otp' => ['No verification code found or it has expired. Please request a new one.']]
+            ], 422);
+        }
+
+        // Check expiration (5 minutes)
+        if (now()->diffInMinutes($otpTime) >= 5) {
+            session()->forget(['password_change_otp', 'password_change_otp_time']);
+            return response()->json([
+                'errors' => ['otp' => ['The verification code has expired.']]
+            ], 422);
+        }
+
+        if ($request->otp != $sessionOtp) {
+            return response()->json([
+                'errors' => ['otp' => ['Invalid verification code.']]
+            ], 422);
         }
 
         $user = Auth::user();
         $user->password = Hash::make($request->new_password);
         $user->save();
 
+        // Clear session after successful change
+        session()->forget(['password_change_otp', 'password_change_otp_time']);
+
         return response()->json(['message' => 'Password updated successfully!']);
     }
+
     public function apiUpdatePicture(Request $request)
     {
         /** @var \App\Models\User $user */

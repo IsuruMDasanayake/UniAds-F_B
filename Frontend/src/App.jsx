@@ -49,6 +49,7 @@ import PostsAnalyticsPage from './pages/Analytics/PostsAnalyticsPage';
 import EventsAnalyticsPage from './pages/Analytics/EventsAnalyticsPage';
 import RatingsPage from './pages/Analytics/RatingsPage';
 import SubscriptionPage from './pages/Analytics/SubscriptionPage';
+import SettingsPage from './pages/Analytics/SettingsPage';
 import ApplicationsPageInstitute from './pages/Analytics/ApplicationsPage';
 import GeneralInquiriesPage from './pages/Analytics/GeneralInquiriesPage';
 import ChatPage from './pages/Analytics/ChatPage';
@@ -139,6 +140,7 @@ function App() {
                 <Route path="events" element={<EventsAnalyticsPage />} />
                 <Route path="ratings" element={<RatingsPage />} />
                 <Route path="subscription" element={<SubscriptionPage />} />
+                <Route path="settings" element={<SettingsPage />} />
                 <Route path="applications" element={<ApplicationsPageInstitute />} />
                 <Route path="inquiries" element={<GeneralInquiriesPage />} />
                 <Route path="chat" element={<ChatPage />} />

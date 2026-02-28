@@ -54,22 +54,17 @@ const InstituteContact = ({ institute, isOwner }) => {
                         </div>
                     </div>
                     <div className="ic-compact-detail-item">
-                        <span className="ic-detail-icon">✉️</span>
-                        <div className="ic-detail-info">
-                            <span className="ic-detail-label">Email</span>
-                            <span className="ic-detail-value">
-                                <a href={`mailto:${institute.email}`}>{institute.email}</a>
-                            </span>
-                        </div>
-                    </div>
-                    <div className="ic-compact-detail-item">
                         <span className="ic-detail-icon">🌐</span>
                         <div className="ic-detail-info">
                             <span className="ic-detail-label">Website</span>
                             <span className="ic-detail-value">
-                                <a href={institute.website} target="_blank" rel="noopener noreferrer">
-                                    {institute.website?.replace(/^https?:\/\//, '')}
-                                </a>
+                                {institute.website ? (
+                                    <a href={institute.website} target="_blank" rel="noopener noreferrer">
+                                        {institute.website.replace(/^https?:\/\//, '')}
+                                    </a>
+                                ) : (
+                                    'Not Available'
+                                )}
                             </span>
                         </div>
                     </div>
@@ -83,7 +78,11 @@ const InstituteContact = ({ institute, isOwner }) => {
                         width="100%"
                         height="100%"
                         frameBorder="0"
-                        src={`https://www.google.com/maps?q=${encodeURIComponent(institute.location)}&output=embed`}
+                        src={
+                            institute.latitude && institute.longitude
+                                ? `https://www.google.com/maps?q=${institute.latitude},${institute.longitude}&z=15&output=embed`
+                                : `https://www.google.com/maps?q=${encodeURIComponent(institute.location)}&output=embed`
+                        }
                         allowFullScreen
                         title="Institute Location"
                         className="ic-map-iframe"

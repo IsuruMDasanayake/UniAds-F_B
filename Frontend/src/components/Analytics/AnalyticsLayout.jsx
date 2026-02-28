@@ -3,7 +3,7 @@ import { NavLink, Outlet, Link, useLocation, useParams, useNavigate } from 'reac
 import {
     LayoutDashboard, TrendingUp, FileText, Calendar,
     Star, CreditCard, Megaphone, Menu, X, ChevronRight, LogOut,
-    UserCheck, Mail, MessageSquare
+    UserCheck, Mail, MessageSquare, Settings
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axiosClient from '../../lib/axios';
@@ -192,13 +192,11 @@ const AnalyticsLayout = () => {
 
                     <div className="sidebar-footer">
                         <Link
-                            to="/profile"
+                            to={`/analytics/${slug}/settings`}
                             className="footer-link"
                         >
-                            <div className="profile-initial">
-                                <span className="initial-text"><img src={profilePhoto} alt={instituteName} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} /></span>
-                            </div>
-                            <span className="nav-label">My Profile</span>
+                            <Settings size={20} />
+                            <span className="nav-label">Settings</span>
                         </Link>
                         <Link
                             to="/"

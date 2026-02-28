@@ -89,4 +89,34 @@ class AuthenticatedSessionController extends Controller
 
         return response()->json(['message' => 'Logged out successfully']);
     }
+
+    /**
+     * Destroy all authenticated sessions via API (Logout from all devices).
+     */
+    public function apiLogoutAllDevices(Request $request)
+    {
+        $user = Auth::user();
+
+        // Revoke all personal access tokens
+        if ($user) {
+            $user->tokens()->delete();
+
+            // Log Admin Logout All Devices
+            if ($user->role === 'Admin') {
+                AdminActivityLogger::log(
+                    'Logged Out (All Devices)',
+                    'User',
+                    $user->id,
+                    "Administrator {$user->name} logged out from all devices."
+                );
+            }
+        }
+
+        // Standard Laravel logout logic for API/Sanctum
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return response()->json(['message' => 'Logged out from all devices successfully']);
+    }
 }

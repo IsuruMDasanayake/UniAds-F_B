@@ -47,7 +47,7 @@
 
 .ic-details-row {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
     padding-top: 2rem;
     border-top: 1px solid #f1f5f9;

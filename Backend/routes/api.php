@@ -78,6 +78,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // API Logout route
 Route::middleware('auth:sanctum')->post('/logout', [AuthenticatedSessionController::class, 'apiLogout']);
+Route::middleware('auth:sanctum')->post('/logout-all', [AuthenticatedSessionController::class, 'apiLogoutAllDevices']);
 
 // Feed API endpoints
 Route::middleware('auth:sanctum')->group(function () {
@@ -132,6 +133,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Profile API
     Route::get('/profile/me', [ProfileController::class, 'apiEdit']);
     Route::post('/profile/update', [ProfileController::class, 'apiUpdate']);
+    Route::post('/profile/password/otp', [ProfileController::class, 'apiSendOtpForPasswordChange']);
     Route::post('/profile/password', [ProfileController::class, 'apiUpdatePassword']);
     Route::post('/profile/picture', [ProfileController::class, 'apiUpdatePicture']);
     Route::get('/institutions/{id}/profile', [InstituteController::class, 'apiShowProfile']);

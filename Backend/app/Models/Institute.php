@@ -31,6 +31,11 @@ class Institute extends Model
         'trial_cancel_reason',
         'followers_enabled',
         'reviews_enabled',
+        'chat_enabled',
+        'inquiries_enabled',
+        'applications_enabled',
+        'latitude',
+        'longitude',
         'profile_views',
     ];
 
@@ -122,6 +127,9 @@ class Institute extends Model
         'is_premium' => 'boolean',
         'followers_enabled' => 'boolean',
         'reviews_enabled' => 'boolean',
+        'chat_enabled' => 'boolean',
+        'inquiries_enabled' => 'boolean',
+        'applications_enabled' => 'boolean',
     ];
 
     public function subscription()

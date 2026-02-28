@@ -264,8 +264,19 @@ class InstituteController extends Controller
                 'bio' => 'nullable|string|max:1000',
                 'profile_photo' => 'nullable|image|max:2048',
                 'cover_photo' => 'nullable|image|max:2048',
-                'followers_enabled' => 'nullable|string',
-                'reviews_enabled' => 'nullable|string',
+                'slug' => [
+                    'nullable',
+                    'string',
+                    'max:255',
+                    Rule::unique('institutes', 'slug')->ignore($id),
+                ],
+                'latitude' => 'nullable|numeric|between:-90,90',
+                'longitude' => 'nullable|numeric|between:-180,180',
+                'followers_enabled' => 'nullable|string|in:0,1,true,false',
+                'reviews_enabled' => 'nullable|string|in:0,1,true,false',
+                'chat_enabled' => 'nullable|string|in:0,1,true,false',
+                'inquiries_enabled' => 'nullable|string|in:0,1,true,false',
+                'applications_enabled' => 'nullable|string|in:0,1,true,false',
             ]);
 
             // Update profile photo
@@ -293,10 +304,34 @@ class InstituteController extends Controller
             $institute->website = $request->website;
             $institute->bio = $request->bio;
 
+            if ($request->has('slug') && !empty($request->slug)) {
+                $institute->slug = \Illuminate\Support\Str::slug($request->slug);
+            }
+
+            if ($request->has('latitude')) {
+                $institute->latitude = $request->latitude;
+            }
+            if ($request->has('longitude')) {
+                $institute->longitude = $request->longitude;
+            }
+
             // Premium toggles logic
             if ($institute->is_premium) {
-                $institute->followers_enabled = $request->followers_enabled === '1';
-                $institute->reviews_enabled = $request->reviews_enabled === '1';
+                if ($request->has('followers_enabled')) {
+                    $institute->followers_enabled = filter_var($request->followers_enabled, FILTER_VALIDATE_BOOLEAN);
+                }
+                if ($request->has('reviews_enabled')) {
+                    $institute->reviews_enabled = filter_var($request->reviews_enabled, FILTER_VALIDATE_BOOLEAN);
+                }
+                if ($request->has('chat_enabled')) {
+                    $institute->chat_enabled = filter_var($request->chat_enabled, FILTER_VALIDATE_BOOLEAN);
+                }
+                if ($request->has('inquiries_enabled')) {
+                    $institute->inquiries_enabled = filter_var($request->inquiries_enabled, FILTER_VALIDATE_BOOLEAN);
+                }
+                if ($request->has('applications_enabled')) {
+                    $institute->applications_enabled = filter_var($request->applications_enabled, FILTER_VALIDATE_BOOLEAN);
+                }
             }
 
             $institute->save();
