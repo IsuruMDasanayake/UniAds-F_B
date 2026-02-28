@@ -176,8 +176,8 @@ const SubscriptionPage = () => {
                     />
                     <StatCard
                         icon={Clock}
-                        label="Days Remaining"
-                        value={data?.stats?.active_days_remaining}
+                        label={`${data?.current_plan?.plan_name || 'Plan'} Remaining`}
+                        value={`${data?.stats?.active_days_remaining ?? 0} Days`}
                         color="green"
                         loading={isInitialLoading}
                         delay={0.2}

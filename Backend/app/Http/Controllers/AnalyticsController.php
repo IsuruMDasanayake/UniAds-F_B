@@ -901,14 +901,11 @@ class AnalyticsController extends Controller
         $history = $history->merge($paidHistory)->sortByDesc('started_at')->values();
 
         // 3. Stats
-        $remainingDays = 0;
-        // Subscriptions stay active until ends_at even if cancelled. 
-        // For Trials, if cancelled, the user said "redirect to pricing" and "remove access", so we'll show 0.
-        $isMonthlyActiveOrCancelled = in_array($currentPlan['status'], ['active', 'cancelled']) && $currentPlan['type'] === 'monthly';
-        $isTrialActive = $currentPlan['status'] === 'active' && $currentPlan['type'] === 'trial';
-
-        if (($isMonthlyActiveOrCancelled || $isTrialActive) && $currentPlan['ends_at']) {
-            $remainingDays = max(0, Carbon::parse($currentPlan['ends_at'])->diffInDays($now));
+        if ($currentPlan['ends_at']) {
+            $endsAt = Carbon::parse($currentPlan['ends_at']);
+            if ($endsAt->isFuture()) {
+                $remainingDays = (int) $now->diffInDays($endsAt);
+            }
         }
 
         $stats = [
