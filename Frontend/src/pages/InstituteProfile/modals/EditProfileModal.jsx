@@ -132,7 +132,7 @@ const EditProfileModal = ({ institute, onClose, onUpdate }) => {
         }
     };
 
-    const isPremium = !!(institute?.is_premium && institute?.premium_expires_at && new Date(institute.premium_expires_at) > new Date());
+
 
     return (
         <motion.div
@@ -173,6 +173,9 @@ const EditProfileModal = ({ institute, onClose, onUpdate }) => {
                         <div className="modal-body-split">
                             {/* Left: Photos */}
                             <div className="modal-left">
+                                <div className="form-notice" style={{ color: '#ef4444', backgroundColor: '#fef2f2', padding: '10px', borderRadius: '6px', marginBottom: '15px', fontSize: '0.85rem', border: '1px solid #fee2e2' }}>
+                                    <strong>Note:</strong> Once registered, your primary identity details (Name, Type, Location, Email, Contact No, and Website) are locked. Please contact UniAds Administration for any changes.
+                                </div>
                                 <div className="form-group">
                                     <label>Profile Photo (Max 2MB):</label>
                                     <div className="photo-preview">
@@ -193,11 +196,11 @@ const EditProfileModal = ({ institute, onClose, onUpdate }) => {
                             <div className="modal-right">
                                 <div className="form-group">
                                     <label>Institute Name:</label>
-                                    <input type="text" name="institute_name" value={formData.institute_name} onChange={handleChange} required />
+                                    <input type="text" name="institute_name" value={formData.institute_name} onChange={handleChange} required disabled />
                                 </div>
                                 <div className="form-group">
                                     <label>Institute Type:</label>
-                                    <select name="institute_type" value={formData.institute_type} onChange={handleChange} required className="modal-select">
+                                    <select name="institute_type" value={formData.institute_type} onChange={handleChange} required className="modal-select" disabled>
                                         <option value="">Select Type</option>
                                         <option value="University">University</option>
                                         <option value="Higher Education Institute">Higher Education Institute</option>
@@ -214,53 +217,26 @@ const EditProfileModal = ({ institute, onClose, onUpdate }) => {
                                 </div>
                                 <div className="form-group">
                                     <label>Location:</label>
-                                    <input type="text" name="location" value={formData.location} onChange={handleChange} required />
+                                    <input type="text" name="location" value={formData.location} onChange={handleChange} required disabled />
                                 </div>
                                 <div className="form-group">
                                     <label>Email:</label>
-                                    <input type="email" name="email" value={formData.email} onChange={handleChange} required />
+                                    <input type="email" name="email" value={formData.email} onChange={handleChange} required disabled />
                                 </div>
                                 <div className="form-group">
                                     <label>Contact Number:</label>
-                                    <input type="text" name="contact_number" value={formData.contact_number} onChange={handleChange} required />
+                                    <input type="text" name="contact_number" value={formData.contact_number} onChange={handleChange} required disabled />
                                 </div>
                                 <div className="form-group">
                                     <label>Website:</label>
-                                    <input type="text" name="website" value={formData.website} onChange={handleChange} />
+                                    <input type="text" name="website" value={formData.website} onChange={handleChange} disabled />
                                 </div>
                                 <div className="form-group">
                                     <label>Bio:</label>
                                     <textarea name="bio" rows="3" value={formData.bio} onChange={handleChange}></textarea>
                                 </div>
 
-                                {isPremium && (
-                                    <div className="toggles-column">
-                                        <div className="toggle-switch-row">
-                                            <label>Enable Followers:</label>
-                                            <label className="switch">
-                                                <input
-                                                    type="checkbox"
-                                                    name="followers_enabled"
-                                                    checked={formData.followers_enabled}
-                                                    onChange={handleChange}
-                                                />
-                                                <span className="slider round"></span>
-                                            </label>
-                                        </div>
-                                        <div className="toggle-switch-row">
-                                            <label>Enable Reviews:</label>
-                                            <label className="switch">
-                                                <input
-                                                    type="checkbox"
-                                                    name="reviews_enabled"
-                                                    checked={formData.reviews_enabled}
-                                                    onChange={handleChange}
-                                                />
-                                                <span className="slider round"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                )}
+
                             </div>
                         </div>
                     </div>

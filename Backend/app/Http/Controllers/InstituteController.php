@@ -615,6 +615,7 @@ class InstituteController extends Controller
 
         $validatedData = $request->validate([
             'institute_name' => 'required|string|max:255',
+            'institute_type' => 'required|string|in:University,Higher Education Institute,College,Institute,Training Center,Vocational Training Center,Technical Institute,Professional Institute,Academy,Government Institute,International Institute',
             'location' => 'required|string|max:255',
             'email' => 'required|email|unique:institutes,email,' . $id,
             'contact_number' => 'required|string|max:15',
@@ -627,6 +628,14 @@ class InstituteController extends Controller
 
         $institute->update($validatedData);
 
+        // Sync with User model if name or email changed
+        $user = User::find($institute->user_id);
+        if ($user) {
+            $user->name = $institute->institute_name;
+            $user->email = $institute->email;
+            $user->save();
+        }
+
         AdminActivityLogger::log(
             'Updated',
             'Institute',
@@ -634,7 +643,7 @@ class InstituteController extends Controller
             auth()->user()->name . " updated details for institute \"{$institute->institute_name}\""
         );
 
-        return response()->json(['success' => true, 'message' => 'Institute updated successfully', 'institute' => $institute]);
+        return response()->json(['success' => true, 'message' => 'Institute updated successfully', 'institute' => $institute->fresh()]);
     }
     // Track Institute Profile Views
     public function trackView(Request $request, $id)

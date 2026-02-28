@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Shield, MoreVertical, Building2, CheckCircle, XCircle, AlertCircle, Eye, Crown } from 'lucide-react';
+import { Search, Filter, Shield, MoreVertical, Building2, CheckCircle, XCircle, AlertCircle, Eye, Crown, Edit } from 'lucide-react';
 import axiosClient from '../../lib/axios';
 import ActionConfirmModal from '../../components/Modals/ActionConfirmModal';
+import AdminEditInstituteModal from './modals/AdminEditInstituteModal';
 import './InstituteManagement.css';
 
 const InstituteManagement = () => {
@@ -9,6 +10,8 @@ const InstituteManagement = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
+
+    const [isProcessingAction, setIsProcessingAction] = useState(false);
 
     // Confirmation Modal State
     const [confirmModal, setConfirmModal] = useState({
@@ -20,7 +23,13 @@ const InstituteManagement = () => {
         instituteId: null,
         action: null // 'approve' | 'unapprove'
     });
-    const [isProcessingAction, setIsProcessingAction] = useState(false);
+
+    // Edit Modal State
+    const [editModal, setEditModal] = useState({
+        isOpen: false,
+        institute: null
+    });
+    const [isUpdating, setIsUpdating] = useState(false);
 
     const fetchInstitutes = async (isSilent = false) => {
         try {
@@ -114,6 +123,31 @@ const InstituteManagement = () => {
         }
     };
 
+    const handleEdit = (institute) => {
+        setEditModal({
+            isOpen: true,
+            institute: institute
+        });
+    };
+
+    const handleUpdateInstitute = async (updatedData) => {
+        setIsUpdating(true);
+        try {
+            const response = await axiosClient.put(`/api/admin/institutes/${editModal.institute.id}`, updatedData);
+            if (response.data.success) {
+                setInstitutes(institutes.map(inst =>
+                    inst.id === editModal.institute.id ? response.data.institute : inst
+                ));
+                setEditModal({ isOpen: false, institute: null });
+            }
+        } catch (error) {
+            console.error('Error updating institute:', error);
+            alert('Failed to update institute details. ' + (error.response?.data?.message || ''));
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
     const filteredInstitutes = institutes.filter(inst => {
         const nameMatch = (inst.institute_name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
         const emailMatch = (inst.email?.toLowerCase() || '').includes(searchTerm.toLowerCase());
@@ -161,7 +195,7 @@ const InstituteManagement = () => {
                                 <th>Location</th>
                                 <th>Website</th>
                                 <th>Contact No.</th>
-                                <th>Gov. Reg. No</th>
+                                {/* <th>Gov. Reg. No</th> */}
                                 <th>Followers</th>
                                 <th>Status</th>
                                 <th>Tier</th>
@@ -224,7 +258,7 @@ const InstituteManagement = () => {
                                             )}
                                         </td>
                                         <td className="text-sm font-mono">{inst.contact_number || '-'}</td>
-                                        <td className="text-sm font-mono">{inst.gov_register_number || '-'}</td>
+                                        {/* <td className="text-sm font-mono">{inst.gov_register_number || '-'}</td> */}
                                         <td className="text-sm font-semibold" style={{ textAlign: 'center' }}>{inst.followers_count || 0}</td>
                                         <td>
                                             <span className={`status-pill ${(inst.status || '').toLowerCase()}`} title={inst.status ? inst.status.charAt(0).toUpperCase() + inst.status.slice(1) : 'Unknown'}>
@@ -259,6 +293,13 @@ const InstituteManagement = () => {
                                                         <XCircle size={18} />
                                                     </button>
                                                 )}
+                                                <button
+                                                    className="action-btn-sm edit"
+                                                    title="Edit Institute Details"
+                                                    onClick={() => handleEdit(inst)}
+                                                >
+                                                    <Edit size={18} />
+                                                </button>
                                                 <a
                                                     href={`/institutions/${inst.slug || inst.id}/profile`}
                                                     target="_blank"
@@ -288,6 +329,15 @@ const InstituteManagement = () => {
                 confirmText={confirmModal.confirmText}
                 cancelText="Cancel"
                 type={confirmModal.type}
+            />
+
+            {/* Edit Modal */}
+            <AdminEditInstituteModal
+                isOpen={editModal.isOpen}
+                onClose={() => setEditModal({ isOpen: false, institute: null })}
+                onUpdate={handleUpdateInstitute}
+                institute={editModal.institute}
+                isProcessing={isUpdating}
             />
         </div>
     );
