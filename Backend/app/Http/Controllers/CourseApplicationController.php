@@ -86,6 +86,16 @@ class CourseApplicationController extends Controller
                 ->from($validated['email'], $validated['name']);
         });
 
+        // Send Confirmation Email to Student
+        $studentEmailData = array_merge($emailData, [
+            'institute_name' => $institute->name,
+        ]);
+
+        Mail::send('emails.course_application_student', ['data' => $studentEmailData], function ($message) use ($validated) {
+            $message->to($validated['email'])
+                ->subject('Application Received: ' . $validated['course_title']);
+        });
+
         // If AJAX request, return JSON
         if ($request->expectsJson()) {
             return response()->json(['message' => 'Application sent successfully!']);
