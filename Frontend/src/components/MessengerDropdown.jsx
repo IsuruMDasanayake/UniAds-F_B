@@ -85,8 +85,16 @@ const MessengerDropdown = ({ isOpen, onClose }) => {
     };
 
     const filteredConversations = conversations.filter(conv => {
-        const name = conv.other_participant?.institute?.institute_name || conv.other_participant?.user?.name || '';
+        const otherInst = conv.other_participant?.institute;
+        const chatEnabled = otherInst ? otherInst.chat_enabled : true;
+
+        const name = otherInst?.institute_name || conv.other_participant?.user?.name || '';
         const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase());
+
+        // Hide if chat is explicitly disabled for the institute
+        if (otherInst && (chatEnabled === false || Number(chatEnabled) === 0)) {
+            return false;
+        }
 
         if (activeTab === 'Unread') return matchesSearch && conv.unread_count > 0;
         return matchesSearch;
@@ -94,11 +102,11 @@ const MessengerDropdown = ({ isOpen, onClose }) => {
 
     const filteredInstitutions = institutions.filter(inst => {
         const matchesSearch = inst.institute_name.toLowerCase().includes(searchTerm.toLowerCase());
-        // Exclude if an active conversation already exists with this institute
+        // Exclude if an active conversation already exists with this institute or chat is disabled
         const hasConversation = conversations.some(c =>
             c.participants?.some(p => p.institute_id === inst.id)
         );
-        return matchesSearch && !hasConversation;
+        return matchesSearch && !hasConversation && Number(inst.chat_enabled) !== 0;
     }).map(inst => {
         return {
             ...inst,
@@ -259,4 +267,3 @@ const MessengerDropdown = ({ isOpen, onClose }) => {
 };
 
 export default MessengerDropdown;
-

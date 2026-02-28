@@ -373,6 +373,7 @@ const CoursesPage = () => {
                 onMoreInfo={() => setShowInfoModal(true)}
                 userRole={user?.role}
                 isPremium={!!(selectedPost?.institute?.is_premium && selectedPost?.institute?.premium_expires_at && new Date() <= new Date(selectedPost.institute.premium_expires_at))}
+                institute={selectedPost?.institute}
             />
 
             <ApplyNowModal

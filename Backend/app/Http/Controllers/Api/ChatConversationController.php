@@ -151,8 +151,9 @@ class ChatConversationController extends Controller
     private function isAuthorizedToChat($user, $institute, $targetType, $targetId)
     {
         // Require initiator institute to be premium if they are the one starting it
-        if ($institute && !$institute->is_premium) {
-            return false;
+        if ($institute) {
+            if (!$institute->is_premium) return false;
+            if (!$institute->chat_enabled) return false;
         }
 
         // 1. If initiator is a Student
@@ -161,17 +162,17 @@ class ChatConversationController extends Controller
             if ($targetType !== 'institute') return false;
 
             $targetInstitute = Institute::find($targetId);
-            return $targetInstitute && $targetInstitute->is_premium;
+            return $targetInstitute && $targetInstitute->is_premium && $targetInstitute->chat_enabled;
         }
 
-        // 2. If initiator is an Institute (already checked initiator is premium above)
+        // 2. If initiator is an Institute (already checked initiator is premium and enabled above)
         // Can chat with Students
         if ($targetType === 'user') return true;
 
-        // Can chat with other PREMIUM institutes
+        // Can chat with other PREMIUM institutes that have chat enabled
         if ($targetType === 'institute') {
             $targetInstitute = Institute::find($targetId);
-            return $targetInstitute && $targetInstitute->is_premium;
+            return $targetInstitute && $targetInstitute->is_premium && $targetInstitute->chat_enabled;
         }
 
         return false;

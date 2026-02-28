@@ -200,6 +200,7 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
                 onMoreInfo={() => setShowInfoModal(true)}
                 userRole={userRole}
                 isPremium={!!(institute?.is_premium && institute?.premium_expires_at && new Date() <= new Date(institute.premium_expires_at))}
+                institute={institute}
             />
 
             <ApplyNowModal

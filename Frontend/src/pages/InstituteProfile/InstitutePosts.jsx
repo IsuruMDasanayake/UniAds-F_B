@@ -337,6 +337,7 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
                         onApply={() => openApplyModal()}
                         onMoreInfo={() => openInfoModal()}
                         isPremium={isPremium}
+                        institute={institute}
                     />
 
                     <ApplyNowModal

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Loader2, Save } from 'lucide-react';
 import axiosClient from '../../../lib/axios';
 
-const VisibilitySettingsTab = ({ institute }) => {
+const VisibilitySettingsTab = ({ institute, onRefresh }) => {
     const [loading, setLoading] = useState(false);
     const [successMsg, setSuccessMsg] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
@@ -29,11 +29,6 @@ const VisibilitySettingsTab = ({ institute }) => {
         try {
             // Using a FormData object to send to apiUpdateProfile
             const formData = new FormData();
-            formData.append('institute_name', institute.institute_name);
-            formData.append('institute_type', institute.institute_type);
-            formData.append('location', institute.location);
-            formData.append('email', institute.email);
-            formData.append('contact_number', institute.contact_number);
             formData.append('followers_enabled', settings.followers_enabled ? '1' : '0');
             formData.append('reviews_enabled', settings.reviews_enabled ? '1' : '0');
             formData.append('chat_enabled', settings.chat_enabled ? '1' : '0');
@@ -50,6 +45,9 @@ const VisibilitySettingsTab = ({ institute }) => {
                 const storedUser = JSON.parse(localStorage.getItem('APP_USER'));
                 storedUser.institute = response.data.institute;
                 localStorage.setItem('APP_USER', JSON.stringify(storedUser));
+
+                // Reload section by refreshing parent data
+                if (onRefresh) onRefresh();
             }
         } catch (error) {
             console.error('Save error:', error);

@@ -250,16 +250,17 @@ class InstituteController extends Controller
 
             // Validate inputs
             $request->validate([
-                'institute_name' => 'required|string|max:255',
-                'institute_type' => 'required|string|in:University,Higher Education Institute,College,Institute,Training Center,Vocational Training Center,Technical Institute,Professional Institute,Academy,Government Institute,International Institute',
-                'location' => 'required|string|max:255',
+                'institute_name' => 'sometimes|required|string|max:255',
+                'institute_type' => 'sometimes|required|string|in:University,Higher Education Institute,College,Institute,Training Center,Vocational Training Center,Technical Institute,Professional Institute,Academy,Government Institute,International Institute',
+                'location' => 'sometimes|required|string|max:255',
                 'email' => [
+                    'sometimes',
                     'required',
                     'email',
                     Rule::unique('institutes', 'email')->ignore($id),
                     Rule::unique('users', 'email')->ignore($institute->user_id),
                 ],
-                'contact_number' => 'required|string|max:15',
+                'contact_number' => 'sometimes|required|string|max:15',
                 'website' => 'nullable|url',
                 'bio' => 'nullable|string|max:1000',
                 'profile_photo' => 'nullable|image|max:2048',
@@ -295,14 +296,28 @@ class InstituteController extends Controller
                 $institute->cover_photo = $request->file('cover_photo')->store('institute_covers', 'public');
             }
 
-            // Update fields
-            $institute->institute_name = $request->institute_name;
-            $institute->institute_type = $request->institute_type;
-            $institute->location = $request->location;
-            $institute->email = $request->email;
-            $institute->contact_number = $request->contact_number;
-            $institute->website = $request->website;
-            $institute->bio = $request->bio;
+            // Update fields conditionally to prevent partial updates from nulling existing data
+            if ($request->has('institute_name')) {
+                $institute->institute_name = $request->institute_name;
+            }
+            if ($request->has('institute_type')) {
+                $institute->institute_type = $request->institute_type;
+            }
+            if ($request->has('location')) {
+                $institute->location = $request->location;
+            }
+            if ($request->has('email')) {
+                $institute->email = $request->email;
+            }
+            if ($request->has('contact_number')) {
+                $institute->contact_number = $request->contact_number;
+            }
+            if ($request->has('website')) {
+                $institute->website = $request->website;
+            }
+            if ($request->has('bio')) {
+                $institute->bio = $request->bio;
+            }
 
             if ($request->has('slug') && !empty($request->slug)) {
                 $institute->slug = \Illuminate\Support\Str::slug($request->slug);

@@ -13,19 +13,20 @@ const SettingsPage = () => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const fetchUserData = async () => {
+        try {
+            // Fetch the freshest user data
+            const response = await axiosClient.get('/api/user');
+            setUser(response.data);
+            localStorage.setItem('APP_USER', JSON.stringify(response.data));
+        } catch (error) {
+            console.error("Failed to load user data inside settings:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                // Fetch the freshest user data
-                const response = await axiosClient.get('/api/user');
-                setUser(response.data);
-                localStorage.setItem('APP_USER', JSON.stringify(response.data));
-            } catch (error) {
-                console.error("Failed to load user data inside settings:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchUserData();
     }, []);
 
@@ -79,7 +80,7 @@ const SettingsPage = () => {
                             exit={{ opacity: 0, y: -10 }}
                             transition={{ duration: 0.2 }}
                         >
-                            <ProfileSettingsTab institute={user.institute} />
+                            <ProfileSettingsTab institute={user.institute} onRefresh={fetchUserData} />
                         </motion.div>
                     )}
 
@@ -91,7 +92,7 @@ const SettingsPage = () => {
                             exit={{ opacity: 0, y: -10 }}
                             transition={{ duration: 0.2 }}
                         >
-                            <VisibilitySettingsTab institute={user.institute} />
+                            <VisibilitySettingsTab institute={user.institute} onRefresh={fetchUserData} />
                         </motion.div>
                     )}
 

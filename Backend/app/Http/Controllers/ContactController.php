@@ -69,7 +69,17 @@ class ContactController extends Controller
 
     public function apiSendContactMessage(Request $request, $id)
     {
+        // Get the institute by ID or slug
         $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
+        $id = $institute->id; // Ensure we have the numeric ID for subsequent queries if needed
+
+        // Store application in apply_cases table
+        if (!$institute->inquiries_enabled) {
+            return response()->json([
+                'success' => false,
+                'message' => 'General inquiries are currently disabled for this institute.'
+            ], 403);
+        }
 
         $request->validate([
             'name' => 'required|string|max:255',

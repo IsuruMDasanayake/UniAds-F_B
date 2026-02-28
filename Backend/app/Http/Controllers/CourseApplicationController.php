@@ -34,6 +34,14 @@ class CourseApplicationController extends Controller
         $institute = is_numeric($institute_id) ? Institute::findOrFail($institute_id) : Institute::where('slug', $institute_id)->firstOrFail();
         $institute_id = $institute->id; // Use numeric ID for subsequent queries
 
+        // Check if applications are enabled
+        if (!$institute->applications_enabled) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Course applications are currently disabled for this institute.'], 403);
+            }
+            return back()->with('error', 'Course applications are currently disabled for this institute.');
+        }
+
         // Store application in apply_cases table
         $alreadyApplied = ApplyCase::where('user_id', Auth::id())
             ->where('institute_id', $institute_id)

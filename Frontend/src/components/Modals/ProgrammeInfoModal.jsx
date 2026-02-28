@@ -5,8 +5,11 @@ import { getStorageUrl } from '../../lib/config';
 import axiosClient from '../../lib/axios';
 import './ProgrammeInfoModal.css';
 
-const ProgrammeInfoModal = ({ course, isOpen, onClose, onApply, onMoreInfo, userRole, isPremium }) => {
+const ProgrammeInfoModal = ({ course, isOpen, onClose, onApply, onMoreInfo, userRole, isPremium, institute: explicitInstitute }) => {
     const [copied, setCopied] = useState(false);
+
+    // Use explicit institute prop if provided, otherwise fallback to course.institute
+    const activeInstitute = explicitInstitute || course?.institute;
 
     React.useEffect(() => {
         if (isOpen && course?.id) {
@@ -87,10 +90,12 @@ const ProgrammeInfoModal = ({ course, isOpen, onClose, onApply, onMoreInfo, user
                         <div className="programme-info-modal-footer">
                             {userRole === 'User' && (
                                 <>
-                                    <button className="programme-info-apply-btn" onClick={onApply}>
-                                        Apply Now <Send size={18} />
-                                    </button>
-                                    {isPremium && (
+                                    {(activeInstitute?.applications_enabled !== false && Number(activeInstitute?.applications_enabled) !== 0) && (
+                                        <button className="programme-info-apply-btn" onClick={onApply}>
+                                            Apply Now <Send size={18} />
+                                        </button>
+                                    )}
+                                    {isPremium && (activeInstitute?.chat_enabled !== false && Number(activeInstitute?.chat_enabled) !== 0) && (
                                         <button className="programme-info-info-btn" onClick={onMoreInfo}>
                                             Get More Info <Info size={18} />
                                         </button>

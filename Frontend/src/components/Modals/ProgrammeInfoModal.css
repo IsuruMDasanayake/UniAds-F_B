@@ -170,8 +170,8 @@
 
 .programme-info-info-btn {
     flex: 1;
-    background: #f1f5f9;
-    color: var(--c-dark);
+    background: var(--c-primary);
+    color: white;
     border: none;
     padding: 0.9rem;
     border-radius: 16px;
@@ -186,7 +186,7 @@
 }
 
 .programme-info-info-btn:hover {
-    background: #e2e8f0;
+    background: var(--c-primary-hover);
     transform: translateY(-2px);
 }
 

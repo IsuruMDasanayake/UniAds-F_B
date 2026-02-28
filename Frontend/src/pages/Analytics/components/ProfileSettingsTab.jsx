@@ -27,7 +27,7 @@ const LocationPicker = ({ position, setPosition }) => {
     return position ? <Marker position={position} /> : null;
 };
 
-const ProfileSettingsTab = ({ institute }) => {
+const ProfileSettingsTab = ({ institute, onRefresh }) => {
     const [loading, setLoading] = useState(false);
     const [successMsg, setSuccessMsg] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
@@ -115,12 +115,23 @@ const ProfileSettingsTab = ({ institute }) => {
 
             if (response.data.success) {
                 setSuccessMsg('Profile settings updated successfully!');
-                setTimeout(() => setSuccessMsg(''), 4000);
 
                 // Update local storage
                 const storedUser = JSON.parse(localStorage.getItem('APP_USER'));
                 storedUser.institute = response.data.institute;
                 localStorage.setItem('APP_USER', JSON.stringify(storedUser));
+
+                // If slug changed, reload the full page with the new slug url
+                if (formData.slug !== institute.slug) {
+                    setSuccessMsg('Slug updated! Redirecting to new URL...');
+                    setTimeout(() => {
+                        window.location.href = `/analytics/${formData.slug}/settings`;
+                    }, 1500);
+                } else {
+                    setTimeout(() => setSuccessMsg(''), 4000);
+                    // Refresh parent data if not redirecting
+                    if (onRefresh) onRefresh();
+                }
             }
         } catch (error) {
             console.error('Update profile error:', error);
