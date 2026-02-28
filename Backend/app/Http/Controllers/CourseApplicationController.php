@@ -40,6 +40,9 @@ class CourseApplicationController extends Controller
             ->where('course_title', $validated['course_title'])
             ->exists();
 
+        // Fetch post for details and institute name
+        $post = Post::with('institute')->find($validated['post_id']);
+
         if (! $alreadyApplied) {
             $application = ApplyCase::create([
                 'user_id'       => Auth::id(),
@@ -53,9 +56,6 @@ class CourseApplicationController extends Controller
                 'status'        => 'new',
                 'applied_at'    => now(),
             ]);
-
-            // Fetch post for image
-            $post = \App\Models\Post::find($validated['post_id']);
 
             // Trigger Notification
             Notification::create([
@@ -88,12 +88,12 @@ class CourseApplicationController extends Controller
 
         // Send Confirmation Email to Student
         $studentEmailData = array_merge($emailData, [
-            'institute_name' => $institute->name,
+            'institute_name' => $post->institute->institute_name ?? $institute->institute_name,
         ]);
 
         Mail::send('emails.course_application_student', ['data' => $studentEmailData], function ($message) use ($validated) {
             $message->to($validated['email'])
-                ->subject('Application Received: ' . $validated['course_title']);
+                ->subject('Application Sent: ' . $validated['course_title']);
         });
 
         // If AJAX request, return JSON

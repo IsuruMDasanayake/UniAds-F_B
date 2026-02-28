@@ -96,7 +96,7 @@
     <div class="wrapper">
         <div class="container">
             <div class="header">
-                <h1>Application Received</h1>
+                <h1>Application Sent</h1>
             </div>
             <div class="content">
                 <div class="greeting">Dear {{ $data['name'] }},</div>
