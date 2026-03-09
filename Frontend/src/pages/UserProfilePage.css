@@ -2,7 +2,7 @@
 
 
 /* Loading State */
-.profile-loading-overlay {
+.upp-profile-loading-overlay {
     position: fixed;
     inset: 0;
     width: 100%;
@@ -14,31 +14,31 @@
     z-index: 9999;
 }
 
-.spinner-box {
+.upp-spinner-box {
     text-align: center;
 }
 
-.spinner-box p {
+.upp-spinner-box p {
     margin-top: 1rem;
     font-weight: 600;
     color: var(--c-text-muted);
 }
 
-.user-profile-page {
+.upp-user-profile-page {
     min-height: 100vh;
     background-color: var(--c-bg);
     font-family: var(--font-main);
     color: var(--c-dark);
 }
 
-.profile-container {
+.upp-profile-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 100px 20px 60px;
 }
 
 /* Header/Cover Section */
-.profile-header-card {
+.upp-profile-header-card {
     background: var(--c-card-bg);
     border-radius: var(--c-radius-lg);
     box-shadow: var(--c-shadow-md);
@@ -48,13 +48,13 @@
     margin-top: 10px;
 }
 
-.profile-cover {
+.upp-profile-cover {
     height: 200px;
     background: linear-gradient(135deg, var(--c-dark) 0%, #1e293b 100%);
     position: relative;
 }
 
-.profile-header-content {
+.upp-profile-header-content {
     padding: 0 40px 30px;
     display: flex;
     align-items: flex-end;
@@ -62,12 +62,12 @@
     margin-top: -60px;
 }
 
-.profile-avatar-wrapper {
+.upp-profile-avatar-wrapper {
     position: relative;
     z-index: 10;
 }
 
-.profile-avatar-large {
+.upp-profile-avatar-large {
     width: 140px;
     height: 140px;
     border-radius: 50%;
@@ -78,13 +78,13 @@
     transition: all 0.3s ease;
 }
 
-.avatar-container {
+.upp-avatar-container {
     position: relative;
     width: 140px;
     height: 140px;
 }
 
-.avatar-loader {
+.upp-avatar-loader {
     position: absolute;
     top: 0;
     left: 0;
@@ -100,22 +100,22 @@
     z-index: 5;
 }
 
-.spinner-small {
+.upp-spinner-small {
     width: 30px;
     height: 30px;
     border: 3px solid var(--c-primary-soft);
     border-top: 3px solid var(--c-primary);
     border-radius: 50%;
-    animation: loader-rotate 0.8s linear infinite;
+    animation: upp-loader-rotate 0.8s linear infinite;
 }
 
-@keyframes loader-rotate {
+@keyframes upp-loader-rotate {
     to {
         transform: rotate(360deg);
     }
 }
 
-.avatar-edit-btn {
+.upp-avatar-edit-btn {
     position: absolute;
     bottom: 5px;
     right: 5px;
@@ -134,12 +134,12 @@
     z-index: 10;
 }
 
-.avatar-edit-btn:hover {
+.upp-avatar-edit-btn:hover {
     transform: scale(1.1) rotate(5deg);
     background: var(--c-accent);
 }
 
-.profile-alert {
+.upp-profile-alert {
     position: fixed;
     top: 20px;
     left: 50%;
@@ -155,31 +155,31 @@
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-.profile-alert.success {
+.upp-profile-alert.upp-success {
     background: var(--c-success);
 }
 
-.profile-alert.error {
+.upp-profile-alert.upp-error {
     background: var(--c-accent);
 }
 
-.profile-identity {
+.upp-profile-identity {
     padding-bottom: 10px;
 }
 
-.profile-identity h1 {
+.upp-profile-identity h1 {
     font-size: 2rem;
     font-weight: 700;
     margin: 0;
     color: var(--c-dark);
 }
 
-.profile-identity p {
+.upp-profile-identity p {
     color: var(--c-text-muted);
     margin: 4px 0 0;
 }
 
-.profile-badge {
+.upp-profile-badge {
     background: var(--c-primary-soft);
     color: var(--c-primary);
     padding: 4px 12px;
@@ -191,27 +191,27 @@
 }
 
 /* Dashboard Layout */
-.profile-content-grid {
+.upp-profile-content-grid {
     display: grid;
     grid-template-columns: 320px 1fr;
     gap: 20px;
 }
 
 /* Sidebar Styling */
-.profile-sidebar {
+.upp-profile-sidebar {
     display: flex;
     flex-direction: column;
     gap: 24px;
 }
 
-.sidebar-widget {
+.upp-sidebar-widget {
     background: var(--c-card-bg);
     border-radius: var(--c-radius-md);
     padding: 24px;
     box-shadow: var(--c-shadow-sm);
 }
 
-.widget-title {
+.upp-widget-title {
     font-size: 1rem;
     font-weight: 600;
     margin-bottom: 16px;
@@ -221,13 +221,13 @@
 }
 
 /* Stats Widget */
-.stats-grid {
+.upp-stats-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
 }
 
-.stat-item {
+.upp-stat-item {
     background: var(--c-bg);
     padding: 16px;
     border-radius: var(--c-radius-md);
@@ -235,31 +235,31 @@
     transition: transform 0.2s;
 }
 
-.stat-item:hover {
+.upp-stat-item:hover {
     transform: translateY(-2px);
 }
 
-.stat-value {
+.upp-stat-value {
     display: block;
     font-size: 1.25rem;
     font-weight: 700;
     color: var(--c-accent);
 }
 
-.stat-label {
+.upp-stat-label {
     font-size: 0.75rem;
     color: var(--c-text-muted);
     font-weight: 500;
 }
 
 /* Navigation Widget */
-.sidebar-nav {
+.upp-sidebar-nav {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
 
-.nav-item {
+.upp-nav-item {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -276,58 +276,58 @@
     font-family: var(--font-poppins);
 }
 
-.nav-item:hover {
+.upp-nav-item:hover {
     background: var(--c-bg);
     color: var(--c-dark);
 }
 
-.nav-item.active {
+.upp-nav-item.upp-active {
     background: var(--c-primary-soft);
     color: var(--c-primary);
 }
 
 /* Main Content Area */
-.profile-main-area {
+.upp-profile-main-area {
     display: flex;
     flex-direction: column;
     gap: 30px;
 }
 
-.content-card {
+.upp-content-card {
     background: var(--c-card-bg);
     border-radius: var(--c-radius-md);
     padding: 30px;
     box-shadow: var(--c-shadow-sm);
 }
 
-.section-header {
+.upp-section-header {
     margin-bottom: 24px;
     padding-bottom: 16px;
     border-bottom: 1px solid #eff2f5;
 }
 
-.section-header h2 {
+.upp-section-header h2 {
     font-size: 1.25rem;
     font-weight: 600;
     margin: 0;
 }
 
 /* Form Styling */
-.form-grid {
+.upp-form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
 }
 
-.full-width {
+.upp-full-width {
     grid-column: span 2;
 }
 
-.form-group {
+.upp-form-group {
     margin-bottom: 12px;
 }
 
-.form-group label {
+.upp-form-group label {
     display: block;
     font-size: 0.875rem;
     font-weight: 500;
@@ -335,7 +335,7 @@
     color: var(--c-dark);
 }
 
-.form-group input {
+.upp-form-group input {
     width: 100%;
     padding: 12px 16px;
     border-radius: 10px;
@@ -345,19 +345,35 @@
     font-family: var(--font-poppins);
 }
 
-.form-group input:focus {
+.upp-form-group input:focus {
     outline: none;
     border-color: var(--c-primary);
     box-shadow: 0 0 0 3px var(--c-primary-soft);
 }
 
-.form-group input:disabled {
+.upp-form-group input:disabled {
     background: #f1f5f9;
     cursor: not-allowed;
 }
 
+.upp-form-group .upp-input-error {
+    border-color: #ef4444 !important;
+}
+
+.upp-form-group .upp-input-error:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+}
+
+.upp-error-text {
+    color: #ef4444 !important;
+    display: block;
+    margin-top: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
 /* Buttons */
-.btn-save {
+.upp-btn-save {
     background: var(--c-primary);
     color: white;
     padding: 12px 24px;
@@ -372,51 +388,51 @@
     margin-top: 10px;
 }
 
-.btn-save:hover {
+.upp-btn-save:hover {
     background: var(--c-primary-hover);
     transform: translateY(-1px);
 }
 
 /* Responsive */
 @media (max-width: 992px) {
-    .profile-content-grid {
+    .upp-profile-content-grid {
         grid-template-columns: 1fr;
     }
 
-    .profile-sidebar {
+    .upp-profile-sidebar {
         order: 2;
     }
 
-    .profile-main-area {
+    .upp-profile-main-area {
         order: 1;
     }
 
-    .menu-widget {
+    .upp-menu-widget {
         display: none;
     }
 }
 
 @media (max-width: 768px) {
-    .profile-header-card {
+    .upp-profile-header-card {
         margin-top: 80px;
     }
 
-    .profile-header-content {
+    .upp-profile-header-content {
         flex-direction: column;
         align-items: center;
         text-align: center;
         padding: 0 20px 30px;
     }
 
-    .profile-identity {
+    .upp-profile-identity {
         padding-bottom: 0;
     }
 
-    .form-grid {
+    .upp-form-grid {
         grid-template-columns: 1fr;
     }
 
-    .full-width {
+    .upp-full-width {
         grid-column: span 1;
     }
 }

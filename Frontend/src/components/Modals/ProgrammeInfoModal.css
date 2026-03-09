@@ -223,7 +223,7 @@
     }
 
     .programme-info-modal-footer {
-        flex-direction: column;
+        flex-direction: row;
         gap: 0.8rem;
         padding: 0.75rem 1.25rem 1.25rem 1.25rem;
         border-radius: 0 0 20px 20px;

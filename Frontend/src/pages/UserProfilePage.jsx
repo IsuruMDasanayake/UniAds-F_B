@@ -163,8 +163,8 @@ const UserProfilePage = () => {
 
 
     if (loading) return (
-        <div className="profile-loading-overlay">
-            <div className="spinner-box">
+        <div className="upp-profile-loading-overlay">
+            <div className="upp-spinner-box">
                 <div className="ui-loader loader-blk">
                     <svg viewBox="22 22 44 44" className="multiColor-loader">
                         <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="3.6" className="loader-circle loader-circle-animation"></circle>
@@ -184,14 +184,14 @@ const UserProfilePage = () => {
         : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(avatarSeedRef.current || user?.name || 'User')}&backgroundColor=ffc107`;
 
     return (
-        <div className="user-profile-page">
+        <div className="upp-user-profile-page">
             <Navbar user={user} />
 
             {/* Premium Toast Overlay */}
             <AnimatePresence>
                 {alert.show && (
                     <motion.div
-                        className={`profile-alert ${alert.type}`}
+                        className={`upp-profile-alert upp-${alert.type}`}
                         initial={{ opacity: 0, y: -20, x: '-50%' }}
                         animate={{ opacity: 1, y: 20, x: '-50%' }}
                         exit={{ opacity: 0, y: -20, x: '-50%' }}
@@ -202,125 +202,100 @@ const UserProfilePage = () => {
                 )}
             </AnimatePresence>
 
-            <div className="profile-container">
-                <div className="profile-header-card" style={{ paddingTop: '50px' }}>
-                    <div className="profile-header-content" style={{ marginTop: '0' }}>
-                        <div className="profile-avatar-wrapper">
-                            <div className="avatar-container">
+            <div className="upp-profile-container">
+                <div className="upp-profile-header-card" style={{ paddingTop: '50px' }}>
+                    <div className="upp-profile-header-content" style={{ marginTop: '0' }}>
+                        <div className="upp-profile-avatar-wrapper">
+                            <div className="upp-avatar-container">
                                 <img
                                     src={avatarSrc}
                                     alt="Profile"
-                                    className="profile-avatar-large"
+                                    className="upp-profile-avatar-large"
                                 />
                             </div>
                         </div>
-                        <div className="profile-identity">
+                        <div className="upp-profile-identity">
                             <h1>{user?.name}</h1>
                             <p className="flex items-center gap-2">
                                 <Mail size={14} /> {user?.email}
                             </p>
-                            <span className="profile-badge">
+                            <span className="upp-profile-badge">
                                 {profileData?.role} account
                             </span>
                         </div>
                     </div>
                 </div>
 
-                <div className="profile-content-grid">
+                <div className="upp-profile-content-grid">
                     {/* Sidebar */}
-                    <aside className="profile-sidebar">
-                        <div className="sidebar-widget">
-                            <h3 className="widget-title">Quick Stats</h3>
-                            <div className="stats-grid">
-                                <div className="stat-item cursor-pointer hover:bg-gray-50 transition">
-                                    <span className="stat-value">{savedPosts.length}</span>
-                                    <span className="stat-label">Saved</span>
+                    <aside className="upp-profile-sidebar">
+                        <div className="upp-sidebar-widget">
+                            <h3 className="upp-widget-title">Quick Stats</h3>
+                            <div className="upp-stats-grid">
+                                <div className="upp-stat-item cursor-pointer hover:bg-gray-50 transition">
+                                    <span className="upp-stat-value">{savedPosts.length}</span>
+                                    <span className="upp-stat-label">Saved</span>
                                 </div>
-                                <div className="stat-item">
-                                    <span className="stat-value">{user?.district ? '1' : '0'}</span>
-                                    <span className="stat-label">Location</span>
+                                <div className="upp-stat-item">
+                                    <span className="upp-stat-value">{user?.district ? '1' : '0'}</span>
+                                    <span className="upp-stat-label">Location</span>
                                 </div>
-                                <div className="stat-item">
-                                    <span className="stat-value">{user?.education_level ? '1' : '0'}</span>
-                                    <span className="stat-label">Education</span>
+                                <div className="upp-stat-item">
+                                    <span className="upp-stat-value">{user?.education_level ? '1' : '0'}</span>
+                                    <span className="upp-stat-label">Education</span>
                                 </div>
-                                <div className="stat-item">
-                                    <span className="stat-value">0</span>
-                                    <span className="stat-label">Inquiries</span>
+                                <div className="upp-stat-item">
+                                    <span className="upp-stat-value">0</span>
+                                    <span className="upp-stat-label">Inquiries</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="sidebar-widget menu-widget">
-                            <h3 className="widget-title">Menu</h3>
-                            <nav className="sidebar-nav">
+                        <div className="upp-sidebar-widget upp-menu-widget">
+                            <h3 className="upp-widget-title">Menu</h3>
+                            <nav className="upp-sidebar-nav">
                                 <button
-                                    className={`nav-item ${activeTab === 'profile' ? 'active' : ''}`}
+                                    className={`upp-nav-item ${activeTab === 'profile' ? 'upp-active' : ''}`}
                                     onClick={() => setActiveTab('profile')}
                                 >
                                     <User size={18} /> Basic Details
                                 </button>
                                 <button
-                                    className={`nav-item ${activeTab === 'security' ? 'active' : ''}`}
+                                    className={`upp-nav-item ${activeTab === 'security' ? 'upp-active' : ''}`}
                                     onClick={() => setActiveTab('security')}
                                 >
                                     <ShieldCheck size={18} /> Password & Security
                                 </button>
-                                {/* <button
-                                    className={`nav-item ${activeTab === 'saved' ? 'active' : ''}`}
-                                    onClick={() => setActiveTab('saved')}
-                                >
-                                    <Bookmark size={18} /> Saved Posts
-                                </button>
-                                <div className="border-t my-2 pt-2">
-                                    <button
-                                        className="nav-item text-red-500 hover:bg-red-50"
-                                        onClick={handleLogout}
-                                    >
-                                        <LogOut size={18} /> Sign Out
-                                    </button>
-                                </div> */}
                             </nav>
                         </div>
-
-                        {/* <div className="sidebar-widget">
-                            <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm font-medium">Profile Completion</span>
-                                <span className="text-xs text-yellow-600 font-bold"> 100%</span>
-                            </div>
-                            <div className="w-full bg-gray-100 rounded-full h-2">
-                                <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '100%' }}></div>
-                            </div>
-                            <p className="text-[10px] text-gray-500 mt-2">Your profile is up to date!</p>
-                        </div> */}
                     </aside>
 
                     {/* Main Content Area */}
-                    <div className="profile-main-area">
+                    <div className="upp-profile-main-area">
                         {(isMobile || activeTab === 'profile') && (
                             <motion.div
-                                className="content-card"
+                                className="upp-content-card"
                                 initial={{ opacity: 0, x: isMobile ? 0 : 20, y: isMobile ? 20 : 0 }}
                                 animate={{ opacity: 1, x: 0, y: 0 }}
                                 key="profile-tab"
                             >
-                                <div className="section-header">
+                                <div className="upp-section-header">
                                     <h2>Basic Details</h2>
                                     <p className="text-sm text-gray-500 mt-1">Update your info to get better recommendations.</p>
                                 </div>
-                                <form onSubmit={handleUpdateProfile} className="form-grid">
-                                    <div className="form-group full-width">
+                                <form onSubmit={handleUpdateProfile} className="upp-form-grid">
+                                    <div className="upp-form-group upp-full-width">
                                         <label>Full Name</label>
                                         <input
                                             type="text"
                                             name="name"
                                             value={formData.name}
                                             onChange={handleChange}
-                                            className={errors.name ? 'input-error' : ''}
+                                            className={errors.name ? 'upp-input-error' : ''}
                                         />
-                                        {errors.name && <span className="error-text text-xs text-red-500">{errors.name[0]}</span>}
+                                        {errors.name && <span className="upp-error-text text-xs text-red-500">{errors.name[0]}</span>}
                                     </div>
-                                    <div className="form-group full-width">
+                                    <div className="upp-form-group upp-full-width">
                                         <label>Email Address</label>
                                         <input
                                             type="email"
@@ -329,33 +304,33 @@ const UserProfilePage = () => {
                                             disabled
                                         />
                                     </div>
-                                    <div className="form-group">
+                                    <div className="upp-form-group">
                                         <label>Gender</label>
                                         <select
                                             name="gender"
                                             value={formData.gender}
                                             onChange={handleChange}
-                                            className={`form-input-select ${errors.gender ? 'input-error' : ''}`}
+                                            className={`form-input-select ${errors.gender ? 'upp-input-error' : ''}`}
                                             style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #e2e8f0' }}
                                         >
                                             <option value="">Select Gender</option>
                                             <option value="Male">Male</option>
                                             <option value="Female">Female</option>
                                         </select>
-                                        {errors.gender && <span className="error-text text-xs text-red-500">{errors.gender[0]}</span>}
+                                        {errors.gender && <span className="upp-error-text text-xs text-red-500">{errors.gender[0]}</span>}
                                     </div>
-                                    <div className="form-group">
+                                    <div className="upp-form-group">
                                         <label>Birthday</label>
                                         <input
                                             type="date"
                                             name="birthday"
                                             value={formData.birthday}
                                             onChange={handleChange}
-                                            className={errors.birthday ? 'input-error' : ''}
+                                            className={errors.birthday ? 'upp-input-error' : ''}
                                         />
-                                        {errors.birthday && <span className="error-text text-xs text-red-500">{errors.birthday[0]}</span>}
+                                        {errors.birthday && <span className="upp-error-text text-xs text-red-500">{errors.birthday[0]}</span>}
                                     </div>
-                                    <div className="form-group">
+                                    <div className="upp-form-group">
                                         <label>District</label>
                                         <select
                                             name="district"
@@ -367,7 +342,7 @@ const UserProfilePage = () => {
                                             {districts.map(d => <option key={d} value={d}>{d}</option>)}
                                         </select>
                                     </div>
-                                    <div className="form-group">
+                                    <div className="upp-form-group">
                                         <label>Education Level</label>
                                         <select
                                             name="education_level"
@@ -380,8 +355,8 @@ const UserProfilePage = () => {
                                         </select>
                                     </div>
 
-                                    <div className="full-width mt-6 flex justify-end">
-                                        <button type="submit" className="btn-save">
+                                    <div className="upp-full-width mt-6 flex justify-end">
+                                        <button type="submit" className="upp-btn-save">
                                             <CheckCircle2 size={18} /> Update Details
                                         </button>
                                     </div>
@@ -391,17 +366,17 @@ const UserProfilePage = () => {
 
                         {(isMobile || activeTab === 'security') && (
                             <motion.div
-                                className="content-card"
+                                className="upp-content-card"
                                 initial={{ opacity: 0, x: isMobile ? 0 : 20, y: isMobile ? 20 : 0 }}
                                 animate={{ opacity: 1, x: 0, y: 0 }}
                                 key="security-tab"
                             >
-                                <div className="section-header">
+                                <div className="upp-section-header">
                                     <h2>Security Settings</h2>
                                     <p className="text-sm text-gray-500 mt-1">Keep your account secure with a strong password.</p>
                                 </div>
-                                <form onSubmit={handleUpdatePassword} className="form-grid">
-                                    <div className="form-group full-width">
+                                <form onSubmit={handleUpdatePassword} className="upp-form-grid">
+                                    <div className="upp-form-group upp-full-width">
                                         <label>Current Password</label>
                                         <input
                                             type="password"
@@ -409,11 +384,11 @@ const UserProfilePage = () => {
                                             placeholder="••••••••"
                                             value={formData.current_password}
                                             onChange={handleChange}
-                                            className={errors.current_password ? 'input-error' : ''}
+                                            className={errors.current_password ? 'upp-input-error' : ''}
                                         />
-                                        {errors.current_password && <span className="error-text text-xs text-red-500">{errors.current_password[0]}</span>}
+                                        {errors.current_password && <span className="upp-error-text text-xs text-red-500">{errors.current_password[0]}</span>}
                                     </div>
-                                    <div className="form-group">
+                                    <div className="upp-form-group">
                                         <label>New Password</label>
                                         <input
                                             type="password"
@@ -421,11 +396,11 @@ const UserProfilePage = () => {
                                             placeholder="New strong password"
                                             value={formData.new_password}
                                             onChange={handleChange}
-                                            className={errors.new_password ? 'input-error' : ''}
+                                            className={errors.new_password ? 'upp-input-error' : ''}
                                         />
-                                        {errors.new_password && <span className="error-text text-xs text-red-500">{errors.new_password[0]}</span>}
+                                        {errors.new_password && <span className="upp-error-text text-xs text-red-500">{errors.new_password[0]}</span>}
                                     </div>
-                                    <div className="form-group">
+                                    <div className="upp-form-group">
                                         <label>Confirm Password</label>
                                         <input
                                             type="password"
@@ -435,8 +410,8 @@ const UserProfilePage = () => {
                                             onChange={handleChange}
                                         />
                                     </div>
-                                    <div className="full-width mt-4">
-                                        <button type="submit" className="btn-save bg-accent hover:bg-red-600">
+                                    <div className="upp-full-width mt-4">
+                                        <button type="submit" className="upp-btn-save bg-accent hover:bg-red-600">
                                             Update Password
                                         </button>
                                     </div>
@@ -446,12 +421,12 @@ const UserProfilePage = () => {
 
                         {activeTab === 'saved' && (
                             <motion.div
-                                className="content-card"
+                                className="upp-content-card"
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 key="saved-tab"
                             >
-                                <div className="section-header">
+                                <div className="upp-section-header">
                                     <h2>Saved Posts</h2>
                                     <p className="text-sm text-gray-500 mt-1">Items you've bookmarked for later.</p>
                                 </div>
@@ -468,7 +443,7 @@ const UserProfilePage = () => {
                                         <p className="text-sm text-gray-500 max-w-xs mt-2">
                                             Start exploring courses and institutes and save them here for quick access.
                                         </p>
-                                        <Link to="/feed" className="btn-save mt-6 no-underline">Explore Feed</Link>
+                                        <Link to="/feed" className="upp-btn-save mt-6 no-underline">Explore Feed</Link>
                                     </div>
                                 ) : (
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
