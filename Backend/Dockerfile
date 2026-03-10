@@ -38,10 +38,11 @@ RUN install-php-extensions \
 # Use the default production configuration
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-# Override upload limits
+# Override upload limits and performance
 RUN echo "upload_max_filesize=50M" > /usr/local/etc/php/conf.d/uploads.ini \
     && echo "post_max_size=50M" >> /usr/local/etc/php/conf.d/uploads.ini \
-    && echo "memory_limit=256M" >> /usr/local/etc/php/conf.d/uploads.ini
+    && echo "memory_limit=512M" >> /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "max_execution_time=300" >> /usr/local/etc/php/conf.d/uploads.ini
 
 RUN php -v && php -m
 

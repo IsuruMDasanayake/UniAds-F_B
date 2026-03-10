@@ -35,10 +35,10 @@ class AiAdvisorController extends Controller
         Return ONLY a valid JSON object with these keys: education_level, stream, interest, career_goal, study_preference. 
         If a piece of information is missing, use null. Translate the values to English for the JSON fields. Do not include any other text.";
 
-        $ollamaUrl = "http://host.docker.internal:11434/api/generate";
+        $ollamaUrl = "http://ollama:11434/api/generate";
         
         try {
-            $extractResponse = Http::timeout(60)->post($ollamaUrl, [
+            $extractResponse = Http::timeout(180)->post($ollamaUrl, [
                 "model" => "llama3",
                 "prompt" => $extractionPrompt,
                 "stream" => false,
@@ -199,10 +199,10 @@ class AiAdvisorController extends Controller
 
     private function callOllama($prompt, $profile, $realPosts = [])
     {
-        $ollamaUrl = "http://host.docker.internal:11434/api/generate";
+        $ollamaUrl = "http://ollama:11434/api/generate";
         
         try {
-            $response = Http::timeout(120)->post($ollamaUrl, [
+            $response = Http::timeout(180)->post($ollamaUrl, [
                 "model" => "llama3",
                 "prompt" => $prompt,
                 "stream" => false
