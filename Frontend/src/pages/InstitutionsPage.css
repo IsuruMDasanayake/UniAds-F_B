@@ -235,12 +235,16 @@
     align-items: center;
     justify-content: center;
     height: 100vh;
-    color: var(--c-text-muted);
+    position: fixed;
+    inset: 0;
+    background: #f5f5f5;
+    z-index: 10000;
 }
 
 .ins-loading-state p {
     margin-top: 1rem;
     font-weight: 600;
+    color: var(--c-text-muted);
 }
 
 /* No Institutions State */

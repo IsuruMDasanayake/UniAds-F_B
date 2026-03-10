@@ -11,7 +11,7 @@
     align-items: center;
     justify-content: center;
     background: rgba(255, 255, 255, 0.95);
-    z-index: 9999;
+    z-index: 10000;
 }
 
 .upp-spinner-box {
@@ -351,9 +351,235 @@
     box-shadow: 0 0 0 3px var(--c-primary-soft);
 }
 
-.upp-form-group input:disabled {
-    background: #f1f5f9;
-    cursor: not-allowed;
+/* EMY Career Roadmaps Styling */
+.roadmap-card {
+    background: #ffffff;
+    border: 1px solid #edf2f7;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.roadmap-card:hover {
+    border-color: var(--c-primary-light);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+}
+
+.roadmap-card.roadmap-expanded {
+    border-color: var(--c-primary-light);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.roadmap-header {
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    cursor: pointer;
+    background: #ffffff;
+}
+
+.roadmap-icon-wrapper {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, var(--c-primary-soft), #fff);
+    border: 1px solid var(--c-primary-light);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--c-primary);
+    flex-shrink: 0;
+}
+
+.roadmap-info {
+    flex: 1;
+}
+
+.roadmap-goal {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 4px;
+}
+
+.roadmap-date {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.roadmap-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.roadmap-action-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+}
+
+.roadmap-action-btn.download {
+    color: #3b82f6;
+}
+
+.roadmap-action-btn.download:hover {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.roadmap-action-btn.delete {
+    color: #cbd5e1;
+}
+
+.roadmap-action-btn.delete:hover {
+    background: #fef2f2;
+    color: #ef4444;
+}
+
+.roadmap-chevron {
+    color: #94a3b8;
+    transition: transform 0.3s ease;
+}
+
+.roadmap-chevron.rotated {
+    transform: rotate(180deg);
+}
+
+.roadmap-body {
+    padding: 0 24px 24px 24px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.roadmap-body .markdown-body {
+    background: transparent;
+    padding: 20px 0 0 0;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #334155;
+}
+
+.roadmap-body .markdown-body h1,
+.roadmap-body .markdown-body h2,
+.roadmap-body .markdown-body h3 {
+    color: #0f172a;
+    border-bottom: none;
+    margin-top: 1.5em;
+    font-weight: 800;
+}
+
+.roadmap-body .markdown-body p {
+    margin-bottom: 1em;
+}
+
+.roadmap-body .markdown-body ul,
+.roadmap-body .markdown-body ol {
+    margin-bottom: 1.2em;
+    padding-left: 1.5em;
+}
+
+.roadmap-body .markdown-body li {
+    margin-bottom: 0.6em;
+}
+
+.roadmap-body .markdown-body hr {
+    height: 1px;
+    background-color: #e2e8f0;
+    border: none;
+    margin: 2em 0;
+}
+
+/* Tab Active State refinement */
+.upp-nav-item.upp-active {
+    background: var(--c-primary-soft);
+    color: var(--c-primary);
+    font-weight: 700;
+    border-right: 3px solid var(--c-primary);
+}
+/* Mobile Navigation Tabs */
+.upp-mobile-tabs {
+    display: none;
+    padding: 0 20px;
+    margin-top: 25px;
+    gap: 0;
+    overflow-x: auto;
+    justify-content: center;
+    scrollbar-width: none; /* Hide scrollbar Firefox */
+    -ms-overflow-style: none; /* Hide scrollbar IE/Edge */
+    border-top: 1px solid #f1f5f9;
+}
+
+.upp-mobile-tabs::-webkit-scrollbar {
+    display: none; /* Hide scrollbar Chrome/Safari */
+}
+
+.upp-mobile-tab-item {
+    padding: 15px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 90px;
+    position: relative;
+    white-space: nowrap;
+}
+
+.upp-mobile-tab-item span {
+    font-size: 0.7rem;
+}
+
+.upp-mobile-tab-item.active {
+    color: var(--c-primary);
+}
+
+.upp-mobile-tab-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 3px;
+    background: var(--c-primary);
+    border-radius: 10px 10px 0 0;
+}
+
+@media (max-width: 991px) {
+    .upp-mobile-tabs {
+        display: flex;
+    }
+    
+    .upp-profile-sidebar {
+        display: none;
+    }
+
+    .upp-profile-content-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .upp-profile-identity h1 {
+        font-size: 1.5rem;
+    }
 }
 
 .upp-form-group .upp-input-error {
@@ -376,7 +602,7 @@
 .upp-btn-save {
     background: var(--c-primary);
     color: white;
-    padding: 12px 24px;
+    padding: 12px 28px;
     border-radius: 12px;
     font-weight: 600;
     border: none;
@@ -384,8 +610,10 @@
     transition: all 0.2s;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     margin-top: 10px;
+    width: fit-content;
 }
 
 .upp-btn-save:hover {

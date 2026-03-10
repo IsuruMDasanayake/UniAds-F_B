@@ -107,4 +107,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Post::class, 'saved_posts', 'student_id', 'post_id')->withTimestamps();
     }
+
+    public function savedRoadmaps()
+    {
+        return $this->hasMany(UserSavedRoadmap::class);
+    }
 }

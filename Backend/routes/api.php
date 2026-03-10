@@ -44,6 +44,7 @@ use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Api\ChatConversationController;
 use App\Http\Controllers\Api\ChatMessageController;
+use App\Http\Controllers\Api\AiAdvisorController;
 
 // Authentication routes with rate limiting (5 attempts per minute per IP)
 Route::middleware('throttle:auth')->group(function () {
@@ -207,6 +208,12 @@ Route::middleware('auth:sanctum')->group(function () {
         // Reports
         Route::get('/reports/download', [\App\Http\Controllers\InstituteReportController::class, 'download']);
     });
+
+    // AI Advisor
+    Route::post('/ai-advisor/recommend', [AiAdvisorController::class, 'recommend']);
+    Route::get('/ai-advisor/saved-roadmaps', [AiAdvisorController::class, 'getSavedRoadmaps']);
+    Route::post('/ai-advisor/save-roadmap', [AiAdvisorController::class, 'saveRoadmap']);
+    Route::delete('/ai-advisor/roadmap/{id}', [AiAdvisorController::class, 'deleteRoadmap']);
 });
 
 // Public Policy Routes

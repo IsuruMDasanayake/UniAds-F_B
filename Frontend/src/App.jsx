@@ -55,6 +55,8 @@ import GeneralInquiriesPage from './pages/Analytics/GeneralInquiriesPage';
 import ChatPage from './pages/Analytics/ChatPage';
 import AdsPlaceholderPage from './pages/Analytics/AdsPlaceholderPage';
 
+import FloatingAiAdvisor from './components/FloatingAiAdvisor';
+
 import './App.css';
 
 function App() {
@@ -183,6 +185,7 @@ function App() {
                 </AdminRoute>
               } />
             </Routes>
+            <FloatingAiAdvisor user={user} />
           </div>
         </Router>
       </ChatProvider>

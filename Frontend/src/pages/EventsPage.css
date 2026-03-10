@@ -30,8 +30,8 @@
 }
 
 .sidebar-widget {
-    background: var(--c-card-bg);
-    border-radius: var(--e-radius-lg);
+    background: var(--c-card-bg) !important;
+    border-radius: var(--c-radius-md) !important;
     padding: 1.5rem;
     box-shadow: var(--e-shadow-sm);
     border: 1px solid #eef2f6;
@@ -671,12 +671,16 @@
 
 /* Loading Screen */
 .events-loading {
+    position: fixed;
+    inset: 0;
+    width: 100%;
     height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     background: white;
+    z-index: 10000;
 }
 
 .events-loading p {

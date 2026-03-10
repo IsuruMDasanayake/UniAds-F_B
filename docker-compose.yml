@@ -18,6 +18,8 @@ services:
       - APP_URL=http://localhost:8000
     networks:
       - uniads-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       db:
         condition: service_healthy
