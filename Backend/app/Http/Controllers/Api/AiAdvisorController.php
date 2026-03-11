@@ -38,8 +38,8 @@ class AiAdvisorController extends Controller
         $ollamaUrl = "http://ollama:11434/api/generate";
         
         try {
-            $extractResponse = Http::timeout(180)->post($ollamaUrl, [
-                "model" => "llama3",
+            $extractResponse = Http::timeout(300)->post($ollamaUrl, [
+                "model" => "llama3.2:1b",
                 "prompt" => $extractionPrompt,
                 "stream" => false,
                 "format" => "json"
@@ -202,8 +202,8 @@ class AiAdvisorController extends Controller
         $ollamaUrl = "http://ollama:11434/api/generate";
         
         try {
-            $response = Http::timeout(180)->post($ollamaUrl, [
-                "model" => "llama3",
+            $response = Http::timeout(300)->post($ollamaUrl, [
+                "model" => "llama3.2",
                 "prompt" => $prompt,
                 "stream" => false
             ]);
