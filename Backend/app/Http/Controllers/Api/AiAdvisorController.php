@@ -78,31 +78,78 @@ class AiAdvisorController extends Controller
         }
 
         // 3. Retrieval Step: Query DB based on extracted profile
-        $query = CareerGuidance::query();
-        $interestMapping = [
-            'Software & IT' => ['IT', 'Data Science', 'Cybersecurity', 'Programming', 'Software'],
-            'Business & Marketing' => ['Business', 'Marketing', 'Accounting', 'HR', 'Finance'],
-            'Engineering' => ['Engineering', 'Mechanical Engineering', 'Electrical Engineering'],
-            'Healthcare' => ['Medicine', 'Healthcare', 'Nursing'],
-            'Design & Media' => ['Graphic Design', 'Architecture', 'Media'],
-            'Finance' => ['Accounting', 'Finance']
-        ];
+        $chromaUrl = "http://chromadb:8000/api/v2/tenants/default_tenant/databases/default_database";
+        $ollamaUrl = "http://ollama:11434/api/embeddings";
         
-        $interestKey = $currentProfile['interest'];
-        $mappedInterests = $interestMapping[$interestKey] ?? [$interestKey];
-        $userGoal = $currentProfile['career_goal'];
+        $searchQuery = "Interest: " . $currentProfile['interest'] . ". Career Goal: " . $currentProfile['career_goal'];
 
-        $query->where(function($q) use ($mappedInterests, $userGoal) {
-            foreach ($mappedInterests as $mapped) {
-                $q->orWhere('career_field', 'LIKE', '%' . $mapped . '%')
-                  ->orWhere('stream_or_subject_interest', 'LIKE', '%' . $mapped . '%');
+        // Generate embedding for the search query
+        $embedding = null;
+        try {
+            $embedResponse = Http::post($ollamaUrl, [
+                "model" => "mxbai-embed-large",
+                "prompt" => $searchQuery
+            ]);
+            if ($embedResponse->successful()) {
+                $embedding = $embedResponse->json('embedding');
             }
-            $q->orWhere('entry_level_job', 'LIKE', '%' . $userGoal . '%')
-              ->orWhere('mid_level_job', 'LIKE', '%' . $userGoal . '%')
-              ->orWhere('senior_level_job', 'LIKE', '%' . $userGoal . '%');
-        });
+        } catch (\Exception $e) {
+            // Silently fallback if embedding fails
+        }
 
-        $matches = $query->limit(10)->get();
+        $matches = collect();
+        $realPosts = collect();
+
+        if ($embedding) {
+            // Get collection IDs
+            try {
+                $collections = Http::get("$chromaUrl/collections")->json();
+                $cgCollectionId = collect($collections)->firstWhere('name', 'career_guidance')['id'] ?? null;
+                $postsCollectionId = collect($collections)->firstWhere('name', 'posts')['id'] ?? null;
+
+                // Query Career Guidance collection
+                if ($cgCollectionId) {
+                    $cgResults = Http::post("$chromaUrl/collections/$cgCollectionId/query", [
+                        "query_embeddings" => [$embedding],
+                        "n_results" => 10,
+                        "include" => ["metadatas", "distances"]
+                    ])->json();
+
+                    $cgIds = collect($cgResults['metadatas'][0] ?? [])->pluck('id')->toArray();
+                    if (!empty($cgIds)) {
+                        // Maintain the ChromaDB distance sort order (closest first)
+                        $matches = CareerGuidance::whereIn('id', $cgIds)
+                            ->orderByRaw("FIELD(id, " . implode(',', $cgIds) . ")")
+                            ->get();
+                    }
+                }
+
+                // Query Posts collection
+                if ($postsCollectionId) {
+                    $postResults = Http::post("$chromaUrl/collections/$postsCollectionId/query", [
+                        "query_embeddings" => [$embedding],
+                        "n_results" => 3,
+                        "include" => ["metadatas", "distances"]
+                    ])->json();
+
+                    $postIds = collect($postResults['metadatas'][0] ?? [])->pluck('id')->toArray();
+                    if (!empty($postIds)) {
+                        $realPosts = \App\Models\Post::query()
+                            ->join('institutes', 'posts.institute_id', '=', 'institutes.id')
+                            ->whereIn('posts.id', $postIds)
+                            ->where('institutes.is_premium', 1)
+                            ->where('posts.status', 'active')
+                            ->select('posts.*', 'institutes.institute_name', 'institutes.is_premium', 'institutes.premium_expires_at')
+                            ->orderByRaw("FIELD(posts.id, " . implode(',', $postIds) . ")")
+                            ->get();
+                    }
+                }
+            } catch (\Exception $e) {
+                // Silently fallback if ChromaDB query fails
+            }
+        }
+
+        // Fallback if semantic search failed or generated zero results
         if ($matches->isEmpty()) {
             $matches = CareerGuidance::where('education_level', 'LIKE', '%' . $currentProfile['education_level'] . '%')
                                      ->inRandomOrder()->limit(5)->get();
@@ -138,23 +185,6 @@ class AiAdvisorController extends Controller
 
         # Industry Trends
         Explain the growth in Sri Lanka and globally based on the EXACT data.";
-
-        // 5. NEW: Fetch Real site posts (Premium only) matching user interests
-        $realPosts = \App\Models\Post::query()
-            ->join('institutes', 'posts.institute_id', '=', 'institutes.id')
-            ->where('institutes.is_premium', 1)
-            ->where('posts.status', 'active')
-            ->where(function($q) use ($mappedInterests, $userGoal) {
-                foreach ($mappedInterests as $mapped) {
-                    $q->orWhere('posts.title', 'LIKE', '%' . $mapped . '%')
-                      ->orWhere('posts.description', 'LIKE', '%' . $mapped . '%');
-                }
-                $q->orWhere('posts.title', 'LIKE', '%' . $userGoal . '%');
-            })
-            ->select('posts.*', 'institutes.institute_name', 'institutes.is_premium', 'institutes.premium_expires_at')
-            ->inRandomOrder()
-            ->limit(3)
-            ->get();
 
         return $this->callOllama($prompt, $currentProfile, $realPosts);
     }
