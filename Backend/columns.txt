@@ -1,1 +1,0 @@
-["id","institute_id","title","description","small_description","image","course_name","course_type","location","duration","course_format","attendance_type","created_at","updated_at","likes_count","view_count","status","share_link","is_boosted","boost_expires_at"]

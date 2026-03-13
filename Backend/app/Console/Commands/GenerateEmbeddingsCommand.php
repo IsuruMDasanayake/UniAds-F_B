@@ -31,12 +31,13 @@ class GenerateEmbeddingsCommand extends Command
         $this->info("Starting embedding generation...");
         
         $chromaUrl = "http://chromadb:8000";
-        $ollamaUrl = "http://ollama:11434/api/embeddings";
 
         // 1. Ensure combinations exist in ChromaDB
         $v2DbPath = "$chromaUrl/api/v2/tenants/default_tenant/databases/default_database";
         
         foreach(['career_guidance', 'posts'] as $collectionName) {
+            // Delete if exists to handle potential dimension changes
+            Http::delete("$v2DbPath/collections/$collectionName");
             Http::post("$v2DbPath/collections", [
                 "name" => $collectionName
             ]);
@@ -59,7 +60,7 @@ class GenerateEmbeddingsCommand extends Command
         foreach ($guidances as $item) {
             $textToEmbed = "Career Field: {$item->career_field}. Recommended Course: {$item->recommended_degree_or_course}. Interests: {$item->stream_or_subject_interest}. Entry Career Goal: {$item->entry_level_job}. Mid Career: {$item->mid_level_job}. Senior Career: {$item->senior_level_job}.";
             
-            $embedding = $this->getEmbedding($ollamaUrl, $textToEmbed);
+            $embedding = $this->getEmbedding($textToEmbed);
             
             if ($embedding) {
                 // Upsert into ChromaDB
@@ -85,7 +86,7 @@ class GenerateEmbeddingsCommand extends Command
         foreach ($posts as $post) {
             $textToEmbed = "Post Title: {$post->title}. Description: {$post->description}. Requirements: {$post->requirements}";
             
-            $embedding = $this->getEmbedding($ollamaUrl, $textToEmbed);
+            $embedding = $this->getEmbedding($textToEmbed);
             
             if ($embedding) {
                 Http::post("$chromaUrl/api/v2/collections/$postsCollectionId/upsert", [
@@ -101,19 +102,30 @@ class GenerateEmbeddingsCommand extends Command
         $this->info("Finished embedding all data!");
     }
 
-    private function getEmbedding($url, $text)
+    private function getEmbedding($text)
     {
+        $apiKey = env('GEMINI_API_KEY');
+        $url = "https://generativelanguage.googleapis.com/v1/models/gemini-embedding-001:embedContent?key=" . $apiKey;
+
         try {
             $response = Http::post($url, [
-                "model" => "mxbai-embed-large",
-                "prompt" => $text
+                "content" => [
+                    "parts" => [
+                        ["text" => $text]
+                    ]
+                ],
+                "taskType" => "RETRIEVAL_DOCUMENT"
             ]);
 
             if ($response->successful()) {
-                return $response->json('embedding');
+                return $response->json('embedding.values');
+            } else {
+                $this->error("Gemini Embedding Error Code: " . $response->status());
+                file_put_contents(storage_path('logs/gemini_error.json'), $response->body());
+                $this->error("Error body saved to storage/logs/gemini_error.json");
             }
         } catch (\Exception $e) {
-            $this->error("Failed to connect to Ollama.");
+            $this->error("Failed to connect to Gemini API: " . $e->getMessage());
         }
         return null;
     }

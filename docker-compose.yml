@@ -93,25 +93,6 @@ services:
     networks:
       - uniads-network
 
-  # Ollama Service (AI Advisor)
-  ollama:
-    image: ollama/ollama:latest
-    container_name: uniads-ollama
-    restart: unless-stopped
-    volumes:
-      - ollama-data:/root/.ollama
-    networks:
-      - uniads-network
-    ports:
-      - "11434:11434"
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-
   # ChromaDB Service (Vector Database)
   chromadb:
     image: chromadb/chroma:latest
@@ -131,5 +112,4 @@ networks:
 volumes:
   db-data:
   frontend-node-modules:
-  ollama-data:
   chromadb-data:

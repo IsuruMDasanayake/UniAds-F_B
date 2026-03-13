@@ -1,1 +1,0 @@
-PHP Parse error:  syntax error, unexpected token "readonly", expecting "abstract" or "final" or "class" in D:\UniAds-F_B\Backend\vendor\sebastian\version\src\Version.php on line 23

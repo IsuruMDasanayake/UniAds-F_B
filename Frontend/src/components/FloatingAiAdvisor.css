@@ -135,17 +135,45 @@
   font-size: 12px;
 }
 
+.ai-advisor-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ai-advisor-reset {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 18px;
+  opacity: 0.7;
+  cursor: pointer;
+  padding: 4px 7px;
+  border-radius: 8px;
+  transition: opacity 0.2s, background 0.2s;
+  line-height: 1;
+}
+
+.ai-advisor-reset:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.15);
+}
+
 .ai-advisor-close {
   background: transparent;
   border: none;
   color: white;
   font-size: 24px;
   opacity: 0.7;
-  transition: opacity 0.2s;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 8px;
+  transition: opacity 0.2s, background 0.2s;
 }
 
 .ai-advisor-close:hover {
   opacity: 1;
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .ai-advisor-body {
@@ -497,6 +525,42 @@
   padding: 4px 10px;
   border-radius: 6px;
   width: fit-content;
+}
+
+/* Suggested Replies / Quick Tags Styling */
+.suggested-replies-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+  margin-bottom: 12px;
+  padding-left: 10px;
+  animation: fadeIn 0.4s ease-in;
+}
+
+.suggested-reply-btn {
+  background: white;
+  border: 1.5px solid var(--c-primary-light);
+  color: var(--c-primary);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.suggested-reply-btn:hover {
+  background: var(--c-primary);
+  color: white;
+  border-color: var(--c-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(29, 55, 92, 0.15);
+}
+
+.suggested-reply-btn:active {
+  transform: translateY(0);
 }
 
 

@@ -13,13 +13,18 @@ import './FloatingAiAdvisor.css';
 const FloatingAiAdvisor = ({ user }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'bot', content: "Hello! 👋 I'm EMY, the UniAds Career Advisor. I can help you find the best courses and career paths based on your interests. How can I help you today?" }
+    { 
+      role: 'bot', 
+      content: "Hello! 👋 I'm EMY, the UniAds Career Advisor. To give you the best guidance, what is your current education level?",
+      suggested_replies: ['O/L Completed', 'A/L Completed', 'Diploma Holder', 'Undergraduate', 'Graduate']
+    }
   ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [profile, setProfile] = useState({
     education_level: null,
     stream: null,
+    main_field: null,
     interest: null,
     career_goal: null,
     study_preference: null
@@ -53,9 +58,9 @@ const FloatingAiAdvisor = ({ user }) => {
     return null;
   }
 
-  const handleSendMessage = async (e) => {
+  const handleSendMessage = async (e, overrideText = null) => {
     if (e) e.preventDefault();
-    const text = inputValue.trim();
+    const text = (overrideText ?? inputValue).trim();
     if (!text || loading) return;
 
     const newMessages = [...messages, { role: 'user', content: text }];
@@ -74,7 +79,8 @@ const FloatingAiAdvisor = ({ user }) => {
         setMessages(prev => [...prev, { 
           role: 'bot', 
           content: response.data.recommendation,
-          real_posts: response.data.real_posts
+          real_posts: response.data.real_posts,
+          suggested_replies: response.data.suggested_replies
         }]);
         setProfile(response.data.profile);
       }
@@ -133,11 +139,16 @@ const FloatingAiAdvisor = ({ user }) => {
 
   const resetChat = () => {
     setMessages([
-      { role: 'bot', content: "Hello! 👋 I'm EMY, the UniAds Career Advisor. I can help you find the best courses and career paths based on your interests. How can I help you today?" }
+      { 
+        role: 'bot', 
+        content: "Hello! 👋 I'm EMY, the UniAds Career Advisor. To give you the best guidance, what is your current education level?",
+        suggested_replies: ['O/L Completed', 'A/L Completed', 'Diploma Holder', 'Undergraduate', 'Graduate']
+      }
     ]);
     setProfile({
       education_level: null,
       stream: null,
+      main_field: null,
       interest: null,
       career_goal: null,
       study_preference: null
@@ -213,9 +224,19 @@ const FloatingAiAdvisor = ({ user }) => {
                   <p>UniAds Career Advisor</p>
                 </div>
               </div>
-              <button className="ai-advisor-close" onClick={() => setIsOpen(false)}>
-                &times;
-              </button>
+              <div className="ai-advisor-header-actions">
+                <button
+                  className="ai-advisor-reset"
+                  onClick={resetChat}
+                  title="Start a new conversation"
+                  aria-label="Reset conversation"
+                >
+                  ↺
+                </button>
+                <button className="ai-advisor-close" onClick={() => setIsOpen(false)} aria-label="Close">
+                  &times;
+                </button>
+              </div>
             </div>
 
             <div className="ai-advisor-body">
@@ -240,6 +261,21 @@ const FloatingAiAdvisor = ({ user }) => {
                     )}
                   </div>
                   
+                  {/* Quick Replies / Tags */}
+                  {msg.role === 'bot' && msg.suggested_replies && msg.suggested_replies.length > 0 && idx === messages.length - 1 && (
+                    <div className="suggested-replies-container">
+                      {msg.suggested_replies.map((reply, i) => (
+                        <button 
+                          key={i} 
+                          className="suggested-reply-btn"
+                          onClick={() => handleSendMessage(null, reply)}
+                        >
+                          {reply}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
                   {msg.role === 'bot' && msg.real_posts && msg.real_posts.length > 0 && (
                     <div className="real-recommendations">
                       <p className="rec-title">Recommended for you:</p>

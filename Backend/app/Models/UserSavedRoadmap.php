@@ -12,6 +12,8 @@ class UserSavedRoadmap extends Model
     protected $fillable = [
         'user_id',
         'career_goal',
+        'interest',
+        'education_level',
         'recommendation_text',
         'real_posts_json'
     ];
