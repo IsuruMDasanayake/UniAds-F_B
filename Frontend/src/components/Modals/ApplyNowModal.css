@@ -69,22 +69,17 @@
     margin-bottom: 0.25rem;
     text-align: center;
     margin-top: 0;
-    padding-right: 20px;
-    /* Space for close btn */
-    padding-left: 20px;
 }
 
 .apply-form {
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
+    gap: 2rem;
     /* Tighter gap */
-    margin-top: 0.8rem;
+    margin-top: 1rem;
     /* Ensure scroll is available only if absolutely necessary vertical space is small */
     overflow-y: auto;
     max-height: 80vh;
-    /* Safety limit */
-    padding-right: 4px;
 }
 
 .form-group {
@@ -188,7 +183,6 @@
     font-family: 'Poppins', sans-serif !important;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-top: 20px;
     height: 45px;
     border-radius: 15px !important;
 }

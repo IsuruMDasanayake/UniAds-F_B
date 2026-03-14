@@ -31,6 +31,11 @@ class User extends Authenticatable
         'birthday',
         'district',
         'education_level',
+        'path_preference',
+        'al_stream',
+        'main_field',
+        'interest',
+        'study_preference',
     ];
 
     /**

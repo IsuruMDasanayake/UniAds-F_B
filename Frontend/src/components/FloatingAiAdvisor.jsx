@@ -16,7 +16,7 @@ const FloatingAiAdvisor = ({ user }) => {
     { 
       role: 'bot', 
       content: "Hello! 👋 I'm EMY, the UniAds Career Advisor. To give you the best guidance, what is your current education level?",
-      suggested_replies: ['O/L Completed', 'A/L Completed', 'Diploma Holder', 'Undergraduate', 'Graduate']
+      suggested_replies: ['O/L Completed', 'A/L Completed', 'Diploma Holder', 'Undergraduate', 'Graduate', 'Check Last Search']
     }
   ]);
   const [loading, setLoading] = useState(false);
@@ -142,7 +142,7 @@ const FloatingAiAdvisor = ({ user }) => {
       { 
         role: 'bot', 
         content: "Hello! 👋 I'm EMY, the UniAds Career Advisor. To give you the best guidance, what is your current education level?",
-        suggested_replies: ['O/L Completed', 'A/L Completed', 'Diploma Holder', 'Undergraduate', 'Graduate']
+        suggested_replies: ['O/L Completed', 'A/L Completed', 'Diploma Holder', 'Undergraduate', 'Graduate', 'Check Last Search']
       }
     ]);
     setProfile({
