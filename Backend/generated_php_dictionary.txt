@@ -1,0 +1,47 @@
+            $fieldDictionary = [
+                'Technology & IT' => [
+                    'Software Architect', 'Cybersecurity Analyst', 'Cybersecurity Engineer', 'Data Engineer', 'Data Analyst', 'Machine Learning Engineer', 'MLOps Engineer', 'Cloud Architect', 'DevOps Engineer', 'Site Reliability Engineer', 'Blockchain Developer', 'Game Developer', 'AR Developer', 'VR Developer', 'Mobile App Developer', 'Frontend Developer', 'Backend Developer', 'Full Stack Developer', 'IT Systems Administrator', 'Network Engineer', 'Database Administrator', 'AI Engineer', 'Robotics Software Engineer', 'Information Security Officer', 'Software QA Engineer', 'Technical Support Engineer', 'Software Engineer', 'Data Scientist',
+                ],
+                'Engineering' => [
+                    'Civil Engineer', 'Structural Engineer', 'Mechanical Engineer', 'Electrical Engineer', 'Electronic Engineer', 'Mechatronics Engineer', 'Industrial Engineer', 'Chemical Engineer', 'Aerospace Engineer', 'Petroleum Engineer', 'Geotechnical Engineer', 'Marine Engineer', 'Renewable Energy Engineer', 'Automotive Engineer', 'Manufacturing Engineer', 'Environmental Engineer', 'Mining Engineer', 'Quality Engineer',
+                ],
+                'Healthcare & Medical' => [
+                    'Doctor / Physician', 'Dentist', 'Nurse', 'Pharmacist', 'Radiologist', 'Physiotherapist', 'Optometrist', 'Veterinarian', 'Psychologist', 'Clinical Psychologist', 'Nutritionist', 'Dietitian', 'Speech Therapist', 'Medical Laboratory Scientist', 'Public Health Officer', 'Medical Writer', 'Occupational Therapist', 'Paramedic', 'Health Information Technician', 'Speech Pathologist',
+                ],
+                'Business & Management' => [
+                    'Business Analyst', 'Product Manager', 'Operations Manager', 'Marketing Manager', 'Sales Manager', 'Human Resource Manager', 'Project Manager', 'Business Development Manager', 'Management Consultant', 'Logistics Manager', 'E-commerce Manager', 'Event Manager', 'Supply Chain Manager', 'Risk Manager', 'Financial Controller', 'Procurement Manager', 'Training and Development Manager', 'Export Manager', 'Sustainability Manager', 'Economist', 'Entrepreneur / Startup Founder',
+                ],
+                'Agri-Tech & Sustainability' => [
+                    'Agricultural Scientist', 'Estate Manager', 'Agricultural Engineer', 'Hydroponics Specialist', 'Agribusiness Manager', 'Sustainability Consultant', 'Environmental Scientist',
+                ],
+                'Finance & Accounting' => [
+                    'Chartered Accountant', 'Auditor', 'Tax Consultant', 'Financial Analyst', 'Investment Analyst', 'Risk Analyst', 'Financial Advisor', 'Bank Manager', 'Credit Analyst', 'Stockbroker', 'Internal Auditor', 'Forensic Accountant',
+                ],
+                'Law & Legal Studies' => [
+                    'Attorney-at-Law', 'Corporate Lawyer', 'Legal Consultant', 'Legal Researcher', 'Judge', 'Notary Public', 'Legal Compliance Officer', 'Paralegal', 'Corporate Secretary',
+                ],
+                'Creative Arts & Design' => [
+                    'Graphic Designer', 'UI Designer', 'UX Designer', 'Product Designer', 'Interior Designer', 'Fashion Designer', 'Animator', 'Illustrator', 'Video Game Artist', 'Interior Architect', 'UI/UX Engineer', 'Digital Artist', '3D Modeler', 'Art Director', 'Set Designer', 'Sound Designer', 'Jewelry Designer', 'Landscape Architect', 'Fashion Stylist',
+                ],
+                'Media & Communication' => [
+                    'Journalist', 'Content Writer', 'PR Specialist', 'Social Media Manager', 'Broadcast Journalist', 'Copywriter', 'Web Content Manager', 'Media Researcher', 'Content Strategist', 'Public Relations Officer', 'News Presenter', 'Video Producer', 'Podcast Producer',
+                ],
+                'Hospitality & Tourism' => [
+                    'Travel Agent', 'Tour Guide', 'Chef', 'Hotel Manager', 'Waitron / Server', 'Housekeeper', 'Pastry Chef', 'Sommelier', 'Barista', 'Flight Attendant', 'Cruise Ship Attendant', 'Restaurant Manager', 'Travel Consultant', 'Event Planner', 'Hotel Receptionist',
+                ],
+                'Modern Finance' => [
+                    'Fintech Analyst', 'Cryptocurrency Analyst', 'Blockchain Finance Specialist', 'Digital Payments Specialist',
+                ],
+                'Education & Teaching' => [
+                    'University Lecturer', 'School Teacher', 'Primary School Teacher', 'Secondary School Teacher', 'Special Education Teacher', 'Academic Counselor', 'Curriculum Developer',
+                ],
+                'Logistics & Supply Chain' => [
+                    'Supply Chain Analyst', 'Warehouse Manager', 'Logistics Coordinator', 'Inventory Manager',
+                ],
+                'Construction & Architecture' => [
+                    'Architect', 'Urban Planner', 'Quantity Surveyor', 'Construction Project Manager',
+                ],
+                'Skilled Trades & Vocational' => [
+                    'Electrician', 'Plumber', 'Carpenter', 'Welder', 'Automobile Mechanic', 'AC Technician', 'Electronics Repair Technician', 'Mason', 'Painter', 'Tiler', 'Beautician', 'Tailor', 'Barber',
+                ],
+            ];

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use App\Models\UserSavedRoadmap;
+use App\Services\CareerAliasMapper;
 
 class AiAdvisorController extends Controller
 {
@@ -132,9 +133,7 @@ class AiAdvisorController extends Controller
             elseif (preg_match('/[அ-ஹ]/u', $lastUserMessage))  $targetLang = 'Tamil';
             $currentProfile['language'] = $targetLang;
 
-            // ─────────────────────────────────────────────
-            // 1.5. Persist State to User DB (Save Progress)
-            // ─────────────────────────────────────────────
+            // Removed early user->update; moved to after extraction logically.
             if ($user && !empty($lastUserMessage) && !preg_match('/\b(start over|reset|another field)\b/i', $lastUserMessage)) {
                 // FEATURE: Auto-infer path_preference based on education level
                 if (empty($currentProfile['path_preference']) && !empty($currentProfile['education_level'])) {
@@ -142,27 +141,6 @@ class AiAdvisorController extends Controller
                         $currentProfile['path_preference'] = 'A/L';
                     }
                 }
-
-                $updateData = [
-                    'education_level' => $currentProfile['education_level'],
-                    'path_preference' => $currentProfile['path_preference'] ?? null,
-                    'al_stream'       => $currentProfile['al_stream'],
-                    'main_field'      => $currentProfile['main_field'],
-                    'interest'        => $currentProfile['interest'],
-                    'study_preference'=> $currentProfile['study_preference'],
-                ];
-
-                // FEATURE: If education level was JUST selected in this request, 
-                // and it's a fresh start (not recall), wipe career-specific fields.
-                if (!empty($currentProfile['education_level']) && 
-                    empty($currentProfile['main_field']) && 
-                    !preg_match('/\b(check last search)\b/i', $lowerInput)) {
-                    $updateData['main_field'] = null;
-                    $updateData['interest']   = null;
-                    Log::info("Wiping old career data for fresh education path.");
-                }
-
-                $user->update($updateData);
             }
 
             // ─────────────────────────────────────────────
@@ -172,74 +150,49 @@ class AiAdvisorController extends Controller
             // ─────────────────────────────────────────────
             $fieldDictionary = [
                 'Technology & IT' => [
-                    'Software Architect', 'Full Stack Developer', 'Frontend Developer', 'Backend Developer',
-                    'Mobile App Developer', 'Machine Learning Engineer', 'Data Analyst', 'Data Engineer',
-                    'Cybersecurity Analyst', 'Cybersecurity Engineer', 'Cloud Architect', 'DevOps Engineer',
-                    'Site Reliability Engineer', 'Game Developer', 'Blockchain Developer', 'Network Engineer',
-                    'Database Administrator', 'IT Systems Administrator', 'AI Engineer', 'MLOps Engineer',
-                    'Robotics Software Engineer', 'AR Developer', 'VR Developer',
+                    'Software Architect', 'Cybersecurity Analyst', 'Cybersecurity Engineer', 'Data Engineer', 'Data Analyst', 'Machine Learning Engineer', 'MLOps Engineer', 'Cloud Architect', 'DevOps Engineer', 'Site Reliability Engineer', 'Blockchain Developer', 'Game Developer', 'AR Developer', 'VR Developer', 'Mobile App Developer', 'Frontend Developer', 'Backend Developer', 'Full Stack Developer', 'IT Systems Administrator', 'Network Engineer', 'Database Administrator', 'AI Engineer', 'Robotics Software Engineer', 'Information Security Officer', 'Software QA Engineer', 'Technical Support Engineer', 'Software Engineer', 'Data Scientist',
                 ],
                 'Engineering' => [
-                    'Civil Engineer', 'Structural Engineer', 'Mechanical Engineer', 'Electrical Engineer',
-                    'Electronic Engineer', 'Mechatronics Engineer', 'Automobile Engineer', 'Industrial Engineer',
-                    'Chemical Engineer', 'Aerospace Engineer', 'Petroleum Engineer', 'Geotechnical Engineer',
-                    'Marine Engineer', 'Renewable Energy Engineer', 'Automotive Engineer', 'Manufacturing Engineer',
+                    'Civil Engineer', 'Structural Engineer', 'Mechanical Engineer', 'Electrical Engineer', 'Electronic Engineer', 'Mechatronics Engineer', 'Industrial Engineer', 'Chemical Engineer', 'Aerospace Engineer', 'Petroleum Engineer', 'Geotechnical Engineer', 'Marine Engineer', 'Renewable Energy Engineer', 'Automotive Engineer', 'Manufacturing Engineer', 'Environmental Engineer', 'Mining Engineer', 'Quality Engineer',
                 ],
                 'Healthcare & Medical' => [
-                    'Doctor / Physician', 'Dentist', 'Pharmacist', 'Nurse', 'Medical Laboratory Scientist',
-                    'Radiologist', 'Physiotherapist', 'Psychologist', 'Clinical Psychologist',
-                    'Nutritionist', 'Dietitian', 'Public Health Officer', 'Veterinarian', 'Speech Therapist',
-                    'Optometrist',
+                    'Doctor / Physician', 'Dentist', 'Nurse', 'Pharmacist', 'Radiologist', 'Physiotherapist', 'Optometrist', 'Veterinarian', 'Psychologist', 'Clinical Psychologist', 'Nutritionist', 'Dietitian', 'Speech Therapist', 'Medical Laboratory Scientist', 'Public Health Officer', 'Medical Writer', 'Occupational Therapist', 'Paramedic', 'Health Information Technician', 'Speech Pathologist',
                 ],
                 'Business & Management' => [
-                    'Business Analyst', 'Marketing Manager', 'Human Resource Manager',
-                    'Business Development Manager', 'Project Manager', 'Product Manager', 'Operations Manager',
-                    'Sales Manager', 'Management Consultant', 'Entrepreneur / Startup Founder',
+                    'Business Analyst', 'Product Manager', 'Operations Manager', 'Marketing Manager', 'Sales Manager', 'Human Resource Manager', 'Project Manager', 'Business Development Manager', 'Management Consultant', 'Logistics Manager', 'E-commerce Manager', 'Event Manager', 'Supply Chain Manager', 'Risk Manager', 'Financial Controller', 'Procurement Manager', 'Training and Development Manager', 'Export Manager', 'Sustainability Manager', 'Economist', 'Entrepreneur / Startup Founder',
+                ],
+                'Agri-Tech & Sustainability' => [
+                    'Agricultural Scientist', 'Estate Manager', 'Agricultural Engineer', 'Hydroponics Specialist', 'Agribusiness Manager', 'Sustainability Consultant', 'Environmental Scientist',
                 ],
                 'Finance & Accounting' => [
-                    'Chartered Accountant', 'Financial Analyst', 'Investment Analyst',
-                    'Bank Manager', 'Auditor', 'Tax Consultant', 'Risk Analyst', 'Credit Analyst', 'Financial Advisor',
+                    'Chartered Accountant', 'Auditor', 'Tax Consultant', 'Financial Analyst', 'Investment Analyst', 'Risk Analyst', 'Financial Advisor', 'Bank Manager', 'Credit Analyst', 'Stockbroker', 'Internal Auditor', 'Forensic Accountant',
                 ],
                 'Law & Legal Studies' => [
-                    'Attorney-at-Law', 'Corporate Lawyer', 'Legal Consultant', 'Legal Researcher',
-                    'Legal Compliance Officer', 'Judge', 'Notary Public',
+                    'Attorney-at-Law', 'Corporate Lawyer', 'Legal Consultant', 'Legal Researcher', 'Judge', 'Notary Public', 'Legal Compliance Officer', 'Paralegal', 'Corporate Secretary',
                 ],
                 'Creative Arts & Design' => [
-                    'Graphic Designer', 'UI Designer', 'UX Designer', 'Product Designer', 'Animator',
-                    'Video Game Artist', 'Fashion Designer', 'Interior Designer', 'Illustrator',
+                    'Graphic Designer', 'UI Designer', 'UX Designer', 'Product Designer', 'Interior Designer', 'Fashion Designer', 'Animator', 'Illustrator', 'Video Game Artist', 'Interior Architect', 'UI/UX Engineer', 'Digital Artist', '3D Modeler', 'Art Director', 'Set Designer', 'Sound Designer', 'Jewelry Designer', 'Landscape Architect', 'Fashion Stylist',
                 ],
                 'Media & Communication' => [
-                    'Journalist', 'Content Writer', 'Content Creator', 'Content Strategist', 'Social Media Manager',
-                    'Public Relations Officer', 'News Presenter', 'Podcast Producer', 'Video Producer',
+                    'Journalist', 'Content Writer', 'PR Specialist', 'Social Media Manager', 'Broadcast Journalist', 'Copywriter', 'Web Content Manager', 'Media Researcher', 'Content Strategist', 'Public Relations Officer', 'News Presenter', 'Video Producer', 'Podcast Producer',
                 ],
                 'Hospitality & Tourism' => [
-                    'Hotel Manager', 'Restaurant Manager', 'Chef', 'Tour Guide', 'Travel Consultant',
-                    'Event Planner', 'Flight Attendant', 'Hotel Receptionist',
+                    'Travel Agent', 'Tour Guide', 'Chef', 'Hotel Manager', 'Waitron / Server', 'Housekeeper', 'Pastry Chef', 'Sommelier', 'Barista', 'Flight Attendant', 'Cruise Ship Attendant', 'Restaurant Manager', 'Travel Consultant', 'Event Planner', 'Hotel Receptionist',
+                ],
+                'Modern Finance' => [
+                    'Fintech Analyst', 'Cryptocurrency Analyst', 'Blockchain Finance Specialist', 'Digital Payments Specialist',
                 ],
                 'Education & Teaching' => [
-                    'School Teacher', 'Primary School Teacher', 'Secondary School Teacher',
-                    'Special Education Teacher', 'University Lecturer',
-                    'Curriculum Developer', 'Academic Counselor',
+                    'University Lecturer', 'School Teacher', 'Primary School Teacher', 'Secondary School Teacher', 'Special Education Teacher', 'Academic Counselor', 'Curriculum Developer',
                 ],
                 'Logistics & Supply Chain' => [
-                    'Supply Chain Manager', 'Supply Chain Analyst', 'Procurement Manager',
-                    'Warehouse Manager', 'Logistics Coordinator', 'Inventory Manager',
+                    'Supply Chain Analyst', 'Warehouse Manager', 'Logistics Coordinator', 'Inventory Manager',
                 ],
                 'Construction & Architecture' => [
                     'Architect', 'Urban Planner', 'Quantity Surveyor', 'Construction Project Manager',
-                    'Landscape Architect',
-                ],
-                'Agri-Tech & Sustainability' => [
-                    'Agricultural Scientist', 'Agricultural Engineer', 'Hydroponics Specialist',
-                    'Environmental Scientist', 'Sustainability Consultant', 'Agribusiness Manager',
-                ],
-                'Modern Finance' => [
-                    'Fintech Analyst', 'Cryptocurrency Analyst', 'Blockchain Finance Specialist',
-                    'Digital Payments Specialist',
                 ],
                 'Skilled Trades & Vocational' => [
-                    'Electrician', 'Automobile Mechanic', 'Welder', 'Plumber', 'Carpenter', 'AC Technician',
-                    'Beautician', 'Electronics Repair Technician', 'Mason', 'Painter', 'Tiler', 'Barber', 'Tailor',
+                    'Electrician', 'Plumber', 'Carpenter', 'Welder', 'Automobile Mechanic', 'AC Technician', 'Electronics Repair Technician', 'Mason', 'Painter', 'Tiler', 'Beautician', 'Tailor', 'Barber',
                 ],
             ];
 
@@ -260,210 +213,6 @@ class AiAdvisorController extends Controller
 
 
             // ─────────────────────────────────────────────
-            // 3. Alias Map — common user phrasings → exact DB values
-            //    Keys must be lowercase (matched against strtolower input)
-            // ─────────────────────────────────────────────
-            $aliasMap = [
-                // 1. Technology & IT
-                'software architect'         => 'Software Architect',
-                'software engineer'          => 'Software Architect',
-                'software engineering'       => 'Software Architect',
-                'developer'                  => 'Full Stack Developer',
-                'full stack'                 => 'Full Stack Developer',
-                'web developer'              => 'Full Stack Developer',
-                'mobile developer'           => 'Mobile App Developer',
-                'app developer'              => 'Mobile App Developer',
-                'ai engineer'                => 'AI Engineer',
-                'machine learning'           => 'Machine Learning Engineer',
-                'ml engineer'                => 'Machine Learning Engineer',
-                'data scientist'             => 'Data Analyst',
-                'data analyst'               => 'Data Analyst',
-                'cybersecurity'              => 'Cybersecurity Analyst',
-                'cybersecurity analyst'      => 'Cybersecurity Analyst',
-                'cybersecurity engineer'     => 'Cybersecurity Engineer',
-                'security specialist'        => 'Cybersecurity Analyst',
-                'cloud architect'            => 'Cloud Architect',
-                'cloud engineer'             => 'Cloud Architect',
-                'devops'                     => 'DevOps Engineer',
-                'game developer'             => 'Game Developer',
-                'network engineer'           => 'Network Engineer',
-                'database administrator'     => 'Database Administrator',
-                'dba'                        => 'Database Administrator',
-                'it support'                 => 'IT Systems Administrator',
-                'sysadmin'                   => 'IT Systems Administrator',
-                'qa'                         => 'Software Architect',
-                'tester'                     => 'Software Architect',
-                'blockchain'                 => 'Blockchain Developer',
-                'ar developer'               => 'AR Developer',
-                'vr developer'               => 'VR Developer',
-                'ar'                         => 'AR Developer',
-                'vr'                         => 'VR Developer',
-                'metaverse'                  => 'AR Developer',
-                'data engineer'              => 'Data Engineer',
-                'mlops'                      => 'MLOps Engineer',
-                'sre'                        => 'Site Reliability Engineer',
-                'site reliability'           => 'Site Reliability Engineer',
-                'crypto'                     => 'Cryptocurrency Analyst',
-                'cryptocurrency'             => 'Cryptocurrency Analyst',
-                'robotics software'          => 'Robotics Software Engineer',
-
-                // 2. Engineering
-                'civil engineer'             => 'Civil Engineer',
-                'structural engineer'        => 'Structural Engineer',
-                'mechanical engineer'        => 'Mechanical Engineer',
-                'electrical engineer'        => 'Electrical Engineer',
-                'electronics engineer'       => 'Electronic Engineer',
-                'mechatronics'               => 'Mechatronics Engineer',
-                'automobile engineer'        => 'Automotive Engineer',
-                'automotive'                 => 'Automotive Engineer',
-                'chemical engineer'          => 'Chemical Engineer',
-                'industrial engineer'        => 'Industrial Engineer',
-                'aerospace'                  => 'Aerospace Engineer',
-                'petroleum'                  => 'Petroleum Engineer',
-                'geotechnical'               => 'Geotechnical Engineer',
-                'renewable energy'           => 'Renewable Energy Engineer',
-                'solar engineer'             => 'Renewable Energy Engineer',
-                'marine engineer'            => 'Marine Engineer',
-                'manufacturing engineer'     => 'Manufacturing Engineer',
-
-                // 3. Healthcare
-                'doctor'                     => 'Doctor / Physician',
-                'physician'                  => 'Doctor / Physician',
-                'dentist'                    => 'Dentist',
-                'pharmacist'                 => 'Pharmacist',
-                'nurse'                      => 'Nurse',
-                'mlt'                        => 'Medical Laboratory Scientist',
-                'radiographer'               => 'Radiologist',
-                'radiologist'                => 'Radiologist',
-                'physiotherapist'            => 'Physiotherapist',
-                'psychologist'               => 'Psychologist',
-                'clinical psychologist'      => 'Clinical Psychologist',
-                'nutritionist'               => 'Nutritionist',
-                'dietitian'                  => 'Dietitian',
-                'public health'              => 'Public Health Officer',
-                'lab scientist'              => 'Medical Laboratory Scientist',
-                'mls'                        => 'Medical Laboratory Scientist',
-                'physio'                     => 'Physiotherapist',
-                'speech therapist'           => 'Speech Therapist',
-                'optometrist'                => 'Optometrist',
-                'vet'                        => 'Veterinarian',
-                'veterinarian'               => 'Veterinarian',
-
-                // 4. Business
-                'marketing'                  => 'Marketing Manager',
-                'hr'                         => 'Human Resource Manager',
-                'business analyst'           => 'Business Analyst',
-                'entrepreneur'               => 'Entrepreneur / Startup Founder',
-                'startup'                    => 'Entrepreneur / Startup Founder',
-                'project manager'            => 'Project Manager',
-                'product manager'            => 'Product Manager',
-                'operations manager'         => 'Operations Manager',
-                'sales manager'              => 'Sales Manager',
-                'management consultant'      => 'Management Consultant',
-
-                // 5. Finance
-                'accountant'                 => 'Chartered Accountant',
-                'chartered accountant'       => 'Chartered Accountant',
-                'financial analyst'          => 'Financial Analyst',
-                'investment analyst'         => 'Investment Analyst',
-                'bank manager'               => 'Bank Manager',
-                'auditor'                    => 'Auditor',
-                'tax consultant'             => 'Tax Consultant',
-                'fintech'                    => 'Fintech Analyst',
-                'fintech analyst'            => 'Fintech Analyst',
-                'risk analyst'               => 'Risk Analyst',
-                'credit analyst'             => 'Credit Analyst',
-                'financial advisor'          => 'Financial Advisor',
-
-                // 6. Law
-                'lawyer'                     => 'Attorney-at-Law',
-                'attorney'                   => 'Attorney-at-Law',
-                'corporate lawyer'           => 'Corporate Lawyer',
-                'legal consultant'           => 'Legal Consultant',
-                'legal advisor'              => 'Legal Consultant',
-                'judge'                      => 'Judge',
-                'notary'                     => 'Notary Public',
-                'legal compliance'           => 'Legal Compliance Officer',
-
-                // 7. Creative
-                'graphic designer'           => 'Graphic Designer',
-                'ui designer'                => 'UI Designer',
-                'ux designer'                => 'UX Designer',
-                'product designer'           => 'Product Designer',
-                'animator'                   => 'Animator',
-                'illustrator'                => 'Illustrator',
-                'video game artist'          => 'Video Game Artist',
-                'fashion designer'           => 'Fashion Designer',
-                'interior designer'          => 'Interior Designer',
-
-                // 8. Media
-                'journalist'                 => 'Journalist',
-                'content writer'             => 'Content Writer',
-                'podcast'                    => 'Podcast Producer',
-                'presenter'                  => 'News Presenter',
-                'content creator'            => 'Content Creator',
-                'social media'               => 'Social Media Manager',
-                'public relations'           => 'Public Relations Officer',
-                'video producer'             => 'Video Producer',
-
-                // 9. Hospitality
-                'hotel manager'              => 'Hotel Manager',
-                'restaurant manager'         => 'Restaurant Manager',
-                'chef'                       => 'Chef',
-                'tour guide'                 => 'Tour Guide',
-                'travel consultant'          => 'Travel Consultant',
-                'event planner'              => 'Event Planner',
-                'flight attendant'           => 'Flight Attendant',
-                'hotel receptionist'         => 'Hotel Receptionist',
-
-                // 10. Education
-                'teacher'                    => 'School Teacher',
-                'lecturer'                   => 'University Lecturer',
-                'academic counselor'         => 'Academic Counselor',
-                'curriculum developer'       => 'Curriculum Developer',
-
-                // 11. Logistics
-                'supply chain'               => 'Supply Chain Manager',
-                'logistics'                  => 'Logistics Coordinator',
-                'procurement'                => 'Procurement Manager',
-                'warehouse'                  => 'Warehouse Manager',
-                'inventory'                  => 'Inventory Manager',
-
-                // 12. Construction
-                'architect'                  => 'Architect',
-                'qs'                         => 'Quantity Surveyor',
-                'quantity surveyor'          => 'Quantity Surveyor',
-                'urban planner'              => 'Urban Planner',
-                'landscape architect'        => 'Landscape Architect',
-                'construction manager'       => 'Construction Project Manager',
-
-                // 13. Agri-Tech
-                'agricultural scientist'     => 'Agricultural Scientist',
-                'agricultural engineer'      => 'Agricultural Engineer',
-                'hydroponics'                => 'Hydroponics Specialist',
-                'environmental scientist'    => 'Environmental Scientist',
-                'sustainability'             => 'Sustainability Consultant',
-                'agribusiness'               => 'Agribusiness Manager',
-
-                // 14. Skilled Trades
-                'electrician'                => 'Electrician',
-                'mechanic'                   => 'Automobile Mechanic',
-                'welder'                     => 'Welder',
-                'plumber'                    => 'Plumber',
-                'carpenter'                  => 'Carpenter',
-                'ac technician'              => 'AC Technician',
-                'beautician'                 => 'Beautician',
-                'hairdresser'                => 'Beautician',
-                'hair & beauty'              => 'Beautician',
-                'electronics repair'         => 'Electronics Repair Technician',
-                'mason'                      => 'Mason',
-                'painter'                    => 'Painter',
-                'tiler'                      => 'Tiler',
-                'barber'                     => 'Barber',
-                'tailor'                     => 'Tailor',
-            ];
-
-            // ─────────────────────────────────────────────
             // 4. Extract Education Level (Robust Keyword Matching)
             // ─────────────────────────────────────────────
             
@@ -472,7 +221,7 @@ class AiAdvisorController extends Controller
                 $currentProfile['education_level'] = trim($lastUserMessage);
             } else {
                 $eduKeywords = [
-                    'O/L Failed'     => ['failed o/l', 'fail o/l', 'failed ol', 'fail ol', 'failed ordinary level', 'fail'],
+                    'O/L Failed'     => ['failed o/l', 'fail o/l', 'failed ol', 'fail ol', 'failed ordinary level'],
                     'O/L Completed'  => ['o/l', 'o/ls', 'ol', 'ols', 'ordinary level', 'grade 11', 'o levels', 'o/l completed', 'o/l student', 'o/l pending', 'O/L Pending', 'O/L', 'O/L Student','OL'],
                     'A/L Completed'  => ['a/l', 'a/ls', 'al', 'als', 'advanced level', 'grade 13', 'a level', 'a levels', 'a/l completed', 'a/l student', 'a/l pending', 'A/L Pending', 'A/L', 'A/L Student','AL'],
                     'Diploma Holder' => ['diploma', 'hnd', 'higher national diploma', 'hnc', 'diploma holder', 'diploma student', 'diploma pending', 'Diploma Pending', 'Diploma Holder', 'Diploma Student','Diploma'],
@@ -482,7 +231,8 @@ class AiAdvisorController extends Controller
                 
                 foreach ($eduKeywords as $level => $keywords) {
                     foreach ($keywords as $kw) {
-                        if (in_array($kw, ['ol', 'al', 'ols', 'als', 'ba'])) {
+                        // Use word boundaries for short acronyms to avoid false positives (e.g. 'ba' in 'backend')
+                        if (in_array($kw, ['ol', 'al', 'ols', 'als', 'ba', 'bsc', 'msc', 'hnd', 'hnc'])) {
                             if (preg_match("/\b" . preg_quote($kw, '/') . "\b/i", $lowerInput)) {
                                 $currentProfile['education_level'] = $level;
                                 break 2;
@@ -547,20 +297,27 @@ class AiAdvisorController extends Controller
             // ─────────────────────────────────────────────
             // 5. Extract Interest and Main Field (Robust Matching)
             // ─────────────────────────────────────────────
+            
+            // FEATURE: Skip career extraction if input is a pure A/L Stream name 
+            // to avoid false positives (e.g. "Arts" stream being seen as "Graphic Designer" interest)
+            $isPureStreamName = in_array($lowerInput, ['arts', 'art', 'biological science', 'bio', 'biology', 'physical science', 'math', 'maths', 'commerce', 'business', 'technology', 'tech', 'ict']);
+
             // Priority 0: Exact Main Field match (Quick Reply)
             $exactMainMatch = false;
-            foreach ($fieldDictionary as $main => $subs) {
-                if (strtolower($main) === $lowerInput) {
-                    $currentProfile['main_field'] = $main;
-                    $currentProfile['interest']   = null; // Reset interest to force Sub-field question
-                    $exactMainMatch = true;
-                    Log::info("Exact Main Field match detected: $main. Resetting interest.");
-                    break;
+            if (!$isPureStreamName) {
+                foreach ($fieldDictionary as $main => $subs) {
+                    if (strtolower($main) === $lowerInput) {
+                        $currentProfile['main_field'] = $main;
+                        $currentProfile['interest']   = null; // Reset interest to force Sub-field question
+                        $exactMainMatch = true;
+                        Log::info("Exact Main Field match detected: $main. Resetting interest.");
+                        break;
+                    }
                 }
             }
 
             // Priority 1: Main Field Keyword match (Free text typing)
-            if (!$exactMainMatch) {
+            if (!$exactMainMatch && !$isPureStreamName) {
                 $mainFieldKeywords = [
                     'Technology & IT'             => ['technology', 'tech', 'it', 'information technology', 'computing', 'computer'],
                     'Engineering'                 => ['engineering', 'engineer'],
@@ -582,7 +339,10 @@ class AiAdvisorController extends Controller
                 foreach ($mainFieldKeywords as $main => $keywords) {
                     foreach ($keywords as $kw) {
                         if (in_array($kw, ['it', 'art', 'law'])) {
-                            if (preg_match("/\b" . preg_quote($kw, '/') . "\b/i", $lowerInput)) {
+                            // Specific case sensitivity rule for IT to avoid matching within generic wording
+                            $modifier = $kw === 'it' ? '' : 'i';
+                            $patternKW = $kw === 'it' ? 'IT' : $kw;
+                            if (preg_match("/\b" . preg_quote($patternKW, '/') . "\b/{$modifier}", $kw === 'it' ? $lastUserMessage : $lowerInput)) {
                                 $currentProfile['main_field'] = $main;
                                 break 2;
                             }
@@ -598,26 +358,26 @@ class AiAdvisorController extends Controller
 
             // Priority 2: Extract Sub-field Interest via Alias Map (highest priority for specificity)
             if (!$exactMainMatch) {
-                foreach ($aliasMap as $alias => $realField) {
-                    if (preg_match("/\b" . preg_quote($alias, '/') . "\b/i", $lowerInput)) {
-                        $currentProfile['interest'] = $realField;
-                        // Resolve correct main_field from dictionary
-                        foreach ($fieldDictionary as $main => $subs) {
-                            if (in_array($realField, $subs)) {
-                                $currentProfile['main_field'] = $main;
-                                break 2;
-                            }
-                        }
-                        break;
+                // Instantiate the external mapper service
+                $aliasMapper = new CareerAliasMapper();
+                $mappedTitle = $aliasMapper->getStandardTitle($lowerInput);
+
+                if ($mappedTitle) {
+                    $currentProfile['interest'] = $mappedTitle;
+                    // Resolve correct main_field from dictionary
+                    $resolvedMainField = $aliasMapper->getMainFieldForTitle($mappedTitle, $fieldDictionary);
+                    if ($resolvedMainField) {
+                        $currentProfile['main_field'] = $resolvedMainField;
                     }
                 }
             }
 
             // Priority 3: Extract Sub-field via Tag Match (Database-backed fallback)
-            if (!$exactMainMatch && !$currentProfile['interest']) {
+            if (!$exactMainMatch && !$currentProfile['interest'] && !$isPureStreamName) {
                 if (strlen($lowerInput) > 3) {
-                    $tagMatch = \App\Models\CareerGuidance::where('career_tags', 'LIKE', "%{$lowerInput}%")
-                        ->orWhere('career_field', 'LIKE', "%{$lowerInput}%")
+                    $sanitizedInput = \Illuminate\Support\Str::limit(trim(preg_replace('/[^a-z0-9\s]/i', '', $lowerInput)), 40, '');
+                    $tagMatch = \App\Models\CareerGuidance::where('career_tags', 'LIKE', "%{$sanitizedInput}%")
+                        ->orWhere('career_field', 'LIKE', "%{$sanitizedInput}%")
                         ->first();
                         
                     if ($tagMatch) {
@@ -631,7 +391,7 @@ class AiAdvisorController extends Controller
             // ─────────────────────────────────────────────
             // 6. Fallback: Word-by-word Sub-field Extraction
             // ─────────────────────────────────────────────
-            if (!$exactMainMatch && !$currentProfile['interest']) {
+            if (!$exactMainMatch && !$currentProfile['interest'] && !$isPureStreamName) {
                 foreach ($fieldDictionary as $main => $subs) {
                     foreach ($subs as $sub) {
                         if (preg_match("/\b" . preg_quote($sub, '/') . "\b/i", $lowerInput)) {
@@ -665,21 +425,50 @@ class AiAdvisorController extends Controller
             Log::info("Flow Stage check", ['edu' => $edu, 'main' => $mainField, 'sub' => $subField]);
 
             // ─────────────────────────────────────────────
+            // 8.1. Persist State to User DB (Post-Extraction)
+            // ─────────────────────────────────────────────
+            if ($user && !empty($lastUserMessage) && !preg_match('/\b(start over|reset|another field)\b/i', $lastUserMessage)) {
+                $updateData = [
+                    'education_level' => $currentProfile['education_level'],
+                    'path_preference' => $currentProfile['path_preference'] ?? null,
+                    'al_stream'       => $currentProfile['al_stream'],
+                    'main_field'      => $currentProfile['main_field'],
+                    'interest'        => $currentProfile['interest'],
+                    'study_preference'=> $currentProfile['study_preference'],
+                ];
+
+                if (!empty($currentProfile['education_level']) && 
+                    empty($currentProfile['main_field']) && 
+                    !preg_match('/\b(check last search)\b/i', $lowerInput)) {
+                    $updateData['main_field'] = null;
+                    $updateData['interest']   = null;
+                }
+
+                $user->update($updateData);
+            }
+
+            // ─────────────────────────────────────────────
             // Feature: On-Demand Career Recall (Button Clicked)
             // ─────────────────────────────────────────────
             if ($user && preg_match('/\b(check last search|last search|මගේ කල්පිතය)\b/i', $lowerInput)) {
                 Log::info("On-Demand Recall triggered for user {$user->id}");
                 
                 if (empty($subField)) {
+                    $noSearchMsg = "You have no previous career searches found. 🔍";
+                    if ($targetLang === 'Sinhala') $noSearchMsg = "ඔබට කිසිදු පෙර සෙවීමක් හමු නොවීය. 🔍";
+                    elseif ($targetLang === 'Tamil') $noSearchMsg = "உங்கள் முந்தைய தேடல்கள் எதுவும் கிடைக்கவில்லை. 🔍";
+
                     return response()->json([
                         'status'            => 'success',
-                        'recommendation'    => $targetLang === 'Sinhala' ? "ඔබට කිසිදු පෙර සෙවීමක් හමු නොවීය. 🔍" : "You have no previous career searches found. 🔍",
+                        'recommendation'    => $noSearchMsg,
                         'profile'           => $currentProfile,
                         'suggested_replies' => ['Start New Search'],
                     ]);
                 }
 
-                $recallHeader = $targetLang === 'Sinhala' ? "### ඔබේ අවසන් සෙවීම. 🔍\n\n" : "### Your last search. 🔍\n\n";
+                $recallHeader = "### Your last search. 🔍\n\n";
+                if ($targetLang === 'Sinhala') $recallHeader = "### ඔබේ අවසන් සෙවීම. 🔍\n\n";
+                elseif ($targetLang === 'Tamil') $recallHeader = "### உங்கள் கடைசி தேடல். 🔍\n\n";
 
                 $savedRoadmap = UserSavedRoadmap::where('user_id', $user->id)
                     ->where('interest', $subField)
@@ -816,6 +605,7 @@ class AiAdvisorController extends Controller
             // ─────────────────────────────────────────────
             $cacheKey = "emy_roadmap_v7_" . md5(json_encode([
                 $currentProfile['education_level'] ?? '',
+                $currentProfile['al_stream'] ?? '',
                 $currentProfile['interest'] ?? '',
                 $currentProfile['study_preference'] ?? '',
                 $currentProfile['language'] ?? ''
@@ -940,8 +730,8 @@ Would you like to try one of those?",
         }
 
         // ── Build database context string ────────────────────────────────────
-        // Pick up to 3 representative rows (to keep prompt size small)
-        $sample = $filteredMatches->take(3);
+        // Pick up to 2 representative rows (to keep prompt size small and save tokens)
+        $sample = $filteredMatches->take(2);
 
         $contextData = $sample->map(function ($m) {
             return implode("\n", array_filter([
@@ -978,63 +768,65 @@ Would you like to try one of those?",
 
         $prompt = "You are EMY, a friendly and professional Sri Lankan career advisor working for the UniAds platform.
 
-PERSONALITY: Friendly, Encouraging, Professional, Clear and structured, Supportive.
-Always sound like a trusted Sri Lankan academic advisor helping a school student plan their future.
+PERSONALITY:
+Friendly, supportive, professional, and clear.
+Guide students like a trusted Sri Lankan academic advisor.
 
-LANGUAGE RULE: Respond ONLY in {$targetLang}. Do NOT mix languages.
+LANGUAGE RULE:
+Respond ONLY in {$targetLang}. Never mix languages.
 
-USER CONTEXT:
-- Education Level: {$edu}
-- A/L Stream: {$stream}
-- Field of Interest: {$interest}
-- Study Preference: {$studyPref}
+USER CONTEXT
+Education Level: {$edu}
+A/L Stream: {$stream}
+Field of Interest: {$interest}
+Study Preference: {$studyPref}
 
-SRI LANKAN EDUCATION RULES:
-- Students with only O/L CANNOT directly enter professional bachelor's degree programs in Engineering, Medicine, or Law.
-- O/L students (Completed or Failed) MUST be guided towards the 'Alternative Path' (NVQ Level 3/4 or Diploma) mentioned in the database.
-- If the student is an O/L student planning to do A/Ls, EXPLICITLY RECOMMEND the 'A/L Stream Required' mentioned in the data below.
-- After completing a Diploma/NVQ Level 4 or A/L, students can enter Degree programs (NVQ Level 7) at private universities.
+SRI LANKAN EDUCATION RULES
+- Students with only O/L cannot directly enter professional bachelor's degrees such as Engineering, Medicine, or Law.
+- O/L students must be guided toward the Alternative Path (NVQ Level 3/4 or Diploma).
+- If the student plans to do A/L, recommend the required A/L stream from the database. 
+- If the database says the required stream is 'Any', explicitly state that ANY A/L stream is acceptable for this career.
+- Diploma holders should be guided to a Top-Up Degree or Bachelor's Degree.
+- After NVQ Level 4 or A/L, students can enter degree programs.
 
-DATABASE CAREER DATA:
+DATABASE CAREER DATA
 {$contextData}
 
-ACTIVE UNIADS COURSES (Mention these specifically!):
+ACTIVE UNIADS COURSES
 {$instituteContext}
 
-YOUR TASK:
-Create a clear, structured Career Roadmap using EXACTLY these headings:
+TASK
+Create a clear career roadmap using these headings.
 
 ## Career Path
-Briefly explain the role and its importance in Sri Lanka.
+Explain the role and why it is important in Sri Lanka.
 
 ## Recommended Courses & Path
-- If O/L: Recommend the Alternative Path (NVQ) OR the specific A/L Stream required.
-- If A/L: Recommend the Degree path.
-- **First Step**: Explicitly mention the 'Recommended First Step' (e.g., Diploma) as the immediate next action.
-- **Duration**: Mention that this path takes approximately {duration} years.
+Explain the best education path.
+First Step: clearly mention the immediate next step.
 
 ## Specific Institute Recommendations
-MENTION the 'ACTIVE UNIADS COURSES' listed above if any. Invite them to check the links below.
+Mention the ACTIVE UNIADS COURSES if available.
 
 ## Additional Certifications
-List certifications from the database.
+List useful certifications from the database.
 
 ## Career Progression
-- 🟢 Entry Level: {job title}
-- 🔵 Mid Level: {job title}
-- 🔴 Senior Level: {job title}
+Entry Level → Mid Level → Senior Level
 
 ## Salary Expectations (LKR)
-Mention starting and future ranges.
+Provide realistic ranges.
 
 ## Market Outlook
-Briefly mention the 'Local Job Availability' and 'International Opportunity' (e.g., 'High demand locally with great overseas potential').
+Mention local demand and international opportunities.
 
-STRICT RULES:
-1. Output ONLY in {$targetLang}.
-2. Use ONLY data from the DATABASE CAREER DATA and ACTIVE UNIADS COURSES.
-3. If no data exists, say UniAds has limited data for that field.
-4. Keep the response under 200 words.
+RULES
+- Use ONLY information from the provided database.
+- If information is missing, say 'Data currently limited in UniAds'.
+- Do not invent universities or courses.
+- **Bold** all degree names, course titles, and the 'First Step' recommendation.
+- Keep response concise (150–250 words).
+- Do not recommend illegal, unrealistic, or dangerous paths.
 {$extraRule}";
 
         return $this->callGroq($prompt, $currentProfile, $mappedPosts, ['Another Field', 'Tell me more']);

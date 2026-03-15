@@ -1,0 +1,415 @@
+﻿============================================================
+EMY Flow Static Analyzer
+============================================================
+
+[1] Parsing careers_master_dataset.csv...
+  -> Found 0 unique careers across 0 categories.
+
+[2] Parsing AiAdvisorController.php for field dictionaries...
+  -> Found 15 main categories and 180 recognized career roles.
+
+[3] Parsing CareerAliasMapper.php for alias map...
+  -> Found 137 aliases mapped to 97 unique standard titles.
+
+============================================================
+VALIDATION REPORT
+============================================================
+
+[Check 1] Unreachable Careers (In CSV but missing from $fieldDictionary)
+  [SUCCESS] All CSV careers are mapped in the controller Dictionary.
+
+[Check 2] Phantom References (In $fieldDictionary but missing from CSV)
+  [ERROR] '3D Animator' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'AC Technician' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'AI Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'AI Researcher' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'AR Developer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Academic Counselor' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Actuary' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Aerospace Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Agribusiness Manager' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Agricultural Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Agricultural Scientist' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Animator' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Architect' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Attorney-at-Law' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Auditor' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Automobile Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Automobile Mechanic' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Automotive Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Backend Developer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Bank Manager' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Barber' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Beautician' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Blockchain Developer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Blockchain Finance Specialist' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Business Analyst' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Business Development Manager' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Caregiver' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Carpenter' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Chartered Accountant' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Chef' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Chemical Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Civil Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Clinical Psychologist' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Cloud Architect' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Cloud Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Construction Project Manager' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Content Creator' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Content Strategist' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Content Writer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Copywriter' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Corporate Lawyer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Credit Analyst' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Cryptocurrency Analyst' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Curriculum Developer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Customs Clearing Agent' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Cybersecurity Analyst' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Cybersecurity Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Data Analyst' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Data Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Data Scientist' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Database Administrator' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Dentist' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'DevOps Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Dietitian' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Digital Payments Specialist' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Doctor / Physician' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'ETL Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Electrical Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Electrician' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Electronic Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Electronics Repair Technician' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Entrepreneur / Startup Founder' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Environmental Scientist' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Event Planner' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Executive Chef' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Fashion Designer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Financial Advisor' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Financial Analyst' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Fintech Analyst' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Flight Attendant' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Frontend Developer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Full Stack Developer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Game Developer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Geotechnical Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Graphic Designer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Hotel Manager' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Hotel Receptionist' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Human Resource Manager' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Hydroponics Specialist' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'IT Systems Administrator' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Illustrator' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Industrial Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Interior Designer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Inventory Manager' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Investment Analyst' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Investment Banker' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Journalist' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Judge' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Landscape Architect' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Lawyer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Legal Compliance Officer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Legal Consultant' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Legal Officer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Legal Researcher' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Logistics Coordinator' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Logistics Manager' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'MLOps Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Machine Learning Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Management Consultant' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Manufacturing Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Marine Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Marketing Manager' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Mason' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Mechanical Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Mechatronics Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Medical Doctor (MBBS)' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Medical Laboratory Scientist' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Medical Laboratory Technologist' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Midwife' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Mobile App Developer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Modern Farmer (Agri-Tech)' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Network Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'News Presenter' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Notary Public' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Nurse' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Nutritionist' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Operations Manager' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Optometrist' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'PR Specialist' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Painter' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Paramedic' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Penetration Tester' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Petroleum Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Pharmacist' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Photographer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Physiotherapist' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Plumber' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Podcast Producer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Primary School Teacher' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Private Tutor' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Procurement Manager' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Product Designer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Product Manager' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Project Manager' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Psychologist' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Public Health Officer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Public Relations Officer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'QA Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Quantity Surveyor' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Radiographer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Radiologist' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Registered Nurse' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Renewable Energy Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Restaurant Manager' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Risk Analyst' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Robotics Software Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Sales Manager' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'School Principal' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'School Teacher' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Scrum Master' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Secondary School Teacher' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Site Reliability Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Social Media Manager' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Software Architect' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Software Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Special Education Teacher' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Speech Therapist' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Structural Engineer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Supply Chain Analyst' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Supply Chain Manager' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Sustainability Consultant' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Systems Administrator' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Tailor' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Tax Consultant' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Tiler' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Tour Guide' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Travel Agent' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Travel Consultant' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'UI Designer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'UI/UX Designer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'UX Designer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'University Lecturer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Urban Planner' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'VR Developer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Veterinarian' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Video Editor' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Video Game Artist' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Video Producer' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Warehouse Manager' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+  [ERROR] 'Welder' is listed in AiAdvisorController.php but doesn't exist in the CSV!
+
+[Check 3] Broken Alias Mappings (Map to titles not in CSV/Dictionary)
+  [ERROR] Alias 'tech lead' -> targets 'Tech Lead', which does NOT exist!
+  [ERROR] Alias 'biomedical engineer' -> targets 'Biomedical Engineer', which does NOT exist!
+  [ERROR] Alias 'hr' -> targets 'HR Manager', which does NOT exist!
+  [ERROR] Alias 'human resources' -> targets 'HR Manager', which does NOT exist!
+  [ERROR] Alias 'hr manager' -> targets 'HR Manager', which does NOT exist!
+  [ERROR] Alias 'digital marketing' -> targets 'Digital Marketing Specialist', which does NOT exist!
+  [ERROR] Alias 'seo' -> targets 'SEO Specialist', which does NOT exist!
+  [ERROR] Alias 'business dev' -> targets 'Business Development Executive', which does NOT exist!
+  [ERROR] Alias 'bde' -> targets 'Business Development Executive', which does NOT exist!
+  [ERROR] Alias 'entrepreneur' -> targets 'Entrepreneur', which does NOT exist!
+
+[Check 4] Data Completeness (Missing recommended degrees/courses)
+  [WARNING] '' (ID: 1) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 2) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 3) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 4) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 5) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 6) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 7) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 8) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 9) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 10) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 11) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 12) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 13) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 14) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 15) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 16) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 17) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 18) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 19) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 20) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 21) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 22) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 23) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 24) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 25) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 26) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 27) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 28) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 29) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 30) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 31) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 32) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 33) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 34) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 35) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 36) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 37) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 38) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 39) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 40) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 41) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 42) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 43) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 44) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 45) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 46) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 47) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 48) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 49) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 50) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 51) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 52) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 53) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 54) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 55) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 56) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 57) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 58) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 59) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 60) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 61) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 62) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 63) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 64) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 65) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 66) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 67) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 68) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 69) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 70) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 71) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 72) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 73) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 74) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 75) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 76) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 77) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 78) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 79) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 80) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 81) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 82) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 83) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 84) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 85) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 86) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 87) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 88) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 89) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 90) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 91) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 92) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 93) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 94) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 95) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 96) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 97) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 98) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 99) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 100) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 101) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 102) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 103) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 104) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 105) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 106) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 107) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 108) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 109) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 110) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 111) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 112) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 113) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 114) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 115) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 116) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 117) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 118) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 119) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 120) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 121) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 122) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 123) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 124) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 125) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 126) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 127) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 128) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 129) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 130) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 131) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 132) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 133) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 134) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 135) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 136) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 137) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 138) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 139) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 140) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 141) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 142) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 143) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 144) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 145) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 146) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 147) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 148) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 149) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 150) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 151) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 152) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 153) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 154) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 155) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 156) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 157) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 158) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 159) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 160) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 161) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 162) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 163) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 164) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 165) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 166) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 167) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 168) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 169) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 170) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 171) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 172) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 173) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 174) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 175) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 176) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 177) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 178) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 179) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 180) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 181) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 182) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 183) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 184) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 185) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 186) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 187) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 188) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 189) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 190) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 191) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 192) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 193) has an empty 'recommended_degree_or_course' field!
+  [WARNING] '' (ID: 194) has an empty 'recommended_degree_or_course' field!
+
+[Check 5] Category Alignment
+  [SUCCESS] All CSV categories are defined in the controller.
+
+============================================================
+[FAIL] ERRORS DETECTED. Please review the warnings and errors above before production.
