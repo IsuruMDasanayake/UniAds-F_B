@@ -21,8 +21,24 @@ const CoursesPage = () => {
     const [loading, setLoading] = useState(true);
     const [categories, setCategories] = useState({});
     const [posts, setPosts] = useState([]);
+    const [filteredPosts, setFilteredPosts] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [expandedSections, setExpandedSections] = useState({});
+    
+    // New Filter States
+    const [activeFilters, setActiveFilters] = useState({});
+    const [openFilterDropdown, setOpenFilterDropdown] = useState(null);
+
+    // Click outside handler for dropdowns
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (openFilterDropdown && !event.target.closest('.filter-dropdown-container')) {
+                setOpenFilterDropdown(null);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [openFilterDropdown]);
 
     // Modal states
     const [selectedPost, setSelectedPost] = useState(null);
@@ -45,11 +61,61 @@ const CoursesPage = () => {
         window.scrollTo(0, 0);
     }, [filterType, filterValue]);
 
+    // Apply client-side filtering
+    useEffect(() => {
+        let result = [...posts];
+
+        // Apply Search Query (if any)
+        if (searchQuery) {
+            result = result.filter(post => 
+                post.title.toLowerCase().includes(searchQuery) ||
+                post.course_name?.toLowerCase().includes(searchQuery) ||
+                post.institute?.institute_name?.toLowerCase().includes(searchQuery)
+            );
+        }
+
+        // Apply Dropdown Filters
+        Object.entries(activeFilters).forEach(([category, selectedValues]) => {
+            if (selectedValues.length > 0) {
+                const columnMap = {
+                    'Course Type': 'course_type',
+                    'Location': 'location',
+                    'Duration': 'duration',
+                    'Course Format': 'course_format',
+                    'Attendance Type': 'attendance_type'
+                };
+                const column = columnMap[category];
+                if (column) {
+                    result = result.filter(post => {
+                        if (column === 'location') {
+                            // Location is comma-separated string
+                            return selectedValues.some(val => 
+                                post.location?.toLowerCase().includes(val.toLowerCase())
+                            );
+                        }
+                        return selectedValues.includes(post[column]);
+                    });
+                }
+            }
+        });
+
+        setFilteredPosts(result);
+    }, [posts, searchQuery, activeFilters]);
+
     const fetchData = async () => {
         setLoading(true);
         let currentUser = null;
         try {
-            // Attempt to fetch user profile to check for saved posts
+            // Fetch categories first as they are needed in both views now
+            const catResponse = await axiosClient.get('/api/categories');
+            setCategories(catResponse.data);
+            
+            // Initialize all sections as expanded for browse view
+            const initials = {};
+            Object.keys(catResponse.data).forEach(key => initials[key] = true);
+            setExpandedSections(initials);
+
+            // Attempt to fetch user profile
             try {
                 const userRes = await axiosClient.get('/api/profile/me');
                 currentUser = userRes.data.user;
@@ -78,13 +144,10 @@ const CoursesPage = () => {
                 }
 
                 setPosts(fetchedPosts);
-            } else {
-                const response = await axiosClient.get('/api/categories');
-                setCategories(response.data);
-                // Initialize all sections as expanded
-                const initials = {};
-                Object.keys(response.data).forEach(key => initials[key] = true);
-                setExpandedSections(initials);
+                setFilteredPosts(fetchedPosts); // Initial set
+                
+                // Reset active filters when moving to a new main category
+                setActiveFilters({});
             }
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -102,6 +165,21 @@ const CoursesPage = () => {
 
     const handleSearch = (e) => {
         setSearchQuery(e.target.value.toLowerCase());
+    };
+
+    const toggleFilterValue = (category, value) => {
+        setActiveFilters(prev => {
+            const currentSelected = prev[category] || [];
+            const newSelected = currentSelected.includes(value)
+                ? currentSelected.filter(v => v !== value)
+                : [...currentSelected, value];
+            return { ...prev, [category]: newSelected };
+        });
+    };
+
+    const clearAllFilters = () => {
+        setActiveFilters({});
+        setSearchQuery('');
     };
 
     const openProgrammeInfo = (post) => {
@@ -209,8 +287,84 @@ const CoursesPage = () => {
                                 <ChevronRight size={16} />
                                 <span className="active">{filterValue}</span>
                             </div>
-                            <h1>Programs in {filterValue}</h1>
-                            <p>Showing {posts.length} programs available now</p>
+                            
+                            <div className="results-title-bar">
+                                <div>
+                                    <h1>Programs in {filterValue}</h1>
+                                    <p>Showing {filteredPosts.length} programs available now</p>
+                                </div>
+                                
+                                {Object.keys(activeFilters).some(cat => activeFilters[cat].length > 0) && (
+                                    <button className="clear-filters-btn" onClick={clearAllFilters}>
+                                        <X size={14} /> Clear Filters
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* NEW TOP FILTER BAR */}
+                            <div className="top-filter-bar">
+                                <div className="filters-container">
+                                    {Object.entries(categories)
+                                        .filter(([mainCat]) => mainCat !== 'Courses')
+                                        .map(([mainCat, items]) => (
+                                            <div key={mainCat} className="filter-dropdown-container">
+                                                <button 
+                                                    className={`filter-dropdown-trigger ${activeFilters[mainCat]?.length > 0 ? 'has-active' : ''} ${openFilterDropdown === mainCat ? 'active' : ''}`}
+                                                    onClick={() => setOpenFilterDropdown(openFilterDropdown === mainCat ? null : mainCat)}
+                                                >
+                                                    {mainCat}
+                                                    {activeFilters[mainCat]?.length > 0 && (
+                                                        <span className="count-badge">{activeFilters[mainCat].length}</span>
+                                                    )}
+                                                    <ChevronDown size={16} />
+                                                </button>
+                                                
+                                                <AnimatePresence>
+                                                    {openFilterDropdown === mainCat && (
+                                                        <motion.div 
+                                                            className="filter-dropdown-content"
+                                                            initial={{ opacity: 0, y: 10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            exit={{ opacity: 0, y: 10 }}
+                                                        >
+                                                            <div className="dropdown-options">
+                                                                {items.map(item => (
+                                                                    <label key={item.id} className="filter-option">
+                                                                        <input 
+                                                                            type="checkbox"
+                                                                            checked={activeFilters[mainCat]?.includes(item.name) || false}
+                                                                            onChange={() => toggleFilterValue(mainCat, item.name)}
+                                                                        />
+                                                                        <span className="checkbox-custom">
+                                                                            <Check size={12} />
+                                                                        </span>
+                                                                        <span className="option-label">{item.name}</span>
+                                                                    </label>
+                                                                ))}
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
+                                        ))
+                                    }
+                                </div>
+
+                                <div className="results-search">
+                                    <Search size={18} />
+                                    <input 
+                                        type="text" 
+                                        placeholder="Search within results..." 
+                                        value={searchQuery}
+                                        onChange={handleSearch}
+                                    />
+                                    {searchQuery && (
+                                        <button className="search-clear" onClick={() => setSearchQuery('')}>
+                                            <X size={14} />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
                         </header>
 
                         <motion.div
@@ -219,8 +373,8 @@ const CoursesPage = () => {
                             initial="hidden"
                             animate="visible"
                         >
-                            {posts.length > 0 ? (
-                                posts.map(post => (
+                            {filteredPosts.length > 0 ? (
+                                filteredPosts.map(post => (
                                     <motion.div
                                         key={post.id}
                                         className={`premium-course-card ${post.status !== 'active' ? 'post-inactive' : ''}`}
@@ -269,7 +423,7 @@ const CoursesPage = () => {
                                                         style={{ textDecoration: 'none', color: 'inherit' }}
                                                     >
                                                         <span className="name">
-                                                            {post.institute?.institute_name}
+                                                              {post.institute?.institute_name}
                                                             {!!post.institute?.is_premium && <BadgeCheck size={18} fill="#ff4757" color="#ffffff" style={{ marginLeft: '4px', display: 'inline-block' }} className="v-badge" />}
                                                         </span>
                                                     </Link>
@@ -292,8 +446,8 @@ const CoursesPage = () => {
                                 <div className="no-courses">
                                     <Info size={48} />
                                     <h3>No programs found</h3>
-                                    <p>We couldn't find any programs in this category. Try browsing others!</p>
-                                    <Link to="/courses" className="back-btn">Back to Disciplines</Link>
+                                    <p>We couldn't find any programs matching your filters. Try adjusting them!</p>
+                                    <button onClick={clearAllFilters} className="back-btn">Clear All Filters</button>
                                 </div>
                             )
                             }
@@ -318,46 +472,49 @@ const CoursesPage = () => {
                         </header>
 
                         <div className="disciplines-sections">
-                            {Object.entries(categories).map(([mainCategory, items]) => {
-                                const filteredItems = items.filter(cat =>
-                                    cat.name.toLowerCase().includes(searchQuery)
-                                );
+                            {/* ONLY DISPLAY "COURSES" CATEGORY HERE */}
+                            {Object.entries(categories)
+                                .filter(([mainCategory]) => mainCategory === 'Courses')
+                                .map(([mainCategory, items]) => {
+                                    const filteredItems = items.filter(cat =>
+                                        cat.name.toLowerCase().includes(searchQuery)
+                                    );
 
-                                if (searchQuery && filteredItems.length === 0) return null;
+                                    if (searchQuery && filteredItems.length === 0) return null;
 
-                                return (
-                                    <div key={mainCategory} className="discipline-group">
-                                        <div className="group-header" onClick={() => toggleSection(mainCategory)}>
-                                            <h2>{mainCategory}</h2>
-                                            {expandedSections[mainCategory] ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                                    return (
+                                        <div key={mainCategory} className="discipline-group">
+                                            {/* <div className="group-header" onClick={() => toggleSection(mainCategory)}>
+                                                <h2>{mainCategory}</h2>
+                                                {expandedSections[mainCategory] ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                                            </div> */}
+
+                                            <AnimatePresence>
+                                                {expandedSections[mainCategory] && (
+                                                    <motion.div
+                                                        className="category-grid"
+                                                        initial={{ height: 0, opacity: 0 }}
+                                                        animate={{ height: 'auto', opacity: 1 }}
+                                                        exit={{ height: 0, opacity: 0 }}
+                                                    >
+                                                        {filteredItems.map(category => (
+                                                            <Link
+                                                                key={category.id}
+                                                                to={`/courses/${mainCategory}/${category.name}`}
+                                                                className="category-card"
+                                                            >
+                                                                <div className="card-icon">
+                                                                    <i className={category.icon || 'fas fa-graduation-cap'}></i>
+                                                                </div>
+                                                                <p>{category.name}</p>
+                                                            </Link>
+                                                        ))}
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
                                         </div>
-
-                                        <AnimatePresence>
-                                            {expandedSections[mainCategory] && (
-                                                <motion.div
-                                                    className="category-grid"
-                                                    initial={{ height: 0, opacity: 0 }}
-                                                    animate={{ height: 'auto', opacity: 1 }}
-                                                    exit={{ height: 0, opacity: 0 }}
-                                                >
-                                                    {filteredItems.map(category => (
-                                                        <Link
-                                                            key={category.id}
-                                                            to={`/courses/${mainCategory}/${category.name}`}
-                                                            className="category-card"
-                                                        >
-                                                            <div className="card-icon">
-                                                                <i className={category.icon || 'fas fa-graduation-cap'}></i>
-                                                            </div>
-                                                            <p>{category.name}</p>
-                                                        </Link>
-                                                    ))}
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-                                    </div>
-                                );
-                            })}
+                                    );
+                                })}
                         </div>
                     </div>
                 )}
