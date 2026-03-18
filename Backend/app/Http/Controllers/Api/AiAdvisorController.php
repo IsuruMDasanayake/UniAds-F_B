@@ -46,7 +46,7 @@ class AiAdvisorController extends Controller
             // 0. Global Command Reset (Another Field / Start Over)
             // ─────────────────────────────────────────────
             $lowerInput = strtolower($lastUserMessage);
-            if (preg_match('/\b(another field|change field|different field|new field|explore another field)\b/i', $lowerInput)) {
+            if (preg_match('/\b(another field|change field|different field|new field|explore all fields)\b/i', $lowerInput)) {
                 $currentProfile['main_field'] = null;
                 $currentProfile['interest']   = null;
                 $currentProfile['personality_quiz'] = false;
@@ -224,7 +224,7 @@ class AiAdvisorController extends Controller
                     'O/L Failed'     => ['failed o/l', 'fail o/l', 'failed ol', 'fail ol', 'failed ordinary level'],
                     'O/L Completed'  => ['o/l', 'o/ls', 'ol', 'ols', 'ordinary level', 'grade 11', 'o levels', 'o/l completed', 'o/l student', 'o/l pending', 'O/L Pending', 'O/L', 'O/L Student','OL'],
                     'A/L Completed'  => ['a/l', 'a/ls', 'al', 'als', 'advanced level', 'grade 13', 'a level', 'a levels', 'a/l completed', 'a/l student', 'a/l pending', 'A/L Pending', 'A/L', 'A/L Student','AL'],
-                    'Diploma Holder' => ['diploma', 'hnd', 'higher national diploma', 'hnc', 'diploma holder', 'diploma student', 'diploma pending', 'Diploma Pending', 'Diploma Holder', 'Diploma Student','Diploma'],
+                    'Diploma Holder' => ['hnd', 'higher national diploma', 'hnc', 'diploma holder', 'diploma student', 'diploma pending', 'Diploma Pending', 'Diploma Holder', 'Diploma Student'],
                     'Undergraduate'  => ['undergraduate', 'undergrad', 'bachelor', 'degree student', 'uni student', 'university student', 'undergraduate', 'undergraduate student', 'undergraduate pending', 'Undergraduate Pending'],
                     'Graduate'       => ['graduate', 'graduated', 'degree holder', 'bsc', 'ba', 'bba', 'masters', 'phd', 'graduate', 'graduate student', 'graduate pending', 'Graduate Pending'],
                 ];
@@ -233,18 +233,34 @@ class AiAdvisorController extends Controller
                     foreach ($keywords as $kw) {
                         // Use word boundaries for short acronyms to avoid false positives (e.g. 'ba' in 'backend')
                         if (in_array($kw, ['ol', 'al', 'ols', 'als', 'ba', 'bsc', 'msc', 'hnd', 'hnc'])) {
-                            if (preg_match("/\b" . preg_quote($kw, '/') . "\b/i", $lowerInput)) {
+                            // Fix: Don't match 'al stream' or 'al path' as 'A/L Completed'
+                            if (preg_match("/\b" . preg_quote($kw, '/') . "\b/i", $lowerInput) && !preg_match('/\b(stream|path)\b/i', $lowerInput)) {
                                 $currentProfile['education_level'] = $level;
+                                $eduFound = true;
                                 break 2;
                             }
                         } else {
-                            if (str_contains($lowerInput, $kw)) {
+                            if (str_contains($lowerInput, $kw) && !preg_match('/\b(stream|path)\b/i', $lowerInput)) {
                                 $currentProfile['education_level'] = $level;
+                                $eduFound = true;
                                 break 2;
                             }
                         }
                     }
                 }
+            }
+
+            // FEATURE: Reset downstream fields if a NEW education level was just picked
+            // This prevents skipping questions based on stale data from previous searches.
+            $isQuickReply = in_array(trim($lastUserMessage), $quickReplyEduLevels);
+            if ($isQuickReply || ($currentProfile['education_level'] && !empty($eduFound))) {
+                $currentProfile['path_preference']  = null;
+                $currentProfile['al_stream']        = null;
+                $currentProfile['main_field']       = null;
+                $currentProfile['interest']         = null;
+                $currentProfile['study_preference'] = null;
+                $currentProfile['personality_quiz'] = false;
+                Log::info("Education Level updated. Resetting downstream profile for a clean flow.");
             }
 
             // ─────────────────────────────────────────────
@@ -254,27 +270,17 @@ class AiAdvisorController extends Controller
             if (!$currentProfile['path_preference']) {
                 if (preg_match('/\b(a\/l stream|do a\/ls|al stream|a\/ls|al)\b/i', $lowerInput)) {
                     $currentProfile['path_preference'] = 'A/L';
-                } elseif (preg_match('/\b(alternative path|diploma|vocational course|nvq|alternative)\b/i', $lowerInput)) {
+                } elseif (preg_match('/\b(alternative path|vocational course|nvq|alternative)\b/i', $lowerInput)) {
                     $currentProfile['path_preference'] = 'Alternative';
+                } elseif (preg_match('/\b(explore all fields)\b/i', $lowerInput) && $currentProfile['education_level'] === 'O/L Completed') {
+                    // Bypass Stage 2 & 3 (Path Selection) to get straight to careers
+                    $currentProfile['path_preference'] = 'Discovery';
+                    Log::info("User clicked 'Explore All Fields' at O/L stage. Bypassing path selection via 'Discovery' state.");
                 }
             }
 
-            // A/L Stream
-            if (!$currentProfile['al_stream']) {
-                if (preg_match('/\b(math|maths|physical science)\b/i', $lowerInput)) $currentProfile['al_stream'] = 'Physical Science';
-                elseif (preg_match('/\b(bio|biological science|biology)\b/i', $lowerInput)) $currentProfile['al_stream'] = 'Biological Science';
-                elseif (preg_match('/\b(art|arts)\b/i', $lowerInput)) $currentProfile['al_stream'] = 'Arts';
-                elseif (preg_match('/\b(commerce|business)\b/i', $lowerInput)) $currentProfile['al_stream'] = 'Commerce';
-                elseif (preg_match('/\b(tech|technology|ict|sft)\b/i', $lowerInput)) $currentProfile['al_stream'] = 'Technology';
-            }
-
-            // Personality Quiz Trigger
-            if (preg_match('/\b(help me decide|i don\'t know|not sure|help)\b/i', $lowerInput) && !$currentProfile['al_stream']) {
-                $currentProfile['personality_quiz'] = true;
-            }
-
-            // Parse Personality Quiz Responses
-            if ($currentProfile['personality_quiz'] && !$currentProfile['al_stream']) {
+            // 4.6. Parse Personality Quiz Responses (Priority for quiz flow)
+            if ($currentProfile['personality_quiz']) {
                 if (preg_match('/\b(computers|coding)\b/i', $lowerInput)) {
                     $currentProfile['al_stream'] = 'Technology';
                     $currentProfile['main_field'] = 'Technology & IT';
@@ -294,9 +300,28 @@ class AiAdvisorController extends Controller
                 }
             }
 
+            // 4.7. A/L Stream (Extraction)
+            if (!$currentProfile['al_stream']) {
+                if (preg_match('/\b(math|maths|physical science)\b/i', $lowerInput)) $currentProfile['al_stream'] = 'Physical Science';
+                elseif (preg_match('/\b(bio|biological science|biology)\b/i', $lowerInput)) $currentProfile['al_stream'] = 'Biological Science';
+                elseif (preg_match('/\b(art|arts)\b/i', $lowerInput)) $currentProfile['al_stream'] = 'Arts';
+                elseif (preg_match('/\b(commerce|business)\b/i', $lowerInput)) $currentProfile['al_stream'] = 'Commerce';
+                elseif (preg_match('/\b(tech|technology|ict|sft)\b/i', $lowerInput)) $currentProfile['al_stream'] = 'Technology';
+            }
+
+            // 4.8. Personality Quiz Trigger
+            if (preg_match('/\b(help me decide|i don\'t know|not sure|help)\b/i', $lowerInput) && !$currentProfile['al_stream']) {
+                $currentProfile['personality_quiz'] = true;
+            }
+
             // ─────────────────────────────────────────────
             // 5. Extract Interest and Main Field (Robust Matching)
             // ─────────────────────────────────────────────
+            
+            $lowerInput = strtolower(trim($lastUserMessage));
+            // Preserve ampersands for specific categories (like Skilled Trades & Vocational)
+            $cleanInput = strtolower(trim(preg_replace('/[^a-z0-9\s&]/i', '', $lastUserMessage)));
+            Log::info("Processing input: '$lastUserMessage' (Clean: '$cleanInput')");
             
             // FEATURE: Skip career extraction if input is a pure A/L Stream name 
             // to avoid false positives (e.g. "Arts" stream being seen as "Graphic Designer" interest)
@@ -408,6 +433,11 @@ class AiAdvisorController extends Controller
             // ─────────────────────────────────────────────
             if (preg_match('/\b(diploma|certificate|short course|vocational|training)\b/i', $lastUserMessage)) {
                 $currentProfile['study_preference'] = 'Diploma';
+                // If they specifically picked Skilled Trades as a shortcut
+                if (str_contains($lowerInput, 'skilled trades')) {
+                    $currentProfile['main_field'] = 'Skilled Trades & Vocational';
+                    $currentProfile['path_preference'] = 'Alternative';
+                }
             } elseif (preg_match('/\b(degree|university|bachelor|undergrad)\b/i', $lastUserMessage)) {
                 $currentProfile['study_preference'] = 'Degree';
             }
@@ -419,6 +449,7 @@ class AiAdvisorController extends Controller
             $mainField = $currentProfile['main_field']      ?? null;
             $subField  = $currentProfile['interest']        ?? null;
             $pathPref  = $currentProfile['path_preference'] ?? null;
+            $studyPref = $currentProfile['study_preference']?? null;
             $stream    = $currentProfile['al_stream']       ?? null;
             $quiz      = $currentProfile['personality_quiz']?? false;
 
@@ -481,7 +512,7 @@ class AiAdvisorController extends Controller
                         'recommendation'    => $recallHeader . $savedRoadmap->recommendation_text,
                         'profile'           => $currentProfile,
                         'real_posts'        => $savedRoadmap->real_posts_json ?? [],
-                        'suggested_replies' => ['Another Field', 'Tell me more'],
+                        'suggested_replies' => ['Another Field'],
                     ]);
                 }
                 
@@ -512,17 +543,17 @@ class AiAdvisorController extends Controller
                     }
                 }
                 // Stage 2: Path Preference
-                elseif ($edu === 'O/L Completed' && !$pathPref) {
+                elseif ($edu === 'O/L Completed' && !$pathPref && !$studyPref && !$mainField && !$subField) {
                     $questionToAsk    = "Since you have completed your O/Ls, would you like to continue with A/Ls or explore an Alternative Path (like a Diploma or Vocational NVQ course)?";
-                    $suggestedReplies = ['A/L Stream', 'Alternative Path'];
+                    $suggestedReplies = ['A/L Stream', 'Diploma', 'Skilled Trades & Vocational', 'Explore All Fields'];
                 }
                 // Stage 3a: A/L Stream (for O/L students planning A/Ls — future tense)
-                elseif ($pathPref === 'A/L' && $edu === 'O/L Completed' && !$stream && !$quiz) {
+                elseif ($pathPref === 'A/L' && $edu === 'O/L Completed' && !$stream && !$quiz && !$mainField) {
                     $questionToAsk    = "Which A/L stream are you planning to study?";
                     $suggestedReplies = ['Biological Science', 'Physical Science', 'Commerce', 'Arts', 'Technology', 'Help me decide'];
                 }
                 // Stage 3b-i: A/L Stream (for A/L Completed students — past tense)
-                elseif ($edu === 'A/L Completed' && !$stream && !$quiz) {
+                elseif ($edu === 'A/L Completed' && !$stream && !$quiz && !$mainField) {
                     $questionToAsk    = "Which A/L stream did you complete?";
                     $suggestedReplies = ['Biological Science', 'Physical Science', 'Commerce', 'Arts', 'Technology'];
                 }
@@ -538,6 +569,10 @@ class AiAdvisorController extends Controller
                         $suggestedReplies = array_keys($vocationalFields);
                     } else {
                         $questionToAsk = "Great! Which broad field interests you the most?";
+                        // Customize message for higher education levels
+                        if (in_array($edu, ['Diploma Holder', 'Undergraduate', 'Graduate'])) {
+                            $questionToAsk = "Great! Which broad field is your current qualification or area of expertise in?";
+                        }
                         $suggestedReplies = array_keys($fieldDictionary);
                     }
                 }
@@ -545,7 +580,7 @@ class AiAdvisorController extends Controller
                 elseif (!$subField) {
                     $availableSubs = $fieldDictionary[$mainField] ?? [];
                     $questionToAsk    = "Excellent choice! Which specific area of {$mainField} would you like to explore?";
-                    $suggestedReplies = array_merge($availableSubs, ['Explore Another Field']);
+                    $suggestedReplies = array_merge($availableSubs, ['Explore All Fields']);
                 }
             }
 
@@ -662,14 +697,17 @@ class AiAdvisorController extends Controller
         $targetLang = $currentProfile['language'] ?? 'English';
         $interest   = $currentProfile['interest'] ?? '';
 
-        // Fetch real UniAds posts related to this field
-        $postsData = Post::where('status', 'active')
+        // Fetch real UniAds posts related to this field - Prioritize Premium and Active
+        $postsData = Post::where('posts.status', 'active')
             ->where(function ($q) use ($interest) {
-                $q->where('title', 'LIKE', "%{$interest}%")
-                    ->orWhere('course_name', 'LIKE', "%{$interest}%");
+                $q->where('posts.title', 'LIKE', "%{$interest}%")
+                    ->orWhere('posts.course_name', 'LIKE', "%{$interest}%");
             })
-            ->with('institute')
-            ->orderBy('is_boosted', 'desc')
+            ->join('institutes', 'posts.institute_id', '=', 'institutes.id')
+            ->select('posts.*')
+            ->with(['institute', 'category'])
+            ->orderBy('institutes.is_premium', 'desc')
+            // ->orderBy('posts.created_at', 'desc')
             ->limit(3)
             ->get();
 
@@ -677,7 +715,8 @@ class AiAdvisorController extends Controller
         $instituteContext = "";
         $mappedPosts = $postsData->map(function ($post, $idx) use (&$instituteContext) {
             $instituteTitle = $post->institute->institute_name ?? 'UniAds Institute';
-            $price = $post->price ? "LKR " . number_format($post->price) : "Contact for pricing";
+            $priceValue = $post->price ?? null;
+            $price = $priceValue ? "LKR " . number_format($priceValue) : "Contact for pricing";
             
             $instituteContext .= ($idx + 1) . ". " . ($post->course_name ?? $post->title) . " at {$instituteTitle} ({$price})\n";
 
@@ -687,7 +726,15 @@ class AiAdvisorController extends Controller
                 'institute_name' => $instituteTitle,
                 'image' => $post->image ? url('storage/' . $post->image) : '/images/placeholders/course.jpg',
                 'course_type' => $post->course_type,
-                'description' => $post->small_description
+                'course_name' => $post->category?->name ?? $post->course_name, // Fixed: use null-safe operator
+                'location' => $post->location,
+                'duration' => $post->duration,
+                'course_format' => $post->course_format,
+                'attendance_type' => $post->attendance_type,
+                'description' => $post->description, // Use Long Description
+                'is_premium' => (bool) ($post->institute->is_premium ?? false),
+                'premium_expires_at' => $post->institute->premium_expires_at ?? null,
+                'share_link' => $post->share_link
             ];
         });
 
@@ -734,12 +781,13 @@ Would you like to try one of those?",
         $sample = $filteredMatches->take(2);
 
         $contextData = $sample->map(function ($m) {
+            $postGrad = $m->postgrad_path ?: str_replace('Bachelor', 'Master', $m->recommended_degree_or_course);
             return implode("\n", array_filter([
                 "Career Field: {$m->career_field}",
                 "Category: {$m->career_category}",
                 "A/L Stream Required: {$m->al_stream_required}",
                 "Minimum Education: {$m->education_level}",
-                "Recommended Degree: {$m->recommended_degree_or_course}",
+                "Recommended Degree Fields: {$m->recommended_degree_or_course}",
                 "Alternative Path (NVQ/Diploma): {$m->alternative_path}",
                 "Entry Level Job: {$m->entry_level_job}",
                 "Mid Level Job: {$m->mid_level_job}",
@@ -755,6 +803,7 @@ Would you like to try one of those?",
                 "International Opportunity: {$m->international_opportunity}",
                 "Recommended First Step: {$m->recommended_first_step}",
                 "Job Description: {$m->job_description}",
+                "Postgraduate/Master's Pathway: {$postGrad}",
             ]));
         })->join("\n\n---\n\n");
 
@@ -783,10 +832,20 @@ Study Preference: {$studyPref}
 
 SRI LANKAN EDUCATION RULES
 - Students with only O/L cannot directly enter professional bachelor's degrees such as Engineering, Medicine, or Law.
-- O/L students must be guided toward the Alternative Path (NVQ Level 3/4 or Diploma).
-- If the student plans to do A/L, recommend the required A/L stream from the database. 
+- **CRITICAL (O/L with Diploma Selection)**: If Education Level is 'O/L Completed' AND Study Preference is 'Diploma', you MUST recommend this exact sequence:
+  1. **Short Diploma** (6 months to 1 year duration) to gain immediate basic skills.
+  2. **A/Ls** in the recommended stream (from database) while or after the diploma.
+  3. **Bachelor's Degree** after completing A/Ls.
+- **CRITICAL**: If Study Preference is 'Diploma', you MUST suggest a **Diploma, HND, or NVQ course** as the first step. Do NOT suggest a degree even if they have A/Ls.
+- **CRITICAL (Undergraduates & Graduates)**: If Education Level is 'Undergraduate' or 'Graduate', you MUST NOT recommend starting a basic Bachelor's degree. Instead, STRICTLY recommend the **Postgraduate/Master's Pathway** (e.g., MSc, MBA, PhD, Postgraduate Diplomas) provided in the database as their next step.
+- **CRITICAL**: Do NOT assume the student is already a 'Diploma Holder' if they are only expressing a preference for one. Only use the 'Diploma Holder' rules if Education Level is exactly 'Diploma Holder'.
+- **AGRICULTURAL FIELDS**: For Agricultural-related fields, always recommend the **Biological Science** A/L stream, but explicitly advise the user to **take 'Agriculture' as a subject instead of 'Biology'**.
+- **IT FIELDS**: For IT-related fields, explicitly state that the student can choose **ANY A/L stream** (Maths, Arts, Commerce, or Technology), provided they take **ICT** as a subject.
+- **TOURISM & HOSPITALITY**: For Tourism, Hotel Management, and Hospitality-related fields, you MUST explicitly suggest **SLITHM (Sri Lanka Institute of Tourism and Hotel Management)** as the premier institute for professional courses and diplomas in Sri Lanka.
+- If the student plans to do A/L, recommend the required A/L stream from the database.
 - If the database says the required stream is 'Any', explicitly state that ANY A/L stream is acceptable for this career.
-- Diploma holders should be guided to a Top-Up Degree or Bachelor's Degree.
+- **DEGREE VARIETY**: The 'Recommended Degree Fields' from the database contain broad categories (e.g., 'Computer Science; Software Engineering'). You MUST recommend that students can pursue various degree types such as **BSc, BEng, BIT, or BTech** in these specific fields. Do NOT suggest only one degree title.
+- **PRECISION**: Use the exact **Recommended First Step** from the database as the primary instruction for the student.
 - After NVQ Level 4 or A/L, students can enter degree programs.
 
 DATABASE CAREER DATA
@@ -802,8 +861,11 @@ Create a clear career roadmap using these headings.
 Explain the role and why it is important in Sri Lanka.
 
 ## Recommended Courses & Path
-Explain the best education path.
-First Step: clearly mention the immediate next step.
+Outline the full progression based on their Education Level. Include:
+1. **A/L Requirements**: The necessary stream (skip if Undergraduate/Graduate).
+2. **Standard Path**: The recommended university degree (or Postgraduate/Master's Pathway if they are an Undergraduate/Graduate).
+3. **Alternative Path**: Any diploma, NVQ, or alternative entry point listed in the database.
+First Step: Provide the exact sensible **Recommended First Step** based on their current Education Level.
 
 ## Specific Institute Recommendations
 Mention the ACTIVE UNIADS COURSES if available.
@@ -829,7 +891,7 @@ RULES
 - Do not recommend illegal, unrealistic, or dangerous paths.
 {$extraRule}";
 
-        return $this->callGroq($prompt, $currentProfile, $mappedPosts, ['Another Field', 'Tell me more']);
+        return $this->callGroq($prompt, $currentProfile, $mappedPosts, ['Another Field']);
     }
 
     // ─────────────────────────────────────────────────────────────────────────

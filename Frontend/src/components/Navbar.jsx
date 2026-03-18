@@ -348,6 +348,8 @@ function Navbar({ user }) {
                 onApply={() => setShowApplyModal(true)}
                 onMoreInfo={() => setShowInfoModal(true)}
                 userRole={displayUser?.role}
+                isPremium={!!selectedPost?.institute?.is_premium}
+                institute={selectedPost?.institute}
             />
 
             <ApplyNowModal
@@ -371,7 +373,7 @@ function Navbar({ user }) {
             <MoreInfoModal
                 isOpen={showInfoModal}
                 onClose={() => setShowInfoModal(false)}
-                contactNumber={selectedPost?.institute?.contact_number}
+                course={selectedPost}
             />
 
             <ChatModal />

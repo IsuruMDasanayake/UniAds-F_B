@@ -563,4 +563,28 @@
   transform: translateY(0);
 }
 
+.suggested-reply-btn.special-action-btn {
+  background: white;
+  border: 1.5px dashed var(--c-accent);
+  color: var(--c-accent);
+  padding: 6px 14px;
+}
 
+.suggested-reply-btn.special-action-btn:hover {
+  background: var(--c-accent);
+  color: white;
+  border: 1.5px solid var(--c-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.15);
+}
+
+/* EMY Legal Disclaimer */
+.emy-disclaimer {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--c-border);
+  font-size: 10.5px;
+  color: var(--c-text-muted);
+  opacity: 0.75;
+  font-style: italic;
+}

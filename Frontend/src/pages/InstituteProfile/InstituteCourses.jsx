@@ -199,7 +199,7 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
                 onApply={() => setShowApplyModal(true)}
                 onMoreInfo={() => setShowInfoModal(true)}
                 userRole={userRole}
-                isPremium={!!(institute?.is_premium && institute?.premium_expires_at && new Date() <= new Date(institute.premium_expires_at))}
+                isPremium={!!institute?.is_premium}
                 institute={institute}
             />
 
@@ -217,7 +217,7 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
             <MoreInfoModal
                 isOpen={showInfoModal}
                 onClose={() => setShowInfoModal(false)}
-                contactNumber={institute.contact_number}
+                course={selectedCourse}
             />
         </div>
     );

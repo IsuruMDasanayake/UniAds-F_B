@@ -55,6 +55,7 @@ class CareerGuidanceSeeder extends Seeder
                 'international_opportunity' => $row[25] ?? '',
                 'recommended_first_step' => $row[26] ?? '',
                 'career_tags' => $row[27] ?? '',
+                'postgrad_path' => $row[28] ?? null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];

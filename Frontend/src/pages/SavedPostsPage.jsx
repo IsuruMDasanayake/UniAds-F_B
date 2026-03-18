@@ -199,7 +199,7 @@ function SavedPostsPage() {
                                                 <span className="institute-name-text">
                                                     {post.institute?.institute_name || 'UniAds'}
                                                 </span>
-                                                {!!(post.institute?.is_premium && post.institute?.premium_expires_at && new Date() <= new Date(post.institute.premium_expires_at)) && (
+                                                {!!post.institute?.is_premium && (
                                                     <BadgeCheck size={18} fill="#ff4757" color="#ffffff" style={{ marginLeft: '4px', verticalAlign: 'middle', display: 'inline-block', marginTop: '-0.4rem' }} />
                                                 )}
                                             </Link>
@@ -264,7 +264,7 @@ function SavedPostsPage() {
                 onApply={() => setShowApplyModal(true)}
                 onMoreInfo={() => setShowInfoModal(true)}
                 userRole={user?.role}
-                isPremium={!!(selectedPost?.institute?.is_premium && selectedPost?.institute?.premium_expires_at && new Date() <= new Date(selectedPost.institute.premium_expires_at))}
+                isPremium={!!selectedPost?.institute?.is_premium}
                 institute={selectedPost?.institute}
             />
 
@@ -289,7 +289,7 @@ function SavedPostsPage() {
             <MoreInfoModal
                 isOpen={showInfoModal}
                 onClose={() => setShowInfoModal(false)}
-                contactNumber={selectedPost?.institute?.contact_number}
+                course={selectedPost}
             />
         </div>
     );

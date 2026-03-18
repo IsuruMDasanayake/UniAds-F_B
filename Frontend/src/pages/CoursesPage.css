@@ -549,6 +549,7 @@
 .inst-meta {
     display: flex;
     flex-direction: column;
+    margin-top: -20px;
 }
 
 .inst-meta .name {
@@ -728,6 +729,11 @@
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
 
+    .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+
     .results-header {
     margin-top: 3.5rem;
 }
@@ -752,7 +758,7 @@
     }
 
     .browse-header {
-        margin-top: 40px;
+        margin-top: 5rem;
     }
 }
 

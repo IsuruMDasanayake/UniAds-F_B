@@ -237,6 +237,13 @@ const CoursesPage = () => {
         }
     };
 
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const datePart = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        const timePart = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        return `${datePart} | ${timePart}`;
+    };
+
     const handleToggleSave = async (postId) => {
         try {
             await axiosClient.post(`/api/posts/${postId}/save`);
@@ -427,7 +434,7 @@ const CoursesPage = () => {
                                                             {!!post.institute?.is_premium && <BadgeCheck size={18} fill="#ff4757" color="#ffffff" style={{ marginLeft: '4px', display: 'inline-block' }} className="v-badge" />}
                                                         </span>
                                                     </Link>
-                                                    <span className="loc">{post.location}</span>
+                                                    <span className="loc">{formatDate(post.created_at)}</span>
                                                 </div>
                                             </div>
                                             <h3 className="course-title">{post.title}</h3>
@@ -529,7 +536,7 @@ const CoursesPage = () => {
                 onApply={() => setShowApplyModal(true)}
                 onMoreInfo={() => setShowInfoModal(true)}
                 userRole={user?.role}
-                isPremium={!!(selectedPost?.institute?.is_premium && selectedPost?.institute?.premium_expires_at && new Date() <= new Date(selectedPost.institute.premium_expires_at))}
+                isPremium={!!selectedPost?.institute?.is_premium}
                 institute={selectedPost?.institute}
             />
 
@@ -554,7 +561,7 @@ const CoursesPage = () => {
             <MoreInfoModal
                 isOpen={showInfoModal}
                 onClose={() => setShowInfoModal(false)}
-                contactNumber={selectedPost?.institute?.contact_number}
+                course={selectedPost}
             />
         </div >
     );

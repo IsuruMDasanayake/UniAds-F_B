@@ -13,8 +13,8 @@ import './FloatingAiAdvisor.css';
 const FloatingAiAdvisor = ({ user }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { 
-      role: 'bot', 
+    {
+      role: 'bot',
       content: "Hello! 👋 I'm EMY, the UniAds Career Advisor. To give you the best guidance, what is your current education level?",
       suggested_replies: ['O/L Completed', 'A/L Completed', 'Diploma Holder', 'Undergraduate', 'Graduate', 'Check Last Search']
     }
@@ -29,7 +29,7 @@ const FloatingAiAdvisor = ({ user }) => {
     career_goal: null,
     study_preference: null
   });
-  
+
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef(null);
 
@@ -76,8 +76,8 @@ const FloatingAiAdvisor = ({ user }) => {
       });
 
       if (response.data.status === 'success') {
-        setMessages(prev => [...prev, { 
-          role: 'bot', 
+        setMessages(prev => [...prev, {
+          role: 'bot',
           content: response.data.recommendation,
           real_posts: response.data.real_posts,
           suggested_replies: response.data.suggested_replies
@@ -113,34 +113,34 @@ const FloatingAiAdvisor = ({ user }) => {
     setSubmissionStatus({ type: '', message: '' });
 
     try {
-        await axiosClient.post(`/api/course/apply/${selectedPost.institute_id}`, {
-            ...applyForm,
-            course_title: selectedPost.title,
-            post_id: selectedPost.id,
-            privacy_consent: applyForm.privacyConsent
-        });
+      await axiosClient.post(`/api/course/apply/${selectedPost.institute_id}`, {
+        ...applyForm,
+        course_title: selectedPost.title,
+        post_id: selectedPost.id,
+        privacy_consent: applyForm.privacyConsent
+      });
 
-        setSubmissionStatus({ type: 'success', message: 'Application submitted successfully!' });
-        setApplyForm({ name: '', email: '', phone: '', message: '', privacyConsent: false });
+      setSubmissionStatus({ type: 'success', message: 'Application submitted successfully!' });
+      setApplyForm({ name: '', email: '', phone: '', message: '', privacyConsent: false });
 
-        setTimeout(() => {
-            setShowApplyModal(false);
-            setSubmissionStatus({ type: '', message: '' });
-        }, 3000);
+      setTimeout(() => {
+        setShowApplyModal(false);
+        setSubmissionStatus({ type: '', message: '' });
+      }, 3000);
 
     } catch (error) {
-        console.error('Error submitting application:', error);
-        const errorMsg = error.response?.data?.message || "Failed to submit application.";
-        setSubmissionStatus({ type: 'error', message: errorMsg });
+      console.error('Error submitting application:', error);
+      const errorMsg = error.response?.data?.message || "Failed to submit application.";
+      setSubmissionStatus({ type: 'error', message: errorMsg });
     } finally {
-        setApplying(false);
+      setApplying(false);
     }
   };
 
   const resetChat = () => {
     setMessages([
-      { 
-        role: 'bot', 
+      {
+        role: 'bot',
         content: "Hello! 👋 I'm EMY, the UniAds Career Advisor. To give you the best guidance, what is your current education level?",
         suggested_replies: ['O/L Completed', 'A/L Completed', 'Diploma Holder', 'Undergraduate', 'Graduate', 'Check Last Search']
       }
@@ -158,18 +158,19 @@ const FloatingAiAdvisor = ({ user }) => {
 
   const handleSaveRoadmap = async (msg) => {
     if (loading) return;
-    
+
     // Optimistically set saving status if we had one, but let's just use local loading
     try {
       const response = await axiosClient.post('/api/ai-advisor/save-roadmap', {
-        career_goal: profile.career_goal || 'Career Recommendation',
+        career_goal: profile.interest || profile.career_goal || 'Career Recommendation',
+        interest: profile.interest,
         recommendation_text: msg.content,
         real_posts: msg.real_posts
       });
-      
+
       if (response.data.status === 'success') {
         // Mark this specific message as saved in state
-        setMessages(prev => prev.map(m => 
+        setMessages(prev => prev.map(m =>
           m.content === msg.content ? { ...m, is_saved: true } : m
         ));
       }
@@ -182,23 +183,23 @@ const FloatingAiAdvisor = ({ user }) => {
     <div className="ai-advisor-container">
       {/* Floating Button */}
       {!isOpen && (
-        <motion.button 
-          className="ai-advisor-toggle" 
+        <motion.button
+          className="ai-advisor-toggle"
           onClick={() => setIsOpen(true)}
           aria-label="Open AI Career Advisor"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
           <div className="ai-advisor-img-wrapper">
-            <motion.img 
-              src="/images/emy/emy_character.png" 
-              alt="EMY" 
+            <motion.img
+              src="/images/emy/emy_character.png"
+              alt="EMY"
               className="ai-advisor-img"
-              animate={{ 
+              animate={{
                 y: [0, -5, 0],
                 rotate: [0, 2, -2, 0]
               }}
-              transition={{ 
+              transition={{
                 duration: 4,
                 repeat: Infinity,
                 ease: "easeInOut"
@@ -244,35 +245,42 @@ const FloatingAiAdvisor = ({ user }) => {
                 <div key={idx} className="message-group">
                   <div className={`message ${msg.role === 'bot' ? 'bot-message' : 'user-message'} ${msg.role === 'bot' ? 'markdown-body' : ''}`}>
                     {msg.role === 'bot' ? <ReactMarkdown>{msg.content}</ReactMarkdown> : msg.content}
-                    
-                    {msg.role === 'bot' && idx > 0 && !msg.is_saved && (
-                      <button 
-                        className="save-roadmap-btn" 
+
+                    {msg.role === 'bot' && idx > 0 && (msg.content.includes('## ') || msg.content.includes('### ')) && !msg.is_saved && (
+                      <button
+                        className="save-roadmap-btn"
                         onClick={() => handleSaveRoadmap(msg)}
                         title="Save this roadmap to your profile"
                       >
                         <Bookmark size={14} /> Save to Profile
                       </button>
                     )}
-                    {msg.role === 'bot' && msg.is_saved && (
+                    {msg.role === 'bot' && (msg.content.includes('## ') || msg.content.includes('### ')) && msg.is_saved && (
                       <div className="saved-badge">
                         <Check size={12} /> Saved to Profile
                       </div>
                     )}
+                    {/* Disclaimer — only on actual career roadmap responses */}
+                    {msg.role === 'bot' && idx > 0 && (msg.content.includes('## ') || msg.content.includes('### ')) && (
+                      <p className="emy-disclaimer">⚠️ EMY can make mistakes. Always verify important career information.</p>
+                    )}
                   </div>
-                  
+
                   {/* Quick Replies / Tags */}
                   {msg.role === 'bot' && msg.suggested_replies && msg.suggested_replies.length > 0 && idx === messages.length - 1 && (
                     <div className="suggested-replies-container">
-                      {msg.suggested_replies.map((reply, i) => (
-                        <button 
-                          key={i} 
-                          className="suggested-reply-btn"
-                          onClick={() => handleSendMessage(null, reply)}
-                        >
-                          {reply}
-                        </button>
-                      ))}
+                      {msg.suggested_replies.map((reply, i) => {
+                        const isSpecialButton = ['Check Last Search', 'Another Field', 'Explore All Fields', 'Help me decide'].includes(reply);
+                        return (
+                          <button
+                            key={i}
+                            className={`suggested-reply-btn ${isSpecialButton ? 'special-action-btn' : ''}`}
+                            onClick={() => handleSendMessage(null, reply)}
+                          >
+                            {reply}
+                          </button>
+                        );
+                      })}
                     </div>
                   )}
 
@@ -313,9 +321,9 @@ const FloatingAiAdvisor = ({ user }) => {
             </div>
 
             <form className="ai-advisor-footer" onSubmit={handleSendMessage}>
-              <input 
-                type="text" 
-                placeholder="Type your question..." 
+              <input
+                type="text"
+                placeholder="Type your question..."
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 disabled={loading}
@@ -347,12 +355,12 @@ const FloatingAiAdvisor = ({ user }) => {
             courseTitle={selectedPost?.title}
             form={{ ...applyForm, privacy_consent: applyForm.privacyConsent }}
             onChange={(e) => {
-                const { name, value, checked, type } = e.target;
-                if (name === 'privacy_consent') {
-                    setApplyForm({ ...applyForm, privacyConsent: checked });
-                } else {
-                    setApplyForm({ ...applyForm, [name]: type === 'checkbox' ? checked : value });
-                }
+              const { name, value, checked, type } = e.target;
+              if (name === 'privacy_consent') {
+                setApplyForm({ ...applyForm, privacyConsent: checked });
+              } else {
+                setApplyForm({ ...applyForm, [name]: type === 'checkbox' ? checked : value });
+              }
             }}
             onSubmit={handleApplySubmit}
             isSubmitting={applying}

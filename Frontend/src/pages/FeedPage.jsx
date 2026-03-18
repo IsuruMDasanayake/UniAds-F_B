@@ -664,7 +664,7 @@ function FeedPage() {
                 onApply={() => setShowApplyModal(true)}
                 onMoreInfo={() => setShowInfoModal(true)}
                 userRole={user?.role}
-                isPremium={!!(selectedPost?.institute?.is_premium && selectedPost?.institute?.premium_expires_at && new Date() <= new Date(selectedPost.institute.premium_expires_at))}
+                isPremium={!!selectedPost?.institute?.is_premium}
             />
 
             <ApplyNowModal
