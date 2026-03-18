@@ -40,7 +40,7 @@ class FrontendController extends Controller
         $posts = Post::with(['institute', 'likes'])
             ->where('status', 'active')
             ->latest()
-            ->paginate(10);
+            ->paginate(5);
 
         $categories = Category::whereIn('main_category', [
             "Course Type  - Bachelor's Degree",

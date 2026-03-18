@@ -18,6 +18,31 @@ import MoreInfoModal from '../components/Modals/MoreInfoModal';
 import EventDetailsModal from '../components/Modals/EventDetailsModal';
 import './FeedPage.css';
 
+const PostSkeleton = () => (
+    <div className="post-card skeleton-card">
+        <div className="skeleton skeleton-image" />
+        <div className="skeleton-content">
+            <div className="post-header">
+                <div className="skeleton skeleton-avatar" />
+                <div className="post-meta">
+                    <div className="skeleton skeleton-name" />
+                    <div className="skeleton skeleton-date" />
+                </div>
+            </div>
+            <div className="skeleton skeleton-title" />
+            <div className="skeleton skeleton-description" />
+            <div className="skeleton skeleton-description" />
+            <div className="skeleton skeleton-description short" />
+            <div className="skeleton-actions">
+                <div className="skeleton skeleton-btn" />
+                <div className="skeleton skeleton-btn" />
+                <div className="skeleton skeleton-btn-round" />
+            </div>
+        </div>
+    </div>
+);
+
+
 function FeedPage() {
     const { settings } = useSettings();
     const navigate = useNavigate();
@@ -40,6 +65,13 @@ function FeedPage() {
         privacyConsent: false
     });
     const [isEventsOpen, setIsEventsOpen] = useState(false);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 900);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 900);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     // Pagination State
     const [postsPage, setPostsPage] = useState(1);
@@ -92,23 +124,25 @@ function FeedPage() {
                 setPostsPage(response.data.current_page);
                 setHasMorePosts(!!response.data.next_page_url);
             }
+            setLoadingMorePosts(false);
         } catch (error) {
             console.error('Error loading more posts:', error);
-        } finally {
             setLoadingMorePosts(false);
         }
     }, [postsPage, hasMorePosts, loadingMorePosts, user]);
 
     useEffect(() => {
+        const postsContainer = document.querySelector('.posts-section');
+        
         const observer = new IntersectionObserver((entries) => {
             const target = entries[0];
             if (target.isIntersecting && hasMorePosts && !loadingMorePosts) {
                 fetchMorePosts();
             }
         }, {
-            root: null, // viewport
-            rootMargin: "20px",
-            threshold: 1.0
+            root: postsContainer,
+            rootMargin: "300px",
+            threshold: 0.1
         });
 
         if (loaderRef.current) {
@@ -117,7 +151,7 @@ function FeedPage() {
 
         return () => {
             if (loaderRef.current) {
-                observer.unobserve(loaderRef.current);
+                observer.disconnect();
             }
         };
     }, [fetchMorePosts, hasMorePosts, loadingMorePosts]);
@@ -359,20 +393,7 @@ function FeedPage() {
         });
     };
 
-    if (loading) {
-        return (
-            <div className="feed-page-wrapper feed-loading">
-                <div className="spinner-box">
-                    <div className="ui-loader loader-blk">
-                        <svg viewBox="22 22 44 44" className="multiColor-loader">
-                            <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="3.6" className="loader-circle loader-circle-animation"></circle>
-                        </svg>
-                    </div>
-                    <p>Loading feed...</p>
-                </div>
-            </div>
-        );
-    }
+
 
     return (
         <div className="feed-page-wrapper feed-page">
@@ -437,115 +458,127 @@ function FeedPage() {
 
                 {/* Center - Posts */}
                 <section className="posts-section">
-                    {posts.length === 0 ? (
+                    {loading ? (
+                        [...Array(5)].map((_, i) => <PostSkeleton key={i} />)
+                    ) : posts.length === 0 ? (
                         <div className="no-posts">
                             <p>No posts available yet.</p>
                         </div>
                     ) : (
-                        posts.map((post) => (
-                            <motion.div
-                                key={post.id}
-                                className={`post-card ${post.status !== 'active' ? 'post-inactive' : ''}`}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.3 }}
-                            >
-                                {/* Inactive Badge */}
-                                {post.status !== 'active' && (
-                                    <div className="inactive-badge">
-                                        Inactive
-                                    </div>
-                                )}
-                                <div className="post-image">
-                                    <img
-                                        src={post.image ? getStorageUrl(post.image) : (settings.logo_url || '/images/logo.png')}
-                                        alt={post.title}
-                                    />
+                        <>
+                            {posts.map((post) => (
+                        <motion.div
+                            key={post.id}
+                            className={`post-card ${post.status !== 'active' ? 'post-inactive' : ''}`}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            {/* Inactive Badge */}
+                            {post.status !== 'active' && (
+                                <div className="inactive-badge">
+                                    Inactive
                                 </div>
-                                <div className="post-content">
-                                    <div className="post-header">
-                                        <Link
-                                            to={(user?.role === 'Institute' && user?.institute?.id === post.institute?.id) ? '/profile' : `/institutions/${post.institute?.slug || post.institute?.id}/profile`}
-                                            className="institute-link"
-                                        >
-                                            <img
-                                                src={post.institute?.profile_photo ? getStorageUrl(post.institute.profile_photo) : (settings.logo_url || '/images/logo.png')}
-                                                alt={post.institute?.institute_name}
-                                                className="institute-avatar"
-                                            />
-                                        </Link>
-                                        <div className="post-meta">
-                                            <Link
-                                                to={(user?.role === 'Institute' && user?.institute?.id === post.institute?.id) ? '/profile' : `/institutions/${post.institute?.slug || post.institute?.id}/profile`}
-                                                className="institute-name-link"
-                                                style={{ textDecoration: 'none', color: 'inherit' }}
-                                            >
-                                                <span className="institute-name">
-                                                    {post.institute?.institute_name}
-                                                    {!!(post.institute?.is_premium && post.institute?.premium_expires_at && new Date() <= new Date(post.institute.premium_expires_at)) && (
-                                                        <BadgeCheck size={18} fill="#ff4757" color="#ffffff" style={{ marginLeft: '4px', verticalAlign: 'middle', display: 'inline-block' }} />
-                                                    )}
-                                                </span>
-                                            </Link>
-                                            <span className="post-date">{formatDate(post.created_at)}</span>
+                            )}
+                            <div className="post-image">
+                                <img
+                                    src={post.image ? getStorageUrl(post.image) : (settings.logo_url || '/images/logo.png')}
+                                    alt={post.title}
+                                />
+                            </div>
+                            <div className="post-content">
+                                <div className="post-header">
+                                    <Link
+                                        to={(user?.role === 'Institute' && user?.institute?.id === post.institute?.id) ? '/profile' : `/institutions/${post.institute?.slug || post.institute?.id}/profile`}
+                                        className="institute-link"
+                                    >
+                                        <img
+                                            src={post.institute?.profile_photo ? getStorageUrl(post.institute.profile_photo) : (settings.logo_url || '/images/logo.png')}
+                                            alt={post.institute?.institute_name}
+                                            className="institute-avatar"
+                                        />
+                                    </Link>
+                                    <div className="post-meta">
+                                        <div className="institute-name-link" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                            <span className="institute-name">
+                                                {post.institute?.institute_name}
+                                                {!!(post.institute?.is_premium && post.institute?.premium_expires_at && new Date() <= new Date(post.institute.premium_expires_at)) && (
+                                                    <BadgeCheck size={18} fill="#ff4757" color="#ffffff" style={{ marginLeft: '4px', verticalAlign: 'middle', display: 'inline-block' }} />
+                                                )}
+                                            </span>
                                         </div>
-                                    </div>
-                                    <h3 className="post-title">{post.title}</h3>
-                                    <p className="post-description">{post.small_description}</p>
-                                    <div className="post-actions">
-                                        <button
-                                            className={`post-action-btn btn-like ${post.is_liked_by_user ? 'liked' : ''}`}
-                                            onClick={() => handleLike(post.id)}
-                                        >
-                                            <Heart size={16} fill={post.is_liked_by_user ? 'white' : 'transparent'} />
-                                            <span>{post.likes_count || 0}</span>
-                                        </button>
-                                        <button
-                                            className="post-action-btn btn-see-more"
-                                            onClick={() => openPostModal(post)}
-                                        >
-                                            <span>See More</span>
-                                            <Info size={16} />
-                                        </button>
-                                        <button
-                                            className={`post-action-btn btn-copy-link ${copiedPostId === post.id ? 'copied' : ''}`}
-                                            onClick={() => handleCopyPostLink(post)}
-                                            title="Copy shareable link"
-                                        >
-                                            {copiedPostId === post.id ? <Check size={16} /> : <Link2 size={16} />}
-                                        </button>
-                                        {user?.role === 'User' && (
-                                            <button
-                                                className={`action-btn save-btn ${post.is_saved_by_user ? 'saved' : ''}`}
-                                                onClick={() => handleSavePost(post.id)}
-                                                title={post.is_saved_by_user ? 'Unsave' : 'Save'}
-                                            >
-                                                <Bookmark size={18} fill={post.is_saved_by_user ? '#ffc107' : 'none'} color={post.is_saved_by_user ? '#ffc107' : 'currentColor'} />
-                                            </button>
-                                        )}
+                                        <span className="post-date">{formatDate(post.created_at)}</span>
                                     </div>
                                 </div>
-                            </motion.div>
-                        ))
-                    )}
+                                <h3 className="post-title">{post.title}</h3>
+                                <p className="post-description">{post.small_description}</p>
+                                <div className="post-actions">
+                                    <button
+                                        className={`post-action-btn btn-like ${post.is_liked_by_user ? 'liked' : ''}`}
+                                        onClick={() => handleLike(post.id)}
+                                    >
+                                        <Heart size={16} fill={post.is_liked_by_user ? 'white' : 'transparent'} />
+                                        <span>{post.likes_count || 0}</span>
+                                    </button>
+                                    <button
+                                        className="post-action-btn btn-see-more"
+                                        onClick={() => openPostModal(post)}
+                                    >
+                                        <span>See More</span>
+                                        <Info size={16} />
+                                    </button>
+                                    <button
+                                        className={`post-action-btn btn-copy-link ${copiedPostId === post.id ? 'copied' : ''}`}
+                                        onClick={() => handleCopyPostLink(post)}
+                                        title="Copy shareable link"
+                                    >
+                                        {copiedPostId === post.id ? <Check size={16} /> : <Link2 size={16} />}
+                                    </button>
+                                    {user?.role === 'User' && (
+                                        <button
+                                            className={`action-btn save-btn ${post.is_saved_by_user ? 'saved' : ''}`}
+                                            onClick={() => handleSavePost(post.id)}
+                                            title={post.is_saved_by_user ? 'Unsave' : 'Save'}
+                                        >
+                                            <Bookmark size={18} fill={post.is_saved_by_user ? '#ffc107' : 'none'} color={post.is_saved_by_user ? '#ffc107' : 'currentColor'} />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
 
-                    {hasMorePosts ? (
-                        <div ref={loaderRef} className="load-more-container" style={{ textAlign: 'center', margin: '20px 0', width: '100%', minHeight: '50px' }}>
-                            {loadingMorePosts && <p>Loading...</p>}
-                        </div>
-                    ) : (
-                        <div className="no-more-posts-container" style={{ textAlign: 'center', margin: '20px auto', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                            <p style={{ marginBottom: '10px', color: '#0f172a' }}>No more posts</p>
-                            <button
-                                className="btn-secondary"
-                                onClick={() => fetchMorePosts(true)}
-                                disabled={loadingMorePosts}
-                            >
-                                {loadingMorePosts ? 'Loading...' : 'Refresh'}
-                            </button>
-                        </div>
-                    )}
-                </section>
+                    {/* Infinite Scroll Footer */}
+                    <div className="infinite-scroll-footer" style={{ minHeight: '100px', width: '100%' }}>
+                        {loadingMorePosts ? (
+                            isMobile ? (
+                                <div style={{ display: 'flex', justifyContent: 'center', padding: '30px 0', width: '100%' }}>
+                                    <Loader2 className="animate-spin" size={32} color="#6366f1" />
+                                </div>
+                            ) : (
+                                <>
+                                    <PostSkeleton />
+                                    <PostSkeleton />
+                                </>
+                            )
+                        ) : hasMorePosts ? (
+                            <div ref={loaderRef} className="load-more-container" style={{ height: '50px' }} />
+                        ) : (
+                            <div className="no-more-posts-container" style={{ textAlign: 'center', padding: '40px 0', width: '100%' }}>
+                                <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '1rem' }}>No more posts to show</p>
+                                <button
+                                    className="btn-secondary"
+                                    onClick={() => fetchMorePosts(true)}
+                                    style={{ margin: '0 auto' }}
+                                >
+                                    Refresh Feed
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </>
+            )}
+        </section>
 
                 {/* Right Sidebar - Events */}
                 {/* Mobile Backdrop Overlay */}
@@ -563,7 +596,11 @@ function FeedPage() {
                             <Link to="/events" className="see-all">See all</Link>
                         </div>
                         <div className="events-scroll-container">
-                            {events.length === 0 ? (
+                            {loading ? (
+                                <div className="no-events-container">
+                                    <p className="no-events">Loading events...</p>
+                                </div>
+                            ) : events.length === 0 ? (
                                 <div className="no-events-container">
                                     <p className="no-events">No upcoming events found.</p>
                                 </div>

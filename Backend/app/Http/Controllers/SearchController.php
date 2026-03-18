@@ -69,6 +69,7 @@ class SearchController extends Controller
         $sharePost = Post::with('institute')
             ->where('share_link', $searchKey)
             ->where('status', 'active')
+            ->where('created_at', '>=', now()->subDays(60))
             ->first();
 
         if ($sharePost) {
@@ -78,11 +79,23 @@ class SearchController extends Controller
             ]);
         }
 
-        // Normal title search
-        $posts = Post::with('institute')
-            ->where('title', 'LIKE', "%{$query}%")
-            ->where('status', 'active')
-            ->latest()
+        // Normal search with improved ranking formula
+        $posts = Post::query()
+            ->join('institutes', 'posts.institute_id', '=', 'institutes.id')
+            ->select('posts.*')
+            ->selectRaw("
+                (
+                    (CASE WHEN institutes.is_premium = 1 THEN 30 ELSE 0 END) +
+                    (LOG(institutes.followers_count + 1) * 10) +
+                    (100 - TIMESTAMPDIFF(HOUR, posts.created_at, NOW())) +
+                    (MOD(posts.id, 10) * 0.5)
+                ) as score
+            ")
+            ->with('institute')
+            ->where('posts.title', 'LIKE', "%{$query}%")
+            ->where('posts.status', 'active')
+            ->where('posts.created_at', '>=', now()->subDays(60))
+            ->orderByDesc('score')
             ->paginate(15);
 
         return response()->json([

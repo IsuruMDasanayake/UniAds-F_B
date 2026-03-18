@@ -297,20 +297,19 @@ class PostController extends Controller
     public function apiFilter($filterType, $filterValue)
     {
         $query = Post::query()
-            ->with('institute')
+            ->join('institutes', 'institutes.id', '=', 'posts.institute_id')
             ->select('posts.*')
-            ->addSelect(DB::raw("
-            (
-                CASE
-                    WHEN institutes.is_premium = 1
-                        AND posts.created_at >= NOW() - INTERVAL 10 DAY
-                    THEN 2
-                    ELSE 0
-                END
-                + institutes.followers_count * 0.01
-            ) as priority
-        "))
-            ->join('institutes', 'institutes.id', '=', 'posts.institute_id');
+            ->selectRaw("
+                (
+                    (CASE WHEN institutes.is_premium = 1 THEN 30 ELSE 0 END) +
+                    (LOG(institutes.followers_count + 1) * 10) +
+                    (100 - TIMESTAMPDIFF(HOUR, posts.created_at, NOW())) +
+                    (MOD(posts.id, 10) * 0.5)
+                ) as score
+            ")
+            ->with('institute')
+            ->where('posts.status', 'active')
+            ->where('posts.created_at', '>=', now()->subDays(60));
 
         $filterMap = [
             'Courses' => 'course_name',
@@ -329,8 +328,7 @@ class PostController extends Controller
             }
         }
 
-        $posts = $query->orderByDesc('priority')
-            ->orderByDesc('posts.created_at')
+        $posts = $query->orderByDesc('score')
             ->get();
 
         return response()->json([
@@ -492,7 +490,7 @@ class PostController extends Controller
         $posts = Post::with(['institute', 'likes'])
             ->where('status', 'active')
             ->latest()
-            ->paginate(10);
+            ->paginate(5);
 
         // Apply user-specific liked and saved status
         $userId = $user ? $user->id : null;

@@ -12,6 +12,7 @@ class InstituteUnapprovedMail extends Mailable
     use Queueable, SerializesModels;
 
     public $institute;
+    public $platformSettings;
 
     /**
      * Create a new message instance.
@@ -21,6 +22,7 @@ class InstituteUnapprovedMail extends Mailable
     public function __construct(Institute $institute)
     {
         $this->institute = $institute;
+        $this->platformSettings = \App\Models\PlatformSetting::getInstance();
     }
 
     /**
@@ -31,6 +33,9 @@ class InstituteUnapprovedMail extends Mailable
     public function build()
     {
         return $this->subject('Important: Your Institute Account Status Update')
-            ->view('emails.institute_unapproved');
+            ->view('emails.institute_unapproved')
+            ->with([
+                'platformSettings' => $this->platformSettings,
+            ]);
     }
 }

@@ -113,7 +113,7 @@
                     credentials below:</p>
 
                 <ul class="contact-info">
-                    <li><strong>Email:</strong> {{ $platformSettings->support_email }}</li>
+                    <li><strong>Email:</strong> {{ $platformSettings->contact_email }}</li>
                     <li><strong>Phone:</strong> {{ $platformSettings->support_phone }}</li>
                 </ul>
 

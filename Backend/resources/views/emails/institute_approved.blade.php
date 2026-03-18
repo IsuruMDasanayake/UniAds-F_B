@@ -120,7 +120,7 @@
                 </ul>
 
                 <div class="btn-container">
-                    <a href="http://localhost:3000/profile" class="btn">Login to Your Account</a>
+                    <a href="{{ env('FRONTEND_URL', 'http://localhost:3000') }}/profile" class="btn">Login to Your Account</a>
                 </div>
 
                 <p style="color: #64748b; font-size: 14px; text-align: center;">If you have any questions, feel free to

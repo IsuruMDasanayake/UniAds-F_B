@@ -91,7 +91,7 @@ class CourseApplicationController extends Controller
         Mail::send('emails.course_application', ['data' => $emailData], function ($message) use ($institute, $validated) {
             $message->to($institute->email)
                 ->subject('New Course Application: ' . $validated['course_title'])
-                ->from($validated['email'], $validated['name']);
+                ->replyTo($validated['email'], $validated['name']);
         });
 
         // Send Confirmation Email to Student
