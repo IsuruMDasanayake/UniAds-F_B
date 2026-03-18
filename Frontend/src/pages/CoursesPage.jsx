@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -21,13 +21,55 @@ const CoursesPage = () => {
     const [loading, setLoading] = useState(true);
     const [categories, setCategories] = useState({});
     const [posts, setPosts] = useState([]);
-    const [filteredPosts, setFilteredPosts] = useState([]);
+    
     const [searchQuery, setSearchQuery] = useState('');
     const [expandedSections, setExpandedSections] = useState({});
     
     // New Filter States
     const [activeFilters, setActiveFilters] = useState({});
     const [openFilterDropdown, setOpenFilterDropdown] = useState(null);
+
+    // Derived filtering logic using useMemo to ensure stability and avoid race conditions
+    const filteredPosts = useMemo(() => {
+        let result = [...posts];
+
+        // Apply Search Query (if any)
+        if (searchQuery) {
+            const query = searchQuery.toLowerCase();
+            result = result.filter(post => 
+                (post.title?.toLowerCase() || '').includes(query) ||
+                (post.course_name?.toLowerCase() || '').includes(query) ||
+                (post.institute?.institute_name?.toLowerCase() || '').includes(query)
+            );
+        }
+
+        // Apply Dropdown Filters
+        Object.entries(activeFilters).forEach(([category, selectedValues]) => {
+            if (selectedValues && selectedValues.length > 0) {
+                const columnMap = {
+                    'Course Type': 'course_type',
+                    'Location': 'location',
+                    'Duration': 'duration',
+                    'Course Format': 'course_format',
+                    'Attendance Type': 'attendance_type'
+                };
+                const column = columnMap[category];
+                if (column) {
+                    result = result.filter(post => {
+                        if (column === 'location') {
+                            const postLoc = post.location?.toLowerCase() || '';
+                            return selectedValues.some(val => 
+                                postLoc.includes(val.toLowerCase())
+                            );
+                        }
+                        return selectedValues.includes(post[column]);
+                    });
+                }
+            }
+        });
+
+        return result;
+    }, [posts, searchQuery, activeFilters]);
 
     // Click outside handler for dropdowns
     useEffect(() => {
@@ -59,48 +101,10 @@ const CoursesPage = () => {
         fetchData();
         // Reset scroll
         window.scrollTo(0, 0);
+        // Clear search query when navigating between main categories
+        setSearchQuery('');
     }, [filterType, filterValue]);
 
-    // Apply client-side filtering
-    useEffect(() => {
-        let result = [...posts];
-
-        // Apply Search Query (if any)
-        if (searchQuery) {
-            result = result.filter(post => 
-                post.title.toLowerCase().includes(searchQuery) ||
-                post.course_name?.toLowerCase().includes(searchQuery) ||
-                post.institute?.institute_name?.toLowerCase().includes(searchQuery)
-            );
-        }
-
-        // Apply Dropdown Filters
-        Object.entries(activeFilters).forEach(([category, selectedValues]) => {
-            if (selectedValues.length > 0) {
-                const columnMap = {
-                    'Course Type': 'course_type',
-                    'Location': 'location',
-                    'Duration': 'duration',
-                    'Course Format': 'course_format',
-                    'Attendance Type': 'attendance_type'
-                };
-                const column = columnMap[category];
-                if (column) {
-                    result = result.filter(post => {
-                        if (column === 'location') {
-                            // Location is comma-separated string
-                            return selectedValues.some(val => 
-                                post.location?.toLowerCase().includes(val.toLowerCase())
-                            );
-                        }
-                        return selectedValues.includes(post[column]);
-                    });
-                }
-            }
-        });
-
-        setFilteredPosts(result);
-    }, [posts, searchQuery, activeFilters]);
 
     const fetchData = async () => {
         setLoading(true);
@@ -144,7 +148,6 @@ const CoursesPage = () => {
                 }
 
                 setPosts(fetchedPosts);
-                setFilteredPosts(fetchedPosts); // Initial set
                 
                 // Reset active filters when moving to a new main category
                 setActiveFilters({});
@@ -173,6 +176,14 @@ const CoursesPage = () => {
             const newSelected = currentSelected.includes(value)
                 ? currentSelected.filter(v => v !== value)
                 : [...currentSelected, value];
+
+            // If no values left, remove the category key to keep state clean
+            if (newSelected.length === 0) {
+                const newState = { ...prev };
+                delete newState[category];
+                return newState;
+            }
+
             return { ...prev, [category]: newSelected };
         });
     };
@@ -375,6 +386,7 @@ const CoursesPage = () => {
                         </header>
 
                         <motion.div
+                            key={`grid-${filterType}-${filterValue}-${searchQuery}-${JSON.stringify(activeFilters)}`}
                             className="posts-grid-v2"
                             variants={containerVariants}
                             initial="hidden"

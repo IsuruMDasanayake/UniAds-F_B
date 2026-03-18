@@ -507,11 +507,12 @@ class AiAdvisorController extends Controller
                     ->first();
 
                 if ($savedRoadmap) {
+                    $refreshedPosts = $this->getMappedPosts($subField)['mappedPosts'];
                     return response()->json([
                         'status'            => 'success',
                         'recommendation'    => $recallHeader . $savedRoadmap->recommendation_text,
                         'profile'           => $currentProfile,
-                        'real_posts'        => $savedRoadmap->real_posts_json ?? [],
+                        'real_posts'        => !empty($refreshedPosts) ? $refreshedPosts : ($savedRoadmap->real_posts_json ?? []),
                         'suggested_replies' => ['Another Field'],
                     ]);
                 }
@@ -697,46 +698,10 @@ class AiAdvisorController extends Controller
         $targetLang = $currentProfile['language'] ?? 'English';
         $interest   = $currentProfile['interest'] ?? '';
 
-        // Fetch real UniAds posts related to this field - Prioritize Premium and Active
-        $postsData = Post::where('posts.status', 'active')
-            ->where(function ($q) use ($interest) {
-                $q->where('posts.title', 'LIKE', "%{$interest}%")
-                    ->orWhere('posts.course_name', 'LIKE', "%{$interest}%");
-            })
-            ->join('institutes', 'posts.institute_id', '=', 'institutes.id')
-            ->select('posts.*')
-            ->with(['institute', 'category'])
-            ->orderBy('institutes.is_premium', 'desc')
-            // ->orderBy('posts.created_at', 'desc')
-            ->limit(3)
-            ->get();
-
-        // ── Map posts for the frontend and AI context ────────────────────────
-        $instituteContext = "";
-        $mappedPosts = $postsData->map(function ($post, $idx) use (&$instituteContext) {
-            $instituteTitle = $post->institute->institute_name ?? 'UniAds Institute';
-            $priceValue = $post->price ?? null;
-            $price = $priceValue ? "LKR " . number_format($priceValue) : "Contact for pricing";
-            
-            $instituteContext .= ($idx + 1) . ". " . ($post->course_name ?? $post->title) . " at {$instituteTitle} ({$price})\n";
-
-            return [
-                'id' => $post->id,
-                'title' => $post->title ?? $post->course_name,
-                'institute_name' => $instituteTitle,
-                'image' => $post->image ? url('storage/' . $post->image) : '/images/placeholders/course.jpg',
-                'course_type' => $post->course_type,
-                'course_name' => $post->category?->name ?? $post->course_name, // Fixed: use null-safe operator
-                'location' => $post->location,
-                'duration' => $post->duration,
-                'course_format' => $post->course_format,
-                'attendance_type' => $post->attendance_type,
-                'description' => $post->description, // Use Long Description
-                'is_premium' => (bool) ($post->institute->is_premium ?? false),
-                'premium_expires_at' => $post->institute->premium_expires_at ?? null,
-                'share_link' => $post->share_link
-            ];
-        });
+        // Fetch and map real UniAds posts
+        $courseData = $this->getMappedPosts($interest);
+        $mappedPosts = $courseData['mappedPosts'];
+        $instituteContext = $courseData['instituteContext'];
 
         // ── Strict filter ────────────────────────────────────────────────────
 
@@ -1007,5 +972,59 @@ RULES
             'status'  => 'success',
             'message' => 'Roadmap deleted.',
         ]);
+    }
+
+    /**
+     * Helper to fetch and map UniAds posts for a given interest.
+     * Prioritizes premium institutes and provides detailed attributes.
+     */
+    private function getMappedPosts($interest)
+    {
+        if (empty($interest)) {
+            return ['mappedPosts' => [], 'instituteContext' => ""];
+        }
+
+        $postsData = Post::where('posts.status', 'active')
+            ->where(function ($q) use ($interest) {
+                $q->where('posts.title', 'LIKE', "%{$interest}%")
+                    ->orWhere('posts.course_name', 'LIKE', "%{$interest}%");
+            })
+            ->join('institutes', 'posts.institute_id', '=', 'institutes.id')
+            ->select('posts.*')
+            ->with(['institute', 'category'])
+            ->orderBy('institutes.is_premium', 'desc')
+            ->limit(3)
+            ->get();
+
+        $instituteContext = "";
+        $mappedPosts = $postsData->map(function ($post, $idx) use (&$instituteContext) {
+            $instituteTitle = $post->institute->institute_name ?? 'UniAds Institute';
+            $priceValue = $post->price ?? null;
+            $price = $priceValue ? "LKR " . number_format($priceValue) : "Contact for pricing";
+            
+            $instituteContext .= ($idx + 1) . ". " . ($post->course_name ?? $post->title) . " at {$instituteTitle} ({$price})\n";
+
+            return [
+                'id' => $post->id,
+                'title' => $post->title ?? $post->course_name,
+                'institute_name' => $instituteTitle,
+                'image' => $post->image ? url('storage/' . $post->image) : '/images/placeholders/course.jpg',
+                'course_type' => $post->course_type,
+                'course_name' => $post->category?->name ?? $post->course_name,
+                'location' => $post->location,
+                'duration' => $post->duration,
+                'course_format' => $post->course_format,
+                'attendance_type' => $post->attendance_type,
+                'description' => $post->description,
+                'is_premium' => (bool) ($post->institute->is_premium ?? false),
+                'premium_expires_at' => $post->institute->premium_expires_at ?? null,
+                'share_link' => $post->share_link
+            ];
+        })->toArray();
+
+        return [
+            'mappedPosts' => $mappedPosts,
+            'instituteContext' => $instituteContext
+        ];
     }
 }
