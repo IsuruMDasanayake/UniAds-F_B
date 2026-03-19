@@ -217,3 +217,20 @@
     z-index: 20;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+/* Infinite Scroll Footer */
+.courses-loading-footer {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 0;
+    gap: 1.5rem;
+    color: var(--c-text-muted);
+}
+
+.courses-loading-footer p {
+    font-size: 0.95rem;
+    font-weight: 500;
+}

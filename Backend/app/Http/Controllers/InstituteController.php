@@ -185,16 +185,17 @@ class InstituteController extends Controller
         ]);
     }
 
-    public function apiShowProfile($id)
+    public function apiShowProfile(Request $request, $id)
     {
         // Fetch the institute by ID or Slug
         $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
         $id = $institute->id; // Use numeric ID for subsequent queries like AboutSection
         $categories = Category::all();
+        $perPage = $request->query('per_page', 12);
 
         $posts = $institute->posts()
             ->latest()
-            ->paginate(5); // 5 posts per page
+            ->paginate($perPage); 
 
         $user = auth('sanctum')->user();
 
@@ -208,7 +209,7 @@ class InstituteController extends Controller
         $events = $institute->events()
             ->where('is_active', true)
             ->latest()
-            ->paginate(5);
+            ->paginate($perPage);
 
         $user = auth()->user();
 

@@ -67,7 +67,7 @@ const InstituteEvents = ({ events, institute, isOwner, onEventsUpdate, isSidebar
                     return [...prev, ...uniqueNewEvents];
                 });
                 setPage(nextPage);
-                if (newEvents.length < 5) {
+                if (newEvents.length < 12) {
                     setHasMore(false);
                 }
             }

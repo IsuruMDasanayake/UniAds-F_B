@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axiosClient from '../../lib/axios';
 import { motion } from 'framer-motion';
 import { getStorageUrl } from '../../lib/config';
-import { Bookmark, Link2, Check } from 'lucide-react';
+import { Bookmark, Link2, Check, Loader2 } from 'lucide-react';
 import ProgrammeInfoModal from '../../components/Modals/ProgrammeInfoModal';
 import ApplyNowModal from '../../components/Modals/ApplyNowModal';
 import MoreInfoModal from '../../components/Modals/MoreInfoModal';
@@ -27,6 +27,12 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
     const [savedPostIds, setSavedPostIds] = useState([]);
     const [localCourses, setLocalCourses] = useState([]);
 
+    // Infinite Scroll States
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const observer = useRef();
+
     useEffect(() => {
         const fetchUserData = async () => {
             try {
@@ -49,7 +55,73 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
         }
 
         setLocalCourses(initialCourses);
+        // Reset pagination for new initial courses
+        setPage(1);
+        setHasMore(true);
     }, [courses, institute.posts, isOwner]);
+
+    const fetchMoreCourses = async () => {
+        if (loadingMore || !hasMore) return;
+
+        const instId = institute?.slug || institute?.id;
+        if (!isOwner && !instId) return;
+
+        setLoadingMore(true);
+        try {
+            const nextPage = page + 1;
+            // Use per_page=12 to match our new backend default
+            const endpoint = isOwner ? `/api/profile/me?page=${nextPage}&per_page=12` : `/api/institutions/${instId}/profile?page=${nextPage}&per_page=12`;
+            
+            const response = await axiosClient.get(endpoint);
+            const newPosts = response.data.posts?.data || [];
+
+            if (newPosts.length === 0) {
+                setHasMore(false);
+            } else {
+                setLocalCourses(prev => {
+                    const existingIds = new Set(prev.map(p => p.id));
+                    // Filter active only if not owner
+                    const filteredNew = isOwner ? newPosts : newPosts.filter(p => p.status === 'active');
+                    const uniqueNew = filteredNew.filter(p => !existingIds.has(p.id));
+                    
+                    if (uniqueNew.length === 0 && newPosts.length > 0) {
+                        return prev;
+                    }
+                    
+                    if (newPosts.length === 0) {
+                        setHasMore(false);
+                        return prev;
+                    }
+
+                    return [...prev, ...uniqueNew];
+                });
+                
+                setPage(nextPage);
+                // If we got fewer than 12, we reached the end
+                if (newPosts.length < 12) {
+                    setHasMore(false);
+                }
+            }
+        } catch (error) {
+            console.error("Error fetching more courses", error);
+            setHasMore(false);
+        } finally {
+            setLoadingMore(false);
+        }
+    };
+
+    const lastCourseRef = useCallback(node => {
+        if (loadingMore) return;
+        if (observer.current) observer.current.disconnect();
+
+        observer.current = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting && hasMore) {
+                fetchMoreCourses();
+            }
+        });
+
+        if (node) observer.current.observe(node);
+    }, [loadingMore, hasMore, page]);
 
 
     const openModal = (course) => {
@@ -145,9 +217,10 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
             <h3 className="courses-title">Courses Offered</h3>
 
             <div className="courses-grid">
-                {localCourses.map(course => (
+                {localCourses.map((course, index) => (
                     <motion.div
                         key={course.id}
+                        ref={index === localCourses.length - 1 ? lastCourseRef : null}
                         className={`course-card ${course.status !== 'active' ? 'course-inactive' : ''}`}
                         onClick={() => openModal(course)}
                         initial={{ opacity: 0, y: 20 }}
@@ -191,6 +264,17 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
                     </motion.div>
                 ))}
             </div>
+
+            {loadingMore && (
+                <div className="courses-loading-footer">
+                    <div className="ui-loader loader-blk" style={{ width: '40px', height: '40px' }}>
+                        <svg viewBox="22 22 44 44" className="multiColor-loader">
+                            <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="3.6" className="loader-circle loader-circle-animation"></circle>
+                        </svg>
+                    </div>
+                    <p>Loading more courses...</p>
+                </div>
+            )}
 
             <ProgrammeInfoModal
                 course={selectedCourse}

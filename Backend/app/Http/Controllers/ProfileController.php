@@ -51,11 +51,12 @@ class ProfileController extends Controller
     // show removed
 
 
-    public function apiEdit()
+    public function apiEdit(Request $request)
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
         $categories = Category::all();
+        $perPage = $request->query('per_page', 12);
 
         $data = [
             'user' => $user,
@@ -67,8 +68,8 @@ class ProfileController extends Controller
             $institute = Institute::where('email', $user->email)->first();
 
             // Get posts and events for the institute
-            $posts = $institute->posts()->latest()->paginate(5);
-            $events = $institute->events()->where('is_active', true)->latest()->paginate(5);
+            $posts = $institute->posts()->latest()->paginate($perPage);
+            $events = $institute->events()->where('is_active', true)->latest()->paginate($perPage);
 
             $data['institute'] = $institute;
             $data['posts'] = $posts;

@@ -125,8 +125,8 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
                 });
                 
                 setPage(nextPage);
-                // If we got fewer than 5, we likely reached the end
-                if (newPosts.length < 5) {
+                // If we got fewer than 12, we likely reached the end
+                if (newPosts.length < 12) {
                     setHasMore(false);
                 }
             }

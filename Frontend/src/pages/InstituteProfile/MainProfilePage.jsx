@@ -81,7 +81,9 @@ const MainProfilePage = () => {
                 endpoint = `/api/profile/me`;
             }
 
-            const response = await axiosClient.get(endpoint);
+            const response = await axiosClient.get(endpoint, {
+                params: { per_page: 12 }
+            });
             const data = response.data;
 
             if (!id) {
