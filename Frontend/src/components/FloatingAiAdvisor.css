@@ -344,12 +344,11 @@
   }
 
   .ai-advisor-window {
-    width: 90%;
+    width: 80%;
     height: 75vh;
     max-height: 600px;
     bottom: 100px;
-    left: 5%;
-    right: 5%;
+    left: 10%;
     border-radius: 20px;
     z-index: 10000;
   }

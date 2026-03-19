@@ -693,13 +693,11 @@
     }
 
     .chat-modal-floating.fb-style {
-        width: 90%;
+        width: 80%;
         height: 75vh;
         max-height: 600px;
         bottom: 100px;
-        right: 5%;
-        /* center visually */
-        left: 5%;
+        right: 10%;
         border-radius: 20px;
     }
 }

@@ -432,7 +432,7 @@ const CoursesPage = () => {
                                                     style={{ textDecoration: 'none' }}
                                                 >
                                                     <img
-                                                        src={getStorageUrl(post.institute?.profile_photo) || '/images/default-logo.png'}
+                                                        src={getStorageUrl(post.institute?.profile_photo) || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.institute?.institute_name || 'I')}&background=random`}
                                                         alt={post.institute?.institute_name}
                                                     />
                                                 </Link>
