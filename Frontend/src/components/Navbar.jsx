@@ -289,11 +289,10 @@ function Navbar({ user }) {
                                         </Link>
                                     )}
                                     {user?.role === 'User' && (
-                                        <Link to="/saved-posts">Saved Posts</Link>
+                                        <button onClick={handleLogout} className="navbar-logout-btn">
+                                            <LogOut size={16} /> Log Out
+                                        </button>
                                     )}
-                                    <button onClick={handleLogout} className="navbar-logout-btn">
-                                        <LogOut size={16} /> Log Out
-                                    </button>
                                 </div>
                             )}
                         </div>

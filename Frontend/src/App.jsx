@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import ScrollToTop from './components/ScrollToTop';
 import { LoginPage, RegisterPage, ForgotPasswordPage, ResetPasswordPage, InstituteRegisterPage, EmailVerification } from './pages/Auth';
 import InstituteDashboard from './pages/InstituteDashboard';
-import SavedPostsPage from './pages/SavedPostsPage';
 import InstitutionsPage from './pages/InstitutionsPage';
 import CoursesPage from './pages/CoursesPage';
 import EventsPage from './pages/EventsPage';
@@ -103,7 +102,6 @@ function App() {
               <Route path="/institutionprofileadd" element={<InstituteRegisterPage />} />
               <Route path="/email-verification" element={<EmailVerification />} />
               <Route path="/institute/dashboard" element={<InstituteDashboard />} />
-              <Route path="/saved-posts" element={<SavedPostsPage />} />
               <Route path="/institutions" element={<InstitutionsPage />} />
               <Route path="/courses" element={<CoursesPage />} />
               <Route path="/courses/:filterType/:filterValue" element={<CoursesPage />} />

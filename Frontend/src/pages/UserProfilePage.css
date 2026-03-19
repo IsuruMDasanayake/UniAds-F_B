@@ -844,3 +844,228 @@
         font-size: 0.8rem;
     }
 }
+
+/* Saved Posts Tab Styling */
+.upp-saved-posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.upp-saved-post-card {
+    background: #ffffff;
+    border: 1px solid #f1f5f9;
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.upp-saved-post-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    border-color: var(--c-primary-soft);
+}
+
+.upp-saved-post-grid {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 24px;
+}
+
+.upp-saved-post-image {
+    position: relative;
+    width: 200px;
+    height: 140px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f8fafc;
+}
+
+.upp-saved-post-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.upp-inactive-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(15, 23, 42, 0.8);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    backdrop-filter: blur(4px);
+}
+
+.upp-saved-post-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.upp-saved-post-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.upp-saved-institute {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.upp-saved-institute:hover {
+    color: var(--c-primary);
+}
+
+.upp-saved-institute img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.upp-saved-date {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+.upp-saved-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 8px 0;
+    line-height: 1.4;
+}
+
+.upp-saved-desc {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-bottom: 16px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.upp-saved-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-bottom: 20px;
+}
+
+.upp-saved-meta .separator {
+    opacity: 0.5;
+}
+
+.upp-saved-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+}
+
+.upp-saved-view-btn {
+    padding: 8px 20px;
+    background: #f1f5f9;
+    color: #475569;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.upp-saved-view-btn:hover {
+    background: var(--c-primary);
+    color: white;
+}
+
+.upp-saved-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.upp-action-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.upp-action-icon:hover {
+    border-color: var(--c-primary);
+    color: var(--c-primary);
+    background: #fffafa;
+}
+
+.upp-action-icon.active {
+    background: var(--c-primary-soft);
+    color: var(--c-primary);
+    border-color: var(--c-primary-soft);
+}
+
+.upp-action-icon.copied {
+    background: #ecfdf5;
+    color: #10b981;
+    border-color: #10b981;
+}
+
+@media (max-width: 640px) {
+    .upp-saved-post-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .upp-saved-post-image {
+        width: 100%;
+        height: 160px;
+    }
+
+    .upp-saved-post-top {
+        margin-bottom: 12px;
+    }
+
+    .upp-saved-title {
+        font-size: 1.05rem;
+    }
+
+    .upp-saved-meta {
+        flex-wrap: wrap;
+        gap: 8px 12px;
+    }
+
+    .upp-saved-footer {
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+    }
+
+    .upp-saved-view-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .upp-saved-actions {
+        justify-content: center;
+    }
+}

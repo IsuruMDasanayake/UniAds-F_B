@@ -8,7 +8,7 @@ import {
     Bookmark, Building2,
     LogOut, CheckCircle2,
     Calendar, MapPin, GraduationCap,
-    Clock, AlertCircle, Sparkles, Trash2, ChevronDown, ChevronUp, FileText
+    Clock, AlertCircle, Sparkles, Trash2, ChevronDown, ChevronUp, FileText, BadgeCheck
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
@@ -19,7 +19,9 @@ import { useSettings } from '../context/SettingsContext';
 import { Download, Loader2 } from 'lucide-react';
 import DeleteConfirmModal from '../components/Modals/DeleteConfirmModal';
 import ProgrammeInfoModal from '../components/Modals/ProgrammeInfoModal';
+import ApplyNowModal from '../components/Modals/ApplyNowModal';
 import MoreInfoModal from '../components/Modals/MoreInfoModal';
+import { Link2, Check, ExternalLink } from 'lucide-react';
 
 const districts = [
     "Colombo", "Gampaha", "Kalutara", "Kandy", "Matale", "Nuwara Eliya",
@@ -65,6 +67,21 @@ const UserProfilePage = () => {
     const [alert, setAlert] = useState({ show: false, type: '', message: '' });
     const [errors, setErrors] = useState({});
     const [isMobile, setIsMobile] = useState(window.innerWidth < 992);
+
+    // Saved Posts Migration States
+    const [savedPostsData, setSavedPostsData] = useState([]);
+    const [loadingSavedPosts, setLoadingSavedPosts] = useState(false);
+    const [copiedPostId, setCopiedPostId] = useState(null);
+    const [showSavedApplyModal, setShowSavedApplyModal] = useState(false);
+    const [savedApplying, setSavedApplying] = useState(false);
+    const [savedSubmissionStatus, setSavedSubmissionStatus] = useState({ type: '', message: '' });
+    const [savedApplyForm, setSavedApplyForm] = useState({
+        name: '',
+        email: '',
+        phone: '',
+        message: '',
+        privacyConsent: false
+    });
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 992);
@@ -232,11 +249,93 @@ const UserProfilePage = () => {
         }
     };
 
+    const fetchSavedPostsData = async () => {
+        setLoadingSavedPosts(true);
+        try {
+            const response = await axiosClient.get('/api/posts/saved');
+            let posts = response.data.posts.data || [];
+            // For normal users, filter out inactive posts
+            if (profileData?.user?.role === 'User') {
+                posts = posts.filter(p => p.status === 'active');
+            }
+            setSavedPostsData(posts);
+        } catch (error) {
+            console.error("Error fetching saved posts:", error);
+        } finally {
+            setLoadingSavedPosts(false);
+        }
+    };
+
     useEffect(() => {
         fetchProfile();
         fetchRoadmaps();
         fetchApplications();
     }, []);
+
+    useEffect(() => {
+        if (activeTab === 'saved') {
+            fetchSavedPostsData();
+        }
+    }, [activeTab]);
+
+    const handleToggleSave = async (postId) => {
+        try {
+            await axiosClient.post(`/api/posts/${postId}/save`);
+            setSavedPostsData(prev => prev.filter(post => post.id !== postId));
+            // Optional: update user profile saved_posts list in local state
+            setProfileData(prev => ({
+                ...prev,
+                user: {
+                    ...prev.user,
+                    saved_posts: prev.user.saved_posts.filter(p => p.id !== postId)
+                }
+            }));
+            showAlert('success', 'Post removed from saved.');
+        } catch (error) {
+            console.error('Error un-saving post:', error);
+            showAlert('error', 'Failed to remove post.');
+        }
+    };
+
+    const handleCopyPostLink = (post) => {
+        if (!post?.share_link) return;
+        const url = `${window.location.origin}/post/${post.share_link}`;
+        navigator.clipboard.writeText(url).then(() => {
+            setCopiedPostId(post.id);
+            setTimeout(() => setCopiedPostId(null), 2000);
+        });
+    };
+
+    const handleSavedApplySubmit = async (e) => {
+        e.preventDefault();
+        setSavedApplying(true);
+        setSavedSubmissionStatus({ type: '', message: '' });
+
+        try {
+            await axiosClient.post(`/api/course/apply/${selectedPost.institute_id}`, {
+                ...savedApplyForm,
+                course_title: selectedPost.title,
+                post_id: selectedPost.id,
+                privacy_consent: savedApplyForm.privacyConsent 
+            });
+
+            setSavedSubmissionStatus({ type: 'success', message: 'Application submitted successfully! We wish you all the best.' });
+            setSavedApplyForm({ name: '', email: '', phone: '', message: '', privacyConsent: false });
+
+            setTimeout(() => {
+                setShowSavedApplyModal(false);
+                setSavedSubmissionStatus({ type: '', message: '' });
+                fetchApplications(); // Refresh applications list
+            }, 5000);
+
+        } catch (error) {
+            console.error('Error submitting application:', error);
+            const errorMsg = error.response?.data?.message || "Failed to submit application. Please try again.";
+            setSavedSubmissionStatus({ type: 'error', message: errorMsg });
+        } finally {
+            setSavedApplying(false);
+        }
+    };
 
     const confirmDeleteRoadmap = (e, roadmap) => {
         e.stopPropagation();
@@ -332,6 +431,19 @@ const UserProfilePage = () => {
         setIsProgrammeOpen(false);
     };
 
+    const openSavedApplyModal = () => {
+        setSavedApplyForm({
+            name: '',
+            email: '',
+            phone: '',
+            message: '',
+            privacyConsent: false
+        });
+        setSavedSubmissionStatus({ type: '', message: '' });
+        setShowSavedApplyModal(true);
+        setIsProgrammeOpen(false);
+    };
+
     if (loading) return (
         <div className="upp-profile-loading-overlay">
             <div className="upp-spinner-box">
@@ -414,7 +526,14 @@ const UserProfilePage = () => {
                             onClick={() => setActiveTab('applications')}
                         >
                             <FileText size={18} />
-                            <span>Applications</span>
+                            <span>Apps</span>
+                        </button>
+                        <button 
+                            className={`upp-mobile-tab-item ${activeTab === 'saved' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('saved')}
+                        >
+                            <Bookmark size={18} />
+                            <span>Saved</span>
                         </button>
                         <button 
                             className={`upp-mobile-tab-item ${activeTab === 'security' ? 'active' : ''}`}
@@ -476,6 +595,12 @@ const UserProfilePage = () => {
                                     onClick={() => setActiveTab('applications')}
                                 >
                                     <FileText size={18} /> My Applications
+                                </button>
+                                <button
+                                    className={`upp-nav-item ${activeTab === 'saved' ? 'upp-active' : ''}`}
+                                    onClick={() => setActiveTab('saved')}
+                                >
+                                    <Bookmark size={18} /> Saved Posts
                                 </button>
                                 <button
                                     className={`upp-nav-item ${activeTab === 'security' ? 'upp-active' : ''}`}
@@ -561,31 +686,91 @@ const UserProfilePage = () => {
                                 </form>
                             </motion.div>
                         )}
-
                         {activeTab === 'saved' && (
                             <motion.div className="upp-content-card" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                                 <div className="upp-section-header">
-                                    <h2>Saved Posts</h2>
+                                    <h2>Your Saved Posts</h2>
+                                    <p className="text-sm text-gray-500 mt-1">Manage and apply for posts you've bookmarked.</p>
                                 </div>
-                                {savedPosts.length === 0 ? (
-                                    <div className="py-20 text-center text-gray-500">No saved items yet</div>
+                                
+                                {loadingSavedPosts ? (
+                                    <div className="py-20 text-center">
+                                        <Loader2 size={30} className="animate-spin mx-auto text-primary opacity-20" />
+                                    </div>
+                                ) : savedPostsData.length === 0 ? (
+                                    <div className="py-20 text-center text-gray-500">
+                                        <Bookmark size={40} className="mx-auto mb-4 opacity-20" />
+                                        <p>You haven't saved any posts yet.</p>
+                                        <Link to="/feed" className="text-primary font-semibold mt-4 inline-block hover:underline">Browse Feed</Link>
+                                    </div>
                                 ) : (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {savedPosts.map(post => (
-                                            <Link key={post.id} to={`/feed`} className="no-underline">
-                                                <div className="p-3 border rounded-xl hover:bg-gray-50 flex gap-4">
-                                                    <img src={post.image ? getStorageUrl(post.image) : '/images/logo.png'} className="w-16 h-16 rounded-lg object-cover" />
-                                                    <div>
-                                                        <h4 className="font-semibold text-sm">{post.title}</h4>
-                                                        <p className="text-xs text-gray-400">{post.institute?.institute_name}</p>
+                                    <div className="upp-saved-posts-list">
+                                        {savedPostsData.map(post => (
+                                            <div key={post.id} className="upp-saved-post-card">
+                                                <div className="upp-saved-post-grid">
+                                                    <div className="upp-saved-post-image">
+                                                        <img src={post.image ? getStorageUrl(post.image) : '/images/logo.png'} alt={post.title} />
+                                                        {post.status !== 'active' && <span className="upp-inactive-badge">Inactive</span>}
+                                                    </div>
+                                                    
+                                                    <div className="upp-saved-post-details">
+                                                        <div className="upp-saved-post-top">
+                                                            <Link to={`/institutions/${post.institute?.slug || post.institute?.id}/profile`} className="upp-saved-institute">
+                                                                {post.institute?.profile_photo ? (
+                                                                    <img src={getStorageUrl(post.institute.profile_photo)} alt="" />
+                                                                ) : <Building2 size={12} />}
+                                                                {post.institute?.institute_name}
+                                                                {!!post.institute?.is_premium && <BadgeCheck size={14} className="text-red-500 ml-1" />}
+                                                            </Link>
+                                                            <span className="upp-saved-date">{new Date(post.created_at).toLocaleDateString()}</span>
+                                                        </div>
+                                                        
+                                                        <h3 className="upp-saved-title">{post.title}</h3>
+                                                        <p className="upp-saved-desc">{post.small_description}</p>
+                                                        
+                                                        <div className="upp-saved-meta">
+                                                            <span>{post.course_type}</span>
+                                                            <span className="separator">•</span>
+                                                            <span>{post.duration}</span>
+                                                            <span className="separator">•</span>
+                                                            <span>{post.location}</span>
+                                                        </div>
+                                                        
+                                                        <div className="upp-saved-footer">
+                                                            <button 
+                                                                className="upp-saved-view-btn"
+                                                                onClick={() => openProgrammeModal(post, post.institute)}
+                                                            >
+                                                                View Programme Info
+                                                            </button>
+                                                            
+                                                            <div className="upp-saved-actions">
+                                                                <button 
+                                                                    className={`upp-action-icon ${copiedPostId === post.id ? 'copied' : ''}`}
+                                                                    onClick={() => handleCopyPostLink(post)}
+                                                                    title="Copy Link"
+                                                                >
+                                                                    {copiedPostId === post.id ? <Check size={18} /> : <Link2 size={18} />}
+                                                                </button>
+                                                                
+                                                                <button 
+                                                                    className="upp-action-icon active"
+                                                                    onClick={() => handleToggleSave(post.id)}
+                                                                    title="Unsave"
+                                                                >
+                                                                    <Bookmark size={18} fill="currentColor" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </Link>
+                                            </div>
                                         ))}
                                     </div>
                                 )}
                             </motion.div>
                         )}
+
 
                         {activeTab === 'roadmaps' && (
                             <motion.div className="upp-content-card" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
@@ -736,7 +921,8 @@ const UserProfilePage = () => {
                         userRole={profileData?.user?.role}
                         isPremium={selectedInstitute?.is_premium}
                         onMoreInfo={() => openInfoModal()}
-                        hideApply={true}
+                        onApply={() => openSavedApplyModal()}
+                        hideApply={activeTab === 'applications'}
                     />
 
                     <MoreInfoModal 
@@ -744,6 +930,24 @@ const UserProfilePage = () => {
                         onClose={() => setIsInfoOpen(false)}
                         course={selectedPost}
                         institute={selectedInstitute}
+                    />
+
+                    <ApplyNowModal 
+                        isOpen={showSavedApplyModal}
+                        onClose={() => setShowSavedApplyModal(false)}
+                        courseTitle={selectedPost?.title}
+                        form={{ ...savedApplyForm, privacy_consent: savedApplyForm.privacyConsent }}
+                        onChange={(e) => {
+                            const { name, value, checked, type } = e.target;
+                            if (name === 'privacy_consent') {
+                                setSavedApplyForm({ ...savedApplyForm, privacyConsent: checked });
+                            } else {
+                                setSavedApplyForm({ ...savedApplyForm, [name]: type === 'checkbox' ? checked : value });
+                            }
+                        }}
+                        onSubmit={handleSavedApplySubmit}
+                        isSubmitting={savedApplying}
+                        status={savedSubmissionStatus}
                     />
                 </>
             )}
