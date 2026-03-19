@@ -326,13 +326,30 @@ class EventController extends Controller
     }
 
     // Get paginated upcoming events API
-    public function apiIndex()
+    public function apiIndex(Request $request)
     {
         $userId = Auth::id();
+        $search = $request->query('search');
+        $filter = $request->query('filter', 'all');
 
         $query = Event::with(['institute'])
-            ->whereDate('event_date', '>=', Carbon::today())
             ->where('is_active', true);
+
+        // Apply Search
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('event_title', 'like', "%{$search}%")
+                  ->orWhere('sub_location', 'like', "%{$search}%")
+                  ->orWhere('main_location', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply Filter
+        if ($filter === 'today') {
+            $query->whereDate('event_date', Carbon::today());
+        } elseif ($filter === 'upcoming' || $filter === 'all') {
+            $query->whereDate('event_date', '>=', Carbon::today());
+        }
 
         if ($userId) {
             $declinedIds = EventUserDeclines::where('user_id', $userId)->pluck('event_id');
@@ -341,9 +358,9 @@ class EventController extends Controller
 
         /** @var \Illuminate\Pagination\LengthAwarePaginator $events */
         $events = $query->orderBy('event_date', 'asc')
-            ->paginate(8);
+            ->paginate(12);
 
-        // Transformation on the collection to avoid Paginator::through issues if any
+        // Transformation on the collection
         $events->getCollection()->transform(function ($event) use ($userId) {
             $event->is_interested = $userId ? DB::table('event_user_interests')
                 ->where('event_id', $event->id)

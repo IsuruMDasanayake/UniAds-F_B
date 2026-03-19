@@ -23,10 +23,18 @@ function EventsPage() {
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     const processingIds = useRef(new Set());
     const [showAddEventModal, setShowAddEventModal] = useState(false);
     const eventLoaderRef = useRef(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 900);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearchQuery(searchQuery);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth <= 900);
@@ -34,42 +42,58 @@ function EventsPage() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [userRes, eventsRes] = await Promise.all([
-                    axiosClient.get('/api/user'),
-                    axiosClient.get('/api/events?page=1')
-                ]);
-                setUser(userRes.data);
-                setEvents(eventsRes.data.data || []);
-                setEventsPage(eventsRes.data.current_page || 1);
-                setHasMoreEvents(!!eventsRes.data.next_page_url);
-            } catch (error) {
-                console.error('Failed to fetch events:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, []);
+    const fetchData = async (isInitialAppLoad = false) => {
+        // Only show total page loader if we don't have user data yet (first entry)
+        if (isInitialAppLoad && !user) setLoading(true);
+        else {
+            setLoadingMoreEvents(true);
+            setEvents([]); // Reset events to show skeletons
+        }
 
-    const fetchEvents = async () => {
         try {
-            const eventsRes = await axiosClient.get('/api/events?page=1');
-            setEvents(eventsRes.data.data || []);
-            setEventsPage(eventsRes.data.current_page || 1);
-            setHasMoreEvents(!!eventsRes.data.next_page_url);
+            const response = await axiosClient.get(`/api/events`, {
+                params: {
+                    page: 1,
+                    search: debouncedSearchQuery,
+                    filter: activeFilter
+                }
+            });
+
+            if (isInitialAppLoad && !user) {
+                const userRes = await axiosClient.get('/api/user');
+                setUser(userRes.data);
+            }
+
+            setEvents(response.data.data || []);
+            setEventsPage(response.data.current_page || 1);
+            setHasMoreEvents(!!response.data.next_page_url);
         } catch (error) {
             console.error('Failed to fetch events:', error);
+        } finally {
+            setLoading(false);
+            setLoadingMoreEvents(false);
         }
+    };
+
+    useEffect(() => {
+        fetchData(true); // Initial load or re-fetch on filter/search change
+    }, [debouncedSearchQuery, activeFilter]);
+
+    const fetchEvents = async () => {
+        fetchData(true);
     };
 
     const handleLoadMoreEvents = useCallback(async () => {
         if (!hasMoreEvents || loadingMoreEvents) return;
         setLoadingMoreEvents(true);
         try {
-            const response = await axiosClient.get(`/api/events?page=${eventsPage + 1}`);
+            const response = await axiosClient.get(`/api/events`, {
+                params: {
+                    page: eventsPage + 1,
+                    search: debouncedSearchQuery,
+                    filter: activeFilter
+                }
+            });
             if (response.data && response.data.data) {
                 const newEvents = response.data.data;
                 setEvents(prevEvents => {
@@ -85,7 +109,7 @@ function EventsPage() {
         } finally {
             setLoadingMoreEvents(false);
         }
-    }, [hasMoreEvents, loadingMoreEvents, eventsPage]);
+    }, [hasMoreEvents, loadingMoreEvents, eventsPage, debouncedSearchQuery, activeFilter]);
 
 
     useEffect(() => {
@@ -219,22 +243,8 @@ function EventsPage() {
         if (type === 'month') return d.toLocaleDateString('en-US', { month: 'short' });
         return d.toLocaleDateString('en-US', {
             month: 'long',
-            day: 'numeric',
-            year: 'numeric'
         });
     };
-
-    const filteredEvents = events.filter(event => {
-        const matchesSearch = event.event_title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            event.sub_location?.toLowerCase().includes(searchQuery.toLowerCase());
-
-        if (activeFilter === 'all') return matchesSearch;
-        // Basic filtering logic based on date comparison
-        const eventDate = new Date(event.event_date);
-        const today = new Date();
-        if (activeFilter === 'today') return matchesSearch && eventDate.toDateString() === today.toDateString();
-        return matchesSearch;
-    });
 
     if (loading) {
         return (
@@ -317,7 +327,7 @@ function EventsPage() {
                         </div>
                     </div>
 
-                    {filteredEvents.length === 0 ? (
+                    {events.length === 0 && !loadingMoreEvents ? (
                         <div className="empty-state">
                             <div className="empty-icon-box">
                                 <Calendar size={64} />
@@ -330,7 +340,7 @@ function EventsPage() {
                         </div>
                     ) : (
                         <div className="events-modern-grid">
-                            {filteredEvents.map((event) => (
+                            {events.map((event) => (
                                 <motion.div
                                     key={event.id}
                                     className="modern-event-card"
@@ -395,7 +405,15 @@ function EventsPage() {
                                 </motion.div>
                             ))}
                             
-                            {loadingMoreEvents && !isMobile && (
+                            {(loadingMoreEvents && events.length === 0) && (
+                                <>
+                                    <EventSkeleton />
+                                    <EventSkeleton />
+                                    <EventSkeleton />
+                                </>
+                            )}
+                            
+                            {loadingMoreEvents && events.length > 0 && !isMobile && (
                                 <>
                                     <EventSkeleton />
                                     <EventSkeleton />
