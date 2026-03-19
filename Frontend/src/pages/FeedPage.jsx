@@ -95,6 +95,7 @@ function FeedPage() {
 
 
     const loaderRef = useRef(null);
+    const eventLoaderRef = useRef(null);
 
     const fetchMorePosts = useCallback(async (force = false) => {
         if (loadingMorePosts || (!hasMorePosts && !force)) return;
@@ -157,11 +158,37 @@ function FeedPage() {
     }, [fetchMorePosts, hasMorePosts, loadingMorePosts]);
 
     useEffect(() => {
+        const eventsContainer = document.querySelector('.events-scroll-container');
+        
+        const eventObserver = new IntersectionObserver((entries) => {
+            const target = entries[0];
+            if (target.isIntersecting && hasMoreEvents && !loadingMoreEvents) {
+                handleLoadMoreEvents();
+            }
+        }, {
+            root: eventsContainer,
+            rootMargin: "100px",
+            threshold: 0.1
+        });
+
+        if (eventLoaderRef.current) {
+            eventObserver.observe(eventLoaderRef.current);
+        }
+
+        return () => {
+            if (eventLoaderRef.current) {
+                eventObserver.disconnect();
+            }
+        };
+    }, [hasMoreEvents, loadingMoreEvents]); // Need to add handleLoadMoreEvents if it's outside, but we can rely on state
+
+    useEffect(() => {
         const fetchData = async () => {
             try {
-                const [profileRes, feedRes] = await Promise.all([
+                const [profileRes, feedRes, eventsRes] = await Promise.all([
                     axiosClient.get('/api/profile/me'),
-                    axiosClient.get('/api/feed')
+                    axiosClient.get('/api/feed'),
+                    axiosClient.get('/api/events?page=1')
                 ]);
 
                 const currentUser = {
@@ -185,14 +212,10 @@ function FeedPage() {
                 setPostsPage(feedRes.data.posts?.current_page || 1);
                 setHasMorePosts(!!feedRes.data.posts?.next_page_url);
 
-                setEvents(feedRes.data.events || []);
-                // Initial load of events is via feedApi which only gets top 10.
-                // If more are needed, we start pagination from page 1 of events API if needed, 
-                // but since we already have 10, maybe we consider page 1 done? 
-                // However, feedApi isn't paginated in the same way. It uses take(10).
-                // So for "Load More", we should start fetching from page 2 of apiIndex.
-                setEventsPage(1);
-                setHasMoreEvents(feedRes.data.events?.length === 10); // Assume if 10 returned, there might be more.
+                // Use the explicit events API to guarantee correct pagination offset and ordering
+                setEvents(eventsRes.data.data || []);
+                setEventsPage(eventsRes.data.current_page || 1);
+                setHasMoreEvents(!!eventsRes.data.next_page_url);
 
             } catch (error) {
                 console.error('Failed to fetch data:', error);
@@ -306,7 +329,7 @@ function FeedPage() {
         }
     };
 
-    const handleLoadMoreEvents = async () => {
+    const handleLoadMoreEvents = useCallback(async () => {
         if (loadingMoreEvents || !hasMoreEvents) return;
         setLoadingMoreEvents(true);
 
@@ -314,7 +337,11 @@ function FeedPage() {
             const response = await axiosClient.get(`/api/events?page=${eventsPage + 1}`);
             const newEvents = response.data.data;
 
-            setEvents(prevEvents => [...prevEvents, ...newEvents]);
+            setEvents(prevEvents => {
+                const existingIds = new Set(prevEvents.map(e => e.id));
+                const uniqueNewEvents = newEvents.filter(e => !existingIds.has(e.id));
+                return [...prevEvents, ...uniqueNewEvents];
+            });
             setEventsPage(response.data.current_page);
             setHasMoreEvents(!!response.data.next_page_url);
         } catch (error) {
@@ -322,7 +349,7 @@ function FeedPage() {
         } finally {
             setLoadingMoreEvents(false);
         }
-    };
+    }, [eventsPage, hasMoreEvents, loadingMoreEvents]);
 
     const openPostModal = (post) => {
         setSelectedPost(post);
@@ -667,19 +694,22 @@ function FeedPage() {
                                     })}
                                 </div>
                             )}
-                        </div>
-                        {hasMoreEvents && (
-                            <div className="load-more-events" style={{ textAlign: 'center', padding: '10px' }}>
-                                <button
-                                    className="see-all"
-                                    onClick={handleLoadMoreEvents}
-                                    style={{ background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
-                                    disabled={loadingMoreEvents}
-                                >
-                                    {loadingMoreEvents ? 'Loading...' : 'Load More Events'}
-                                </button>
+                            
+                            {/* Events Infinite Scroll Footer */}
+                            <div className="events-infinite-scroll-footer" style={{ minHeight: '60px', width: '100%' }}>
+                                {loadingMoreEvents ? (
+                                    <div style={{ display: 'flex', justifyContent: 'center', padding: '15px 0', width: '100%' }}>
+                                        <Loader2 className="animate-spin" size={24} color="#6366f1" />
+                                    </div>
+                                ) : hasMoreEvents ? (
+                                    <div ref={eventLoaderRef} className="load-more-events-container" style={{ height: '20px' }} />
+                                ) : events.length > 0 ? (
+                                    <div className="no-more-events-container" style={{ textAlign: 'center', padding: '15px 0', width: '100%' }}>
+                                        <p style={{ color: '#64748b', fontSize: '0.8rem' }}>No more upcoming events</p>
+                                    </div>
+                                ) : null}
                             </div>
-                        )}
+                        </div>
                     </div>
                 </aside>
 

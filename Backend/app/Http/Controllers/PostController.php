@@ -490,7 +490,7 @@ class PostController extends Controller
         $posts = Post::with(['institute', 'likes'])
             ->where('status', 'active')
             ->latest()
-            ->paginate(5);
+            ->paginate(10);
 
         // Apply user-specific liked and saved status
         $userId = $user ? $user->id : null;
