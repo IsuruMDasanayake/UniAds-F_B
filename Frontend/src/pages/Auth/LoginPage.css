@@ -154,7 +154,7 @@
     background-color: #f8fafc;
     color: var(--c-dark);
     height: 50px;
-    margin-bottom: -10px;
+    margin-bottom: 0px;
 }
 
 .login-auth-container .form-input:focus {

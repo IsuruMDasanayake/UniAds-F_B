@@ -937,6 +937,7 @@
     from {
         transform: rotate(0deg);
     }
+
     to {
         transform: rotate(360deg);
     }
@@ -953,6 +954,7 @@
     .feed-page-wrapper .skeleton-card {
         display: flex;
         height: 280px;
+        margin-bottom: 0.6rem;
     }
 
     .feed-page-wrapper .skeleton-image {

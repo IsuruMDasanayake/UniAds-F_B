@@ -765,3 +765,28 @@
         max-width: 100%;
     }
 }
+
+/* Skeleton Loading Utilities */
+/* Skeleton Loading Utilities - Matched with FeedPage */
+.skeleton {
+    background: #e2e8f0;
+    background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+    border-radius: 5px;
+    background-size: 200% 100%;
+    animation: 1.5s skeletonShine linear infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes skeletonShine {
+    to {
+        background-position-x: -200%;
+    }
+}
+
+.skeleton-card {
+    border-color: transparent !important;
+    pointer-events: none;
+    box-shadow: none !important;
+    background: white;
+}

@@ -341,7 +341,7 @@ class EventController extends Controller
 
         /** @var \Illuminate\Pagination\LengthAwarePaginator $events */
         $events = $query->orderBy('event_date', 'asc')
-            ->paginate(12);
+            ->paginate(8);
 
         // Transformation on the collection to avoid Paginator::through issues if any
         $events->getCollection()->transform(function ($event) use ($userId) {

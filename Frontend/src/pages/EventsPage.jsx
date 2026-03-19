@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
     Calendar, MapPin, Star, X, Loader2, Info,
     Filter, LayoutGrid, Clock, Users, ChevronRight,
@@ -16,23 +16,35 @@ import './EventsPage.css';
 function EventsPage() {
     const [user, setUser] = useState(null);
     const [events, setEvents] = useState([]);
+    const [eventsPage, setEventsPage] = useState(1);
+    const [hasMoreEvents, setHasMoreEvents] = useState(true);
+    const [loadingMoreEvents, setLoadingMoreEvents] = useState(false);
     const [loading, setLoading] = useState(true);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const processingIds = useRef(new Set());
     const [showAddEventModal, setShowAddEventModal] = useState(false);
+    const eventLoaderRef = useRef(null);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 900);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 900);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const [userRes, eventsRes] = await Promise.all([
                     axiosClient.get('/api/user'),
-                    axiosClient.get('/api/events')
+                    axiosClient.get('/api/events?page=1')
                 ]);
                 setUser(userRes.data);
-                // API paginated data: { data: [...], current_page: 1, ... }
                 setEvents(eventsRes.data.data || []);
+                setEventsPage(eventsRes.data.current_page || 1);
+                setHasMoreEvents(!!eventsRes.data.next_page_url);
             } catch (error) {
                 console.error('Failed to fetch events:', error);
             } finally {
@@ -44,12 +56,84 @@ function EventsPage() {
 
     const fetchEvents = async () => {
         try {
-            const eventsRes = await axiosClient.get('/api/events');
+            const eventsRes = await axiosClient.get('/api/events?page=1');
             setEvents(eventsRes.data.data || []);
+            setEventsPage(eventsRes.data.current_page || 1);
+            setHasMoreEvents(!!eventsRes.data.next_page_url);
         } catch (error) {
             console.error('Failed to fetch events:', error);
         }
     };
+
+    const handleLoadMoreEvents = useCallback(async () => {
+        if (!hasMoreEvents || loadingMoreEvents) return;
+        setLoadingMoreEvents(true);
+        try {
+            const response = await axiosClient.get(`/api/events?page=${eventsPage + 1}`);
+            if (response.data && response.data.data) {
+                const newEvents = response.data.data;
+                setEvents(prevEvents => {
+                    const existingIds = new Set(prevEvents.map(e => e.id));
+                    const uniqueNewEvents = newEvents.filter(e => !existingIds.has(e.id));
+                    return [...prevEvents, ...uniqueNewEvents];
+                });
+                setEventsPage(response.data.current_page);
+                setHasMoreEvents(!!response.data.next_page_url);
+            }
+        } catch (error) {
+            console.error('Failed to load more events:', error);
+        } finally {
+            setLoadingMoreEvents(false);
+        }
+    }, [hasMoreEvents, loadingMoreEvents, eventsPage]);
+
+
+    useEffect(() => {
+        if (loading) return; // Don't setup observer while full-page loading
+
+        const observer = new IntersectionObserver(
+            entries => {
+                const target = entries[0];
+                if (target.isIntersecting && hasMoreEvents && !loadingMoreEvents) {
+                    handleLoadMoreEvents();
+                }
+            },
+            { threshold: 0.1, rootMargin: '100px' }
+        );
+
+        const currentLoader = eventLoaderRef.current;
+        if (currentLoader) {
+            observer.observe(currentLoader);
+        }
+
+        return () => {
+            if (currentLoader) {
+                observer.unobserve(currentLoader);
+            }
+        };
+    }, [hasMoreEvents, loadingMoreEvents, eventsPage, handleLoadMoreEvents, loading]);
+
+
+    const EventSkeleton = () => (
+        <div className="modern-event-card skeleton-card">
+            <div className="card-media skeleton" style={{ height: '200px' }}></div>
+            <div className="card-details" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
+                <div className="skeleton" style={{ height: '14px', width: '40%', marginBottom: '10px', borderRadius: '4px' }}></div>
+                <div className="skeleton" style={{ height: '20px', width: '80%', marginBottom: '15px', borderRadius: '4px' }}></div>
+                <div className="info-chips" style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div className="skeleton" style={{ height: '28px', width: '90px', borderRadius: '8px' }}></div>
+                    <div className="skeleton" style={{ height: '28px', width: '90px', borderRadius: '8px' }}></div>
+                </div>
+                <div className="card-actions" style={{ display: 'flex', gap: '0.75rem', marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid #f1f5f9' }}>
+                    <div className="skeleton" style={{ height: '42px', flex: 1, borderRadius: '12px' }}></div>
+                    <div className="skeleton" style={{ height: '42px', width: '100px', borderRadius: '12px' }}></div>
+                </div>
+            </div>
+        </div>
+    );
+
+
+
 
     const handleMarkInterest = async (eventId) => {
         // Prevent duplicate in-flight requests for the same event
@@ -310,6 +394,37 @@ function EventsPage() {
                                     </div>
                                 </motion.div>
                             ))}
+                            
+                            {loadingMoreEvents && !isMobile && (
+                                <>
+                                    <EventSkeleton />
+                                    <EventSkeleton />
+                                </>
+                            )}
+                            
+                            {loadingMoreEvents && isMobile && (
+                                <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'center', padding: '20px 0' }}>
+                                    <Loader2 className="animate-spin" size={32} color="var(--c-primary)" />
+                                </div>
+                            )}
+                            
+                            {hasMoreEvents && (
+                                <div 
+                                    ref={eventLoaderRef} 
+                                    style={{ 
+                                        height: '50px', 
+                                        gridColumn: '1 / -1',
+                                        visibility: 'hidden'
+                                    }} 
+                                />
+                            )}
+                            
+                            {!hasMoreEvents && events.length > 0 && (
+                                <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px 0', color: 'var(--c-text-muted)', fontSize: '0.9rem' }}>
+                                    No more upcoming events
+                                </div>
+                            )}
+
                         </div>
                     )}
                 </main>

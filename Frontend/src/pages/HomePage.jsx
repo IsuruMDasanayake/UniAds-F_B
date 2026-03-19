@@ -218,7 +218,7 @@ const HomePage = () => {
                                 <h3>Contact Information</h3>
                                 <div className="home-contact-item"><i className="fas fa-map-marker-alt"></i> {settings.address_text || 'Kandy, Sri Lanka'}</div>
                                 <div className="home-contact-item"><i className="fas fa-envelope"></i> {settings.contact_email || ''}</div>
-                                {/* <div className="home-contact-item"><i className="fas fa-phone"></i> {settings.support_phone || ''}</div> */}
+                                <div className="home-contact-item"><i className="fas fa-phone"></i> {settings.support_phone || ''}</div>
                             </div>
 
                             <div className="home-social-links">

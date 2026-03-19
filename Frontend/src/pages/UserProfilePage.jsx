@@ -306,7 +306,7 @@ const UserProfilePage = () => {
                         <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="3.6" className="loader-circle loader-circle-animation"></circle>
                     </svg>
                 </div>
-                <p>Loading profile...</p>
+                <p>Loading Profile...</p>
             </div>
         </div>
     );

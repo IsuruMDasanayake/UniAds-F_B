@@ -201,7 +201,7 @@ const PricingPage = () => {
                                 <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="3.6" className="loader-circle loader-circle-animation"></circle>
                             </svg>
                         </div>
-                        <p>Loading premium details...</p>
+                        <p>Loading Pricing...</p>
                     </div>
                 </div>
             ) : error ? (

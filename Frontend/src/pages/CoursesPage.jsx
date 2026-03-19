@@ -291,7 +291,7 @@ const CoursesPage = () => {
                                     <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="3.6" className="loader-circle loader-circle-animation"></circle>
                                 </svg>
                             </div>
-                            <p>Loading programs...</p>
+                            <p>Loading Programs...</p>
                         </div>
                     </div>
                 ) : filterType && filterValue ? (

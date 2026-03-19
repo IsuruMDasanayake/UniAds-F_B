@@ -146,7 +146,7 @@
     background-color: white !important;
     color: var(--c-dark);
     height: 45px;
-    margin-bottom: -5px;
+    margin-bottom: 15px;
 }
 
 .register-auth-container .form-input:focus {
