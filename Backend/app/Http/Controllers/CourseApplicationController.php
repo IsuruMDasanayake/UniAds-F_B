@@ -111,4 +111,16 @@ class CourseApplicationController extends Controller
 
         return back()->with('success', 'Your application has been sent successfully.');
     }
+
+    public function userApplications()
+    {
+        $user_id = Auth::id();
+        
+        $applications = ApplyCase::with(['institute:id,institute_name,slug,profile_photo,is_premium,applications_enabled,chat_enabled,contact_number', 'post:id,title,image,course_name,course_type,location,duration,course_format,attendance_type,description,share_link'])
+            ->where('user_id', $user_id)
+            ->latest('id')
+            ->get();
+
+        return response()->json($applications);
+    }
 }

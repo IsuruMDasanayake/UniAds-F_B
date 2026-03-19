@@ -8,7 +8,7 @@ import {
     Bookmark, Building2,
     LogOut, CheckCircle2,
     Calendar, MapPin, GraduationCap,
-    Clock, AlertCircle, Sparkles, Trash2, ChevronDown, ChevronUp
+    Clock, AlertCircle, Sparkles, Trash2, ChevronDown, ChevronUp, FileText
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
@@ -18,6 +18,8 @@ import { getStorageUrl } from '../lib/config';
 import { useSettings } from '../context/SettingsContext';
 import { Download, Loader2 } from 'lucide-react';
 import DeleteConfirmModal from '../components/Modals/DeleteConfirmModal';
+import ProgrammeInfoModal from '../components/Modals/ProgrammeInfoModal';
+import MoreInfoModal from '../components/Modals/MoreInfoModal';
 
 const districts = [
     "Colombo", "Gampaha", "Kalutara", "Kandy", "Matale", "Nuwara Eliya",
@@ -43,6 +45,12 @@ const UserProfilePage = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [roadmapToDelete, setRoadmapToDelete] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [applications, setApplications] = useState([]);
+    const [loadingApplications, setLoadingApplications] = useState(false);
+    const [isProgrammeOpen, setIsProgrammeOpen] = useState(false);
+    const [isInfoOpen, setIsInfoOpen] = useState(false);
+    const [selectedPost, setSelectedPost] = useState(null);
+    const [selectedInstitute, setSelectedInstitute] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -212,9 +220,22 @@ const UserProfilePage = () => {
         }
     };
 
+    const fetchApplications = async () => {
+        setLoadingApplications(true);
+        try {
+            const response = await axiosClient.get('/api/applications/me');
+            setApplications(response.data);
+        } catch (error) {
+            console.error("Error fetching applications:", error);
+        } finally {
+            setLoadingApplications(false);
+        }
+    };
+
     useEffect(() => {
         fetchProfile();
         fetchRoadmaps();
+        fetchApplications();
     }, []);
 
     const confirmDeleteRoadmap = (e, roadmap) => {
@@ -298,6 +319,19 @@ const UserProfilePage = () => {
         }
     };
 
+    const openProgrammeModal = (post, institute) => {
+        setSelectedPost(post);
+        setSelectedInstitute(institute);
+        setIsProgrammeOpen(true);
+    };
+
+    const openInfoModal = (post, institute) => {
+        setSelectedPost(post || selectedPost);
+        setSelectedInstitute(institute || selectedInstitute);
+        setIsInfoOpen(true);
+        setIsProgrammeOpen(false);
+    };
+
     if (loading) return (
         <div className="upp-profile-loading-overlay">
             <div className="upp-spinner-box">
@@ -376,6 +410,13 @@ const UserProfilePage = () => {
                             <span>EMY Advice</span>
                         </button>
                         <button 
+                            className={`upp-mobile-tab-item ${activeTab === 'applications' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('applications')}
+                        >
+                            <FileText size={18} />
+                            <span>Applications</span>
+                        </button>
+                        <button 
                             className={`upp-mobile-tab-item ${activeTab === 'security' ? 'active' : ''}`}
                             onClick={() => setActiveTab('security')}
                         >
@@ -429,6 +470,12 @@ const UserProfilePage = () => {
                                     onClick={() => setActiveTab('roadmaps')}
                                 >
                                     <Sparkles size={18} /> EMY Suggestions
+                                </button>
+                                <button
+                                    className={`upp-nav-item ${activeTab === 'applications' ? 'upp-active' : ''}`}
+                                    onClick={() => setActiveTab('applications')}
+                                >
+                                    <FileText size={18} /> My Applications
                                 </button>
                                 <button
                                     className={`upp-nav-item ${activeTab === 'security' ? 'upp-active' : ''}`}
@@ -608,6 +655,66 @@ const UserProfilePage = () => {
                                 )}
                             </motion.div>
                         )}
+                        {activeTab === 'applications' && (
+                            <motion.div className="upp-content-card" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                                <div className="upp-section-header">
+                                    <h2>My Course Applications</h2>
+                                    <p className="text-sm text-gray-500 mt-1">Status of your applications to various institutions.</p>
+                                </div>
+                                
+                                {loadingApplications ? (
+                                    <div className="py-20 text-center">
+                                        <Loader2 size={30} className="animate-spin mx-auto text-primary opacity-20" />
+                                    </div>
+                                ) : applications.length === 0 ? (
+                                    <div className="py-20 text-center text-gray-500">
+                                        <FileText size={40} className="mx-auto mb-4 opacity-20" />
+                                        <p>You haven't applied for any courses yet.</p>
+                                        <Link to="/feed" className="text-primary font-semibold mt-4 inline-block hover:underline">Browse Courses</Link>
+                                    </div>
+                                ) : (
+                                    <div className="upp-applications-list">
+                                        {applications.map(app => (
+                                            <div key={app.id} className="upp-application-card">
+                                                <div className="upp-app-info-grid">
+                                                    <div className="upp-app-post-thumb">
+                                                        <img src={app.post?.image ? getStorageUrl(app.post.image) : (app.institute?.profile_photo ? getStorageUrl(app.institute.profile_photo) : '/images/logo.png')} alt={app.course_title} />
+                                                    </div>
+                                                    <div className="upp-app-details">
+                                                        <h3>{app.course_title}</h3>
+                                                        <p className="upp-app-institute">
+                                                            <Building2 size={14} />
+                                                            <Link to={`/institutions/${app.institute?.slug || app.institute?.id}/profile`}>
+                                                                {app.institute?.institute_name}
+                                                            </Link>
+                                                        </p>
+                                                        <div className="upp-app-meta">
+                                                            <span className="flex items-center gap-1">
+                                                                <Calendar size={12} /> {new Date(app.applied_at).toLocaleDateString()}
+                                                            </span>
+                                                            <span className={`status-badge status-${app.status}`}>
+                                                                {app.status === 'sent' && <Clock size={12} />}
+                                                                {app.status === 'viewed' && <CheckCircle2 size={12} />}
+                                                                {app.status === 'contacted' && <Sparkles size={12} />}
+                                                                {app.status}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="upp-app-actions">
+                                                        <button 
+                                                            onClick={() => openProgrammeModal(app.post, app.institute)}
+                                                            className="upp-app-btn"
+                                                        >
+                                                            View Details
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </motion.div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -618,6 +725,28 @@ const UserProfilePage = () => {
                 isDeleting={isDeleting}
                 title="Delete Roadmap"
             />
+
+            {selectedPost && (
+                <>
+                    <ProgrammeInfoModal
+                        isOpen={isProgrammeOpen}
+                        onClose={() => setIsProgrammeOpen(false)}
+                        course={selectedPost}
+                        institute={selectedInstitute}
+                        userRole={profileData?.user?.role}
+                        isPremium={selectedInstitute?.is_premium}
+                        onMoreInfo={() => openInfoModal()}
+                        hideApply={true}
+                    />
+
+                    <MoreInfoModal 
+                        isOpen={isInfoOpen}
+                        onClose={() => setIsInfoOpen(false)}
+                        course={selectedPost}
+                        institute={selectedInstitute}
+                    />
+                </>
+            )}
         </div>
     );
 };

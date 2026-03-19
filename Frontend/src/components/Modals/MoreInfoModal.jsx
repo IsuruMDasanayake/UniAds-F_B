@@ -6,8 +6,9 @@ import ChatService from '../../services/ChatService';
 import EncryptionService from '../../services/EncryptionService';
 import './MoreInfoModal.css';
 
-const MoreInfoModal = ({ isOpen, onClose, course }) => {
+const MoreInfoModal = ({ isOpen, onClose, course, institute: explicitInstitute }) => {
     const { selectConversation, fetchConversations } = useChat();
+    const activeInstitute = explicitInstitute || course?.institute;
     const [selectedInquiry, setSelectedInquiry] = useState('Course Duration & Schedule');
     const [customInquiry, setCustomInquiry] = useState('');
     const [isSending, setIsSending] = useState(false);
@@ -34,7 +35,7 @@ const MoreInfoModal = ({ isOpen, onClose, course }) => {
 
         try {
             // 1. Initialize conversation - this is the only one we really need to wait for
-            const response = await ChatService.startConversation('institute', course.institute_id);
+            const response = await ChatService.startConversation('institute', activeInstitute?.id || course?.institute_id);
             const conversation = response.data.data;
 
             // 2. Open chat UI immediately for a "premium" fast feel
@@ -89,7 +90,7 @@ const MoreInfoModal = ({ isOpen, onClose, course }) => {
                                 <MessageSquare size={24} color="var(--c-primary)" />
                             </div>
                             <h2>Quick Inquiry</h2>
-                            <p>Send a message to <strong>{course?.institute?.institute_name}</strong> about this course.</p>
+                            <p>Send a message to <strong>{activeInstitute?.institute_name}</strong> about this course.</p>
                         </div>
 
                         <div className="inquiry-form">

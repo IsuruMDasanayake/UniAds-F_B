@@ -5,7 +5,7 @@ import { getStorageUrl } from '../../lib/config';
 import axiosClient from '../../lib/axios';
 import './ProgrammeInfoModal.css';
 
-const ProgrammeInfoModal = ({ course, isOpen, onClose, onApply, onMoreInfo, userRole, isPremium, institute: explicitInstitute }) => {
+const ProgrammeInfoModal = ({ course, isOpen, onClose, onApply, onMoreInfo, userRole, isPremium, institute: explicitInstitute, hideApply = false }) => {
     const [copied, setCopied] = useState(false);
 
     // Use explicit institute prop if provided, otherwise fallback to course.institute
@@ -90,7 +90,7 @@ const ProgrammeInfoModal = ({ course, isOpen, onClose, onApply, onMoreInfo, user
                         <div className="programme-info-modal-footer">
                             {userRole === 'User' && (
                                 <>
-                                    {(activeInstitute?.applications_enabled !== false && Number(activeInstitute?.applications_enabled) !== 0) && (
+                                    {(activeInstitute?.applications_enabled !== false && Number(activeInstitute?.applications_enabled) !== 0 && !hideApply) && (
                                         <button className="programme-info-apply-btn" onClick={onApply}>
                                             Apply Now <Send size={18} />
                                         </button>

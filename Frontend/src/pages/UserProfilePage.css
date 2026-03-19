@@ -664,3 +664,183 @@
         grid-column: span 1;
     }
 }
+/* Applications Section */
+.upp-applications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.upp-application-card {
+    background: #fff;
+    border: 1px solid #f1f5f9;
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.upp-application-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    border-color: var(--c-primary-soft);
+}
+
+.upp-app-info-grid {
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    gap: 20px;
+    align-items: center;
+}
+
+.upp-app-post-thumb img {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    object-fit: cover;
+    background: #f8fafc;
+}
+
+.upp-app-details h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    color: #1e293b;
+}
+
+.upp-app-institute {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+.upp-app-institute a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.upp-app-institute a:hover {
+    color: var(--c-primary);
+}
+
+.upp-app-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 0.8rem;
+    color: #94a3b8;
+}
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: capitalize;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.status-new {
+    background: #fff7ed;
+    color: #f97316;
+}
+
+.status-viewed {
+    background: #eff6ff;
+    color: #3b82f6;
+}
+
+.status-contacted {
+    background: #ecfdf5;
+    color: #10b981;
+}
+
+.upp-app-actions {
+    display: flex;
+    align-items: center;
+}
+
+.upp-app-btn {
+    padding: 8px 16px;
+    background: #f8fafc;
+    color: #64748b;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: 1px solid #e2e8f0;
+}
+
+.upp-app-btn:hover {
+    background: var(--c-primary);
+    color: white;
+    border-color: var(--c-primary);
+}
+
+@media (max-width: 640px) {
+    .upp-application-card {
+        padding: 16px;
+        position: relative;
+    }
+
+    .upp-app-info-grid {
+        grid-template-columns: 60px 1fr;
+        gap: 16px;
+        align-items: flex-start;
+        text-align: left;
+    }
+    
+    .upp-app-post-thumb img {
+        width: 60px;
+        height: 60px;
+        border-radius: 10px;
+    }
+    
+    .upp-app-details h3 {
+        font-size: 0.95rem;
+        padding-right: 40px;
+        line-height: 1.3;
+        margin-bottom: 2px;
+    }
+
+    .upp-app-institute {
+        font-size: 0.8rem;
+        margin-bottom: 6px;
+        color: #64748b;
+    }
+
+    .upp-app-meta {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        margin-top: 8px;
+    }
+
+    .status-badge {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        padding: 2px 8px;
+        font-size: 0.65rem;
+    }
+    
+    .upp-app-actions {
+        grid-column: span 2;
+        width: 100%;
+        margin-top: 5px;
+    }
+
+    .upp-app-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 10px;
+        background: #f8fafc;
+        font-size: 0.8rem;
+    }
+}

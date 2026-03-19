@@ -214,6 +214,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/ai-advisor/saved-roadmaps', [AiAdvisorController::class, 'getSavedRoadmaps']);
     Route::post('/ai-advisor/save-roadmap', [AiAdvisorController::class, 'saveRoadmap']);
     Route::delete('/ai-advisor/roadmap/{id}', [AiAdvisorController::class, 'deleteRoadmap']);
+
+    // User Applications
+    Route::get('/applications/me', [\App\Http\Controllers\CourseApplicationController::class, 'userApplications']);
 });
 
 // Public Policy Routes
