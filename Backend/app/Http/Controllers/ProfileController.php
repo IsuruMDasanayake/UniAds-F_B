@@ -67,8 +67,8 @@ class ProfileController extends Controller
             $institute = Institute::where('email', $user->email)->first();
 
             // Get posts and events for the institute
-            $posts = $institute->posts()->latest()->paginate(10);
-            $events = $institute->events()->where('is_active', true)->latest()->paginate(10);
+            $posts = $institute->posts()->latest()->paginate(5);
+            $events = $institute->events()->where('is_active', true)->latest()->paginate(5);
 
             $data['institute'] = $institute;
             $data['posts'] = $posts;

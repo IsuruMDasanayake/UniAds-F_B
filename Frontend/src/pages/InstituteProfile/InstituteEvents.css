@@ -1,6 +1,6 @@
 /* InstituteEvents.css */
 
-.institute-events-container {
+#institute-profile-events-wrapper {
     width: 100%;
 }
 
@@ -274,6 +274,29 @@
         max-width: 95%;
         margin-left: 2.5%;
     }
+}
+
+/* Infinite Scroll Footer */
+#institute-profile-events-wrapper .events-infinite-scroll-footer {
+    padding: 1.5rem 0 2.5rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    border-top: 1px solid rgba(241, 245, 249, 0.6);
+    margin-top: 1rem;
+}
+
+#institute-profile-events-wrapper .events-infinite-scroll-footer .no-more-data {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+#institute-profile-events-wrapper .events-infinite-scroll-footer .mobile-spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 @media (max-width: 1024px) {

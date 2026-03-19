@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Calendar, MapPin, Edit2, Trash2, ArrowRight } from 'lucide-react';
 import axiosClient from '../../lib/axios';
 import { getStorageUrl } from '../../lib/config';
@@ -7,7 +7,7 @@ import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import EventDetailsModal from '../../components/Modals/EventDetailsModal';
 import './InstituteEvents.css';
 
-const InstituteEvents = ({ events, isOwner, onEventsUpdate, isSidebar }) => {
+const InstituteEvents = ({ events, institute, isOwner, onEventsUpdate, isSidebar }) => {
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
@@ -17,12 +17,80 @@ const InstituteEvents = ({ events, isOwner, onEventsUpdate, isSidebar }) => {
     const [viewModalOpen, setViewModalOpen] = useState(false);
     const [viewEvent, setViewEvent] = useState(null);
 
-    // Local state to manage events list for optimistic updates (view count)
+    // Local state and Infinite Scroll
     const [localEvents, setLocalEvents] = useState([]);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const observer = useRef();
 
-    React.useEffect(() => {
+    useEffect(() => {
         setLocalEvents(events || []);
+        setPage(1);
+        setHasMore(true);
     }, [events]);
+
+    const fetchMoreEvents = async () => {
+        if (loadingMore || !hasMore) return;
+
+        const instId = institute?.slug || institute?.id;
+        if (!isOwner && !instId) {
+            console.warn("Institute ID/Slug missing for events fetch");
+            return;
+        }
+
+        setLoadingMore(true);
+
+        try {
+            const nextPage = page + 1;
+            let endpoint = '';
+            if (isOwner) {
+                endpoint = `/api/profile/me?page=${nextPage}`;
+            } else {
+                endpoint = `/api/institutions/${instId}/profile?page=${nextPage}`;
+            }
+
+            const response = await axiosClient.get(endpoint);
+            const newEvents = response.data.events?.data || [];
+
+            if (newEvents.length === 0) {
+                setHasMore(false);
+            } else {
+                setLocalEvents(prev => {
+                    const existingIds = new Set(prev.map(e => e.id));
+                    const uniqueNewEvents = newEvents.filter(e => !existingIds.has(e.id));
+                    
+                    if (uniqueNewEvents.length === 0) {
+                        setHasMore(false);
+                        return prev;
+                    }
+                    return [...prev, ...uniqueNewEvents];
+                });
+                setPage(nextPage);
+                if (newEvents.length < 5) {
+                    setHasMore(false);
+                }
+            }
+        } catch (error) {
+            console.error("Error fetching more events", error);
+            setHasMore(false);
+        } finally {
+            setLoadingMore(false);
+        }
+    };
+
+    const lastEventRef = useCallback(node => {
+        if (loadingMore) return;
+        if (observer.current) observer.current.disconnect();
+
+        observer.current = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting && hasMore) {
+                fetchMoreEvents();
+            }
+        });
+
+        if (node) observer.current.observe(node);
+    }, [loadingMore, hasMore, page]);
 
     const sortedEvents = React.useMemo(() => {
         if (!localEvents) return [];
@@ -127,18 +195,19 @@ const InstituteEvents = ({ events, isOwner, onEventsUpdate, isSidebar }) => {
     };
 
     return (
-        <div className="institute-events-container">
+        <div id="institute-profile-events-wrapper">
             <div className="events-header">
                 {/* <h3 className="events-section-title">Events</h3> */}
             </div>
 
             <div className={`events-grid ${isSidebar ? 'is-sidebar' : ''}`}>
                 {sortedEvents && sortedEvents.length > 0 ? (
-                    sortedEvents.map((event) => {
+                    sortedEvents.map((event, index) => {
                         const isExpired = new Date(event.event_date) < new Date().setHours(0, 0, 0, 0);
                         return (
                             <div
                                 key={event.id}
+                                ref={index === sortedEvents.length - 1 ? lastEventRef : null}
                                 className={`institute-event-card clickable-card ${isExpired ? 'is-expired' : ''}`}
                                 onClick={() => handleEventClick(event)}
                                 style={{ cursor: 'pointer' }}
@@ -217,6 +286,22 @@ const InstituteEvents = ({ events, isOwner, onEventsUpdate, isSidebar }) => {
                     </div>
                 )}
             </div>
+
+            {(loadingMore || (!hasMore && sortedEvents.length > 0)) && (
+                <div className="events-infinite-scroll-footer">
+                    {loadingMore ? (
+                        <div className="mobile-spinner-container">
+                            <div className="ui-loader loader-blk" style={{ width: '30px', height: '30px' }}>
+                                <svg viewBox="22 22 44 44" className="multiColor-loader">
+                                    <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="3.6" className="loader-circle loader-circle-animation"></circle>
+                                </svg>
+                            </div>
+                        </div>
+                    ) : (
+                        <p className="no-more-data">No more events to show</p>
+                    )}
+                </div>
+            )}
 
             {/* Modals */}
             <EditEventModal

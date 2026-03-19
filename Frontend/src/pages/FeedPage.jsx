@@ -533,20 +533,24 @@ function FeedPage() {
                                                 className="institute-link"
                                             >
                                                 <img
-                                                    src={post.institute?.profile_photo ? getStorageUrl(post.institute.profile_photo) : (settings.logo_url || '/images/logo.png')}
+                                                    src={post.institute?.profile_photo ? getStorageUrl(post.institute.profile_photo) : `https://ui-avatars.com/api/?name=${encodeURIComponent(post.institute?.institute_name || 'I')}&background=random`}
                                                     alt={post.institute?.institute_name}
                                                     className="institute-avatar"
                                                 />
                                             </Link>
                                             <div className="post-meta">
-                                                <div className="institute-name-link" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                                <Link
+                                                    to={(user?.role === 'Institute' && user?.institute?.id === post.institute?.id) ? '/profile' : `/institutions/${post.institute?.slug || post.institute?.id}/profile`}
+                                                    className="institute-name-link"
+                                                    style={{ textDecoration: 'none', color: 'inherit' }}
+                                                >
                                                     <span className="institute-name">
                                                         {post.institute?.institute_name}
                                                         {!!(post.institute?.is_premium && post.institute?.premium_expires_at && new Date() <= new Date(post.institute.premium_expires_at)) && (
                                                             <BadgeCheck size={18} fill="#ff4757" color="#ffffff" style={{ marginLeft: '4px', verticalAlign: 'middle', display: 'inline-block' }} />
                                                         )}
                                                     </span>
-                                                </div>
+                                                </Link>
                                                 <span className="post-date">{formatDate(post.created_at)}</span>
                                             </div>
                                         </div>

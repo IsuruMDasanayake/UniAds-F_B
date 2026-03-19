@@ -256,6 +256,7 @@ const MainProfilePage = () => {
                     <div className="container mx-auto px-4 py-8">
                         <InstituteEvents
                             events={events}
+                            institute={institute}
                             isOwner={isOwner}
                             onEventsUpdate={refreshData}
                         />

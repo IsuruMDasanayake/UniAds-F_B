@@ -194,7 +194,7 @@ class InstituteController extends Controller
 
         $posts = $institute->posts()
             ->latest()
-            ->paginate(10); // 10 posts per page
+            ->paginate(5); // 5 posts per page
 
         $user = auth('sanctum')->user();
 
@@ -208,7 +208,7 @@ class InstituteController extends Controller
         $events = $institute->events()
             ->where('is_active', true)
             ->latest()
-            ->paginate(10);
+            ->paginate(5);
 
         $user = auth()->user();
 
