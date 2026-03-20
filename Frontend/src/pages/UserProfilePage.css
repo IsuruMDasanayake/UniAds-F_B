@@ -177,17 +177,50 @@
 .upp-profile-identity p {
     color: var(--c-text-muted);
     margin: 4px 0 0;
+    display: flex;
+    align-items: center;
+}
+
+.upp-profile-info-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.upp-info-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f1f5f9;
+    color: #475569;
+    padding: 6px 12px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+}
+
+.upp-info-chip:hover {
+    background: #e2e8f0;
+    transform: translateY(-1px);
+}
+
+.upp-info-chip svg {
+    color: var(--c-primary);
+    opacity: 0.8;
 }
 
 .upp-profile-badge {
-    background: var(--c-primary-soft);
-    color: var(--c-primary);
+    background: var(--c-accent-soft);
+    color: var(--c-accent);
     padding: 4px 12px;
     border-radius: 20px;
     font-size: 0.8rem;
     font-weight: 600;
     display: inline-block;
-    margin-top: 8px;
+    margin-top: 12px;
 }
 
 /* Dashboard Layout */
@@ -653,6 +686,7 @@
         align-items: center;
         text-align: center;
         padding: 0 20px 30px;
+        
     }
 
     .upp-profile-identity {
@@ -665,6 +699,10 @@
 
     .upp-full-width {
         grid-column: span 1;
+    }
+
+    .upp-profile-info-chips {
+        justify-content: center;
     }
 }
 /* Applications Section */

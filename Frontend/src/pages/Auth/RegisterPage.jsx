@@ -7,17 +7,7 @@ import { useSettings } from '../../context/SettingsContext';
 import AccessDeniedModal from '../../components/Modals/AccessDeniedModal';
 import './RegisterPage.css';
 
-const districts = [
-    "Colombo", "Gampaha", "Kalutara", "Kandy", "Matale", "Nuwara Eliya",
-    "Galle", "Matara", "Hambantota", "Jaffna", "Kilinochchi", "Mannar",
-    "Vavuniya", "Mullaitivu", "Batticaloa", "Ampara", "Trincomalee",
-    "Kurunegala", "Puttalam", "Anuradhapura", "Polonnaruwa", "Badulla",
-    "Monaragala", "Ratnapura", "Kegalle"
-];
-
-const educationLevels = [
-    "O/L Student", "A/L Student", "Undergraduate", "Postgraduate", "Other"
-];
+import { districts, educationLevels } from '../../lib/constants';
 
 const RegisterPage = () => {
     const navigate = useNavigate();

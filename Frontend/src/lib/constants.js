@@ -7,5 +7,5 @@ export const districts = [
 ];
 
 export const educationLevels = [
-    "O/L Student", "A/L Student", "Undergraduate", "Postgraduate", "Other"
+    "O/L Student", "O/L Completed", "A/L Student", "A/L Completed", "Undergraduate", "Graduate", "Postgraduate", "Diploma Holder", "Other"
 ];

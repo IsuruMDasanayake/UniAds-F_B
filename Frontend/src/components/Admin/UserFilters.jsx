@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import './FilterComponents.css';
+import { districts, educationLevels } from '../../lib/constants';
 
 const UserFilters = ({ filters, onFilterChange, recipientEmail, onEmailChange }) => {
     const [expandedSections, setExpandedSections] = useState({
@@ -9,22 +10,6 @@ const UserFilters = ({ filters, onFilterChange, recipientEmail, onEmailChange })
         age: false,
         gender: false
     });
-
-    const districts = [
-        "Colombo", "Gampaha", "Kalutara", "Kandy", "Matale", "Nuwara Eliya",
-        "Galle", "Matara", "Hambantota", "Jaffna", "Kilinochchi", "Mannar",
-        "Vavuniya", "Mullaitivu", "Batticaloa", "Ampara", "Trincomalee",
-        "Kurunegala", "Puttalam", "Anuradhapura", "Polonnaruwa", "Badulla",
-        "Monaragala", "Ratnapura", "Kegalle"
-    ];
-
-    const educationLevels = [
-        "O/L Student",
-        "A/L Student",
-        "Undergraduate",
-        "Postgraduate",
-        "Other"
-    ];
 
     const ageGroups = [
         "Under 18",

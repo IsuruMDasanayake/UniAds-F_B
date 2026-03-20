@@ -23,10 +23,12 @@ import ApplyNowModal from '../components/Modals/ApplyNowModal';
 import MoreInfoModal from '../components/Modals/MoreInfoModal';
 import { Link2, Check, ExternalLink } from 'lucide-react';
 import { districts, educationLevels } from '../lib/constants';
+import { useChat } from '../context/ChatContext';
 
 
 const UserProfilePage = () => {
     const { settings } = useSettings();
+    const { conversations } = useChat();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [profileData, setProfileData] = useState(null);
@@ -492,8 +494,31 @@ const UserProfilePage = () => {
                         <div className="upp-profile-identity">
                             <h1>{user?.name}</h1>
                             <p className="flex items-center gap-2">
-                                <Mail size={14} /> {user?.email}
+                                <Mail size={14} style={{ color: 'blue', marginRight: '5px' }} /> {user?.email}
                             </p>
+                            {/* Profile Info Chips */}
+                            {/* <div className="upp-profile-info-chips">
+                                {user?.gender && (
+                                    <span className="upp-info-chip">
+                                        <User size={12} /> {user.gender}
+                                    </span>
+                                )}
+                                {user?.birthday && (
+                                    <span className="upp-info-chip">
+                                        <Calendar size={12} /> {user.birthday}
+                                    </span>
+                                )}
+                                {user?.district && (
+                                    <span className="upp-info-chip">
+                                        <MapPin size={12} /> {user.district}
+                                    </span>
+                                )}
+                                {user?.education_level && (
+                                    <span className="upp-info-chip">
+                                        <GraduationCap size={12} /> {user.education_level}
+                                    </span>
+                                )}
+                            </div> */}
                             <span className="upp-profile-badge">
                                 {profileData?.role} account
                             </span>
@@ -549,16 +574,16 @@ const UserProfilePage = () => {
                                     <span className="upp-stat-value">{savedPosts.length}</span>
                                     <span className="upp-stat-label">Saved</span>
                                 </div>
-                                <div className="upp-stat-item">
-                                    <span className="upp-stat-value">{user?.district ? '1' : '0'}</span>
-                                    <span className="upp-stat-label">Location</span>
+                                <div className="upp-stat-item cursor-pointer" onClick={() => setActiveTab('applications')}>
+                                    <span className="upp-stat-value">{applications.length}</span>
+                                    <span className="upp-stat-label">Applications</span>
                                 </div>
-                                <div className="upp-stat-item">
+                                <div className="upp-stat-item cursor-pointer" onClick={() => setActiveTab('roadmaps')}>
                                     <span className="upp-stat-value">{savedRoadmaps.length}</span>
                                     <span className="upp-stat-label">EMY Advice</span>
                                 </div>
                                 <div className="upp-stat-item">
-                                    <span className="upp-stat-value">0</span>
+                                    <span className="upp-stat-value">{conversations.length}</span>
                                     <span className="upp-stat-label">Inquiries</span>
                                 </div>
                             </div>
@@ -606,7 +631,6 @@ const UserProfilePage = () => {
                             <motion.div className="upp-content-card" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                                 <div className="upp-section-header">
                                     <h2>Basic Details</h2>
-                                    <p className="text-sm text-gray-500 mt-1">Update your info to get better recommendations.</p>
                                 </div>
                                 <form onSubmit={handleUpdateProfile} className="upp-form-grid">
                                     <div className="upp-form-group upp-full-width">
@@ -679,7 +703,6 @@ const UserProfilePage = () => {
                             <motion.div className="upp-content-card" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                                 <div className="upp-section-header">
                                     <h2>Your Saved Posts</h2>
-                                    <p className="text-sm text-gray-500 mt-1">Manage and apply for posts you've bookmarked.</p>
                                 </div>
                                 
                                 {loadingSavedPosts ? (
@@ -765,7 +788,6 @@ const UserProfilePage = () => {
                             <motion.div className="upp-content-card" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                                 <div className="upp-section-header">
                                     <h2>EMY Career Roadmaps</h2>
-                                    <p className="text-sm text-gray-500 mt-1">Personalized career guidance specifically for you.</p>
                                 </div>
                                 {savedRoadmaps.length === 0 ? (
                                     <div className="py-20 text-center text-gray-500">
@@ -832,9 +854,7 @@ const UserProfilePage = () => {
                         {activeTab === 'applications' && (
                             <motion.div className="upp-content-card" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                                 <div className="upp-section-header">
-                                    <h2>My Course Applications</h2>
-                                    <p className="text-sm text-gray-500 mt-1">Status of your applications to various institutions.</p>
-                                </div>
+                                    <h2>My Course Applications</h2>                                </div>
                                 
                                 {loadingApplications ? (
                                     <div className="py-20 text-center">
