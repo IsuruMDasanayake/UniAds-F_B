@@ -54,9 +54,11 @@ const EditEventModal = ({ isOpen, onClose, event, onUpdate }) => {
         const file = e.target.files[0];
         if (file) {
             if (file.size > 2 * 1024 * 1024) {
-                alert('File size exceeds 2MB limit.');
+                setErrorMessages(['Image size exceeds 2MB. Please choose a smaller file.']);
+                e.target.value = '';
                 return;
             }
+            setErrorMessages([]);
             setImage(file);
             const reader = new FileReader();
             reader.onloadend = () => setPreviewImage(reader.result);
