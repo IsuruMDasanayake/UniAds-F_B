@@ -571,13 +571,6 @@ function FeedPage() {
                                                 <span>See More</span>
                                                 <Info size={16} />
                                             </button>
-                                            <button
-                                                className={`post-action-btn btn-copy-link ${copiedPostId === post.id ? 'copied' : ''}`}
-                                                onClick={() => handleCopyPostLink(post)}
-                                                title="Copy shareable link"
-                                            >
-                                                {copiedPostId === post.id ? <Check size={16} /> : <Link2 size={16} />}
-                                            </button>
                                             {user?.role === 'User' && (
                                                 <button
                                                     className={`action-btn save-btn ${post.is_saved_by_user ? 'saved' : ''}`}
@@ -587,6 +580,13 @@ function FeedPage() {
                                                     <Bookmark size={18} fill={post.is_saved_by_user ? '#ffc107' : 'none'} color={post.is_saved_by_user ? '#ffc107' : 'currentColor'} />
                                                 </button>
                                             )}
+                                            <button
+                                                className={`post-action-btn btn-copy-link ${copiedPostId === post.id ? 'copied' : ''}`}
+                                                onClick={() => handleCopyPostLink(post)}
+                                                title="Copy shareable link"
+                                            >
+                                                {copiedPostId === post.id ? <Check size={16} /> : <Link2 size={16} />}
+                                            </button>
                                         </div>
                                     </div>
                                 </motion.div>
