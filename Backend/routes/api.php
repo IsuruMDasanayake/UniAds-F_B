@@ -62,6 +62,9 @@ Route::post('/password/reset', [ForgotPasswordController::class, 'apiResetPasswo
 Route::post('/email/verify-otp', [EmailVerificationController::class, 'verifyOTP']);
 Route::post('/email/resend-otp', [EmailVerificationController::class, 'resendOTP']);
 
+// Public Contact Form
+Route::post('/contact', [ContactController::class, 'apiSubmitContactForm']);
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     $user = $request->user();
 

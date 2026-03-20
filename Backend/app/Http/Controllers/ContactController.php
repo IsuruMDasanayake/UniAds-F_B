@@ -67,6 +67,42 @@ class ContactController extends Controller
         return redirect()->back()->with('success', 'Your message has been sent successfully!');
     }
 
+    public function apiSubmitContactForm(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'message' => 'required|string',
+        ]);
+
+        $mailData = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'messageContent' => $request->message,
+        ];
+
+        try {
+            Mail::send('emails.general_contact', $mailData, function ($mail) use ($request) {
+                // Get contact email from settings, fallback to default
+                $contactEmail = \App\Models\PlatformSetting::first()->contact_email ?? 'uniads.lk@gmail.com';
+                $mail->to($contactEmail)
+                    ->subject('New Contact Message from ' . $request->name)
+                    ->from($request->email, $request->name);
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Your message has been sent successfully!'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send message. Please try again later.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function apiSendContactMessage(Request $request, $id)
     {
         // Get the institute by ID or slug

@@ -390,6 +390,15 @@
     margin-bottom: 1.25rem;
 }
 
+/* Force dark text for email info grids with light backgrounds */
+.admin-inbox-scope .email-message-body .info-item {
+    color: #334155 !important;
+}
+
+.admin-inbox-scope .email-message-body .label {
+    color: #0f172a !important;
+}
+
 /* Pagination */
 .admin-inbox-scope .inbox-pagination {
     padding: 1.25rem;
