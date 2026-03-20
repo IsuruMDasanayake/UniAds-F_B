@@ -67,6 +67,7 @@ class PlatformSettingsController extends Controller
             'social_links' => 'nullable|string', // Expecting JSON string from frontend
             'home_slides.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:10240', // 10MB each
             'removed_slides' => 'nullable|string', // JSON array of slide paths to remove
+            'show_testimonials' => 'sometimes',
         ]);
 
         if ($validator->fails()) {
@@ -149,6 +150,7 @@ class PlatformSettingsController extends Controller
         $settings->vision_text = $request->input('vision_text');
         $settings->mission_text = $request->input('mission_text');
         $settings->address_text = $request->input('address_text');
+        $settings->show_testimonials = $request->boolean('show_testimonials');
 
         // Handle Social Links
         if ($request->has('social_links')) {

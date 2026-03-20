@@ -34,6 +34,7 @@ import BroadcastMailPage from './pages/Admin/BroadcastMailPage';
 import ApplicationsPage from './pages/Admin/ApplicationsPage';
 import AdminInboxPage from './pages/Admin/AdminInboxPage';
 import ActivityLogPage from './pages/Admin/ActivityLogPage';
+import AdminFeedback from './pages/Admin/AdminFeedback';
 
 import { SettingsProvider } from './context/SettingsContext';
 import { ChatProvider } from './context/ChatContext';
@@ -56,6 +57,7 @@ import ChatPage from './pages/Analytics/ChatPage';
 import AdsPlaceholderPage from './pages/Analytics/AdsPlaceholderPage';
 
 import FloatingAiAdvisor from './components/FloatingAiAdvisor';
+import GlobalFeedbackModal from './components/Modals/GlobalFeedbackModal';
 
 import './App.css';
 
@@ -179,6 +181,7 @@ function App() {
                       <Route path="applications" element={<ApplicationsPage />} />
                       <Route path="inbox" element={<AdminInboxPage />} />
                       <Route path="activity-logs" element={<ActivityLogPage />} />
+                      <Route path="feedbacks" element={<AdminFeedback />} />
                       <Route path="*" element={<Navigate to="dashboard" replace />} />
                     </Routes>
                   </AdminLayout>
@@ -186,6 +189,7 @@ function App() {
               } />
             </Routes>
             <FloatingAiAdvisor user={user} />
+            <GlobalFeedbackModal />
           </div>
         </Router>
       </ChatProvider>

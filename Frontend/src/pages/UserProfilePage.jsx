@@ -647,7 +647,7 @@ const UserProfilePage = () => {
                                 )}
                             </div> */}
                             <span className="upp-profile-badge">
-                                {profileData?.role} account
+                                {profileData?.role} Account
                             </span>
                         </div>
                     </div>
@@ -772,6 +772,13 @@ const UserProfilePage = () => {
                                     <div className="upp-form-group">
                                         <label>Profile Picture (Max 2MB)</label>
                                         <div className="flex items-center gap-4">
+                                            <input 
+                                                type="file" 
+                                                ref={fileInputRef} 
+                                                onChange={handleFileChange} 
+                                                accept="image/*" 
+                                                style={{ display: 'none' }} 
+                                            />
                                             <button 
                                                 type="button" 
                                                 className="upp-btn-secondary"

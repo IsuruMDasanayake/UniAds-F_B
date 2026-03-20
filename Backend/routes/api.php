@@ -46,6 +46,7 @@ use App\Http\Controllers\Api\ChatConversationController;
 use App\Http\Controllers\Api\ChatMessageController;
 use App\Http\Controllers\Api\AiAdvisorController;
 use App\Http\Controllers\AdminCareerGuidanceController;
+use App\Http\Controllers\FeedbackController;
 
 // Authentication routes with rate limiting (5 attempts per minute per IP)
 Route::middleware('throttle:auth')->group(function () {
@@ -221,7 +222,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // User Applications
     Route::get('/applications/me', [\App\Http\Controllers\CourseApplicationController::class, 'userApplications']);
+
+    // Feedback
+    Route::post('/feedback', [FeedbackController::class, 'store']);
+    Route::get('/feedback/check-eligibility', [FeedbackController::class, 'checkEligibility']);
 });
+
+// Public Feedbacks
+Route::get('/feedbacks/public', [FeedbackController::class, 'getPublicFeedbacks']);
 
 // Public Policy Routes
 Route::get('/policies/{type}', [PolicyController::class, 'apiIndex']);
@@ -328,6 +336,10 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
         Route::put('/{id}', [AdminCareerGuidanceController::class, 'update']);
         Route::delete('/{id}', [AdminCareerGuidanceController::class, 'destroy']);
     });
+
+    // Admin Feedbacks
+    Route::get('/feedbacks', [FeedbackController::class, 'adminIndex']);
+    Route::delete('/feedbacks/{id}', [FeedbackController::class, 'destroy']);
 });
 Route::post('/posts/{id}/track-view', [PostController::class, 'trackView']);
 Route::post('/events/{id}/track-view', [EventController::class, 'trackView']);

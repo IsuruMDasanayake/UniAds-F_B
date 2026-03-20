@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,6 +6,16 @@ import { X, Loader2 } from 'lucide-react';
 import './ApplyNowModal.css';
 
 const ApplyNowModal = ({ isOpen, onClose, courseTitle, form, onChange, onSubmit, isSubmitting, status }) => {
+    useEffect(() => {
+        if (status && status.type === 'success') {
+            // Trigger the global feedback modal after a short delay
+            const timer = setTimeout(() => {
+                window.dispatchEvent(new CustomEvent('showFeedbackModal'));
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [status]);
+
     return createPortal(
         <AnimatePresence>
             {isOpen && (

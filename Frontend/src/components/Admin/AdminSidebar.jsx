@@ -18,6 +18,7 @@ import {
     ChevronDown,
     LogOut,
     History,
+    MessageSquare,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './AdminSidebar.css';
@@ -80,6 +81,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
             items: [
                 { name: 'Inbox', path: '/admin/inbox', icon: Mail, badge: unreadCount },
                 { name: 'Broadcast Mail', path: '/admin/broadcast-mail', icon: Mail },
+                { name: 'System Feedback', path: '/admin/feedbacks', icon: MessageSquare },
             ]
         },
         {

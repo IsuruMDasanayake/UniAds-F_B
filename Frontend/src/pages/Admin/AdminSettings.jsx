@@ -23,6 +23,7 @@ const AdminSettings = () => {
         vision_text: '',
         mission_text: '',
         address_text: '',
+        show_testimonials: true,
     });
 
     const [socialLinks, setSocialLinks] = useState([]);
@@ -80,6 +81,7 @@ const AdminSettings = () => {
                 vision_text: settings.vision_text || '',
                 mission_text: settings.mission_text || '',
                 address_text: settings.address_text || '',
+                show_testimonials: settings.show_testimonials ?? true,
             });
 
             setSocialLinks(settings.social_links || []);
@@ -612,6 +614,22 @@ const AdminSettings = () => {
                                     type="checkbox"
                                     name="allow_login"
                                     checked={formData.allow_login}
+                                    onChange={handleInputChange}
+                                />
+                                <span className="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div className="toggle-item">
+                            <div className="toggle-info">
+                                <h4>Show Testimonials Section</h4>
+                                <p>Display user feedback carousel on the HomePage</p>
+                            </div>
+                            <label className="toggle-switch">
+                                <input
+                                    type="checkbox"
+                                    name="show_testimonials"
+                                    checked={formData.show_testimonials}
                                     onChange={handleInputChange}
                                 />
                                 <span className="toggle-slider"></span>

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { BACKEND_URL } from '../lib/config';
+import { BACKEND_URL, getStorageUrl } from '../lib/config';
 import { useNavigate, Link } from 'react-router-dom';
 import axiosClient from '../lib/axios';
 import { useSettings } from '../context/SettingsContext';
 import AccessDeniedModal from '../components/Modals/AccessDeniedModal';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 import './HomePage.css';
 
 const HomePage = () => {
@@ -17,6 +19,9 @@ const HomePage = () => {
     const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [status, setStatus] = useState({ type: '', message: '' });
+    const [feedbacks, setFeedbacks] = useState([]);
+    const [testimonialIndex, setTestimonialIndex] = useState(0);
+    const [cardsPerView, setCardsPerView] = useState(3);
 
     // Dynamic slides from settings or fallback to defaults
     const displaySlides = (settings.home_slides_urls && settings.home_slides_urls.length > 0)
@@ -54,12 +59,48 @@ const HomePage = () => {
     }, [navigate]);
 
     useEffect(() => {
+        const fetchFeedbacks = async () => {
+            try {
+                const response = await axiosClient.get('/api/feedbacks/public');
+                setFeedbacks(response.data);
+            } catch (error) {
+                console.error('Error fetching feedbacks:', error);
+            }
+        };
+        fetchFeedbacks();
+    }, []);
+
+    useEffect(() => {
         const interval = setInterval(() => {
             setCurrentSlide(prev => (prev + 1) % displaySlides.length);
-        }, 3000);
+        }, 5000); // Increased hero interval for better experience
 
         return () => clearInterval(interval);
     }, [displaySlides]);
+
+    // Carousel Responsiveness
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 768) setCardsPerView(1);
+            else if (window.innerWidth < 1100) setCardsPerView(2);
+            else setCardsPerView(3);
+        };
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Testimonial Auto-slide
+    useEffect(() => {
+        if (feedbacks.length <= cardsPerView) return;
+        const interval = setInterval(() => {
+            setTestimonialIndex(prev => {
+                const maxIndex = feedbacks.length - cardsPerView;
+                return prev >= maxIndex ? 0 : prev + 1;
+            });
+        }, 5000);
+        return () => clearInterval(interval);
+    }, [feedbacks.length, cardsPerView]);
 
     const handleContactSubmit = async (e) => {
         e.preventDefault();
@@ -229,6 +270,89 @@ const HomePage = () => {
                 <h3>🎯 Our Mission</h3>
                 <p>{settings.mission_text || ''}</p>
             </section>
+
+            {/* Testimonials Section */}
+            {settings.show_testimonials && feedbacks.length > 0 && (
+                <section className="home-testimonials" id="testimonials">
+                    <div className="home-testimonials-container">
+                        <h2>What Our Users Say</h2>
+                        
+                        <div className="testimonials-carousel-wrapper">
+                            {feedbacks.length > cardsPerView && (
+                                <button 
+                                    className="carousel-control prev" 
+                                    onClick={() => setTestimonialIndex(prev => prev > 0 ? prev - 1 : feedbacks.length - cardsPerView)}
+                                >
+                                    <ChevronLeft size={24} />
+                                </button>
+                            )}
+
+                            <div className="testimonials-carousel-stage">
+                                <motion.div 
+                                    className="testimonials-carousel-track"
+                                    animate={{ x: `-${testimonialIndex * (100 / cardsPerView)}%` }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                >
+                                    {feedbacks.map((feedback) => (
+                                        <div 
+                                            key={feedback.id} 
+                                            className="testimonial-card-wrapper"
+                                            style={{ flex: `0 0 ${100 / cardsPerView}%` }}
+                                        >
+                                            <div className="testimonial-card">
+                                                <div className="testimonial-quote-icon">
+                                                    <Quote size={20} />
+                                                </div>
+                                                <div className="testimonial-header">
+                                                    <img 
+                                                        src={feedback.user?.profile_picture ? getStorageUrl(feedback.user.profile_picture) : `https://ui-avatars.com/api/?name=${encodeURIComponent(feedback.user?.name || 'U')}&background=random`} 
+                                                        alt={feedback.user?.name} 
+                                                        className="testimonial-avatar"
+                                                    />
+                                                    <div className="testimonial-info">
+                                                        <h4>{feedback.user?.name}</h4>
+                                                        <p>{feedback.role}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="testimonial-rating">
+                                                    {[...Array(5)].map((_, i) => (
+                                                        <i key={i} className={`fas fa-star ${i < feedback.rating ? 'active' : ''}`}></i>
+                                                    ))}
+                                                </div>
+                                                <p className="testimonial-message">"{feedback.message}"</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </motion.div>
+                            </div>
+
+                            {feedbacks.length > cardsPerView && (
+                                <button 
+                                    className="carousel-control next" 
+                                    onClick={() => setTestimonialIndex(prev => {
+                                        const maxIndex = feedbacks.length - cardsPerView;
+                                        return prev < maxIndex ? prev + 1 : 0;
+                                    })}
+                                >
+                                    <ChevronRight size={24} />
+                                </button>
+                            )}
+                        </div>
+
+                        {feedbacks.length > cardsPerView && (
+                            <div className="carousel-dots">
+                                {[...Array(feedbacks.length - cardsPerView + 1)].map((_, i) => (
+                                    <button 
+                                        key={i} 
+                                        className={`dot ${i === testimonialIndex ? 'active' : ''}`}
+                                        onClick={() => setTestimonialIndex(i)}
+                                    ></button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </section>
+            )}
 
             {/* Contact Section */}
             <section className="home-contact" id="contact">

@@ -59,6 +59,11 @@ const AnalyticsLayout = () => {
 
         fetchNewAppsCount();
         fetchNewInquiriesCount();
+
+        // Trigger the feedback modal check for institutes
+        setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('showFeedbackModal'));
+        }, 2000);
     }, [slug, navigate]);
 
     const fetchNewAppsCount = async () => {

@@ -33,6 +33,7 @@ class PlatformSetting extends Model
         'address_text',
         'social_links',
         'home_slides_paths',
+        'show_testimonials',
     ];
 
     /**
@@ -47,6 +48,7 @@ class PlatformSetting extends Model
         'subscription_price' => 'float',
         'social_links' => 'array',
         'home_slides_paths' => 'array',
+        'show_testimonials' => 'boolean',
     ];
 
     /**
@@ -79,6 +81,7 @@ class PlatformSetting extends Model
                     ['platform' => 'facebook', 'url' => 'https://web.facebook.com/profile.php?id=61579680668904'],
                 ],
                 'home_slides_paths' => [],
+                'show_testimonials' => true,
             ]);
         }
 
