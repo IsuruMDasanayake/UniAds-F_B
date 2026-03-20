@@ -64,7 +64,7 @@ const ProgrammeInfoModal = ({ course, isOpen, onClose, onApply, onMoreInfo, user
                                     <span className="programme-info-modal-attr-value">{course.course_type || 'N/A'}</span>
                                 </div>
                                 <div className="programme-info-modal-attr-item">
-                                    <span className="programme-info-modal-attr-label">Location:</span>
+                                    <span className="programme-info-modal-attr-label">Location(s):</span>
                                     <span className="programme-info-modal-attr-value">{course.location || 'N/A'}</span>
                                 </div>
                                 <div className="programme-info-modal-attr-item">
