@@ -266,7 +266,7 @@ const HomePage = () => {
                             )}
 
                             <div className="home-form-group">
-                                <label>Name</label>
+                                <label>Name:</label>
                                 <input 
                                     type="text" 
                                     placeholder="John Doe" 
@@ -277,7 +277,7 @@ const HomePage = () => {
                                 />
                             </div>
                             <div className="home-form-group">
-                                <label>Email</label>
+                                <label>Email:</label>
                                 <input 
                                     type="email" 
                                     placeholder="john@example.com" 
@@ -288,9 +288,9 @@ const HomePage = () => {
                                 />
                             </div>
                             <div className="home-form-group">
-                                <label>Message</label>
+                                <label>Message:</label>
                                 <textarea 
-                                    rows="5" 
+                                    rows="3" 
                                     placeholder="How can we help you?" 
                                     required
                                     value={contactForm.message}

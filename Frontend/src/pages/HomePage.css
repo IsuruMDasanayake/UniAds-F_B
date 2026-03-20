@@ -405,9 +405,30 @@
     text-align: left;
 }
 
+.status-message {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14.5px;
+    text-align: center;
+    font-weight: 600;
+    margin-top: 20px;
+}
+
+.status-message.success {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: #16a34a;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.status-message.error {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
 .home-form-group {
     margin-bottom: 20px;
-    margin-top: 20px;
 }
 
 .home-form-group label {
@@ -427,6 +448,7 @@
     border-radius: 8px;
     font-size: 15px;
     transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
 }
 
 .home-contact-form input:focus,
