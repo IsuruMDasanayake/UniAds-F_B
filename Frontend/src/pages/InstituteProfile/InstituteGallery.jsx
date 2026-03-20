@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import axiosClient from '../../lib/axios';
-import { Trash2, X, Upload, Loader2, AlertTriangle, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Trash2, X, Upload, Loader2, AlertTriangle, Image as ImageIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ImageViewerModal from '../../components/Modals/ImageViewerModal';
 import './InstituteGallery.css';
@@ -77,7 +77,14 @@ const DeleteConfirmationModal = ({ onConfirm, onCancel, title, message, isDeleti
     );
 };
 
-const InstituteGallery = ({ institute, gallery, isOwner, onGalleryUpdate }) => {
+const InstituteGallery = ({ institute, isOwner, onGalleryUpdate }) => {
+    // Internal gallery state — fully self-managed
+    const [images, setImages] = useState([]);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [initialLoading, setInitialLoading] = useState(true);
+
     const [selectedImage, setSelectedImage] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
     const [viewerIndex, setViewerIndex] = useState(null);
@@ -87,6 +94,68 @@ const InstituteGallery = ({ institute, gallery, isOwner, onGalleryUpdate }) => {
     // Delete state
     const [imageToDelete, setImageToDelete] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    const loaderRef = useRef(null);
+
+    // Fetch gallery images (paginated)
+    const fetchImages = useCallback(async (pageNum, replace = false) => {
+        if (!institute?.id) return;
+        if (pageNum === 1) setInitialLoading(true);
+        else setLoadingMore(true);
+
+        try {
+            const perPage = pageNum === 1 ? 20 : 10;
+            const res = await axiosClient.get(`/api/institutions/${institute.id}/gallery`, {
+                params: { page: pageNum, per_page: perPage }
+            });
+            const data = res.data.data || [];
+            const nextPageUrl = res.data.next_page_url;
+
+            setImages(prev => replace ? data : [...prev, ...data]);
+            setPage(res.data.current_page);
+            setHasMore(!!nextPageUrl);
+        } catch (err) {
+            console.error('Gallery fetch failed', err);
+        } finally {
+            setInitialLoading(false);
+            setLoadingMore(false);
+        }
+    }, [institute?.id]);
+
+    // Initial load (20 images)
+    useEffect(() => {
+        setImages([]);
+        setPage(1);
+        setHasMore(true);
+        fetchImages(1, true);
+    }, [institute?.id, fetchImages]);
+
+    // Infinite scroll observer
+    useEffect(() => {
+        if (!hasMore || loadingMore || initialLoading) return;
+
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting) {
+                    fetchImages(page + 1);
+                }
+            },
+            { rootMargin: '120px' }
+        );
+
+        const el = loaderRef.current;
+        if (el) observer.observe(el);
+        return () => { if (el) observer.unobserve(el); };
+    }, [hasMore, loadingMore, initialLoading, page, fetchImages]);
+
+    // Re-fetch from page 1 after upload/delete (preserving scroll)
+    const refreshGallery = useCallback(() => {
+        setImages([]);
+        setPage(1);
+        setHasMore(true);
+        fetchImages(1, true);
+        if (onGalleryUpdate) onGalleryUpdate();
+    }, [fetchImages, onGalleryUpdate]);
 
     const handleFileChange = (e) => {
         setError(null);
@@ -111,9 +180,9 @@ const InstituteGallery = ({ institute, gallery, isOwner, onGalleryUpdate }) => {
             await axiosClient.post(`/api/institute/gallery/store/${institute.id}`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-            if (onGalleryUpdate) onGalleryUpdate();
             setSelectedImage(null);
             setPreviewUrl(null);
+            refreshGallery();
         } catch (error) {
             console.error("Gallery upload failed", error);
             setError(error.response?.data?.message || "Failed to upload image. Please try again.");
@@ -128,8 +197,8 @@ const InstituteGallery = ({ institute, gallery, isOwner, onGalleryUpdate }) => {
         setError(null);
         try {
             await axiosClient.delete(`/api/institute/gallery/${imageToDelete}`);
-            if (onGalleryUpdate) onGalleryUpdate();
             setImageToDelete(null);
+            refreshGallery();
         } catch (error) {
             console.error("Delete failed", error);
             setError("Failed to delete image.");
@@ -149,18 +218,14 @@ const InstituteGallery = ({ institute, gallery, isOwner, onGalleryUpdate }) => {
         setError(null);
         const input = document.getElementById('galleryImageInput');
         if (input) input.value = '';
-    }
+    };
 
     const nextImage = () => {
-        if (gallery && gallery.length > 0) {
-            setViewerIndex((prev) => (prev + 1) % gallery.length);
-        }
+        if (images.length > 0) setViewerIndex(prev => (prev + 1) % images.length);
     };
 
     const prevImage = () => {
-        if (gallery && gallery.length > 0) {
-            setViewerIndex((prev) => (prev - 1 + gallery.length) % gallery.length);
-        }
+        if (images.length > 0) setViewerIndex(prev => (prev - 1 + images.length) % images.length);
     };
 
     return (
@@ -228,41 +293,78 @@ const InstituteGallery = ({ institute, gallery, isOwner, onGalleryUpdate }) => {
                 </div>
             )}
 
-            <div id="gallery" className="gallery-grid gallery">
-                <AnimatePresence mode="popLayout">
-                    {gallery && gallery.map((image, index) => (
-                        <motion.div
-                            key={image.id}
-                            className="gallery-item"
-                            layout
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: index * 0.03 }}
-                            onClick={() => setViewerIndex(index)}
-                        >
-                            <img
-                                src={`http://localhost:8000/storage/${image.image_path}`}
-                                alt="Gallery"
-                                className="gallery-img clickable-image"
-                            />
-                            {isOwner && (
-                                <button className="delete-img-btn" onClick={(e) => {
-                                    e.stopPropagation();
-                                    setImageToDelete(image.id);
-                                }}>
-                                    <Trash2 size={14} />
-                                </button>
-                            )}
-                        </motion.div>
+            {/* Initial Loading Skeleton */}
+            {initialLoading ? (
+                <div className="gallery-grid gallery">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                        <div
+                            key={i}
+                            className="gallery-item skeleton"
+                            style={{ aspectRatio: '1', borderRadius: '12px', background: 'linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite' }}
+                        />
                     ))}
-                </AnimatePresence>
-            </div>
+                </div>
+            ) : (
+                <>
+                    <div id="gallery" className="gallery-grid gallery">
+                        <AnimatePresence mode="popLayout">
+                            {images.map((image, index) => (
+                                <motion.div
+                                    key={image.id}
+                                    className="gallery-item"
+                                    layout
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: index < 20 ? index * 0.02 : 0 }}
+                                    onClick={() => setViewerIndex(index)}
+                                >
+                                    <img
+                                        src={`http://localhost:8000/storage/${image.image_path}`}
+                                        alt="Gallery"
+                                        className="gallery-img clickable-image"
+                                    />
+                                    {isOwner && (
+                                        <button className="delete-img-btn" onClick={(e) => {
+                                            e.stopPropagation();
+                                            setImageToDelete(image.id);
+                                        }}>
+                                            <Trash2 size={14} />
+                                        </button>
+                                    )}
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
+                    </div>
+
+                    {/* Infinite scroll trigger */}
+                    {hasMore && <div ref={loaderRef} style={{ height: '1px' }} />}
+
+                    {/* Loading spinner for next pages */}
+                    {loadingMore && (
+                        <div style={{ display: 'flex', justifyContent: 'center', padding: '20px 0' }}>
+                            <Loader2 className="animate-spin" size={28} color="var(--c-primary, #6366f1)" />
+                        </div>
+                    )}
+
+                    {!hasMore && images.length > 0 && (
+                        <p className="no-more-data" style={{ textAlign: 'center', padding: '16px 0', color: 'var(--c-text-muted)', fontSize: '0.85rem' }}>
+
+                        </p>
+                    )}
+
+                    {!initialLoading && images.length === 0 && (
+                        <p style={{ textAlign: 'center', padding: '32px 0', color: 'var(--c-text-muted)', fontSize: '0.9rem' }}>
+                            No gallery images yet.
+                        </p>
+                    )}
+                </>
+            )}
 
             {/* Image Viewer Modal */}
             <AnimatePresence>
-                {viewerIndex !== null && gallery && gallery.length > 0 && (
+                {viewerIndex !== null && images.length > 0 && (
                     <ImageViewerModal
-                        images={gallery}
+                        images={images}
                         currentIndex={viewerIndex}
                         onNext={nextImage}
                         onPrevious={prevImage}

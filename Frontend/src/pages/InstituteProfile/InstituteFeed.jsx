@@ -4,7 +4,7 @@ import InstitutePosts from './InstitutePosts';
 import InstituteEvents from './InstituteEvents';
 import './InstituteFeed.css';
 
-const InstituteFeed = ({ institute, isOwner, posts, events, gallery, onGalleryUpdate, onEventsUpdate, onPostUpdate, user }) => {
+const InstituteFeed = ({ institute, isOwner, posts, events, onGalleryUpdate, onEventsUpdate, onPostUpdate, user }) => {
     return (
         <div className="institute-feed-layout">
             <div className="feed-grid">
@@ -12,7 +12,6 @@ const InstituteFeed = ({ institute, isOwner, posts, events, gallery, onGalleryUp
                 <div className="left-sidebar">
                     <InstituteGallery
                         institute={institute}
-                        gallery={gallery}
                         isOwner={isOwner}
                         onGalleryUpdate={onGalleryUpdate}
                     />

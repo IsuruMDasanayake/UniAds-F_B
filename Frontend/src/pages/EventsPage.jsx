@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { formatDistanceToNow } from 'date-fns';
 import {
     Calendar, MapPin, Star, X, Loader2, Info,
     Filter, LayoutGrid, Clock, Users, ChevronRight,
@@ -19,6 +20,7 @@ function EventsPage() {
     const [eventsPage, setEventsPage] = useState(1);
     const [hasMoreEvents, setHasMoreEvents] = useState(true);
     const [loadingMoreEvents, setLoadingMoreEvents] = useState(false);
+    const [totalEvents, setTotalEvents] = useState(0);
     const [loading, setLoading] = useState(true);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [activeFilter, setActiveFilter] = useState('all');
@@ -67,6 +69,7 @@ function EventsPage() {
             setEvents(response.data.data || []);
             setEventsPage(response.data.current_page || 1);
             setHasMoreEvents(!!response.data.next_page_url);
+            setTotalEvents(response.data.total || 0);
         } catch (error) {
             console.error('Failed to fetch events:', error);
         } finally {
@@ -304,7 +307,7 @@ function EventsPage() {
                         <TrendingUp size={24} className="stats-icon" />
                         <div className="stats-info">
                             <span className="stats-label">Live Events</span>
-                            <span className="stats-value">{events.length}</span>
+                            <span className="stats-value">{totalEvents}</span>
                         </div>
                     </div>
                 </aside>
@@ -455,20 +458,41 @@ function EventsPage() {
                             <h4>Latest Updates</h4>
                         </div>
                         <div className="notification-list">
-                            <div className="notif-item">
-                                <div className="notif-dot blue"></div>
-                                <div className="notif-content">
-                                    <p>Scholarship Seminar added by PIBT</p>
-                                    <span>2 hours ago</span>
-                                </div>
-                            </div>
-                            <div className="notif-item">
-                                <div className="notif-dot gold"></div>
-                                <div className="notif-content">
-                                    <p>New Workshop next Monday!</p>
-                                    <span>Today</span>
-                                </div>
-                            </div>
+                            {(() => {
+                                const dotColors = ['blue', 'gold', 'green', 'purple', 'red'];
+                                const recentUpdates = [...events]
+                                    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                                    .slice(0, 2);
+
+                                if (recentUpdates.length === 0) {
+                                    return (
+                                        <div className="notif-item">
+                                            <div className="notif-content">
+                                                <p style={{ color: 'var(--c-text-muted)', fontStyle: 'italic' }}>No recent events.</p>
+                                            </div>
+                                        </div>
+                                    );
+                                }
+
+                                return recentUpdates.map((event, idx) => (
+                                    <div
+                                        key={event.id}
+                                        className="notif-item"
+                                        style={{ cursor: 'pointer' }}
+                                        onClick={() => openEventModal(event)}
+                                    >
+                                        <div className={`notif-dot ${dotColors[idx % dotColors.length]}`}></div>
+                                        <div className="notif-content">
+                                            <p>{event.event_title} by {event.institute?.institute_name || 'an Institute'}</p>
+                                            <span>
+                                                {event.created_at
+                                                    ? formatDistanceToNow(new Date(event.created_at), { addSuffix: true })
+                                                    : ''}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ));
+                            })()}
                         </div>
                     </div>
 

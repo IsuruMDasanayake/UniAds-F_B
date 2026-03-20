@@ -298,7 +298,7 @@ const InstituteEvents = ({ events, institute, isOwner, onEventsUpdate, isSidebar
                             </div>
                         </div>
                     ) : (
-                        <p className="no-more-data">No more events to show</p>
+                        <p className="no-more-data">No more events...</p>
                     )}
                 </div>
             )}

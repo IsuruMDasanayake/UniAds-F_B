@@ -9,10 +9,13 @@ use Illuminate\Support\Facades\Storage;
 
 class GalleryController extends Controller
 {
-    public function index($id)
+    public function index(Request $request, $id)
     {
         $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
-        $gallery = InstituteGallery::where('institute_id', $institute->id)->get();
+        $perPage = (int) $request->query('per_page', 20);
+        $gallery = InstituteGallery::where('institute_id', $institute->id)
+            ->latest()
+            ->paginate($perPage);
         return response()->json($gallery);
     }
 
