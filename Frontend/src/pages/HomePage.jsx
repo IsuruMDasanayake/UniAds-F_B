@@ -224,9 +224,9 @@ const HomePage = () => {
                         </p>
                     </>
                 )}
-                <h3>Our Vision</h3>
+                <h3>🌟 Our Vision</h3>
                 <p>{settings.vision_text || ''}</p>
-                <h3>Our Mission</h3>
+                <h3>🎯 Our Mission</h3>
                 <p>{settings.mission_text || ''}</p>
             </section>
 
