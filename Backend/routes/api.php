@@ -236,6 +236,7 @@ Route::get('/policies/{type}', [PolicyController::class, 'apiIndex']);
 
 // Platform Settings (Public)
 Route::get('/settings/public', [PlatformSettingsController::class, 'publicIndex']);
+Route::get('/institutes/partners', [InstituteController::class, 'getPartners']);
 
 // Admin Dashboard Routes
 

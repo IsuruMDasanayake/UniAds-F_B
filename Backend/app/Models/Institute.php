@@ -20,6 +20,7 @@ class Institute extends Model
         'contact_number',
         'profile_photo',
         'cover_photo',
+        'logo',
         'bio',
         'password',
         'user_id',
@@ -56,7 +57,7 @@ class Institute extends Model
         });
     }
 
-    protected $appends = ['average_rating', 'rating_count'];
+    protected $appends = ['average_rating', 'rating_count', 'logo_url'];
 
     public function getAverageRatingAttribute()
     {
@@ -66,6 +67,11 @@ class Institute extends Model
     public function getRatingCountAttribute()
     {
         return $this->ratingCount();
+    }
+    
+    public function getLogoUrlAttribute()
+    {
+        return $this->logo ? asset('storage/' . $this->logo) : null;
     }
 
     public function posts()

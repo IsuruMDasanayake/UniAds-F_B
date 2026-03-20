@@ -649,6 +649,99 @@
     100% { transform: scale(1); opacity: 0.8; }
 }
 
+/* Our Partners Marquee */
+.home-partners {
+    padding: 60px 0;
+    background: #ffffff;
+    overflow: hidden;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.home-partners-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.section-header-mini {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 0 20px;
+}
+
+.section-header-mini .subtitle {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--c-accent);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+.section-header-mini h2 {
+    font-size: 2.2rem;
+    color: var(--c-dark);
+    font-weight: 800;
+}
+
+.partners-marquee-container {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    padding: 20px 0;
+}
+
+/* Linear Gradient Overlays for smooth edges */
+.partners-marquee-container::before,
+.partners-marquee-container::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 150px;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.partners-marquee-container::before {
+    left: 0;
+    background: linear-gradient(to right, #ffffff, transparent);
+}
+
+.partners-marquee-container::after {
+    right: 0;
+    background: linear-gradient(to left, #ffffff, transparent);
+}
+
+.partners-marquee-track {
+    display: flex;
+    gap: 50px;
+    width: max-content;
+    align-items: center;
+}
+
+.partner-logo-card {
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    transition: transform 0.3s ease;
+    filter: grayscale(100%) opacity(0.6);
+    margin-top: -20px;
+}
+
+.partner-logo-card:hover {
+    filter: grayscale(0%) opacity(1);
+    transform: scale(1.1);
+}
+
+.partner-logo-card img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
 /* Testimonials Section */
 .home-testimonials {
     padding: 80px 5%;

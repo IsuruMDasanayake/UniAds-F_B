@@ -197,7 +197,8 @@ const InstituteManagement = () => {
                                 <th>Contact No.</th>
                                 {/* <th>Gov. Reg. No</th> */}
                                 <th>Followers</th>
-                                <th>Status</th>
+                                <th className="text-center">Logo</th>
+                                <th className="text-center">Status</th>
                                 <th>Tier</th>
                                 <th className="text-center">Actions</th>
                             </tr>
@@ -223,7 +224,7 @@ const InstituteManagement = () => {
                                     <tr key={inst.id}>
                                         <td>
                                             <div className="institute-cell">
-                                                <div className="inst-avatar">
+                                                {/* <div className="inst-avatar">
                                                     {inst.profile_photo ? (
                                                         <img
                                                             src={`http://localhost:8000/storage/${inst.profile_photo}`}
@@ -240,7 +241,7 @@ const InstituteManagement = () => {
                                                         className="placeholder-icon"
                                                         style={{ display: inst.profile_photo ? 'none' : 'block' }}
                                                     />
-                                                </div>
+                                                </div> */}
                                                 <div className="inst-meta">
                                                     <span className="inst-name-text">{inst.institute_name}</span>
                                                     <span className="inst-email-text">{inst.email}</span>
@@ -260,9 +261,14 @@ const InstituteManagement = () => {
                                         <td className="text-sm font-mono">{inst.contact_number || '-'}</td>
                                         {/* <td className="text-sm font-mono">{inst.gov_register_number || '-'}</td> */}
                                         <td className="text-sm font-semibold" style={{ textAlign: 'center' }}>{inst.followers_count || 0}</td>
-                                        <td>
-                                            <span className={`status-pill ${(inst.status || '').toLowerCase()}`} title={inst.status ? inst.status.charAt(0).toUpperCase() + inst.status.slice(1) : 'Unknown'}>
-                                                {inst.status === 'approved' ? <CheckCircle size={14} /> : <AlertCircle size={14} />}
+                                        <td className="text-center">
+                                            <span className={`status-indicator ${inst.logo ? 'uploaded' : 'missing'}`} title={inst.logo ? "Logo Uploaded" : "No Logo (Institute may not appear in Partners section)"}>
+                                                {inst.logo ? <CheckCircle size={18} /> : <XCircle size={18} />}
+                                            </span>
+                                        </td>
+                                        <td className="text-center">
+                                            <span className={`status-indicator ${(inst.status || '').toLowerCase()}`} title={inst.status ? inst.status.charAt(0).toUpperCase() + inst.status.slice(1) : 'Unknown'}>
+                                                {inst.status === 'approved' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
                                             </span>
                                         </td>
                                         <td>

@@ -50,25 +50,32 @@
     color: var(--admin-text-muted);
 }
 
-.admin-institute-scope .status-pill {
+.admin-institute-scope .status-indicator {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     font-size: 0.75rem;
     font-weight: 600;
+    transition: all 0.2s ease;
 }
 
-.admin-institute-scope .status-pill.approved {
+.admin-institute-scope .status-indicator.approved,
+.admin-institute-scope .status-indicator.uploaded {
     background: rgba(16, 185, 129, 0.15);
     color: #10b981;
 }
 
-.admin-institute-scope .status-pill.unapproved {
+.admin-institute-scope .status-indicator.unapproved {
     background: rgba(245, 158, 11, 0.15);
     color: #f59e0b;
+}
+
+.admin-institute-scope .status-indicator.missing {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
 }
 
 .admin-institute-scope .premium-badge {

@@ -20,6 +20,7 @@ const HomePage = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [status, setStatus] = useState({ type: '', message: '' });
     const [feedbacks, setFeedbacks] = useState([]);
+    const [partners, setPartners] = useState([]);
     const [testimonialIndex, setTestimonialIndex] = useState(0);
     const [cardsPerView, setCardsPerView] = useState(3);
 
@@ -67,7 +68,18 @@ const HomePage = () => {
                 console.error('Error fetching feedbacks:', error);
             }
         };
+
+        const fetchPartners = async () => {
+            try {
+                const response = await axiosClient.get('/api/institutes/partners');
+                setPartners(response.data);
+            } catch (error) {
+                console.error('Error fetching partners:', error);
+            }
+        };
+
         fetchFeedbacks();
+        fetchPartners();
     }, []);
 
     useEffect(() => {
@@ -217,6 +229,46 @@ const HomePage = () => {
                     </div>
                 </div>
             </section>
+
+            {/* Partners Marquee Section */}
+            {settings.show_partners && partners.length > 0 && (
+                <section className="home-partners">
+                    <div className="home-partners-container">
+                        <div className="section-header-mini">
+                            <span className="subtitle">Our Partners</span>
+                            <h2>Collaborating with Excellence</h2>
+                        </div>
+                        
+                        <div className="partners-marquee-container">
+                            <motion.div 
+                                className="partners-marquee-track"
+                                animate={{ 
+                                    x: [0, -1035] 
+                                }}
+                                transition={{ 
+                                    x: {
+                                        repeat: Infinity,
+                                        repeatType: "loop",
+                                        duration: 30,
+                                        ease: "linear"
+                                    }
+                                }}
+                            >
+                                {/* Duplicated for infinite effect */}
+                                {[...partners, ...partners, ...partners].map((partner, index) => (
+                                    <div key={`${partner.id}-${index}`} className="partner-logo-card">
+                                        <img 
+                                            src={getStorageUrl(partner.logo)} 
+                                            alt={partner.institute_name} 
+                                            title={partner.institute_name}
+                                        />
+                                    </div>
+                                ))}
+                            </motion.div>
+                        </div>
+                    </div>
+                </section>
+            )}
 
             {/* Features Section */}
             <section className="home-features" id="features">

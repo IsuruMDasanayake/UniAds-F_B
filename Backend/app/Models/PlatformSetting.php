@@ -34,6 +34,7 @@ class PlatformSetting extends Model
         'social_links',
         'home_slides_paths',
         'show_testimonials',
+        'show_partners',
     ];
 
     /**
@@ -49,6 +50,7 @@ class PlatformSetting extends Model
         'social_links' => 'array',
         'home_slides_paths' => 'array',
         'show_testimonials' => 'boolean',
+        'show_partners' => 'boolean',
     ];
 
     /**
@@ -82,6 +84,7 @@ class PlatformSetting extends Model
                 ],
                 'home_slides_paths' => [],
                 'show_testimonials' => true,
+                'show_partners' => true,
             ]);
         }
 

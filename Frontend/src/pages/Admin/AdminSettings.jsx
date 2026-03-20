@@ -24,6 +24,7 @@ const AdminSettings = () => {
         mission_text: '',
         address_text: '',
         show_testimonials: true,
+        show_partners: true,
     });
 
     const [socialLinks, setSocialLinks] = useState([]);
@@ -82,6 +83,7 @@ const AdminSettings = () => {
                 mission_text: settings.mission_text || '',
                 address_text: settings.address_text || '',
                 show_testimonials: settings.show_testimonials ?? true,
+                show_partners: settings.show_partners ?? true,
             });
 
             setSocialLinks(settings.social_links || []);
@@ -630,6 +632,22 @@ const AdminSettings = () => {
                                     type="checkbox"
                                     name="show_testimonials"
                                     checked={formData.show_testimonials}
+                                    onChange={handleInputChange}
+                                />
+                                <span className="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div className="toggle-item">
+                            <div className="toggle-info">
+                                <h4>Show Partners Section</h4>
+                                <p>Display the "Our Partners" marquee on the HomePage.</p>
+                            </div>
+                            <label className="toggle-switch">
+                                <input
+                                    type="checkbox"
+                                    name="show_partners"
+                                    checked={formData.show_partners}
                                     onChange={handleInputChange}
                                 />
                                 <span className="toggle-slider"></span>

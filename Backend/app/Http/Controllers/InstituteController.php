@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Institute;
 use App\Models\Category;
 use App\Models\Follower;
+use App\Models\Message; // Added this line
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -281,6 +282,7 @@ class InstituteController extends Controller
                 'bio' => 'nullable|string|max:1000',
                 'profile_photo' => 'nullable|image|max:2048',
                 'cover_photo' => 'nullable|image|max:2048',
+                'logo' => 'nullable|image|max:2048',
                 'slug' => [
                     'nullable',
                     'string',
@@ -310,6 +312,14 @@ class InstituteController extends Controller
                     Storage::delete('public/' . $institute->cover_photo);
                 }
                 $institute->cover_photo = $request->file('cover_photo')->store('institute_covers', 'public');
+            }
+            
+            // Update logo
+            if ($request->hasFile('logo')) {
+                if ($institute->logo) {
+                    Storage::delete('public/' . $institute->logo);
+                }
+                $institute->logo = $request->file('logo')->store('institute_logos', 'public');
             }
 
             // Update fields conditionally to prevent partial updates from nulling existing data
@@ -764,5 +774,15 @@ class InstituteController extends Controller
             Log::error("General error in track profile view: " . $e->getMessage());
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
+    }
+
+    public function getPartners()
+    {
+        $partners = Institute::whereNotNull('logo')
+            ->where('status', 'approved')
+            ->select('id', 'institute_name', 'logo', 'slug')
+            ->get();
+            
+        return response()->json($partners);
     }
 }

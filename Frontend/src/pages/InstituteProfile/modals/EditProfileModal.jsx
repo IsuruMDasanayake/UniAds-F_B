@@ -19,8 +19,10 @@ const EditProfileModal = ({ institute, onClose, onUpdate }) => {
     });
     const [profilePhoto, setProfilePhoto] = useState(null);
     const [coverPhoto, setCoverPhoto] = useState(null);
+    const [logo, setLogo] = useState(null);
     const [previewProfile, setPreviewProfile] = useState(null);
     const [previewCover, setPreviewCover] = useState(null);
+    const [previewLogo, setPreviewLogo] = useState(null);
     const [loading, setLoading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [errorMessages, setErrorMessages] = useState([]);
@@ -41,6 +43,7 @@ const EditProfileModal = ({ institute, onClose, onUpdate }) => {
             });
             setPreviewProfile(institute.profile_photo ? `http://localhost:8000/storage/${institute.profile_photo}` : '/images/profile.png');
             setPreviewCover(institute.cover_photo ? `http://localhost:8000/storage/${institute.cover_photo}` : '/images/cover.png');
+            setPreviewLogo(institute.logo ? `http://localhost:8000/storage/${institute.logo}` : null);
         }
     }, [institute]);
 
@@ -66,9 +69,12 @@ const EditProfileModal = ({ institute, onClose, onUpdate }) => {
                 if (type === 'profile') {
                     setProfilePhoto(file);
                     setPreviewProfile(reader.result);
-                } else {
+                } else if (type === 'cover') {
                     setCoverPhoto(file);
                     setPreviewCover(reader.result);
+                } else if (type === 'logo') {
+                    setLogo(file);
+                    setPreviewLogo(reader.result);
                 }
             };
             reader.readAsDataURL(file);
@@ -94,6 +100,7 @@ const EditProfileModal = ({ institute, onClose, onUpdate }) => {
 
         if (profilePhoto) data.append('profile_photo', profilePhoto);
         if (coverPhoto) data.append('cover_photo', coverPhoto);
+        if (logo) data.append('logo', logo);
 
         try {
             setUploadProgress(0);
@@ -152,8 +159,11 @@ const EditProfileModal = ({ institute, onClose, onUpdate }) => {
             >
                 <button className="modal-close-trigger" onClick={onClose}><X size={24} /></button>
 
-                <div className="modal-header">
+                <div className="modal-header flex-column">
                     <h3 className="modal-title">Edit Institute Profile</h3>
+                    <div className="form-notice" style={{ color: '#ef4444', backgroundColor: '#fef2f2', padding: '10px', borderRadius: '6px', fontSize: '0.68rem', border: '1px solid #fee2e2', width: '100%', marginBottom: '-20px', marginTop: '-5px' }}>
+                        <strong>Note:</strong> Once registered, your primary identity details (Name, Type, Location, Email, Contact No, and Website) are locked. Please contact UniAds Administration for any changes.
+                    </div>
                 </div>
 
                 <form onSubmit={handleSubmit} className="modal-form">
@@ -173,9 +183,6 @@ const EditProfileModal = ({ institute, onClose, onUpdate }) => {
                         <div className="modal-body-split">
                             {/* Left: Photos */}
                             <div className="modal-left">
-                                <div className="form-notice" style={{ color: '#ef4444', backgroundColor: '#fef2f2', padding: '10px', borderRadius: '6px', marginBottom: '15px', fontSize: '0.85rem', border: '1px solid #fee2e2' }}>
-                                    <strong>Note:</strong> Once registered, your primary identity details (Name, Type, Location, Email, Contact No, and Website) are locked. Please contact UniAds Administration for any changes.
-                                </div>
                                 <div className="form-group">
                                     <label>Profile Photo (Max 2MB):</label>
                                     <div className="photo-preview">
@@ -189,6 +196,18 @@ const EditProfileModal = ({ institute, onClose, onUpdate }) => {
                                         <img src={previewCover} alt="Cover" />
                                     </div>
                                     <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'cover')} />
+                                </div>
+                                <div className="form-group">
+                                    <label>Institute Logo (Max 2MB):</label>
+                                    <div className="photo-preview logo-preview-box">
+                                        {previewLogo ? (
+                                            <img src={previewLogo} alt="Logo" style={{ objectFit: 'contain' }} />
+                                        ) : (
+                                            <div className="no-logo-placeholder">No Logo Uploaded</div>
+                                        )}
+                                    </div>
+                                    <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'logo')} />
+                                    <p className="field-hint">This logo will be displayed in the "Our Partners" section on the HomePage.</p>
                                 </div>
                             </div>
 
