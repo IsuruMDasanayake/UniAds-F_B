@@ -33,6 +33,13 @@ const UserProfilePage = () => {
     const [loading, setLoading] = useState(true);
     const [profileData, setProfileData] = useState(null);
     const avatarSeedRef = useRef(null); 
+    const fileInputRef = useRef(null);
+    const [uploading, setUploading] = useState(false);
+    const [updatingProfile, setUpdatingProfile] = useState(false);
+    const [updatingPassword, setUpdatingPassword] = useState(false);
+    const [otpSent, setOtpSent] = useState(false);
+    const [sendingOtp, setSendingOtp] = useState(false);
+    const [wrongPasswordCount, setWrongPasswordCount] = useState(0);
     const [activeTab, setActiveTab] = useState(() => {
         const params = new URLSearchParams(window.location.search);
         const tab = params.get('tab');
@@ -59,7 +66,8 @@ const UserProfilePage = () => {
         education_level: '',
         current_password: '',
         new_password: '',
-        new_password_confirmation: ''
+        new_password_confirmation: '',
+        otp: ''
     });
     const [alert, setAlert] = useState({ show: false, type: '', message: '' });
     const [errors, setErrors] = useState({});
@@ -367,6 +375,7 @@ const UserProfilePage = () => {
     const handleUpdateProfile = async (e) => {
         e.preventDefault();
         setErrors({});
+        setUpdatingProfile(true);
 
         try {
             const response = await axiosClient.post('/api/profile/update', {
@@ -385,6 +394,8 @@ const UserProfilePage = () => {
             } else {
                 showAlert('error', 'Failed to update profile.');
             }
+        } finally {
+            setUpdatingProfile(false);
         }
     };
 
@@ -392,9 +403,33 @@ const UserProfilePage = () => {
         e.preventDefault();
         setErrors({});
 
+        // Client-side Validation
+        const newErrors = {};
+        if (!otpSent) {
+            newErrors.otp = ['Please request an OTP first.'];
+        } else if (!formData.otp) {
+            newErrors.otp = ['Verification code is required.'];
+        }
+
+        if (!formData.new_password) {
+            newErrors.new_password = ['New password is required.'];
+        } else if (formData.new_password.length < 8) {
+            newErrors.new_password = ['New password must be at least 8 characters.'];
+        }
+        if (formData.new_password !== formData.new_password_confirmation) {
+            newErrors.new_password_confirmation = ['Passwords do not match.'];
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            showAlert('error', 'Please fix the validation errors.');
+            return;
+        }
+
+        setUpdatingPassword(true);
         try {
             await axiosClient.post('/api/profile/password', {
-                current_password: formData.current_password,
+                otp: formData.otp,
                 new_password: formData.new_password,
                 new_password_confirmation: formData.new_password_confirmation
             });
@@ -403,8 +438,10 @@ const UserProfilePage = () => {
                 ...prev,
                 current_password: '',
                 new_password: '',
-                new_password_confirmation: ''
+                new_password_confirmation: '',
+                otp: ''
             }));
+            setOtpSent(false);
         } catch (err) {
             if (err.response?.status === 422) {
                 setErrors(err.response.data.errors);
@@ -412,6 +449,93 @@ const UserProfilePage = () => {
             } else {
                 showAlert('error', 'Failed to update password.');
             }
+        } finally {
+            setUpdatingPassword(false);
+        }
+    };
+
+    const handleSendOtp = async () => {
+        if (!formData.current_password) {
+            setErrors({ current_password: ['Current password is required to send OTP.'] });
+            showAlert('error', 'Current password is required.');
+            return;
+        }
+
+        setSendingOtp(true);
+        setErrors({});
+
+        try {
+            await axiosClient.post('/api/profile/password/otp', {
+                current_password: formData.current_password
+            });
+            setOtpSent(true);
+            setWrongPasswordCount(0); // Reset on success
+            showAlert('success', 'Verification code sent to your email.');
+        } catch (err) {
+            if (err.response?.status === 422) {
+                setErrors(err.response.data.errors);
+                setWrongPasswordCount(prev => prev + 1);
+                showAlert('error', 'Invalid current password.');
+            } else {
+                showAlert('error', 'Failed to send verification code.');
+            }
+        } finally {
+            setSendingOtp(false);
+        }
+    };
+
+    const handleForgotRedirect = async () => {
+        try {
+            // Optional: call logout API if needed
+            // await axiosClient.post('/api/logout');
+        } catch (e) {}
+
+        // Immediate logout & redirect
+        localStorage.removeItem('ACCESS_TOKEN');
+        localStorage.removeItem('APP_USER');
+        navigate('/forgot-password');
+    };
+
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validation: Max 2MB
+        if (file.size > 2 * 1024 * 1024) {
+            showAlert('error', 'File size must be less than 2MB.');
+            e.target.value = ''; // Reset input
+            return;
+        }
+
+        const formDataToSend = new FormData();
+        formDataToSend.append('profile_picture', file);
+
+        setUploading(true);
+        try {
+            const response = await axiosClient.post('/api/profile/picture', formDataToSend, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            
+            // Update local user state immediately
+            setProfileData(prev => {
+                const updatedUser = {
+                    ...prev.user,
+                    profile_picture: response.data.profile_picture
+                };
+                // Sync with localStorage for Navbar/Sidebar consistency
+                localStorage.setItem('APP_USER', JSON.stringify(updatedUser));
+                return {
+                    ...prev,
+                    user: updatedUser
+                };
+            });
+            
+            showAlert('success', 'Profile picture updated successfully!');
+        } catch (err) {
+            console.error('Upload failed:', err);
+            showAlert('error', err.response?.data?.message || 'Failed to upload picture.');
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -457,9 +581,12 @@ const UserProfilePage = () => {
     const user = profileData?.user;
     const savedPosts = user?.saved_posts || [];
 
-    const avatarSrc = user?.profile_picture
+    const avatarSrc = user?.profile_picture 
         ? getStorageUrl(user.profile_picture)
-        : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(avatarSeedRef.current || user?.name || 'User')}&backgroundColor=ffc107`;
+        : (user?.role === 'Institute'
+            ? (user?.institute?.profile_photo ? getStorageUrl(user.institute.profile_photo) : '/images/profile.png')
+            : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(avatarSeedRef.current || user?.name || 'User')}&backgroundColor=ffc107`
+        );
 
     return (
         <div className="upp-user-profile-page">
@@ -643,6 +770,22 @@ const UserProfilePage = () => {
                                         <input type="email" value={formData.email} disabled />
                                     </div>
                                     <div className="upp-form-group">
+                                        <label>Profile Picture (Max 2MB)</label>
+                                        <div className="flex items-center gap-4">
+                                            <button 
+                                                type="button" 
+                                                className="upp-btn-secondary"
+                                                onClick={() => fileInputRef.current?.click()}
+                                                disabled={uploading}
+                                            >
+                                                {uploading ? 'Uploading...' : 'Change Photo'}
+                                            </button>
+                                            {/* <span className="text-xs text-gray-500">
+                                                JPG, PNG or GIF. Max size 2MB.
+                                            </span> */}
+                                        </div>
+                                    </div>
+                                    <div className="upp-form-group">
                                         <label>Gender</label>
                                         <select name="gender" value={formData.gender} onChange={handleChange} className={`form-input-select ${errors.gender ? 'upp-input-error' : ''}`} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
                                             <option value="">Select Gender</option>
@@ -669,7 +812,18 @@ const UserProfilePage = () => {
                                         </select>
                                     </div>
                                     <div className="upp-full-width mt-6 flex justify-end">
-                                        <button type="submit" className="upp-btn-save">Update Details</button>
+                                        <button 
+                                            type="submit" 
+                                            className="upp-btn-save"
+                                            disabled={updatingProfile}
+                                        >
+                                            {updatingProfile ? (
+                                                <div className="flex items-center gap-2">
+                                                    <Loader2 className="animate-spin" size={16} />
+                                                    Updating..
+                                                </div>
+                                            ) : 'Update Details'}
+                                        </button>
                                     </div>
                                 </form>
                             </motion.div>
@@ -683,18 +837,88 @@ const UserProfilePage = () => {
                                 <form onSubmit={handleUpdatePassword} className="upp-form-grid">
                                     <div className="upp-form-group upp-full-width">
                                         <label>Current Password</label>
-                                        <input type="password" name="current_password" value={formData.current_password} onChange={handleChange} />
+                                        <div className="flex gap-2">
+                                            <input 
+                                                type="password" 
+                                                name="current_password" 
+                                                value={formData.current_password} 
+                                                onChange={handleChange} 
+                                                className={`flex-1 ${errors.current_password ? 'upp-input-error' : ''}`} 
+                                                placeholder="Enter current password to request OTP"
+                                            />
+                                            <button 
+                                                type="button" 
+                                                className="upp-btn-secondary"
+                                                onClick={handleSendOtp}
+                                                disabled={sendingOtp || !formData.current_password}
+                                                style={{ whiteSpace: 'nowrap', padding: '0 15px' }}
+                                            >
+                                                {sendingOtp ? 'Sending...' : (otpSent ? 'Resend OTP' : 'Send OTP')}
+                                            </button>
+                                        </div>
+                                        {errors.current_password && (
+                                            <div className="flex flex-col gap-1 mt-1">
+                                                <span className="upp-error-text text-xs text-red-500">{errors.current_password[0]}</span>
+                                                {wrongPasswordCount >= 5 && (
+                                                    <motion.button
+                                                        type="button"
+                                                        initial={{ opacity: 0, scale: 0.9 }}
+                                                        animate={{ opacity: 1, scale: 1 }}
+                                                        onClick={handleForgotRedirect}
+                                                        className="upp-forgot-password-btn"
+                                                    >
+                                                        <AlertCircle size={16} />
+                                                        Forgot Password? Click here to reset
+                                                    </motion.button>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
+
+                                    {otpSent && (
+                                        <motion.div 
+                                            className="upp-form-group upp-full-width"
+                                            initial={{ opacity: 0, y: -10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                        >
+                                            <label className="text-primary font-bold">OTP Verification Code</label>
+                                            <input 
+                                                type="text" 
+                                                name="otp" 
+                                                value={formData.otp} 
+                                                onChange={handleChange} 
+                                                className={errors.otp ? 'upp-input-error' : ''} 
+                                                placeholder="Check your email for the 6-digit code"
+                                                maxLength={6}
+                                            />
+                                            {errors.otp && <span className="upp-error-text text-xs text-red-500">{errors.otp[0]}</span>}
+                                        </motion.div>
+                                    )}
+
                                     <div className="upp-form-group">
                                         <label>New Password</label>
-                                        <input type="password" name="new_password" value={formData.new_password} onChange={handleChange} />
+                                        <input type="password" name="new_password" value={formData.new_password} onChange={handleChange} className={errors.new_password ? 'upp-input-error' : ''} />
+                                        {errors.new_password && <span className="upp-error-text text-xs text-red-500">{errors.new_password[0]}</span>}
                                     </div>
                                     <div className="upp-form-group">
                                         <label>Confirm Password</label>
-                                        <input type="password" name="new_password_confirmation" value={formData.new_password_confirmation} onChange={handleChange} />
+                                        <input type="password" name="new_password_confirmation" value={formData.new_password_confirmation} onChange={handleChange} className={errors.new_password_confirmation ? 'upp-input-error' : ''} />
+                                        {errors.new_password_confirmation && <span className="upp-error-text text-xs text-red-500">{errors.new_password_confirmation[0]}</span>}
                                     </div>
                                     <div className="upp-full-width mt-4 flex justify-end">
-                                        <button type="submit" className="upp-btn-save">Update Password</button>
+                                        <button 
+                                            type="submit" 
+                                            className="upp-btn-save"
+                                            disabled={updatingPassword || !otpSent}
+                                            title={!otpSent ? "Please request an OTP first" : ""}
+                                        >
+                                            {updatingPassword ? (
+                                                <div className="flex items-center gap-2">
+                                                    <Loader2 className="animate-spin" size={16} />
+                                                    updating password
+                                                </div>
+                                            ) : 'Update Password'}
+                                        </button>
                                     </div>
                                 </form>
                             </motion.div>
@@ -702,7 +926,7 @@ const UserProfilePage = () => {
                         {activeTab === 'saved' && (
                             <motion.div className="upp-content-card" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                                 <div className="upp-section-header">
-                                    <h2>Your Saved Posts</h2>
+                                    <h2>Saved Posts</h2>
                                 </div>
                                 
                                 {loadingSavedPosts ? (
@@ -854,7 +1078,7 @@ const UserProfilePage = () => {
                         {activeTab === 'applications' && (
                             <motion.div className="upp-content-card" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                                 <div className="upp-section-header">
-                                    <h2>My Course Applications</h2>                                </div>
+                                    <h2>Course Applications</h2>                                </div>
                                 
                                 {loadingApplications ? (
                                     <div className="py-20 text-center">

@@ -261,9 +261,12 @@ function Navbar({ user }) {
                                 onClick={() => setDropdownOpen(!dropdownOpen)}
                             >
                                 <img
-                                    src={displayUser?.role === 'Institute'
-                                        ? (displayUser?.institute?.profile_photo ? getStorageUrl(displayUser.institute.profile_photo) : '/images/profile.png')
-                                        : `https://api.dicebear.com/7.x/initials/svg?seed=${displayUser?.name || 'User'}&backgroundColor=ffc107`
+                                    src={displayUser?.profile_picture 
+                                        ? getStorageUrl(displayUser.profile_picture)
+                                        : (displayUser?.role === 'Institute'
+                                            ? (displayUser?.institute?.profile_photo ? getStorageUrl(displayUser.institute.profile_photo) : '/images/profile.png')
+                                            : `https://api.dicebear.com/7.x/initials/svg?seed=${displayUser?.name || 'User'}&backgroundColor=ffc107`
+                                        )
                                     }
                                     alt="Profile"
                                     className="navbar-profile-img"
