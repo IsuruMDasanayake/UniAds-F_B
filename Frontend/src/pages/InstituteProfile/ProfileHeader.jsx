@@ -34,9 +34,7 @@ const ProfileHeader = ({
     const [isMsgLoading, setIsMsgLoading] = useState(false);
 
     // Helpers
-    const isPremium = institute.is_premium == 1 &&
-        institute.premium_expires_at &&
-        new Date(institute.premium_expires_at) > new Date();
+    const isPremium = Number(institute.is_premium) === 1;
 
     const isApproved = institute.status === 'approved';
 
@@ -175,7 +173,10 @@ const ProfileHeader = ({
                             </div>
                         ) : (
                             <div className="visitor-tools">
-                                {currentUser && isPremium && (
+                                {currentUser && !isOwner && isPremium && institute.chat_enabled == 1 && (
+                                    currentUser.role !== 'Institute' || 
+                                    (currentUser.institute && Number(currentUser.institute.is_premium) === 1)
+                                ) && (
                                     <button
                                         className="btn-inst btn-message"
                                         onClick={async () => {

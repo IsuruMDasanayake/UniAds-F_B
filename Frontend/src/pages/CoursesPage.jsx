@@ -301,8 +301,6 @@ const CoursesPage = () => {
                             <div className="header-breadcrumbs">
                                 <Link to="/courses">Courses</Link>
                                 <ChevronRight size={16} />
-                                <span>{filterType}</span>
-                                <ChevronRight size={16} />
                                 <span className="active">{filterValue}</span>
                             </div>
                             

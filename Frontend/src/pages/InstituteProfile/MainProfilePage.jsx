@@ -219,7 +219,7 @@ const MainProfilePage = () => {
     if (!institute) return <div className="p-8 text-center">Profile not found.</div>;
 
     // Ownership logic
-    const isOwner = !id || (currentUser?.role === 'Institute' && currentUser?.id === institute.user_id);
+    const isOwner = !id || (currentUser?.role === 'Institute' && currentUser?.id == institute.user_id);
 
     return (
         <div className="bg-gray-50 min-h-screen font-sans text-gray-900" style={{ backgroundColor: '#f5f5f5' }}>
