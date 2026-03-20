@@ -42,7 +42,6 @@
     flex-direction: column;
     gap: 20px;
     overflow-y: auto;
-    margin-bottom: -0.5rem;
 }
 
 .admin-sidebar-scope .nav-group {
