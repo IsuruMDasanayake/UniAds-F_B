@@ -45,6 +45,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Api\ChatConversationController;
 use App\Http\Controllers\Api\ChatMessageController;
 use App\Http\Controllers\Api\AiAdvisorController;
+use App\Http\Controllers\AdminCareerGuidanceController;
 
 // Authentication routes with rate limiting (5 attempts per minute per IP)
 Route::middleware('throttle:auth')->group(function () {
@@ -314,6 +315,16 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::post('/notifications/{id}/read', [NotificationController::class, 'adminMarkAsRead']);
     Route::post('/notifications/read-all', [NotificationController::class, 'adminMarkAllAsRead']);
     Route::delete('/notifications/{id}', [NotificationController::class, 'adminDestroy']);
+
+    // Admin Career Guidance
+    Route::prefix('career-guidance')->group(function () {
+        Route::get('/', [AdminCareerGuidanceController::class, 'index']);
+        Route::post('/', [AdminCareerGuidanceController::class, 'store']);
+        Route::post('/sql', [AdminCareerGuidanceController::class, 'executeSql']);
+        Route::get('/{id}', [AdminCareerGuidanceController::class, 'show']);
+        Route::put('/{id}', [AdminCareerGuidanceController::class, 'update']);
+        Route::delete('/{id}', [AdminCareerGuidanceController::class, 'destroy']);
+    });
 });
 Route::post('/posts/{id}/track-view', [PostController::class, 'trackView']);
 Route::post('/events/{id}/track-view', [EventController::class, 'trackView']);

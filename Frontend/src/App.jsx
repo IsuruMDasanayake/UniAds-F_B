@@ -22,6 +22,7 @@ import AdminDashboard from './pages/Admin/AdminDashboard';
 import UserManagement from './pages/Admin/UserManagement';
 import InstituteManagement from './pages/Admin/InstituteManagement';
 import CategoryManagement from './pages/Admin/CategoryManagement';
+import CareerGuidanceManagement from './pages/Admin/CareerGuidanceManagement';
 import PostManagement from './pages/Admin/PostManagement';
 import EventManagement from './pages/Admin/EventManagement';
 import SubscriptionManagement from './pages/Admin/SubscriptionManagement';
@@ -166,6 +167,7 @@ function App() {
                       <Route path="users" element={<UserManagement />} />
                       <Route path="institutes" element={<InstituteManagement />} />
                       <Route path="categories" element={<CategoryManagement />} />
+                      <Route path="career-guidance" element={<CareerGuidanceManagement />} />
                       <Route path="posts" element={<PostManagement />} />
                       <Route path="events" element={<EventManagement />} />
                       <Route path="subscriptions" element={<SubscriptionManagement />} />

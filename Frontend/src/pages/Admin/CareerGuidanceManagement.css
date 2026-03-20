@@ -1,0 +1,386 @@
+.cgm-page {
+    position: relative;
+    padding-bottom: 2rem;
+}
+
+.cgm-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0px;
+}
+
+.cgm-tab-btn {
+    background: none;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--admin-text-muted, #94a3b8);
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.cgm-tab-btn:hover {
+    color: var(--admin-primary, #3b82f6);
+}
+
+.cgm-tab-btn.active {
+    color: var(--admin-primary, #3b82f6);
+}
+
+.cgm-tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--admin-primary, #3b82f6);
+}
+
+/* SQL Tab specific styles */
+.cgm-sql-container {
+    padding: 1.5rem;
+}
+
+.cgm-sql-header {
+    margin-bottom: 1rem;
+}
+
+.cgm-sql-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #fff;
+}
+
+.cgm-sql-header p {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.85rem;
+    color: var(--admin-text-muted, #94a3b8);
+}
+
+.cgm-sql-editor {
+    width: 100%;
+    min-height: 200px;
+    padding: 1rem;
+    font-family: 'Fira Code', 'Courier New', Courier, monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    background-color: #000;
+    color: #d4d4d4;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    resize: vertical;
+}
+
+.cgm-sql-editor:focus {
+    outline: none;
+    border-color: var(--admin-primary, #3b82f6);
+}
+
+.cgm-sql-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1.5rem;
+}
+
+.cgm-sql-execute-btn {
+    background-color: var(--admin-primary, #3b82f6);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.cgm-sql-execute-btn:hover {
+    background-color: var(--admin-primary-dark, #2563eb);
+}
+
+.cgm-sql-execute-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.cgm-sql-results {
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1rem;
+    min-height: 100px;
+    overflow-x: auto;
+}
+
+.cgm-sql-results h4 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    color: #e2e8f0;
+}
+
+.cgm-sql-message {
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 0;
+    font-weight: 500;
+}
+
+.cgm-sql-message.success {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.cgm-sql-message.error {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.cgm-sql-results-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.cgm-sql-results-table th,
+.cgm-sql-results-table td {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: left;
+    white-space: nowrap;
+}
+
+.cgm-sql-results-table th {
+    background-color: rgba(255, 255, 255, 0.05);
+    font-weight: 600;
+    color: #cbd5e1;
+}
+
+.cgm-sql-results-table td {
+    color: #f8fafc;
+}
+
+/* Modal Styles - Dark Theme matches CategoryManagement */
+.cgm-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    animation: fadeIn 0.2s ease;
+}
+
+.cgm-modal-content {
+    background: #0f172a;
+    width: 90%;
+    max-width: 1000px;
+    max-height: 90vh;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    animation: slideUp 0.3s ease;
+}
+
+.cgm-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cgm-modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #fff;
+    font-weight: 700;
+}
+
+.cgm-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--admin-text-muted, #94a3b8);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cgm-close-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.cgm-modal-tabs {
+    display: flex;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    overflow-x: auto;
+    padding: 0 1.5rem;
+}
+
+.cgm-modal-tab-btn {
+    padding: 1rem 1.25rem;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--admin-text-muted, #94a3b8);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.cgm-modal-tab-btn:hover {
+    color: #fff;
+}
+
+.cgm-modal-tab-btn.active {
+    color: var(--admin-primary, #3b82f6);
+    border-bottom-color: var(--admin-primary, #3b82f6);
+}
+
+.cgm-modal-body {
+    padding: 1.5rem 2rem;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.cgm-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.cgm-form-grid.full {
+    grid-template-columns: 1fr;
+}
+
+.cgm-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.cgm-form-group label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--admin-text-muted, #94a3b8);
+}
+
+.cgm-form-group input,
+.cgm-form-group select,
+.cgm-form-group textarea {
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: #fff;
+    font-family: inherit;
+    transition: all 0.2s;
+    outline: none;
+}
+
+.cgm-form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.cgm-form-group input:focus,
+.cgm-form-group select:focus,
+.cgm-form-group textarea:focus {
+    border-color: var(--admin-primary, #3b82f6) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.cgm-form-group select option {
+    background-color: #0f172a;
+    color: #fff;
+}
+
+.cgm-modal-actions {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.cgm-cancel-btn {
+    padding: 10px 20px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cgm-cancel-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.cgm-submit-btn {
+    padding: 10px 20px;
+    background: var(--admin-primary, #3b82f6);
+    border: none;
+    color: #fff;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cgm-submit-btn:hover {
+    background: var(--admin-primary-dark, #2563eb);
+}
+
+.cgm-submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    .cgm-form-grid {
+        grid-template-columns: 1fr;
+    }
+}

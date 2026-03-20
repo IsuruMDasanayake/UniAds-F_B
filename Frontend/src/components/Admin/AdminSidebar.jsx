@@ -12,6 +12,7 @@ import {
     Star,
     ShieldCheck,
     Settings,
+    Navigation,
     FileDown,
     Mail,
     ChevronDown,
@@ -66,6 +67,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
             items: [
                 { name: 'Users', path: '/admin/users', icon: Users },
                 { name: 'Institutes', path: '/admin/institutes', icon: Building2 },
+                { name: 'Career Guidance', path: '/admin/career-guidance', icon: Navigation },
                 { name: 'Categories', path: '/admin/categories', icon: Layers },
                 { name: 'Posts', path: '/admin/posts', icon: FileText },
                 { name: 'Events', path: '/admin/events', icon: Calendar },
