@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, ExternalLink, BadgeCheck, Search, X } from 'lucide-react';
@@ -12,43 +12,93 @@ const InstitutionsPage = () => {
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [debouncedQuery, setDebouncedQuery] = useState('');
+    const [isFirstLoad, setIsFirstLoad] = useState(true);
+    const [searching, setSearching] = useState(false);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [instRes] = await Promise.all([
-                    axiosClient.get('/api/institutions')
-                ]);
-                setInstitutions(instRes.data);
-
-                try {
-                    const profileRes = await axiosClient.get('/api/profile/me');
-                    const currentUser = profileRes.data.user;
-                    if (profileRes.data.role === 'Institute') {
-                        currentUser.institute = profileRes.data.institute;
-                    }
-                    setUser(currentUser);
-                } catch (e) {
-                    setUser(null);
-                }
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            } finally {
-                setLoading(false);
+    const observer = useRef();
+    const lastInstitutionRef = useCallback(node => {
+        if (loading || loadingMore) return;
+        if (observer.current) observer.current.disconnect();
+        observer.current = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting && hasMore) {
+                setPage(prevPage => prevPage + 1);
             }
-        };
-        fetchData();
+        });
+        if (node) observer.current.observe(node);
+    }, [loading, loadingMore, hasMore]);
+
+    // Debounce search query
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedQuery(searchQuery);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    // Initial fetch and search reset
+    useEffect(() => {
+        setPage(1);
+        setHasMore(true);
+        fetchInstitutions(1, true);
+    }, [debouncedQuery]);
+
+    // Fetch more pages
+    useEffect(() => {
+        if (page > 1) {
+            fetchInstitutions(page, false);
+        }
+    }, [page]);
+
+    // Fetch user profile
+    useEffect(() => {
+        fetchUserProfile();
     }, []);
 
-    // Filter institutions using useMemo for performance and stability
-    const filteredInstitutions = useMemo(() => {
-        if (!searchQuery.trim()) return institutions;
-        const query = searchQuery.toLowerCase().trim();
-        return institutions.filter(inst =>
-            (inst.institute_name && inst.institute_name.toLowerCase().includes(query)) ||
-            (inst.location && inst.location.toLowerCase().includes(query))
-        );
-    }, [institutions, searchQuery]);
+    const fetchUserProfile = async () => {
+        try {
+            const profileRes = await axiosClient.get('/api/profile/me');
+            const currentUser = profileRes.data.user;
+            if (profileRes.data.role === 'Institute') {
+                currentUser.institute = profileRes.data.institute;
+            }
+            setUser(currentUser);
+        } catch (e) {
+            setUser(null);
+        }
+    };
+
+    const fetchInstitutions = async (pageNum, isInitial) => {
+        if (isInitial) {
+            if (isFirstLoad) setLoading(true);
+            else setSearching(true);
+        } else {
+            setLoadingMore(true);
+        }
+
+        try {
+            const response = await axiosClient.get(`/api/institutions?query=${debouncedQuery}&page=${pageNum}&per_page=12`);
+            const newData = response.data.data || [];
+            
+            setInstitutions(prev => isInitial ? newData : [...prev, ...newData]);
+            setHasMore(response.data.current_page < response.data.last_page);
+            if (isFirstLoad) setIsFirstLoad(false);
+        } catch (error) {
+            console.error('Error fetching institutions:', error);
+        } finally {
+            setLoading(false);
+            setLoadingMore(false);
+            setSearching(false);
+        }
+    };
+
+    const handleSearchSubmit = (e) => {
+        e.preventDefault();
+        // Search is already debounced and triggered by debouncedQuery
+    };
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -110,7 +160,7 @@ const InstitutionsPage = () => {
                     </div>
 
                     <div className="ins-search-wrapper">
-                        <div className="ins-search-container">
+                        <form onSubmit={handleSearchSubmit} className="ins-search-container">
                             <Search className="ins-search-icon" size={20} />
                             <input
                                 type="text"
@@ -119,30 +169,45 @@ const InstitutionsPage = () => {
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="ins-search-input"
                             />
-                            {searchQuery && (
-                                <button
-                                    onClick={() => setSearchQuery('')}
-                                    className="ins-clear-button"
-                                    aria-label="Clear search"
-                                >
-                                    <X size={16} />
-                                </button>
-                            )}
-                        </div>
+                            <AnimatePresence>
+                                {(searchQuery || searching) && (
+                                    <motion.div 
+                                        className="ins-search-actions"
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.8 }}
+                                    >
+                                        {searching ? (
+                                            <div className="ins-search-spinner" />
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={() => setSearchQuery('')}
+                                                className="ins-clear-button"
+                                                aria-label="Clear search"
+                                            >
+                                                <X size={16} />
+                                            </button>
+                                        )}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </form>
                     </div>
                 </header>
 
                 <motion.div
-                    className="ins-grid-layout"
+                    className={`ins-grid-layout ${searching ? 'ins-searching-active' : ''}`}
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
                 >
                     <AnimatePresence mode="popLayout">
-                        {filteredInstitutions.length > 0 ? (
-                            filteredInstitutions.map((inst, index) => (
+                        {institutions.length > 0 ? (
+                            institutions.map((inst, index) => (
                                 <motion.div
                                     key={inst.id || `inst-${index}`}
+                                    ref={index === institutions.length - 1 ? lastInstitutionRef : null}
                                     className="ins-card-item"
                                     variants={itemVariants}
                                     initial="hidden"
@@ -217,6 +282,16 @@ const InstitutionsPage = () => {
                             </motion.div>
                         )}
                     </AnimatePresence>
+
+                    {loadingMore && (
+                        <div className="ins-loading-footer">
+                            <div className="ui-loader loader-blk">
+                                <svg viewBox="22 22 44 44" className="multiColor-loader">
+                                    <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="3.6" className="loader-circle loader-circle-animation"></circle>
+                                </svg>
+                            </div>
+                        </div>
+                    )}
                 </motion.div>
             </main>
         </div>

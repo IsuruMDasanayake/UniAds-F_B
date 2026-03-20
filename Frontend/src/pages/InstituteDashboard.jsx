@@ -10,23 +10,30 @@ function InstituteDashboard() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const [stats, setStats] = useState(null);
+
     useEffect(() => {
-        const fetchUser = async () => {
+        const fetchData = async () => {
             try {
-                const response = await axiosClient.get('/api/user');
-                if (response.data.role !== 'Institute') {
+                const [userRes, analyticsRes] = await Promise.all([
+                    axiosClient.get('/api/user'),
+                    axiosClient.get('/api/analytics/overview')
+                ]);
+
+                if (userRes.data.role !== 'Institute') {
                     navigate('/dashboard');
                     return;
                 }
-                setUser(response.data);
+                setUser(userRes.data);
+                setStats(analyticsRes.data.overviewStats.metrics);
             } catch (error) {
-                console.error('Failed to fetch user:', error);
-                navigate('/login');
+                console.error('Failed to fetch dashboard data:', error);
+                if (error.response?.status === 401) navigate('/login');
             } finally {
                 setLoading(false);
             }
         };
-        fetchUser();
+        fetchData();
     }, [navigate]);
 
     const handleLogout = async () => {
@@ -87,17 +94,21 @@ function InstituteDashboard() {
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.3 }}
+                        onClick={() => navigate('/profile?tab=posts')}
                     >
+                        <div className="stat-badge">{stats?.post_views || 0} Views</div>
                         <PlusCircle size={32} />
-                        <h3>Create Post</h3>
-                        <p>Share updates with your followers</p>
+                        <h3>Posts</h3>
+                        <p>Manage your course posts & updates</p>
                     </motion.div>
                     <motion.div
                         className="dashboard-card action-card"
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.4 }}
+                        onClick={() => navigate('/profile?tab=events')}
                     >
+                        <div className="stat-badge interests">{stats?.event_interests || 0} Interests</div>
                         <Calendar size={32} />
                         <h3>Events</h3>
                         <p>Manage your upcoming events</p>
@@ -107,9 +118,11 @@ function InstituteDashboard() {
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.5 }}
+                        onClick={() => navigate('/profile?tab=followers')}
                     >
+                        <div className="stat-badge followers">{stats?.followers || 0} Followers</div>
                         <Users size={32} />
-                        <h3>Followers</h3>
+                        <h3>Community</h3>
                         <p>View your follower analytics</p>
                     </motion.div>
                     <motion.div

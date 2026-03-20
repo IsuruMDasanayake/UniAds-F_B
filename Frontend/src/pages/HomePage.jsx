@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
 import { BACKEND_URL } from '../lib/config';
+import { useNavigate, Link } from 'react-router-dom';
+import axiosClient from '../lib/axios';
 import { useSettings } from '../context/SettingsContext';
 import AccessDeniedModal from '../components/Modals/AccessDeniedModal';
 import './HomePage.css';
@@ -11,6 +12,11 @@ const HomePage = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [menuOpen, setMenuOpen] = useState(false);
     const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', message: '' });
+
+    // Contact form state
+    const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [status, setStatus] = useState({ type: '', message: '' });
 
     // Dynamic slides from settings or fallback to defaults
     const displaySlides = (settings.home_slides_urls && settings.home_slides_urls.length > 0)
@@ -54,6 +60,26 @@ const HomePage = () => {
 
         return () => clearInterval(interval);
     }, [displaySlides]);
+
+    const handleContactSubmit = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        setStatus({ type: '', message: '' });
+
+        try {
+            await axiosClient.post('/api/contact', contactForm);
+            setStatus({ type: 'success', message: 'Thank you for your message! We will get back to you soon.' });
+            setContactForm({ name: '', email: '', message: '' });
+        } catch (error) {
+            console.error('Contact form error:', error);
+            setStatus({
+                type: 'error',
+                message: error.response?.data?.message || 'Failed to send message. Please try again later.'
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     const getSocialIcon = (platform) => {
         switch (platform.toLowerCase()) {
@@ -156,22 +182,22 @@ const HomePage = () => {
                 <h2>What We Offer</h2>
                 <div className="home-features-grid">
                     <div className="home-feature-card">
-                        <img src="http://localhost:8000/images/welcome/Institutions.png" alt="Institutions" />
+                        <img src={`${BACKEND_URL}/images/welcome/Institutions.png`} alt="Institutions" />
                         <h3>Institution Profiles</h3>
                         <p>Discover top universities and institutions in Sri Lanka with detailed profiles.</p>
                     </div>
                     <div className="home-feature-card">
-                        <img src="http://localhost:8000/images/welcome/Program.png" alt="Programs" />
+                        <img src={`${BACKEND_URL}/images/welcome/Program.png`} alt="Programs" />
                         <h3>Program Listings</h3>
                         <p>Find programs tailored to your goals, including degrees, diplomas, and more.</p>
                     </div>
                     <div className="home-feature-card">
-                        <img src="http://localhost:8000/images/welcome/Search.png" alt="Search" />
+                        <img src={`${BACKEND_URL}/images/welcome/Search.png`} alt="Search" />
                         <h3>Search & Filter</h3>
                         <p>Easily search and filter programs by location, duration, or study mode.</p>
                     </div>
                     <div className="home-feature-card">
-                        <img src="http://localhost:8000/images/welcome/Apply.png" alt="Apply" />
+                        <img src={`${BACKEND_URL}/images/welcome/Apply.png`} alt="Apply" />
                         <h3>Course Applications</h3>
                         <p>Apply directly to your desired programs with just a few clicks and start your academic journey.</p>
                     </div>
@@ -230,21 +256,51 @@ const HomePage = () => {
                             </div>
                         </div>
 
-                        <form className="home-contact-form">
+                        <form className="home-contact-form" onSubmit={handleContactSubmit}>
                             <h3>Send Us a Message</h3>
+                            
+                            {status.message && (
+                                <div className={`status-message ${status.type}`}>
+                                    {status.message}
+                                </div>
+                            )}
+
                             <div className="home-form-group">
                                 <label>Name</label>
-                                <input type="text" placeholder="John Doe" required />
+                                <input 
+                                    type="text" 
+                                    placeholder="John Doe" 
+                                    required 
+                                    value={contactForm.name}
+                                    onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
+                                    disabled={isSubmitting}
+                                />
                             </div>
                             <div className="home-form-group">
                                 <label>Email</label>
-                                <input type="email" placeholder="john@example.com" required />
+                                <input 
+                                    type="email" 
+                                    placeholder="john@example.com" 
+                                    required 
+                                    value={contactForm.email}
+                                    onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                                    disabled={isSubmitting}
+                                />
                             </div>
                             <div className="home-form-group">
                                 <label>Message</label>
-                                <textarea rows="5" placeholder="How can we help you?" required></textarea>
+                                <textarea 
+                                    rows="5" 
+                                    placeholder="How can we help you?" 
+                                    required
+                                    value={contactForm.message}
+                                    onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
+                                    disabled={isSubmitting}
+                                ></textarea>
                             </div>
-                            <button type="submit" className="home-contact-btn">Send Message</button>
+                            <button type="submit" className="home-contact-btn" disabled={isSubmitting}>
+                                {isSubmitting ? 'Sending...' : 'Send Message'}
+                            </button>
                         </form>
                     </div>
                 </div>

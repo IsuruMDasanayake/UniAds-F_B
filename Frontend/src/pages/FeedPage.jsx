@@ -446,7 +446,7 @@ function FeedPage() {
                 <aside className="left-sidebar">
                     <div className="sidebar-card">
                         <h3>Bachelor&apos;s Degrees</h3>
-                        <ul className="category-list">
+                                    <ul className="category-list">
                             <li><Link to="/courses?search=Bachelor of Science in IT">Bachelor of Science in IT</Link></li>
                             <li><Link to="/courses?search=Bachelor of Business Administration">Bachelor of Business Administration</Link></li>
                             <li><Link to="/courses?search=Bachelor of Arts">Bachelor of Arts</Link></li>
@@ -457,10 +457,10 @@ function FeedPage() {
                                     <li><Link to="/courses?search=Bachelor of Fine Arts">Bachelor of Fine Arts</Link></li>
                                 </>
                             )}
-                        </ul>
+                                    </ul>
                         <button className="see-more-btn" onClick={() => toggleSection('bachelors')}>
                             {expandedSections.bachelors ? 'See Less' : 'See More'}
-                        </button>
+                                        </button>
 
                         <h3>Master&apos;s Degrees</h3>
                         <ul className="category-list">

@@ -101,12 +101,26 @@ class InstituteController extends Controller
     // showInstitutions removed
 
 
-    public function apiIndex()
+    public function apiIndex(Request $request)
     {
-        $institutes = Institute::where('status', 'approved')
-            ->orWhere('is_premium', true)
+        $query = $request->query('query');
+        $location = $request->query('location');
+        $perPage = $request->query('per_page', 12);
+
+        $institutes = Institute::where(function($q) {
+                $q->where('status', 'approved')
+                  ->orWhere('is_premium', true);
+            })
+            ->when($query, function ($q) use ($query) {
+                $q->where('institute_name', 'LIKE', "%{$query}%")
+                  ->orWhere('location', 'LIKE', "%{$query}%");
+            })
+            ->when($location, function ($q) use ($location) {
+                $q->where('location', 'LIKE', "%{$location}%");
+            })
+            ->orderBy('is_premium', 'desc')
             ->orderBy('institute_name', 'asc')
-            ->get();
+            ->paginate($perPage);
 
         return response()->json($institutes);
     }

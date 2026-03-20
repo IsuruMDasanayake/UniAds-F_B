@@ -288,7 +288,7 @@ function Navbar({ user }) {
                                             Dashboard
                                         </Link>
                                     )}
-                                    {user?.role === 'User' && (
+                                    {(
                                         <button onClick={handleLogout} className="navbar-logout-btn">
                                             <LogOut size={16} /> Log Out
                                         </button>

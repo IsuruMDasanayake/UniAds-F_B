@@ -439,7 +439,7 @@ function EventsPage() {
                             
                             {!hasMoreEvents && events.length > 0 && (
                                 <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px 0', color: 'var(--c-text-muted)', fontSize: '0.9rem' }}>
-                                    No more upcoming events
+                                    
                                 </div>
                             )}
 

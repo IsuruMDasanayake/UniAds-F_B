@@ -22,18 +22,8 @@ import ProgrammeInfoModal from '../components/Modals/ProgrammeInfoModal';
 import ApplyNowModal from '../components/Modals/ApplyNowModal';
 import MoreInfoModal from '../components/Modals/MoreInfoModal';
 import { Link2, Check, ExternalLink } from 'lucide-react';
+import { districts, educationLevels } from '../lib/constants';
 
-const districts = [
-    "Colombo", "Gampaha", "Kalutara", "Kandy", "Matale", "Nuwara Eliya",
-    "Galle", "Matara", "Hambantota", "Jaffna", "Kilinochchi", "Mannar",
-    "Vavuniya", "Mullaitivu", "Batticaloa", "Ampara", "Trincomalee",
-    "Kurunegala", "Puttalam", "Anuradhapura", "Polonnaruwa", "Badulla",
-    "Monaragala", "Ratnapura", "Kegalle"
-];
-
-const educationLevels = [
-    "O/L Student", "A/L Student", "Undergraduate", "Postgraduate", "Other"
-];
 
 const UserProfilePage = () => {
     const { settings } = useSettings();
@@ -41,7 +31,12 @@ const UserProfilePage = () => {
     const [loading, setLoading] = useState(true);
     const [profileData, setProfileData] = useState(null);
     const avatarSeedRef = useRef(null); 
-    const [activeTab, setActiveTab] = useState('profile');
+    const [activeTab, setActiveTab] = useState(() => {
+        const params = new URLSearchParams(window.location.search);
+        const tab = params.get('tab');
+        const validTabs = ['profile', 'roadmaps', 'applications', 'saved', 'security', 'posts', 'events', 'followers'];
+        return validTabs.includes(tab) ? tab : 'profile';
+    });
     const [savedRoadmaps, setSavedRoadmaps] = useState([]);
     const [expandedRoadmap, setExpandedRoadmap] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -578,12 +573,12 @@ const UserProfilePage = () => {
                                 >
                                     <User size={18} /> Basic Details
                                 </button>
-                                {/* <button
+                                <button
                                     className={`upp-nav-item ${activeTab === 'saved' ? 'upp-active' : ''}`}
                                     onClick={() => setActiveTab('saved')}
                                 >
                                     <Bookmark size={18} /> Saved Posts
-                                </button> */}
+                                </button>
                                 <button
                                     className={`upp-nav-item ${activeTab === 'roadmaps' ? 'upp-active' : ''}`}
                                     onClick={() => setActiveTab('roadmaps')}
@@ -595,12 +590,6 @@ const UserProfilePage = () => {
                                     onClick={() => setActiveTab('applications')}
                                 >
                                     <FileText size={18} /> My Applications
-                                </button>
-                                <button
-                                    className={`upp-nav-item ${activeTab === 'saved' ? 'upp-active' : ''}`}
-                                    onClick={() => setActiveTab('saved')}
-                                >
-                                    <Bookmark size={18} /> Saved Posts
                                 </button>
                                 <button
                                     className={`upp-nav-item ${activeTab === 'security' ? 'upp-active' : ''}`}
