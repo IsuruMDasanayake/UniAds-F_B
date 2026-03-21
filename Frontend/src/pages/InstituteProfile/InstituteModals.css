@@ -662,6 +662,39 @@
             max-height: 92vh;
         }
 
+        .submit-btn-wrapper {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .rating-form-container {
+            padding: 16px !important;
+        }
+
+        .star-rating-input {
+            justify-content: center;
+        }
+
+        .reviewer-info {
+            flex-wrap: wrap;
+        }
+
+        .reviewer-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .review-header {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .review-stars {
+            margin-left: 52px; /* Align with text under avatar */
+        }
+
         .modal-body-split {
             flex-direction: column;
         }
@@ -775,6 +808,12 @@
         font-weight: 700;
         color: var(--c-dark);
         font-size: 0.95rem;
+        line-height: 1.2;
+    }
+
+    .reviewer-text {
+        display: flex;
+        flex-direction: column;
     }
 
     .review-date {
@@ -788,6 +827,11 @@
         display: flex;
         gap: 2px;
         color: var(--c-bookmark);
+    }
+
+    .submit-btn-wrapper {
+        display: flex;
+        justify-content: flex-end;
     }
 
     .review-comment {

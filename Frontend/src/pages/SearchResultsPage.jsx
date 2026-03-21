@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import axiosClient from '../lib/axios';
 import { getStorageUrl } from '../lib/config';
+import { copyToClipboard } from '../lib/clipboard';
 import Navbar from '../components/Navbar';
 import ProgrammeInfoModal from '../components/Modals/ProgrammeInfoModal';
 import ApplyNowModal from '../components/Modals/ApplyNowModal';
@@ -102,9 +103,11 @@ function SearchResultsPage() {
     const handleCopyPostLink = (post) => {
         if (!post?.share_link) return;
         const url = `${window.location.origin}/post/${post.share_link}`;
-        navigator.clipboard.writeText(url).then(() => {
+        copyToClipboard(url).then(() => {
             setCopiedPostId(post.id);
             setTimeout(() => setCopiedPostId(null), 2000);
+        }).catch(err => {
+            console.error('Copy failed:', err);
         });
     };
 
@@ -144,7 +147,9 @@ function SearchResultsPage() {
     };
 
     const formatDate = (dateString) => {
-        const date = new Date(dateString);
+        if (!dateString) return '';
+        const s = dateString.includes('T') ? dateString : dateString.replace(/-/g, "/");
+        const date = new Date(s);
         return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     };
 

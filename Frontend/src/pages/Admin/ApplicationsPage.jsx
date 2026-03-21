@@ -19,6 +19,16 @@ const ApplicationsPage = () => {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
+    const formatDate = (dateString, includeTime = false) => {
+        if (!dateString) return '-';
+        const s = dateString.includes('T') ? dateString : dateString.replace(/-/g, "/");
+        const date = new Date(s);
+        // Fallback for completely invalid strings
+        if (isNaN(date.getTime())) return '-';
+        
+        return includeTime ? date.toLocaleString() : date.toLocaleDateString();
+    };
+
     useEffect(() => {
         fetchInstitutes();
     }, []);
@@ -34,7 +44,8 @@ const ApplicationsPage = () => {
     const fetchInstitutes = async () => {
         try {
             const response = await axiosClient.get('/api/institutions');
-            setInstitutes(response.data);
+            const payload = response.data;
+            setInstitutes(Array.isArray(payload) ? payload : (payload.data || []));
         } catch (error) {
             console.error('Error fetching institutes:', error);
         }
@@ -92,7 +103,7 @@ const ApplicationsPage = () => {
                         }}
                     >
                         <option value="all">All Institutes</option>
-                        {institutes.map(inst => (
+                        {(Array.isArray(institutes) ? institutes : []).map(inst => (
                             <option key={inst.id} value={inst.id}>{inst.institute_name}</option>
                         ))}
                     </select>
@@ -149,25 +160,25 @@ const ApplicationsPage = () => {
                                             </div>
                                         </td>
                                         <td>
-                                            <span className={`status-badge-v2 min-w-[100px] ${app.status}`}>
+                                            <span className={`status-badge-v2 min-w-[100px] ${app.status || 'pending'}`}>
                                                 <span className="dot"></span>
-                                                {app.status?.charAt(0).toUpperCase() + app.status?.slice(1)}
+                                                {app.status ? app.status.charAt(0).toUpperCase() + app.status.slice(1) : 'Pending'}
                                             </span>
                                         </td>
                                         <td>
                                             <div className="flex items-center gap-2 text-sm text-muted">
                                                 <Calendar size={14} />
-                                                {app.applied_at ? new Date(app.applied_at).toLocaleDateString() : new Date(app.created_at).toLocaleDateString()}
+                                                {app.applied_at ? formatDate(app.applied_at) : formatDate(app.created_at)}
                                             </div>
                                         </td>
                                         <td>
                                             <div className="text-sm text-muted">
-                                                {app.viewed_at ? new Date(app.viewed_at).toLocaleString() : '-'}
+                                                {app.viewed_at ? formatDate(app.viewed_at, true) : '-'}
                                             </div>
                                         </td>
                                         <td>
                                             <div className="text-sm text-muted">
-                                                {app.contacted_at ? new Date(app.contacted_at).toLocaleString() : '-'}
+                                                {app.contacted_at ? formatDate(app.contacted_at, true) : '-'}
                                             </div>
                                         </td>
                                     </tr>

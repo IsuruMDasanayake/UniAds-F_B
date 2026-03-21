@@ -85,8 +85,15 @@
 }
 
 @keyframes slideInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .ai-advisor-header {
@@ -130,7 +137,7 @@
 }
 
 .ai-advisor-header p {
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
   margin: 0;
   font-size: 12px;
 }
@@ -196,8 +203,15 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .bot-message {
@@ -281,18 +295,34 @@
   animation: bounce 1.4s infinite ease-in-out both;
 }
 
-.dot:nth-child(1) { animation-delay: -0.32s; }
-.dot:nth-child(2) { animation-delay: -0.16s; }
+.dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
 
 @keyframes bounce {
-  0%, 80%, 100% { transform: scale(0); }
-  40% { transform: scale(1); }
+
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+  }
+
+  40% {
+    transform: scale(1);
+  }
 }
 
 .markdown-body {
   max-width: 100%;
 }
-.markdown-body h1, .markdown-body h2, .markdown-body h3 {
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3 {
   font-size: 16px;
   margin-top: 16px;
   margin-bottom: 8px;
@@ -347,28 +377,28 @@
     width: 80%;
     height: 75vh;
     max-height: 600px;
-    bottom: 100px;
+    bottom: 75px;
     left: 10%;
     border-radius: 20px;
     z-index: 10000;
   }
 
   .ai-advisor-footer {
-    padding: 10px 12px;
-    gap: 6px;
+    padding: 10px 12px !important;
+    gap: 6px !important;
   }
 
   .ai-advisor-footer input {
-    font-size: 13px;
-    padding: 9px 12px;
+    font-size: 13px !important;
+    padding: 9px 12px !important;
   }
 
   .ai-advisor-footer button {
-    flex-shrink: 0;
-    min-width: 56px;
-    padding: 0 14px;
-    font-size: 12px;
-    white-space: nowrap;
+    flex-shrink: 0 !important;
+    min-width: 56px !important;
+    padding: 0 14px !important;
+    font-size: 12px !important;
+    white-space: nowrap !important;
   }
 
 }
@@ -566,7 +596,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .suggested-reply-btn:hover {

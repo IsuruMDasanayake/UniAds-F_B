@@ -579,40 +579,35 @@
     font-weight: 700;
     border-right: 3px solid var(--c-primary);
 }
+
 /* Mobile Navigation Tabs */
 .upp-mobile-tabs {
     display: none;
-    padding: 0 20px;
-    margin-top: 25px;
-    gap: 0;
-    overflow-x: auto;
-    justify-content: center;
-    scrollbar-width: none; /* Hide scrollbar Firefox */
-    -ms-overflow-style: none; /* Hide scrollbar IE/Edge */
-    &::-webkit-scrollbar {
-        display: none; /* Hide scrollbar Chrome/Safari */
-    }
+    padding: 0 5px;
+    justify-content: space-around;
     border-top: 1px solid #f1f5f9;
 }
 
 .upp-mobile-tabs::-webkit-scrollbar {
-    display: none; /* Hide scrollbar Chrome/Safari */
+    display: none;
+    /* Hide scrollbar Chrome/Safari */
 }
 
 .upp-mobile-tab-item {
-    padding: 15px 20px;
+    padding: 12px 4px;
     display: flex;
+    flex: 1;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     background: transparent;
     border: none;
     color: #94a3b8;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
-    min-width: 90px;
+    min-width: 0;
     position: relative;
     white-space: nowrap;
 }
@@ -641,7 +636,7 @@
     .upp-mobile-tabs {
         display: flex;
     }
-    
+
     .upp-profile-sidebar {
         display: none;
     }
@@ -723,7 +718,7 @@
         align-items: center;
         text-align: center;
         padding: 0 20px 30px;
-        
+
     }
 
     .upp-profile-identity {
@@ -741,7 +736,35 @@
     .upp-profile-info-chips {
         justify-content: center;
     }
+
+    .upp-content-card {
+        padding: 24px 18px;
+    }
+
+    .upp-section-header {
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+    }
+
+    .upp-section-header h2 {
+        font-size: 1.15rem;
+    }
+
+    .roadmap-header {
+        padding: 18px;
+        gap: 15px;
+    }
+
+    .roadmap-icon-wrapper {
+        width: 40px;
+        height: 40px;
+    }
+
+    .roadmap-goal {
+        font-size: 0.95rem;
+    }
 }
+
 /* Applications Section */
 .upp-applications-list {
     display: flex;
@@ -872,13 +895,13 @@
         align-items: flex-start;
         text-align: left;
     }
-    
+
     .upp-app-post-thumb img {
         width: 60px;
         height: 60px;
         border-radius: 10px;
     }
-    
+
     .upp-app-details h3 {
         font-size: 0.95rem;
         padding-right: 40px;
@@ -901,17 +924,34 @@
     }
 
     .status-badge {
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        padding: 2px 8px;
-        font-size: 0.65rem;
+        position: static;
+        padding: 4px 10px;
+        font-size: 0.75rem;
+        width: fit-content;
     }
-    
+
     .upp-app-actions {
         grid-column: span 2;
         width: 100%;
         margin-top: 5px;
+    }
+
+    .upp-content-card {
+        padding: 20px 15px;
+    }
+
+    .roadmap-header {
+        padding: 16px;
+        gap: 12px;
+    }
+
+    .roadmap-icon-wrapper {
+        width: 36px;
+        height: 36px;
+    }
+
+    .roadmap-goal {
+        font-size: 0.9rem;
     }
 
     .upp-app-btn {
@@ -1149,6 +1189,7 @@
         justify-content: center;
     }
 }
+
 .upp-forgot-password-btn {
     margin-top: 10px;
     padding: 10px 16px;

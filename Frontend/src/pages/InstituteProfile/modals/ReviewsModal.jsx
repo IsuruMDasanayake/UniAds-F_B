@@ -122,7 +122,9 @@ const ReviewsModal = ({ institute, currentUser, onClose }) => {
     };
 
     const formatDate = (dateString) => {
-        const date = new Date(dateString);
+        if (!dateString) return '';
+        const s = dateString.includes('T') ? dateString : dateString.replace(/-/g, "/");
+        const date = new Date(s);
         return date.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
@@ -206,7 +208,7 @@ const ReviewsModal = ({ institute, currentUser, onClose }) => {
                                             />
                                         </div>
 
-                                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                        <div className="submit-btn-wrapper">
                                             <button
                                                 type="submit"
                                                 className="btn btn-primary"
@@ -260,7 +262,7 @@ const ReviewsModal = ({ institute, currentUser, onClose }) => {
                                                                 alt={review.user?.name}
                                                                 className="reviewer-avatar"
                                                             />
-                                                            <div>
+                                                            <div className="reviewer-text">
                                                                 <span className="reviewer-name">{review.user?.name || 'Anonymous'}</span>
                                                                 <span className="review-date">{formatDate(review.created_at)}</span>
                                                             </div>

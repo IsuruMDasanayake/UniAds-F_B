@@ -10,6 +10,7 @@ import {
 import { AnimatePresence } from 'framer-motion';
 import axiosClient from '../lib/axios';
 import { getStorageUrl } from '../lib/config';
+import { copyToClipboard } from '../lib/clipboard';
 import { useSettings } from '../context/SettingsContext';
 import Navbar from '../components/Navbar';
 import ProgrammeInfoModal from '../components/Modals/ProgrammeInfoModal';
@@ -360,9 +361,11 @@ function FeedPage() {
     const handleCopyPostLink = (post) => {
         if (!post?.share_link) return;
         const url = `${window.location.origin}/post/${post.share_link}`;
-        navigator.clipboard.writeText(url).then(() => {
+        copyToClipboard(url).then(() => {
             setCopiedPostId(post.id);
             setTimeout(() => setCopiedPostId(null), 2000);
+        }).catch(err => {
+            console.error('Copy failed:', err);
         });
     };
 
@@ -413,7 +416,9 @@ function FeedPage() {
     };
 
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
+        if (!dateString) return '';
+        const s = dateString.includes('T') ? dateString : dateString.replace(/-/g, "/");
+        return new Date(s).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'

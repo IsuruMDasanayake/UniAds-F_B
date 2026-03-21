@@ -189,12 +189,16 @@ const ApplicationsPage = () => {
         {
             header: 'Applied At',
             accessor: 'applied_at',
-            render: (row) => (
-                <div className="date-cell">
-                    <Calendar size={14} className="icon-v2" />
-                    <span>{new Date(row.applied_at).toLocaleDateString()}</span>
-                </div>
-            )
+            render: (row) => {
+                if (!row.applied_at) return <span>—</span>;
+                const s = row.applied_at.includes('T') ? row.applied_at : row.applied_at.replace(/-/g, "/");
+                return (
+                    <div className="date-cell">
+                        <Calendar size={14} className="icon-v2" />
+                        <span>{new Date(s).toLocaleDateString()}</span>
+                    </div>
+                );
+            }
         },
         {
             header: 'Status',

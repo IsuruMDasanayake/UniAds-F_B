@@ -130,7 +130,8 @@
 #application-details-modal .info-row {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    align-items: flex-start;
+    gap: 6px;
     margin-bottom: 1rem;
 }
 
@@ -148,6 +149,7 @@
     font-size: 0.9375rem;
     font-weight: 700;
     color: #1e293b;
+    word-break: break-word;
 }
 
 #application-details-modal .student-email-link {
@@ -358,14 +360,30 @@
     white-space: pre-wrap;
 }
 
+@media (max-width: 900px) {
+    #application-details-modal .modal-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 768px) {
     #application-details-modal {
-        max-width: 90%;
+        max-width: 92%;
         max-height: 90vh;
+        border-radius: 20px;
+    }
+
+    #application-details-modal .modal-header {
+        padding: 1.25rem;
     }
 
     #application-details-modal .modal-body {
-        padding: 2rem;
+        padding: 1rem;
+    }
+
+    #application-details-modal .reply-container {
+        padding: 1.25rem;
+        margin-top: 0;
     }
 }
 

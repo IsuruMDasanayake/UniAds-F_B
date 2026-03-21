@@ -156,38 +156,43 @@ const EventsAnalyticsPage = () => {
         {
             header: 'Event Information',
             accessor: 'event_title',
-            render: (row) => (
-                <div className="cell-content-wrapper">
-                    <div className="event-thumbnail-wrapper">
-                        {row.event_image ? (
-                            <img
-                                src={getStorageUrl(row.event_image)}
-                                alt=""
-                                className="event-thumbnail"
-                                onError={(e) => {
-                                    e.target.onerror = null;
-                                    e.target.src = '/images/default-event.jpg';
-                                }}
-                            />
-                        ) : (
-                            <div className="event-placeholder">
-                                <ImageIcon size={20} />
+            render: (row) => {
+                const s = row.event_date ? (row.event_date.includes('T') ? row.event_date : row.event_date.replace(/-/g, "/")) : null;
+                const dateObj = s ? new Date(s) : null;
+                
+                return (
+                    <div className="cell-content-wrapper">
+                        <div className="event-thumbnail-wrapper">
+                            {row.event_image ? (
+                                <img
+                                    src={getStorageUrl(row.event_image)}
+                                    alt=""
+                                    className="event-thumbnail"
+                                    onError={(e) => {
+                                        e.target.onerror = null;
+                                        e.target.src = '/images/default-event.jpg';
+                                    }}
+                                />
+                            ) : (
+                                <div className="event-placeholder">
+                                    <ImageIcon size={20} />
+                                </div>
+                            )}
+                            <div className="event-date-badge-v2">
+                                <span className="day">{dateObj ? dateObj.getDate() : '-'}</span>
+                                <span className="month">{dateObj ? dateObj.toLocaleString('default', { month: 'short' }) : '-'}</span>
                             </div>
-                        )}
-                        <div className="event-date-badge-v2">
-                            <span className="day">{new Date(row.event_date).getDate()}</span>
-                            <span className="month">{new Date(row.event_date).toLocaleString('default', { month: 'short' })}</span>
+                        </div>
+                        <div className="event-info-meta">
+                            <span className="event-title" title={row.event_title}>{row.event_title}</span>
+                            <span className="event-date">
+                                <Clock size={12} />
+                                {dateObj ? dateObj.toLocaleDateString() : 'N/A'}
+                            </span>
                         </div>
                     </div>
-                    <div className="event-info-meta">
-                        <span className="event-title" title={row.event_title}>{row.event_title}</span>
-                        <span className="event-date">
-                            <Clock size={12} />
-                            {new Date(row.event_date).toLocaleDateString()}
-                        </span>
-                    </div>
-                </div>
-            )
+                );
+            }
         },
         {
             header: 'Views',

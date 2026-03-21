@@ -40,19 +40,18 @@
 
 #inquiry-details-modal .header-info h3 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 800;
     color: #0f172a;
-    letter-spacing: -0.02em;
 }
 
 #inquiry-details-modal .application-id {
     font-size: 0.75rem;
-    color: #64748b;
     font-weight: 600;
-    background: #e2e8f0;
+    color: #64748b;
+    background: #f1f5f9;
     padding: 2px 8px;
-    border-radius: 12px;
+    border-radius: 6px;
     margin-top: 4px;
     display: inline-block;
 }
@@ -94,10 +93,12 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    font-size: 1rem;
+    font-size: 0.875rem;
     font-weight: 700;
-    color: #1e293b;
-    margin-bottom: 1.25rem;
+    color: #475569;
+    margin: 0 0 1rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 #inquiry-details-modal .section-title svg {
@@ -105,38 +106,49 @@
 }
 
 /* Info Card Styles */
-#inquiry-details-modal .info-card {
-    background: #f1f5f9;
-    padding: 1.5rem;
-    border-radius: 20px;
+#inquiry-details-modal .info-column {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem;
+}
+
+#inquiry-details-modal .info-card {
+    background: #f8fafc;
+    padding: 1.25rem;
+    border-radius: 16px;
     border: 1px solid #e2e8f0;
 }
 
 #inquiry-details-modal .info-row {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    margin-bottom: 1rem;
+}
+
+#inquiry-details-modal .info-row:last-child {
+    margin-bottom: 0;
 }
 
 #inquiry-details-modal .info-row .label {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     color: #64748b;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 #inquiry-details-modal .info-row .value {
     font-size: 0.9375rem;
     color: #0f172a;
     font-weight: 700;
+    word-break: break-word;
 }
 
 #inquiry-details-modal .student-email-link {
+    color: var(--c-primary);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 6px;
 }
 
 /* Message Section */
@@ -146,24 +158,23 @@
 
 #inquiry-details-modal .student-message-box {
     background: #f1f5f9;
-    padding: 1.5rem;
+    padding: 1.25rem;
     border-radius: 16px;
-    border: 1px solid #e2e8f0;
-    font-size: 0.95rem;
+    border: 1px dashed #cbd5e1;
+    font-size: 0.9375rem;
     line-height: 1.6;
     color: #334155;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     white-space: pre-wrap;
-    min-height: 120px;
+    min-height: 100px;
 }
 
 /* Reply Column */
 #inquiry-details-modal .reply-container {
-    background: #f8fafc;
-    padding: 2rem;
-    border-radius: 24px;
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 16px;
     border: 1px solid #e2e8f0;
-    margin-top: -1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 #inquiry-details-modal .reply-form {
@@ -179,7 +190,7 @@
 }
 
 #inquiry-details-modal .input-group label {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 700;
     color: #475569;
 }
@@ -206,8 +217,9 @@
     background: var(--c-primary);
     color: white;
     border: none;
-    padding: 1rem;
-    border-radius: 16px;
+    padding: 0.875rem;
+    border-radius: 12px;
+    font-size: 0.9375rem;
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -259,5 +271,26 @@
 @media (max-width: 900px) {
     #inquiry-details-modal .modal-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    #inquiry-details-modal {
+        max-width: 95%;
+        max-height: 90vh;
+        border-radius: 20px;
+    }
+
+    #inquiry-details-modal .modal-header {
+        padding: 1.25rem;
+    }
+
+    #inquiry-details-modal .modal-body {
+        padding: 1rem;
+    }
+
+    #inquiry-details-modal .reply-container {
+        padding: 1.25rem;
+        margin-top: 0;
     }
 }

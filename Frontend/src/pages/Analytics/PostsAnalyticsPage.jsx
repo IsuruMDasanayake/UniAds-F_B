@@ -4,6 +4,7 @@ import axiosClient from '../../lib/axios';
 import DataTable from '../../components/Analytics/DataTable';
 import { BadgeCheck, Ban, Eye, FileText, Image as ImageIcon, ChevronRight, Edit3, Heart, Trash2, RefreshCw, Link2, Check } from 'lucide-react';
 import { getStorageUrl } from '../../lib/config';
+import { copyToClipboard } from '../../lib/clipboard';
 
 // Modals
 import ProgrammeInfoModal from '../../components/Modals/ProgrammeInfoModal';
@@ -47,9 +48,11 @@ const PostsAnalyticsPage = () => {
     const handleCopyPostLink = (post) => {
         if (!post?.share_link) return;
         const url = `${window.location.origin}/post/${post.share_link}`;
-        navigator.clipboard.writeText(url).then(() => {
+        copyToClipboard(url).then(() => {
             setCopiedPostId(post.id);
             setTimeout(() => setCopiedPostId(null), 2000);
+        }).catch(err => {
+            console.error('Copy failed:', err);
         });
     };
 
@@ -89,8 +92,14 @@ const PostsAnalyticsPage = () => {
         }
     }, [page, search, status, sortConfig]);
 
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        const s = dateString.includes('T') ? dateString : dateString.replace(/-/g, "/");
+        return new Date(s).toLocaleDateString();
+    };
+
     useEffect(() => {
-        const fetchTrends = async () => {
+        const fetchAnalytics = async () => {
             setLoadingTrend(true);
             try {
                 const { data } = await axiosClient.get('/api/institute/analytics/trends', {
@@ -103,7 +112,7 @@ const PostsAnalyticsPage = () => {
                 setLoadingTrend(false);
             }
         };
-        fetchTrends();
+        fetchAnalytics();
     }, []);
 
     // Effect for search/status/sort change (with debounce for search)
@@ -201,7 +210,7 @@ const PostsAnalyticsPage = () => {
                     </div>
                     <div className="post-info-meta">
                         <span className="post-title" title={row.title}>{row.title}</span>
-                        <span className="post-date">Posted on {new Date(row.created_at).toLocaleDateString()}</span>
+                        <span className="post-date">Posted on {formatDate(row.created_at)}</span>
                     </div>
                 </div>
             )

@@ -168,12 +168,17 @@ const GeneralInquiriesPage = () => {
         },
         {
             header: 'Date Received',
-            render: (row) => (
-                <div className="date-info">
-                    {new Date(row.created_at).toLocaleDateString()}
-                    <span className="time-sub">{new Date(row.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                </div>
-            )
+            render: (row) => {
+                if (!row.created_at) return <div className="date-info">—</div>;
+                const s = row.created_at.includes('T') ? row.created_at : row.created_at.replace(/-/g, "/");
+                const dateObj = new Date(s);
+                return (
+                    <div className="date-info">
+                        {dateObj.toLocaleDateString()}
+                        <span className="time-sub">{dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                );
+            }
         },
         {
             header: 'Action',

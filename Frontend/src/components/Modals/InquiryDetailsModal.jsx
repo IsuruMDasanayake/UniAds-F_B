@@ -14,6 +14,21 @@ import {
 import axiosClient from '../../lib/axios';
 import './InquiryDetailsModal.css';
 
+const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    
+    // Replace dashes with slashes for iOS Safari compatibility
+    const safeDateString = dateString.replace(/-/g, '/').replace('T', ' ');
+    const parts = safeDateString.split('.'); // Handle fractional seconds
+    const cleanDate = parts[0];
+
+    const d = new Date(cleanDate);
+    if (isNaN(d.getTime())) {
+        return dateString.split(' ')[0] || dateString;
+    }
+    return d.toLocaleString();
+};
+
 const InquiryDetailsModal = ({ isOpen, onClose, inquiry, onReplySent }) => {
     const [subject, setSubject] = useState('');
     const [message, setMessage] = useState('');
@@ -87,11 +102,11 @@ const InquiryDetailsModal = ({ isOpen, onClose, inquiry, onReplySent }) => {
                                         </div>
                                         <div className="info-row">
                                             <span className="label">Email</span>
-                                            <span className="value student-email-link"><Mail size={12} /> {inquiry.email}</span>
+                                            <span className="value student-email-link"> {inquiry.email}</span>
                                         </div>
                                         <div className="info-row">
                                             <span className="label">Date</span>
-                                            <span className="value">{new Date(inquiry.created_at).toLocaleString()}</span>
+                                            <span className="value">{formatDate(inquiry.created_at)}</span>
                                         </div>
                                     </div>
                                 </div>

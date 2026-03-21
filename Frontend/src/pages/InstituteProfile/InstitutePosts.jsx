@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MapPin, Heart, Edit2, Trash2, Send, Info, Link2, Check, Loader2 } from 'lucide-react';
 import axiosClient from '../../lib/axios';
 import { getStorageUrl } from '../../lib/config';
+import { copyToClipboard } from '../../lib/clipboard';
 import './InstitutePosts.css';
 
 // Import Modals
@@ -205,9 +206,11 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
     const handleCopyPostLink = (post) => {
         if (!post?.share_link) return;
         const url = `${window.location.origin}/post/${post.share_link}`;
-        navigator.clipboard.writeText(url).then(() => {
+        copyToClipboard(url).then(() => {
             setCopiedPostId(post.id);
             setTimeout(() => setCopiedPostId(null), 2000);
+        }).catch(err => {
+            console.error('Copy failed:', err);
         });
     };
 
@@ -300,7 +303,9 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
     };
 
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
+        if (!dateString) return '';
+        const s = dateString.includes('T') ? dateString : dateString.replace(/-/g, "/");
+        return new Date(s).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'

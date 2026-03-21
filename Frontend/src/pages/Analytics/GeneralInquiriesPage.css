@@ -212,4 +212,8 @@
     #general-inquiries-page .header-title-v2 {
         font-size: 1.5rem;
     }
+
+    #general-inquiries-page .page-title-v2 {
+        margin-top: -20px !important;
+    }
 }

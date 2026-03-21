@@ -9,6 +9,7 @@ import {
 import Navbar from '../components/Navbar';
 import axiosClient from '../lib/axios';
 import { getStorageUrl } from '../lib/config';
+import { copyToClipboard } from '../lib/clipboard';
 import ProgrammeInfoModal from '../components/Modals/ProgrammeInfoModal';
 import ApplyNowModal from '../components/Modals/ApplyNowModal';
 import MoreInfoModal from '../components/Modals/MoreInfoModal';
@@ -202,9 +203,11 @@ const CoursesPage = () => {
     const handleCopyPostLink = (post) => {
         if (!post?.share_link) return;
         const url = `${window.location.origin}/post/${post.share_link}`;
-        navigator.clipboard.writeText(url).then(() => {
+        copyToClipboard(url).then(() => {
             setCopiedPostId(post.id);
             setTimeout(() => setCopiedPostId(null), 2000);
+        }).catch(err => {
+            console.error('Copy failed:', err);
         });
     };
 
@@ -249,7 +252,9 @@ const CoursesPage = () => {
     };
 
     const formatDate = (dateString) => {
-        const date = new Date(dateString);
+        if (!dateString) return '';
+        const s = dateString.includes('T') ? dateString : dateString.replace(/-/g, "/");
+        const date = new Date(s);
         const datePart = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         const timePart = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
         return `${datePart} | ${timePart}`;

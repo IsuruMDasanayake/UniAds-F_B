@@ -152,11 +152,14 @@
     background: white;
     border: 1px solid #f1f5f9;
     border-radius: 12px;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
 }
 
 .al-table {
     width: 100%;
+    min-width: 800px;
     border-collapse: collapse;
     font-size: 0.875rem;
 }

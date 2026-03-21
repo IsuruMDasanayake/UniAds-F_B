@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Info, Link2, Check } from 'lucide-react';
 import { getStorageUrl } from '../../lib/config';
+import { copyToClipboard } from '../../lib/clipboard';
 import axiosClient from '../../lib/axios';
 import './ProgrammeInfoModal.css';
 
@@ -22,9 +23,11 @@ const ProgrammeInfoModal = ({ course, isOpen, onClose, onApply, onMoreInfo, user
     const handleCopyLink = () => {
         if (!course?.share_link) return;
         const url = `${window.location.origin}/post/${course.share_link}`;
-        navigator.clipboard.writeText(url).then(() => {
+        copyToClipboard(url).then(() => {
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
+        }).catch(err => {
+            console.error('Copy failed:', err);
         });
     };
     return (

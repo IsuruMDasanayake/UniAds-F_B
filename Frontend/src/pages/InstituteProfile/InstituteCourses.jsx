@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axiosClient from '../../lib/axios';
 import { motion } from 'framer-motion';
 import { getStorageUrl } from '../../lib/config';
+import { copyToClipboard } from '../../lib/clipboard';
 import { Bookmark, Link2, Check, Loader2 } from 'lucide-react';
 import ProgrammeInfoModal from '../../components/Modals/ProgrammeInfoModal';
 import ApplyNowModal from '../../components/Modals/ApplyNowModal';
@@ -206,9 +207,11 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
         e.stopPropagation();
         if (!course?.share_link) return;
         const url = `${window.location.origin}/post/${course.share_link}`;
-        navigator.clipboard.writeText(url).then(() => {
+        copyToClipboard(url).then(() => {
             setCopiedPostId(course.id);
             setTimeout(() => setCopiedPostId(null), 2000);
+        }).catch(err => {
+            console.error('Copy failed:', err);
         });
     };
 

@@ -24,6 +24,7 @@ import MoreInfoModal from '../components/Modals/MoreInfoModal';
 import { Link2, Check, ExternalLink } from 'lucide-react';
 import { districts, educationLevels } from '../lib/constants';
 import { useChat } from '../context/ChatContext';
+import { copyToClipboard } from '../lib/clipboard';
 
 
 const UserProfilePage = () => {
@@ -233,6 +234,20 @@ const UserProfilePage = () => {
         }
     };
 
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        try {
+            // Safari workaround for YYYY-MM-DD HH:mm:ss
+            // If it's pure ISO (has 'T'), it works fine.
+            // If it doesn't have 'T', it might be MySQL format which Safari hates.
+            const s = dateString.includes('T') ? dateString : dateString.replace(/-/g, "/");
+            return new Date(s).toLocaleDateString();
+        } catch (e) {
+            console.error("Date parsing failed", e);
+            return '';
+        }
+    };
+
     const fetchRoadmaps = async () => {
         try {
             const response = await axiosClient.get('/api/ai-advisor/saved-roadmaps');
@@ -305,9 +320,12 @@ const UserProfilePage = () => {
     const handleCopyPostLink = (post) => {
         if (!post?.share_link) return;
         const url = `${window.location.origin}/post/${post.share_link}`;
-        navigator.clipboard.writeText(url).then(() => {
+        copyToClipboard(url).then(() => {
             setCopiedPostId(post.id);
             setTimeout(() => setCopiedPostId(null), 2000);
+        }).catch(err => {
+            console.error('Copy failed:', err);
+            showAlert('error', 'Failed to copy link');
         });
     };
 
@@ -666,7 +684,7 @@ const UserProfilePage = () => {
                             onClick={() => setActiveTab('roadmaps')}
                         >
                             <Sparkles size={18} />
-                            <span>EMY Advice</span>
+                            <span>EMY</span>
                         </button>
                         <button 
                             className={`upp-mobile-tab-item ${activeTab === 'applications' ? 'active' : ''}`}
@@ -965,7 +983,7 @@ const UserProfilePage = () => {
                                                                 {post.institute?.institute_name}
                                                                 {!!post.institute?.is_premium && <BadgeCheck size={14} className="text-red-500 ml-1" />}
                                                             </Link>
-                                                            <span className="upp-saved-date">{new Date(post.created_at).toLocaleDateString()}</span>
+                                                            <span className="upp-saved-date">{formatDate(post.created_at)}</span>
                                                         </div>
                                                         
                                                         <h3 className="upp-saved-title">{post.title}</h3>
@@ -1038,7 +1056,7 @@ const UserProfilePage = () => {
                                                     </div>
                                                     <div className="roadmap-info">
                                                         <h4 className="roadmap-goal">Goal: {roadmap.career_goal}</h4>
-                                                        <p className="roadmap-date">Created on {new Date(roadmap.created_at).toLocaleDateString()}</p>
+                                                        <p className="roadmap-date">Created on {formatDate(roadmap.created_at)}</p>
                                                     </div>
                                                     <div className="roadmap-actions">
                                                         <button 
@@ -1115,7 +1133,7 @@ const UserProfilePage = () => {
                                                         </p>
                                                         <div className="upp-app-meta">
                                                             <span className="flex items-center gap-1">
-                                                                <Calendar size={12} /> {new Date(app.applied_at).toLocaleDateString()}
+                                                                 <Calendar size={12} /> {formatDate(app.applied_at)}
                                                             </span>
                                                             <span className={`status-badge status-${app.status}`}>
                                                                 {app.status === 'sent' && <Clock size={12} />}

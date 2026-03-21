@@ -236,7 +236,11 @@ const PricingPage = () => {
                         <p>Your premium features are currently active, but the subscription is set to <strong>end</strong>.</p>
 
                         <div className="expiry-highlight">
-                            Premium active until: {new Date(premium_expires_at).toDateString()}
+                            Premium active until: {(() => {
+                                if (!premium_expires_at) return '—';
+                                const s = premium_expires_at.includes('T') ? premium_expires_at : premium_expires_at.replace(/-/g, "/");
+                                return new Date(s).toDateString();
+                            })()}
                         </div>
 
                         <p className="text-sm italic">
@@ -329,14 +333,22 @@ const PricingPage = () => {
                             {status === 'trial_active' && (
                                 <div className="status-box">
                                     <h3><Rocket size={18} className="inline mr-2" /> Trial Active</h3>
-                                    <p>Expires {new Date(trial_expires_at).toLocaleDateString()}</p>
+                                    <p>Expires {(() => {
+                                        if (!trial_expires_at) return '—';
+                                        const s = trial_expires_at.includes('T') ? trial_expires_at : trial_expires_at.replace(/-/g, "/");
+                                        return new Date(s).toLocaleDateString();
+                                    })()}</p>
                                 </div>
                             )}
 
                             {status === 'active' && (
                                 <div className="status-box">
                                     <h3><CheckCircle size={18} className="inline mr-2" /> Premium Active</h3>
-                                    <p>Next billing: {new Date(premium_expires_at).toLocaleDateString()}</p>
+                                    <p>Next billing: {(() => {
+                                        if (!premium_expires_at) return '—';
+                                        const s = premium_expires_at.includes('T') ? premium_expires_at : premium_expires_at.replace(/-/g, "/");
+                                        return new Date(s).toLocaleDateString();
+                                    })()}</p>
                                 </div>
                             )}
 
