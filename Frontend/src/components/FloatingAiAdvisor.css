@@ -352,6 +352,25 @@
     border-radius: 20px;
     z-index: 10000;
   }
+
+  .ai-advisor-footer {
+    padding: 10px 12px;
+    gap: 6px;
+  }
+
+  .ai-advisor-footer input {
+    font-size: 13px;
+    padding: 9px 12px;
+  }
+
+  .ai-advisor-footer button {
+    flex-shrink: 0;
+    min-width: 56px;
+    padding: 0 14px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
 }
 
 .ai-advisor-footer {
