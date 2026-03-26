@@ -258,7 +258,8 @@
 /* NEW FILTER BAR STYLES */
 .top-filter-bar {
     display: flex;
-    align-items: flex-start; /* Align search and filters properly */
+    align-items: flex-start;
+    /* Align search and filters properly */
     gap: 1.5rem;
     padding: 1.25rem;
     background: white;
@@ -267,13 +268,15 @@
     border: 1px solid #f1f5f9;
     position: sticky;
     top: 90px;
-    z-index: 1000; /* Higher base z-index */
+    z-index: 1000;
+    /* Higher base z-index */
 }
 
 .filters-container {
     flex: 1;
     display: flex;
-    flex-wrap: wrap; /* Allowed mapping for wrapping */
+    flex-wrap: wrap;
+    /* Allowed mapping for wrapping */
     gap: 0.75rem;
     position: relative;
     /* Removed overflow: hidden or scroll to prevent clipping absolute children */
@@ -383,7 +386,7 @@
     flex-shrink: 0;
 }
 
-.filter-option input:checked + .checkbox-custom {
+.filter-option input:checked+.checkbox-custom {
     background: var(--c-primary);
     border-color: var(--c-primary);
     color: white;
@@ -543,13 +546,11 @@
     border: 1px solid #f1f5f9;
     object-fit: contain;
     background: white;
-    margin-top: -20px;
 }
 
 .inst-meta {
     display: flex;
     flex-direction: column;
-    margin-top: -20px;
 }
 
 .inst-meta .name {
@@ -576,13 +577,11 @@
     color: var(--c-dark);
     margin-bottom: 0.75rem;
     line-height: 1.4;
-    height: 3.4rem;
-    overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
     -webkit-box-orient: vertical;
-    margin-top: -10px;
+    overflow: hidden;
 }
 
 .description {
@@ -590,22 +589,20 @@
     color: var(--c-text-muted);
     line-height: 1.6;
     margin-bottom: 0.5rem;
-    height: 5rem;
-    overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
     -webkit-box-orient: vertical;
-    margin-top: -20px;
+    overflow: hidden;
 }
 
 .course-stats {
     display: flex;
-    gap: 1.25rem;
-    padding-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+    padding-bottom: 1rem;
     border-bottom: 1px solid #f1f5f9;
-    margin-bottom: 1.5rem;
-
+    margin-bottom: 1.25rem;
 }
 
 .course-stats span {
@@ -726,17 +723,27 @@
         max-height: 300px;
         border-radius: 12px;
         z-index: 2000;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
 
     .category-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     }
 
     .results-header {
-    margin-top: 3.5rem;
-}
+        margin-top: 3.5rem;
+    }
+
+    .card-inner {
+        padding: 1rem;
+    }
+
+    .course-stats {
+        gap: 0.5rem 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+    }
 }
 
 /* Specific fix for desktop dropdown visibility */
@@ -749,7 +756,8 @@
 }
 
 .dropdown-header-mobile {
-    display: none; /* Hide on desktop */
+    display: none;
+    /* Hide on desktop */
 }
 
 @media (max-width: 900px) {

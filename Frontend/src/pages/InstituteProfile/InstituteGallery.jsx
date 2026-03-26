@@ -4,6 +4,7 @@ import axiosClient from '../../lib/axios';
 import { Trash2, X, Upload, Loader2, AlertTriangle, Image as ImageIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ImageViewerModal from '../../components/Modals/ImageViewerModal';
+import { getStorageUrl } from '../../lib/config';
 import './InstituteGallery.css';
 
 const DeleteConfirmationModal = ({ onConfirm, onCancel, title, message, isDeleting }) => {
@@ -319,7 +320,7 @@ const InstituteGallery = ({ institute, isOwner, onGalleryUpdate }) => {
                                     onClick={() => setViewerIndex(index)}
                                 >
                                     <img
-                                        src={`http://localhost:8000/storage/${image.image_path}`}
+                                        src={getStorageUrl(image.image_path)}
                                         alt="Gallery"
                                         className="gallery-img clickable-image"
                                     />

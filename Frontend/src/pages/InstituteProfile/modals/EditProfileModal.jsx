@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, Loader2 } from 'lucide-react';
 import axiosClient from '../../../lib/axios';
+import { getStorageUrl } from '../../../lib/config';
 import '../InstituteModals.css';
 
 const EditProfileModal = ({ institute, onClose, onUpdate }) => {
@@ -41,9 +42,9 @@ const EditProfileModal = ({ institute, onClose, onUpdate }) => {
                 followers_enabled: !!institute.followers_enabled,
                 reviews_enabled: !!institute.reviews_enabled
             });
-            setPreviewProfile(institute.profile_photo ? `http://localhost:8000/storage/${institute.profile_photo}` : '/images/profile.png');
-            setPreviewCover(institute.cover_photo ? `http://localhost:8000/storage/${institute.cover_photo}` : '/images/cover.png');
-            setPreviewLogo(institute.logo ? `http://localhost:8000/storage/${institute.logo}` : null);
+            setPreviewProfile(getStorageUrl(institute.profile_photo) || '/images/profile.png');
+            setPreviewCover(getStorageUrl(institute.cover_photo) || '/images/cover.png');
+            setPreviewLogo(getStorageUrl(institute.logo));
         }
     }, [institute]);
 

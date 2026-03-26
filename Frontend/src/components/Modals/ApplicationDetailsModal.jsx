@@ -16,6 +16,7 @@ import {
     History
 } from 'lucide-react';
 import axiosClient from '../../lib/axios';
+import { getStorageUrl } from '../../lib/config';
 import './ApplicationDetailsModal.css';
 
 const formatDate = (dateString) => {
@@ -133,7 +134,7 @@ const ApplicationDetailsModal = ({ isOpen, onClose, application, onReplySent }) 
                                             {application.post?.image && (
                                                 <div className="course-post-image">
                                                     <img
-                                                        src={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/storage/${application.post.image}`}
+                                                        src={getStorageUrl(application.post.image)}
                                                         alt={application.course_title}
                                                     />
                                                 </div>

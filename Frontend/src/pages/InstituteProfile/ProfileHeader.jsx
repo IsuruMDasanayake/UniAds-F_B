@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Mail, MapPin, UserPlus, Check, PlusCircle, Calendar as CalendarIcon, Edit, BarChart3, Star, StarHalf, MessageSquare, BadgeCheck, Building2, Send } from 'lucide-react';
 import { useChat } from '../../context/ChatContext';
 import ChatService from '../../services/ChatService';
+import { getStorageUrl } from '../../lib/config';
 import './ProfileHeader.css';
 
 // Assuming these modals are defined elsewhere and imported
@@ -88,7 +89,7 @@ const ProfileHeader = ({
             {/* Cover Photo */}
             <div className="cover-photo-container">
                 <img
-                    src={institute.cover_photo ? `http://localhost:8000/storage/${institute.cover_photo}` : '/images/cover.png'}
+                    src={getStorageUrl(institute.cover_photo) || '/images/cover.png'}
                     alt="Cover"
                     className="cover-photo"
                 />
@@ -101,7 +102,7 @@ const ProfileHeader = ({
                     <div className="profile-photo-wrapper">
                         <div className="photo-inner">
                             <img
-                                src={institute.profile_photo ? `http://localhost:8000/storage/${institute.profile_photo}` : `https://api.dicebear.com/7.x/initials/svg?seed=${institute.institute_name || 'Institute'}&backgroundColor=ffc107`}
+                                src={getStorageUrl(institute.profile_photo) || `https://api.dicebear.com/7.x/initials/svg?seed=${institute.institute_name || 'Institute'}&backgroundColor=ffc107`}
                                 alt={institute.institute_name}
                                 className="profile-photo"
                             />

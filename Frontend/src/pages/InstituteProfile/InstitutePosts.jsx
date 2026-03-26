@@ -312,7 +312,7 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
         });
     };
 
-    const isPremium = !!(institute?.is_premium && new Date(institute.premium_expires_at) > new Date());
+    const isPremium = !!(institute?.is_premium && new Date(institute.premium_expires_at?.replace(/-/g, "/")) > new Date());
 
     const visiblePosts = localPosts.filter(post => {
         // If owner, show all. If not owner, show only active.

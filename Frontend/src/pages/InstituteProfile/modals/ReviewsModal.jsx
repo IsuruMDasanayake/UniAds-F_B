@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axiosClient from '../../../lib/axios';
 import { Star, Trash2, MessageSquare, X, Send, Loader2, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getStorageUrl } from '../../../lib/config';
 import '../InstituteModals.css';
 
 const DeleteConfirmationModal = ({ onConfirm, onCancel, title, message, isDeleting }) => (
@@ -113,9 +114,7 @@ const ReviewsModal = ({ institute, currentUser, onClose }) => {
 
     const getAvatarSrc = (user) => {
         if (user?.profile_picture) {
-            const path = user.profile_picture;
-            if (path.startsWith('http')) return path;
-            return `http://localhost:8000/storage/${path}`;
+            return getStorageUrl(user.profile_picture);
         }
         // Fallback to DiceBear initials as seen in UserProfilePage.jsx
         return `https://api.dicebear.com/7.x/initials/svg?seed=${user?.name || 'User'}&backgroundColor=ffc107`;

@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import axiosClient from '../../lib/axios';
 import ActionConfirmModal from '../../components/Modals/ActionConfirmModal';
+import { getStorageUrl } from '../../lib/config';
 import './EventManagement.css';
 
 const EventManagement = () => {
@@ -33,7 +34,7 @@ const EventManagement = () => {
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
 
-    const API_BASE_URL = 'http://localhost:8000';
+
 
     const fetchEvents = async (isSilent = false) => {
         try {
@@ -186,7 +187,7 @@ const EventManagement = () => {
                                                 <div className="event-img-box">
                                                     {event.event_image ? (
                                                         <img
-                                                            src={`${API_BASE_URL}/storage/${event.event_image}`}
+                                                            src={getStorageUrl(event.event_image)}
                                                             alt={event.event_title}
                                                             className="event-table-img"
                                                         />
@@ -286,7 +287,7 @@ const EventManagement = () => {
                                 <div className="event-mgmt-details-image">
                                     {selectedEvent.event_image ? (
                                         <img
-                                            src={`${API_BASE_URL}/storage/${selectedEvent.event_image}`}
+                                            src={getStorageUrl(selectedEvent.event_image)}
                                             alt={selectedEvent.event_title}
                                         />
                                     ) : (

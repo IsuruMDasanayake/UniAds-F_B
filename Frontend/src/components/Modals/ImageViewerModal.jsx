@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getStorageUrl } from '../../lib/config';
 import './ImageViewerModal.css';
 
 /**
@@ -39,7 +40,7 @@ const ImageViewerModal = ({ images, currentIndex, onNext, onPrevious, onClose, g
     const resolveUrl = (img) => {
         if (getImageUrl) return getImageUrl(img);
         // Fallback for current project structure if direct URL isn't there
-        return img.image_path ? `http://localhost:8000/storage/${img.image_path}` : img.url || img.src || '';
+        return getStorageUrl(img.image_path) || img.url || img.src || '';
     };
 
     return createPortal(

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Bell, User, Star, AlertTriangle, Check, Trash2, X, Heart, Info, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axiosClient from '../../lib/axios';
+import { getStorageUrl } from '../../lib/config';
 import './NotificationDropdown.css';
 
 const NotificationDropdown = () => {
@@ -73,11 +74,7 @@ const NotificationDropdown = () => {
         }
     };
 
-    const getStorageUrl = (path) => {
-        if (!path) return '';
-        if (path.startsWith('http')) return path;
-        return `http://localhost:8000/storage/${path}`;
-    };
+
 
     const getIcon = (notif) => {
         const { type, data } = notif;

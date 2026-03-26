@@ -3,6 +3,7 @@ import { Search, Filter, Shield, MoreVertical, Building2, CheckCircle, XCircle, 
 import axiosClient from '../../lib/axios';
 import ActionConfirmModal from '../../components/Modals/ActionConfirmModal';
 import AdminEditInstituteModal from './modals/AdminEditInstituteModal';
+import { getStorageUrl } from '../../lib/config';
 import './InstituteManagement.css';
 
 const InstituteManagement = () => {
@@ -227,7 +228,7 @@ const InstituteManagement = () => {
                                                 {/* <div className="inst-avatar">
                                                     {inst.profile_photo ? (
                                                         <img
-                                                            src={`http://localhost:8000/storage/${inst.profile_photo}`}
+                                                            src={getStorageUrl(inst.profile_photo)}
                                                             alt={inst.institute_name}
                                                             className="inst-photo"
                                                             onError={(e) => {

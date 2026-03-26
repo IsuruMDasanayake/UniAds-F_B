@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import axiosClient from '../../lib/axios';
 import ActionConfirmModal from '../../components/Modals/ActionConfirmModal';
+import { getStorageUrl } from '../../lib/config';
 import './PostManagement.css';
 
 const PostManagement = () => {
@@ -32,7 +33,7 @@ const PostManagement = () => {
     const [institutes, setInstitutes] = useState([]);
     const [selectedInstitute, setSelectedInstitute] = useState('');
 
-    const API_BASE_URL = 'http://localhost:8000';
+
 
     const fetchPosts = async (isSilent = false) => {
         try {
@@ -183,7 +184,7 @@ const PostManagement = () => {
                                         <td onClick={() => openDetails(post)} style={{ cursor: 'pointer' }}>
                                             <div className="post-cell">
                                                 <div className="post-thumbnail">
-                                                    {post.image ? <img src={`${API_BASE_URL}/storage/${post.image}`} alt="" /> : <FileText size={20} />}
+                                                    {post.image ? <img src={getStorageUrl(post.image)} alt="" /> : <FileText size={20} />}
                                                 </div>
                                                 <div className="post-meta">
                                                     <span className="post-title-text">{post.title}</span>
@@ -255,7 +256,7 @@ const PostManagement = () => {
                             <div className="post-mgmt-details-grid">
                                 <div className="post-mgmt-details-image-section">
                                     {selectedPost.image ? (
-                                        <img src={`${API_BASE_URL}/storage/${selectedPost.image}`} alt={selectedPost.title} />
+                                        <img src={getStorageUrl(selectedPost.image)} alt={selectedPost.title} />
                                     ) : (
                                         <div className="post-mgmt-details-no-image">
                                             <FileText size={48} />
