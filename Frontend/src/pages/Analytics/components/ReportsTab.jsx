@@ -13,6 +13,7 @@ const ReportsTab = () => {
         includeCharts: false,
         detailedRecords: true
     });
+    const [status, setStatus] = useState({ type: '', message: '' });
 
     const reportTypes = [
         { id: 'Overview Summary', icon: <BarChart3 size={18} />, desc: 'General performance metrics and overview.' },
@@ -54,9 +55,13 @@ const ReportsTab = () => {
             document.body.appendChild(link);
             link.click();
             link.remove();
+            
+            setStatus({ type: 'success', message: 'Report generated successfully! Starting download...' });
+            setTimeout(() => setStatus({ type: '', message: '' }), 5000);
         } catch (error) {
             console.error("Failed to download report:", error);
-            alert("Failed to generate report. Please try again later.");
+            setStatus({ type: 'error', message: 'Failed to generate report. Please ensure dates are valid and try again.' });
+            setTimeout(() => setStatus({ type: '', message: '' }), 10000);
         } finally {
             setLoading(false);
         }
@@ -73,6 +78,13 @@ const ReportsTab = () => {
                     </div>
                 </div>
             </div>
+
+            {status.message && (
+                <div className={`rt-alert rt-alert-${status.type}`}>
+                    {status.type === 'success' ? <CheckCircle2 size={20} /> : <FileText size={20} />}
+                    <span>{status.message}</span>
+                </div>
+            )}
 
             <div className="rt-grid">
                 <div className="rt-config-section">
@@ -182,7 +194,7 @@ const ReportsTab = () => {
                         {loading ? <Loader2 className="animate-spin" size={20} /> : <Download size={20} />}
                         {loading ? 'Generating Report...' : `Download ${format} Report`}
                     </button>
-                    <p className="rt-hint">Report generation might take a few seconds depending on the data volume.</p>
+                    <p className="rt-hint">Report generation might take a few seconds. Charts are currently optimized for PDF format.</p>
                 </div>
             </div>
         </div>
