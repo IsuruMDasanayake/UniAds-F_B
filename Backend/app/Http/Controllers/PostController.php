@@ -203,6 +203,8 @@ class PostController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['message' => 'Validation failed', 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Post Update Error: ' . $e->getMessage());
+            return response()->json(['message' => 'An internal server error occurred while updating the post.'], 500);
         }
     }
 
@@ -299,14 +301,6 @@ class PostController extends Controller
         $query = Post::query()
             ->join('institutes', 'institutes.id', '=', 'posts.institute_id')
             ->select('posts.*')
-            ->selectRaw("
-                (
-                    (CASE WHEN institutes.is_premium = 1 THEN 30 ELSE 0 END) +
-                    (LOG(institutes.followers_count + 1) * 10) +
-                    (100 - TIMESTAMPDIFF(HOUR, posts.created_at, NOW())) +
-                    (MOD(posts.id, 10) * 0.5)
-                ) as score
-            ")
             ->with('institute')
             ->where('posts.status', 'active')
             ->where('posts.created_at', '>=', now()->subDays(60));
@@ -328,8 +322,8 @@ class PostController extends Controller
             }
         }
 
-        $posts = $query->orderByDesc('score')
-            ->get();
+        $posts = $query->orderByDesc('posts.score_cache')
+            ->paginate(100);
 
         return response()->json([
             'posts' => $posts,

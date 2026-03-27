@@ -17,6 +17,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('emails:fetch')->everyFiveMinutes();
         $schedule->command('notifications:send-scheduled')->dailyAt('09:00');
         $schedule->command('chat:cleanup')->daily();
+
+        // Recalculate post scores for ranking
+        $schedule->job(new \App\Jobs\UpdatePostScoresJob)->hourly();
     }
 
 

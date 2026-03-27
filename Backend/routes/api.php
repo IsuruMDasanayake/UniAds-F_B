@@ -120,7 +120,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/search', [SearchController::class, 'apiSearch']);
 
     // Course Applications
-    Route::post('/course/apply/{institute}', [\App\Http\Controllers\CourseApplicationController::class, 'apply']);
+    Route::post('/course/apply/{institute}', [\App\Http\Controllers\CourseApplicationController::class, 'apply'])->middleware('throttle:3,1');
 
     // Existing route for storing institute if any...
 

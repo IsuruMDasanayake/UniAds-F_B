@@ -685,7 +685,7 @@ class AiAdvisorController extends Controller
             return $this->generateResponse($matches, $currentProfile);
         } catch (\Throwable $e) {
             Log::error("FATAL Recommendation Error: " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine() . "\n" . $e->getTraceAsString());
-            return response()->json(['error' => 'An internal error occurred. ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'An internal error occurred. Please try again later.'], 500);
         }
     }
 

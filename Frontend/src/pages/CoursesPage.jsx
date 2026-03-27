@@ -137,7 +137,7 @@ const CoursesPage = () => {
 
             if (filterType && filterValue) {
                 const response = await axiosClient.get(`/api/posts/filter/${filterType}/${filterValue}`);
-                let fetchedPosts = response.data.posts || [];
+                let fetchedPosts = response.data.posts?.data || response.data.posts || [];
 
                 // If user is logged in, map saved status
                 if (currentUser && currentUser.saved_posts) {

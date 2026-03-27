@@ -77,32 +77,27 @@ class CourseApplicationController extends Controller
                     'image' => $post ? $post->image : null
                 ]
             ]);
+
+            // Send Email to Institute
+            $emailData = [
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'],
+                'message' => $validated['message'],
+                'course_title' => $validated['course_title']
+            ];
+
+            \Illuminate\Support\Facades\Mail::to($institute->email)
+                ->queue(new \App\Mail\CourseApplicationMail($emailData));
+
+            // Send Confirmation Email to Student
+            $studentEmailData = array_merge($emailData, [
+                'institute_name' => $post->institute->institute_name ?? $institute->institute_name,
+            ]);
+
+            \Illuminate\Support\Facades\Mail::to($validated['email'])
+                ->queue(new \App\Mail\CourseApplicationStudentMail($studentEmailData));
         }
-
-        // Send Email to Institute
-        $emailData = [
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'phone' => $validated['phone'],
-            'message' => $validated['message'],
-            'course_title' => $validated['course_title']
-        ];
-
-        Mail::send('emails.course_application', ['data' => $emailData], function ($message) use ($institute, $validated) {
-            $message->to($institute->email)
-                ->subject('New Course Application: ' . $validated['course_title'])
-                ->replyTo($validated['email'], $validated['name']);
-        });
-
-        // Send Confirmation Email to Student
-        $studentEmailData = array_merge($emailData, [
-            'institute_name' => $post->institute->institute_name ?? $institute->institute_name,
-        ]);
-
-        Mail::send('emails.course_application_student', ['data' => $studentEmailData], function ($message) use ($validated) {
-            $message->to($validated['email'])
-                ->subject('Application Sent: ' . $validated['course_title']);
-        });
 
         // If AJAX request, return JSON
         if ($request->expectsJson()) {

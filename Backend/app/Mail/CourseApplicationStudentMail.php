@@ -7,11 +7,11 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class CourseApplicationMail extends Mailable implements ShouldQueue
+class CourseApplicationStudentMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    public $data; // To hold the application data
+    public $data;
 
     public function __construct($data)
     {
@@ -20,8 +20,7 @@ class CourseApplicationMail extends Mailable implements ShouldQueue
 
     public function build()
     {
-        return $this->subject('New Course Application: ' . $this->data['course_title'])
-                    ->view('emails.course_application');
+        return $this->subject('Application Sent: ' . $this->data['course_title'])
+                    ->view('emails.course_application_student');
     }
 }
-
