@@ -22,13 +22,22 @@ until php artisan db:monitor; do
   sleep 2
 done
 
+# Optimization
+echo "Caching configuration and routes..."
+php artisan optimize || true
+
+# Set Permissions
+echo "Setting permissions for storage and bootstrap/cache..."
+chmod -R 775 storage bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache
+
 # Run Migrations
 echo "Running migrations..."
 php artisan migrate --force || true
 
-# Run Mail Template Seeder
-echo "Seeding Mail Templates..."
-php artisan db:seed --class=MailTemplateSeeder --force || true
+# Run Database Seeders
+echo "Seeding Database..."
+php artisan db:seed --force || true
 
 # Execute the specified command if provided, otherwise start PHP-FPM
 if [ $# -gt 0 ]; then

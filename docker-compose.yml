@@ -93,17 +93,17 @@ services:
     networks:
       - uniads-network
 
-  # ChromaDB Service (Vector Database)
-  chromadb:
-    image: chromadb/chroma:latest
-    container_name: uniads-chromadb
-    restart: unless-stopped
-    ports:
-      - "8080:8000"
-    volumes:
-      - chromadb-data:/chroma/chroma
-    networks:
-      - uniads-network
+#  # ChromaDB Service (Vector Database) - Currently unused
+#  chromadb:
+#    image: chromadb/chroma:latest
+#    container_name: uniads-chromadb
+#    restart: unless-stopped
+#    ports:
+#      - "8080:8000"
+#    volumes:
+#      - chromadb-data:/chroma/chroma
+#    networks:
+#      - uniads-network
 
 networks:
   uniads-network:

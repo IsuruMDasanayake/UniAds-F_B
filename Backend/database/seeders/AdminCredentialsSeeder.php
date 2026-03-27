@@ -12,6 +12,13 @@ class AdminCredentialsSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        \App\Models\User::updateOrCreate(
+            ['email' => 'samankumara@gmail.com'],
+            [
+                'name' => 'Admin',
+                'password' => \Illuminate\Support\Facades\Hash::make('12345678'),
+                'role' => 'Admin',
+            ]
+        );
     }
 }
