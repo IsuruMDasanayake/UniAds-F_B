@@ -20,9 +20,9 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        env('FRONTEND_URL', 'http://localhost:3050'),
-        'http://127.0.0.1:3050',
-        'http://192.168.8.128:3050',
+        env('FRONTEND_URL', 'http://localhost:4000'),
+        'http://127.0.0.1:4000',
+        'http://192.168.8.128:4000',
     ],
 
     'allowed_origins_patterns' => [],

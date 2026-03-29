@@ -23,10 +23,17 @@ class ChatConversationController extends Controller
 
         $conversations = Conversation::whereHas('participants', function ($query) use ($userId, $instituteId) {
             $query->where(function ($q) use ($userId, $instituteId) {
-                $q->where('user_id', $userId)
-                    ->orWhere('institute_id', $instituteId);
+                // Critical: Strictly isolate by user_id
+                $q->where('user_id', $userId);
+                
+                // Only include institute_id if the user actually represents one
+                if ($instituteId) {
+                    $q->orWhere('institute_id', $instituteId);
+                }
             })->whereNull('hidden_at');
         })
+            ->distinct()
+            ->has('messages') // Only show conversations that have actual messages
             ->with(['participants.user', 'participants.institute', 'messages' => function ($q) {
                 $q->latest()->take(1);
             }])
@@ -188,10 +195,11 @@ class ChatConversationController extends Controller
 
         $participant = ConversationParticipant::where('conversation_id', $conversationId)
             ->where(function ($q) use ($userId, $instituteId) {
+                // Critical: Strictly isolate by user_id
+                $q->where('user_id', $userId);
+                
                 if ($instituteId) {
-                    $q->where('institute_id', $instituteId);
-                } else {
-                    $q->where('user_id', $userId);
+                    $q->orWhere('institute_id', $instituteId);
                 }
             })
             ->first();

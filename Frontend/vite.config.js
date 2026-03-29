@@ -9,7 +9,7 @@ export default defineConfig({
     port: 5173,      // Internal container port
     hmr: {
       host: 'localhost',    // Browser connects to this host
-      clientPort: 3050,     // Port accessed by the browser
+      clientPort: 4000,     // Port accessed by the browser
       protocol: 'ws',       // Explicit protocol prevents fallback to HTTP polling
     },
     watch: {

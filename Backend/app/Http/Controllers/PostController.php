@@ -20,6 +20,7 @@ use App\Models\ApplyCase;
 use App\Models\Notification;
 use App\Models\AdminNotification;
 use App\Services\InstituteActivityLogger;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -71,11 +72,16 @@ class PostController extends Controller
             // Convert array of locations to comma-separated string
             $locations = implode(', ', $request->location);
 
+            // Sanitize HTML inputs
+            $allowedTags = '<b><i><u><ul><li><ol><p><br><strong><em>';
+            $sanitizedDescription = strip_tags($request->description, $allowedTags);
+            $sanitizedSmallDescription = strip_tags($request->small_description, $allowedTags);
+
             // Create a new post
             $post = Post::create([
                 'title' => $request->title,
-                'description' => $request->description,
-                'small_description' => $request->small_description,
+                'description' => $sanitizedDescription,
+                'small_description' => $sanitizedSmallDescription,
                 'course_name' => $request->course_name,
                 'course_type' => $request->course_type,
                 'location' => $locations,
@@ -87,19 +93,22 @@ class PostController extends Controller
                 'status' => 'active'
             ]);
 
-            // Notify Admins
+            // Notify Admins - Bulk Insert Optimization
             $admins = User::where('role', 'Admin')->get();
-            foreach ($admins as $admin) {
-                AdminNotification::create([
+            if ($admins->count() > 0) {
+                $notifications = $admins->map(fn($admin) => [
                     'user_id' => $admin->id,
                     'type' => 'post_new',
                     'title' => 'New Post Created',
                     'message' => "{$institute->institute_name} has created a new post: {$post->title}",
-                    'data' => [
+                    'data' => json_encode([
                         'post_id' => $post->id,
                         'institute_id' => $institute->id
-                    ]
-                ]);
+                    ]),
+                    'is_read' => false
+                ])->toArray();
+                
+                AdminNotification::insert($notifications);
             }
 
             InstituteActivityLogger::log(
@@ -168,17 +177,26 @@ class PostController extends Controller
             ]);
 
             if ($request->hasFile('image')) {
+                // Storage Cleanup: Delete old image if it exists
+                if ($post->image) {
+                    Storage::disk('public')->delete($post->image);
+                }
                 $imagePath = $request->file('image')->store('post_images', 'public');
                 $post->image = $imagePath;
             }
+
+            // Sanitize HTML inputs
+            $allowedTags = '<b><i><u><ul><li><ol><p><br><strong><em>';
+            $sanitizedDescription = strip_tags($request->description, $allowedTags);
+            $sanitizedSmallDescription = strip_tags($request->small_description, $allowedTags);
 
             // Convert array of locations to comma-separated string
             $locations = implode(', ', $request->location);
 
             $post->update([
                 'title' => $request->title,
-                'description' => $request->description,
-                'small_description' => $request->small_description,
+                'description' => $sanitizedDescription,
+                'small_description' => $sanitizedSmallDescription,
                 'course_name' => $request->course_name,
                 'course_type' => $request->course_type,
                 'location' => $locations,
@@ -221,6 +239,12 @@ class PostController extends Controller
 
             $postTitle = $post->title;
             $postId = $post->id;
+
+            // Storage Cleanup: Delete associated image file
+            if ($post->image) {
+                Storage::disk('public')->delete($post->image);
+            }
+
             $post->delete();
 
             InstituteActivityLogger::log(
@@ -296,37 +320,75 @@ class PostController extends Controller
     // filter removed
 
 
-    public function apiFilter($filterType, $filterValue)
+    public function apiFilter(Request $request, $filterType, $filterValue)
     {
-        $query = Post::query()
-            ->join('institutes', 'institutes.id', '=', 'posts.institute_id')
-            ->select('posts.*')
-            ->with('institute')
-            ->where('posts.status', 'active')
-            ->where('posts.created_at', '>=', now()->subDays(60));
+        $page = $request->get('page', 1);
+        $search = $request->get('search', '');
+        $activeFilters = $request->get('filters', []); // e.g. ?filters[Location][]=Colombo
+        
+        $cacheKey = 'api_filter_v1_' . md5(json_encode([
+            $filterType, $filterValue, $page, $search, $activeFilters
+        ]));
 
-        $filterMap = [
-            'Courses' => 'course_name',
-            'Course Type' => 'course_type',
-            'Location' => 'location',
-            'Duration' => 'duration',
-            'Course Format' => 'course_format',
-            'Attendance Type' => 'attendance_type',
-        ];
+        $postsData = \Illuminate\Support\Facades\Cache::remember($cacheKey, 300, function () use ($filterType, $filterValue, $search, $activeFilters) {
+            $query = Post::query()
+                ->join('institutes', 'institutes.id', '=', 'posts.institute_id')
+                ->select('posts.*')
+                ->with('institute')
+                ->where('posts.status', 'active')
+                ->where('posts.created_at', '>=', now()->subDays(60));
 
-        if (array_key_exists($filterType, $filterMap)) {
-            if ($filterType === 'Location') {
-                $query->where('posts.location', 'LIKE', "%{$filterValue}%");
-            } else {
-                $query->where("posts." . $filterMap[$filterType], $filterValue);
+            $filterMap = [
+                'Courses' => 'course_name',
+                'Course Type' => 'course_type',
+                'Location' => 'location',
+                'Duration' => 'duration',
+                'Course Format' => 'course_format',
+                'Attendance Type' => 'attendance_type',
+            ];
+
+            // Primary Route Category Filter
+            if (array_key_exists($filterType, $filterMap)) {
+                if ($filterType === 'Location') {
+                    $query->where('posts.location', 'LIKE', "%{$filterValue}%");
+                } else {
+                    $query->where("posts." . $filterMap[$filterType], $filterValue);
+                }
             }
-        }
 
-        $posts = $query->orderByDesc('posts.score_cache')
-            ->paginate(100);
+            // Secondary Search Query
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('posts.title', 'LIKE', "%{$search}%")
+                      ->orWhere('posts.course_name', 'LIKE', "%{$search}%")
+                      ->orWhere('institutes.institute_name', 'LIKE', "%{$search}%");
+                });
+            }
+
+            // Secondary Checkbox Filters
+            if (!empty($activeFilters) && is_array($activeFilters)) {
+                foreach ($activeFilters as $category => $values) {
+                    if (array_key_exists($category, $filterMap) && !empty($values) && is_array($values)) {
+                        $column = 'posts.' . $filterMap[$category];
+                        if ($filterMap[$category] === 'location') {
+                            $query->where(function($q) use ($column, $values) {
+                                foreach ($values as $val) {
+                                    $q->orWhere($column, 'LIKE', "%{$val}%");
+                                }
+                            });
+                        } else {
+                            $query->whereIn($column, $values);
+                        }
+                    }
+                }
+            }
+
+            return $query->orderByDesc('posts.score_cache')
+                ->paginate(100);
+        });
 
         return response()->json([
-            'posts' => $posts,
+            'posts' => $postsData,
             'filterType' => $filterType,
             'filterValue' => $filterValue
         ]);

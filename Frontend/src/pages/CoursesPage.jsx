@@ -29,48 +29,17 @@ const CoursesPage = () => {
     // New Filter States
     const [activeFilters, setActiveFilters] = useState({});
     const [openFilterDropdown, setOpenFilterDropdown] = useState(null);
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
 
-    // Derived filtering logic using useMemo to ensure stability and avoid race conditions
-    const filteredPosts = useMemo(() => {
-        let result = [...posts];
+    // Debounce search query
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearchQuery(searchQuery);
+        }, 300); // Faster bounce
+        return () => clearTimeout(handler);
+    }, [searchQuery]);
 
-        // Apply Search Query (if any)
-        if (searchQuery) {
-            const query = searchQuery.toLowerCase();
-            result = result.filter(post => 
-                (post.title?.toLowerCase() || '').includes(query) ||
-                (post.course_name?.toLowerCase() || '').includes(query) ||
-                (post.institute?.institute_name?.toLowerCase() || '').includes(query)
-            );
-        }
 
-        // Apply Dropdown Filters
-        Object.entries(activeFilters).forEach(([category, selectedValues]) => {
-            if (selectedValues && selectedValues.length > 0) {
-                const columnMap = {
-                    'Course Type': 'course_type',
-                    'Location': 'location',
-                    'Duration': 'duration',
-                    'Course Format': 'course_format',
-                    'Attendance Type': 'attendance_type'
-                };
-                const column = columnMap[category];
-                if (column) {
-                    result = result.filter(post => {
-                        if (column === 'location') {
-                            const postLoc = post.location?.toLowerCase() || '';
-                            return selectedValues.some(val => 
-                                postLoc.includes(val.toLowerCase())
-                            );
-                        }
-                        return selectedValues.includes(post[column]);
-                    });
-                }
-            }
-        });
-
-        return result;
-    }, [posts, searchQuery, activeFilters]);
 
     // Click outside handler for dropdowns
     useEffect(() => {
@@ -99,64 +68,90 @@ const CoursesPage = () => {
     });
 
     useEffect(() => {
-        fetchData();
+        // Initial data load (categories and user)
+        loadInitialData();
         // Reset scroll
         window.scrollTo(0, 0);
         // Clear search query when navigating between main categories
         setSearchQuery('');
     }, [filterType, filterValue]);
 
-
-    const fetchData = async () => {
-        setLoading(true);
-        let currentUser = null;
+    const loadInitialData = async () => {
         try {
-            // Fetch categories first as they are needed in both views now
             const catResponse = await axiosClient.get('/api/categories');
             setCategories(catResponse.data);
             
-            // Initialize all sections as expanded for browse view
             const initials = {};
             Object.keys(catResponse.data).forEach(key => initials[key] = true);
             setExpandedSections(initials);
 
-            // Attempt to fetch user profile
             try {
                 const userRes = await axiosClient.get('/api/profile/me');
-                currentUser = userRes.data.user;
+                const currentUser = userRes.data.user;
                 if (userRes.data.role === 'Institute') {
                     currentUser.institute = userRes.data.institute;
                 }
                 setUser(currentUser);
-                try {
-                    localStorage.setItem('APP_USER', JSON.stringify(currentUser));
-                } catch (e) { }
+                localStorage.setItem('APP_USER', JSON.stringify(currentUser));
             } catch (err) {
-                console.warn('User not authenticated, proceeding as guest');
-            }
-
-            if (filterType && filterValue) {
-                const response = await axiosClient.get(`/api/posts/filter/${filterType}/${filterValue}`);
-                let fetchedPosts = response.data.posts?.data || response.data.posts || [];
-
-                // If user is logged in, map saved status
-                if (currentUser && currentUser.saved_posts) {
-                    const savedIds = currentUser.saved_posts.map(p => p.id);
-                    fetchedPosts = fetchedPosts.map(post => ({
-                        ...post,
-                        is_saved: savedIds.includes(post.id)
-                    }));
-                }
-
-                setPosts(fetchedPosts);
-                
-                // Reset active filters when moving to a new main category
-                setActiveFilters({});
+                console.warn('User not authenticated');
             }
         } catch (error) {
-            console.error('Error fetching data:', error);
+            console.error('Error loading initial data:', error);
+        } finally {
+            // Only stop loading if we aren't about to trigger fetchPosts()
+            if (!filterType || !filterValue) {
+                setLoading(false);
+            }
+        }
+    };
+
+    // Track if search/filter is active
+    const [searching, setSearching] = useState(false);
+
+    useEffect(() => {
+        if (filterType && filterValue) {
+            // Clear current posts when switching between MAJOR categories to ensure clean UI
+            setPosts([]);
+            fetchPosts(true); // Is initial category load
+        }
+    }, [filterType, filterValue]);
+
+    useEffect(() => {
+        if (filterType && filterValue) {
+            // Subsequent updates (search/checkboxes) don't clear posts or show full spinner
+            fetchPosts(false);
+        }
+    }, [debouncedSearchQuery, activeFilters]);
+
+    const fetchPosts = async (isNewCategory = false) => {
+        if (isNewCategory) setLoading(true);
+        else setSearching(true);
+
+        try {
+            const response = await axiosClient.get(`/api/posts/filter/${filterType}/${filterValue}`, {
+                params: {
+                    search: debouncedSearchQuery,
+                    filters: activeFilters
+                }
+            });
+            
+            let fetchedPosts = response.data.posts?.data || response.data.posts || [];
+
+            if (user && user.saved_posts) {
+                const savedIds = user.saved_posts.map(p => p.id);
+                fetchedPosts = fetchedPosts.map(post => ({
+                    ...post,
+                    is_saved: savedIds.includes(post.id)
+                }));
+            }
+
+            setPosts(fetchedPosts);
+        } catch (error) {
+            console.error('Error fetching posts:', error);
         } finally {
             setLoading(false);
+            setSearching(false);
         }
     };
 
@@ -270,18 +265,11 @@ const CoursesPage = () => {
         }
     };
 
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: { staggerChildren: 0.1 }
-        }
-    };
-
     const itemVariants = {
         hidden: { y: 20, opacity: 0 },
-        visible: { y: 0, opacity: 1 }
+        visible: { y: 0, opacity: 1, transition: { duration: 0.4 } }
     };
+
 
     return (
         <div className="courses-page-v2">
@@ -312,7 +300,7 @@ const CoursesPage = () => {
                             <div className="results-title-bar">
                                 <div>
                                     <h1>Programs in {filterValue}</h1>
-                                    <p>Showing {filteredPosts.length} programs available now</p>
+                                    <p>Showing {posts.length} programs available now</p>
                                 </div>
                                 
                                 {Object.keys(activeFilters).some(cat => activeFilters[cat].length > 0) && (
@@ -372,7 +360,11 @@ const CoursesPage = () => {
                                 </div>
 
                                 <div className="results-search">
-                                    <Search size={18} />
+                                    {searching ? (
+                                        <Loader2 size={18} className="animate-spin" style={{ color: 'var(--c-primary)' }} />
+                                    ) : (
+                                        <Search size={18} />
+                                    )}
                                     <input 
                                         type="text" 
                                         placeholder="Search within results..." 
@@ -381,26 +373,22 @@ const CoursesPage = () => {
                                     />
                                     {searchQuery && (
                                         <button className="search-clear" onClick={() => setSearchQuery('')}>
-                                            <X size={14} />
+                                            <X size={14} style={{ marginLeft: '-10px' }} />
                                         </button>
                                     )}
                                 </div>
                             </div>
                         </header>
 
-                        <motion.div
-                            key={`grid-${filterType}-${filterValue}-${searchQuery}-${JSON.stringify(activeFilters)}`}
-                            className="posts-grid-v2"
-                            variants={containerVariants}
-                            initial="hidden"
-                            animate="visible"
-                        >
-                            {filteredPosts.length > 0 ? (
-                                filteredPosts.map(post => (
+                        <div className="posts-grid-v2">
+                            {posts.length > 0 ? (
+                                posts.map(post => (
                                     <motion.div
                                         key={post.id}
                                         className={`premium-course-card ${post.status !== 'active' ? 'post-inactive' : ''}`}
                                         variants={itemVariants}
+                                        initial="hidden"
+                                        animate="visible"
                                     >
                                         <div className="card-top">
                                             {/* Inactive Badge */}
@@ -473,7 +461,7 @@ const CoursesPage = () => {
                                 </div>
                             )
                             }
-                        </motion.div>
+                        </div>
                     </div >
                 ) : (
                     // ---------------- BROWSE BY DISCIPLINE VIEW ----------------

@@ -34,6 +34,20 @@
     color: var(--c-text-muted);
 }
 
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
 /* ---------------- BROWSE VIEW ---------------- */
 .browse-header {
     text-align: center;
@@ -188,6 +202,8 @@
 /* ---------------- RESULTS VIEW ---------------- */
 .results-header {
     margin-bottom: 2.5rem;
+    position: relative;
+    z-index: 100;
 }
 
 .header-breadcrumbs {

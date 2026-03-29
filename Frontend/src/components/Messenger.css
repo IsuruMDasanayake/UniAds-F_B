@@ -67,9 +67,10 @@
 }
 
 .messenger-body {
-    max-height: 300px;
+    max-height: 450px;
     overflow-y: auto;
-    padding: 0.25rem;
+    padding: 0.5rem;
+    scrollbar-gutter: stable; /* Prevents layout shift on scroll */
 }
 
 .empty-messenger {

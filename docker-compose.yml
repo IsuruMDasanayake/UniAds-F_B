@@ -54,7 +54,7 @@ services:
     working_dir: /app
     command: npm run dev -- --host
     ports:
-      - "3050:5173"
+      - "4000:5173"
     networks:
       - uniads-network
 
