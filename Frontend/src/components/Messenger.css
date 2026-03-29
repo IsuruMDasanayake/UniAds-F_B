@@ -797,3 +797,111 @@
     transform: translateY(0);
     box-shadow: 0 2px 5px rgba(255, 71, 87, 0.1) !important;
 }
+
+/* Chat Welcome Section */
+.chat-welcome-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 30px 20px;
+}
+
+.welcome-avatar-large {
+    width: 72px;
+    height: 72px;
+    margin-bottom: 16px;
+}
+
+.welcome-avatar-large img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.avatar-placeholder-large {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    border: 3px solid white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.chat-welcome-section h3 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.welcome-msg {
+    font-size: 13.5px;
+    color: #64748b;
+    max-width: 240px;
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.encryption-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f0fdf4;
+    color: #166534;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 600;
+}
+
+/* Chat Sent Like styling */
+.like-icon-bubble {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+.chat-sent-like {
+    color: var(--c-primary);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    transition: transform 0.2s;
+    cursor: default;
+}
+
+.chat-sent-like:hover {
+    transform: scale(1.1);
+}
+
+/* Chat Message Timestamps */
+.message-bubble-wrapper-fb {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-width: 100%;
+}
+
+.mine .message-bubble-wrapper-fb {
+    align-items: flex-end;
+}
+
+.theirs .message-bubble-wrapper-fb {
+    align-items: flex-start;
+}
+
+.chat-message-time-fb {
+    font-size: 10px;
+    color: var(--c-text-muted);
+    opacity: 0.7;
+    margin: 0 4px;
+    white-space: nowrap;
+}

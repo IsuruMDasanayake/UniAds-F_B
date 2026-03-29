@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, User, Minus, Phone, Video, PlusCircle, Image as ImageIcon, StickyNote, Gift, ThumbsUp, Loader2 } from 'lucide-react';
+import { X, Send, User, Minus, Phone, Video, PlusCircle, Image as ImageIcon, StickyNote, Gift, ThumbsUp, Loader2, Clock } from 'lucide-react';
+import { format, isToday, isThisYear } from 'date-fns';
 import { useChat } from '../context/ChatContext';
 import { getStorageUrl } from '../lib/config';
 import LinkPreview from './LinkPreview';
@@ -10,8 +11,23 @@ import './Messenger.css';
 const ChatModal = () => {
     const { activeConversation, setActiveConversation, messages, sendMessage, displayUser } = useChat();
     const [inputValue, setInputValue] = useState('');
-    const [isSending, setIsSending] = useState(false);
     const messagesEndRef = useRef(null);
+ 
+    const formatMessageDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        const time = format(date, 'HH:mm');
+ 
+        if (isToday(date)) {
+            return `Today at ${time}`;
+        }
+ 
+        if (isThisYear(date)) {
+            return `${format(date, 'MMM d').toUpperCase()} at ${time}`;
+        }
+ 
+        return `${format(date, 'MMM d, yyyy').toUpperCase()} at ${time}`;
+    };
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -21,42 +37,42 @@ const ChatModal = () => {
         scrollToBottom();
     }, [messages]);
 
-    const handleSend = async (e) => {
+    const handleSend = (e) => {
         if (e) e.preventDefault();
-        if (!inputValue.trim() || isSending) return;
+        const content = inputValue.trim();
+        if (!content) return;
 
-        setIsSending(true);
-        try {
-            await sendMessage(inputValue);
-            setInputValue('');
-        } catch (error) {
+        setInputValue('');
+        sendMessage(content).catch(error => {
             console.error('Failed to send:', error);
             if (error.response?.status === 422 && error.response?.data?.message) {
                 alert(error.response.data.message);
+            } else {
+                alert('Failed to send message. Please check your connection.');
             }
-        } finally {
-            setIsSending(false);
-        }
+        });
     };
 
-    const handleSendLike = async () => {
-        if (isSending) return;
-        setIsSending(true);
-        try {
-            await sendMessage('👍');
-            scrollToBottom();
-        } catch (error) {
+    const handleSendLike = () => {
+        sendMessage('(like)').catch(error => {
             console.error('Failed to send like:', error);
-        } finally {
-            setIsSending(false);
-        }
+            alert('Failed to send. Please try again.');
+        });
+        scrollToBottom();
     };
 
     if (!activeConversation) return null;
 
     let other = activeConversation.other_participant;
     if (!other && activeConversation.participants) {
-        other = activeConversation.participants.find(p => p.id !== displayUser?.id);
+        other = activeConversation.participants.find(p => {
+            if (displayUser?.role === 'User') {
+                return p.user_id !== displayUser?.id;
+            } else {
+                // If logged in as institute, find the participant that isn't THIS institute
+                return p.institute_id !== displayUser?.institute_id;
+            }
+        });
     }
 
     return createPortal(
@@ -105,50 +121,80 @@ const ChatModal = () => {
                     </div>
 
                     <div className="chat-messages-area fb premium-scroll">
-                        {[...messages].reverse().map((msg, index) => {
-                            // Current user check
-                            let isMine = false;
-                            if (displayUser?.role === 'User' || !displayUser?.institute_id) {
-                                isMine = msg.sender_user_id === displayUser?.id;
-                            } else {
-                                isMine = msg.sender_institute_id === displayUser?.institute_id;
-                            }
-
-                            return (
-                                <div key={msg.id || index} className={`message-row-fb ${isMine ? 'mine' : 'theirs'}`}>
-                                    {!isMine && (
-                                        <div className="msg-avatar">
-                                            {other?.institute?.profile_photo ? (
-                                                <img src={getStorageUrl(other.institute.profile_photo)} alt="avatar" />
-                                            ) : (
-                                                <div className="avatar-placeholder" style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'var(--c-slate-100)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c-slate-400)' }}>
-                                                    <User size={14} />
-                                                </div>
-                                            )}
+                        {messages.length === 0 ? (
+                            <div className="chat-welcome-section">
+                                <div className="welcome-avatar-large">
+                                    {other?.institute?.profile_photo || other?.user?.profile_photo ? (
+                                        <img src={getStorageUrl(other?.institute?.profile_photo || other?.user?.profile_photo)} alt="avatar" />
+                                    ) : (
+                                        <div className="avatar-placeholder-large">
+                                            <User size={48} />
                                         </div>
                                     )}
-                                    <div className={`message-bubble-fb ${msg.link_preview_data?.is_internal_post ? 'internal-post' : ''}`}>
-                                        {(() => {
-                                            const isInternalLink = msg.message?.match(/\/post\/([a-fA-F0-9\-]+)/);
-                                            const hasBackendPreview = msg.link_preview_data;
-
-                                            if (isInternalLink && !hasBackendPreview) {
-                                                return <LinkPreview url={msg.message} />;
-                                            } else if (hasBackendPreview) {
-                                                return (
-                                                    <>
-                                                        {!msg.link_preview_data.is_internal_post && <span>{msg.message}</span>}
-                                                        <LinkPreview data={msg.link_preview_data} />
-                                                    </>
-                                                );
-                                            } else {
-                                                return <span>{msg.message}</span>;
-                                            }
-                                        })()}
-                                    </div>
                                 </div>
-                            );
-                        })}
+                                <h3>{other?.institute?.institute_name || other?.user?.name || 'Chat'}</h3>
+                                <p className="welcome-msg">You're now connected! Send a message to start your conversation.</p>
+                                
+                                <div className="encryption-badge">
+                                    <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                    <span>End-to-end encrypted</span>
+                                </div>
+                            </div>
+                        ) : (
+                            [...messages].reverse().map((msg, index) => {
+                                // Current user check
+                                let isMine = false;
+                                if (displayUser?.role === 'User' || !displayUser?.institute_id) {
+                                    isMine = msg.sender_user_id === displayUser?.id;
+                                } else {
+                                    isMine = msg.sender_institute_id === displayUser?.institute_id;
+                                }
+
+                                return (
+                                    <div key={msg.id || index} className={`message-row-fb ${isMine ? 'mine' : 'theirs'}`}>
+                                        {!isMine && (
+                                            <div className="msg-avatar">
+                                                {other?.institute?.profile_photo ? (
+                                                    <img src={getStorageUrl(other.institute.profile_photo)} alt="avatar" />
+                                                ) : (
+                                                    <div className="avatar-placeholder" style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'var(--c-slate-100)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c-slate-400)' }}>
+                                                        <User size={14} />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                        <div className="message-bubble-wrapper-fb">
+                                            <div className={`message-bubble-fb ${msg.link_preview_data?.is_internal_post ? 'internal-post' : ''} ${msg.message === '(like)' ? 'like-icon-bubble' : ''}`}>
+                                                {(() => {
+                                                    if (msg.message === '(like)') {
+                                                        return <ThumbsUp size={32} className="chat-sent-like" />;
+                                                    }
+
+                                                    const isInternalLink = msg.message?.match(/\/post\/([a-f_A-F0-9\-]+)/);
+                                                    const hasBackendPreview = msg.link_preview_data;
+
+                                                    if (isInternalLink && !hasBackendPreview) {
+                                                        return <LinkPreview url={msg.message} />;
+                                                    } else if (hasBackendPreview) {
+                                                        return (
+                                                            <>
+                                                                {!msg.link_preview_data.is_internal_post && <span>{msg.message}</span>}
+                                                                <LinkPreview data={msg.link_preview_data} />
+                                                            </>
+                                                        );
+                                                    } else {
+                                                        return <span>{msg.message}</span>;
+                                                    }
+                                                })()}
+                                            </div>
+                                            <span className="chat-message-time-fb">
+                                                {formatMessageDate(msg.created_at)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )}
                         <div ref={messagesEndRef} />
                     </div>
 
@@ -169,12 +215,12 @@ const ChatModal = () => {
                         </form>
                         <div className="input-actions-right">
                             {inputValue.trim() ? (
-                                <button onClick={handleSend} className="send-btn-fb" title="Send Message" disabled={isSending}>
-                                    {isSending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                                <button onClick={handleSend} className="send-btn-fb" title="Send Message">
+                                    <Send size={18} />
                                 </button>
                             ) : (
-                                <button className="like-btn-fb" title="Send Like" onClick={handleSendLike} disabled={isSending}>
-                                    {isSending ? <Loader2 size={18} className="animate-spin" /> : <ThumbsUp size={20} />}
+                                <button className="like-btn-fb" title="Send Like" onClick={handleSendLike}>
+                                    <ThumbsUp size={20} />
                                 </button>
                             )}
                         </div>

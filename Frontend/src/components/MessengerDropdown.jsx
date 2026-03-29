@@ -166,51 +166,7 @@ const MessengerDropdown = ({ isOpen, onClose }) => {
                         </div>
 
                         <div className="messenger-body premium-scroll">
-                            {!isLoadingInst && filteredInstitutions.length > 0 && (
-                                <div className="discovery-section">
-                                    <p className="discovery-hint">Connect with Premium Partners</p>
-                                    {filteredInstitutions.map(inst => (
-                                        <div key={inst.id} className="discovery-item" onClick={() => startConversationWith(inst)}>
-                                            <div className="inst-avatar-mini">
-                                                {inst.profile_photo ? (
-                                                    <img src={getStorageUrl(inst.profile_photo)} alt={inst.institute_name} />
-                                                ) : (
-                                                    <div className="avatar-placeholder">
-                                                        <User size={20} />
-                                                    </div>
-                                                )}
-                                                {inst.unread_count > 0 && <span className="unread-badge-dot"></span>}
-                                            </div>
-                                            <div className="inst-mini-info">
-                                                <div className="inst-mini-name">{inst.institute_name}</div>
-                                                <div className="inst-mini-last-message">
-                                                    {inst.latest_message ? (
-                                                        <span className={inst.unread_count > 0 ? 'unread-text' : ''}>
-                                                            {inst.latest_message.message}
-                                                        </span>
-                                                    ) : (
-                                                        <span className="location-hint">{inst.location || 'Premium Partner'}</span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                            <ChevronRight size={14} className="discovery-arrow" />
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                            {isLoadingInst && (
-                                <div className="discovery-loading" style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
-                                    <Loader2 className="animate-spin" size={24} />
-                                </div>
-                            )}
-
-                            {/* {conversations.length > 0 && (
-                            <div className="recent-chats-sep" style={{ margin: '12px 0', borderTop: '1px solid var(--c-slate-100)', padding: '12px 12px 4px' }}>
-                                <p className="discovery-hint" style={{ padding: 0 }}>Recent Conversations</p>
-                            </div>
-                        )} */}
-
+                            {/* Recent Conversations FIRST */}
                             {filteredConversations.length > 0 && filteredConversations
                                 .map(conv => {
                                     const other = conv.other_participant;
@@ -248,6 +204,46 @@ const MessengerDropdown = ({ isOpen, onClose }) => {
                                     );
                                 })
                             }
+
+                            {/* Discover Section SECOND */}
+                            {isLoadingInst ? (
+                                <div className="discovery-loading" style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
+                                    <Loader2 className="animate-spin" size={24} />
+                                </div>
+                            ) : (
+                                filteredInstitutions.length > 0 && (
+                                    <div className="discovery-section">
+                                        <p className="discovery-hint">Connect with Premium Partners</p>
+                                        {filteredInstitutions.map(inst => (
+                                            <div key={inst.id} className="discovery-item" onClick={() => startConversationWith(inst)}>
+                                                <div className="inst-avatar-mini">
+                                                    {inst.profile_photo ? (
+                                                        <img src={getStorageUrl(inst.profile_photo)} alt={inst.institute_name} />
+                                                    ) : (
+                                                        <div className="avatar-placeholder">
+                                                            <User size={20} />
+                                                        </div>
+                                                    )}
+                                                    {inst.unread_count > 0 && <span className="unread-badge-dot"></span>}
+                                                </div>
+                                                <div className="inst-mini-info">
+                                                    <div className="inst-mini-name">{inst.institute_name}</div>
+                                                    <div className="inst-mini-last-message">
+                                                        {inst.latest_message ? (
+                                                            <span className={inst.unread_count > 0 ? 'unread-text' : ''}>
+                                                                {inst.latest_message.message}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="location-hint">{inst.location || 'Premium Partner'}</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <ChevronRight size={14} className="discovery-arrow" />
+                                            </div>
+                                        ))}
+                                    </div>
+                                )
+                            )}
                         </div>
 
                         <div className="messenger-footer">

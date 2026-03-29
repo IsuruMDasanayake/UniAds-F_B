@@ -34,7 +34,7 @@ const LinkPreview = ({ data: initialData, url: initialUrl, showApplyButton = tru
                     const post = response.data;
                     setData({
                         url: urlToProbe,
-                        title: post.course_name || post.title,
+                        title: post.title || post.course_name,
                         description: post.small_description,
                         image: post.image ? `${axiosClient.defaults.baseURL.replace('/api', '')}/storage/${post.image}` : null,
                         is_internal_post: true,

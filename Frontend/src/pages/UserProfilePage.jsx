@@ -213,17 +213,46 @@ const UserProfilePage = () => {
             const imgData = canvas.toDataURL('image/png');
             document.body.removeChild(element);
 
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4'
-            });
-
-            const imgProps = pdf.getImageProperties(imgData);
+            const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const margin = 15; // 15mm margin
+
+            // Effective content area for the image content
+            const contentWidth = pdfWidth - (2 * margin);
+            const contentHeightPerPage = pdfHeight - (2 * margin);
             
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            const imgProps = pdf.getImageProperties(imgData);
+            const totalImageHeightInPdfUnits = (imgProps.height * contentWidth) / imgProps.width;
+            
+            let heightLeft = totalImageHeightInPdfUnits;
+            let currentImageYOffset = 0; // Where we start "viewing" the large image for the current page
+
+            // Helper to add the image chunk and mask the margins
+            const addPageWithMasks = (yOffset) => {
+                // Draw the whole image, shifted UP by yOffset, and DOWN by margin (to clear the top margin)
+                pdf.addImage(imgData, 'PNG', margin, margin - yOffset, contentWidth, totalImageHeightInPdfUnits);
+                
+                // Add white masks to the margins to hide content bleed
+                pdf.setFillColor(255, 255, 255);
+                pdf.rect(0, 0, pdfWidth, margin, 'F'); // Top margin mask
+                pdf.rect(0, pdfHeight - margin, pdfWidth, margin, 'F'); // Bottom margin mask
+                pdf.rect(0, 0, margin, pdfHeight, 'F'); // Left margin mask
+                pdf.rect(pdfWidth - margin, 0, margin, pdfHeight, 'F'); // Right margin mask
+            };
+
+            // First Page
+            addPageWithMasks(0);
+            heightLeft -= contentHeightPerPage;
+
+            // Subsequent Pages
+            while (heightLeft > 0) {
+                currentImageYOffset += contentHeightPerPage;
+                pdf.addPage();
+                addPageWithMasks(currentImageYOffset);
+                heightLeft -= contentHeightPerPage;
+            }
+
             pdf.save(`${roadmap.career_goal.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_roadmap.pdf`);
             
         } catch (error) {

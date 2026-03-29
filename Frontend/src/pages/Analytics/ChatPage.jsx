@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Send, User, MoreVertical, Paperclip, Smile, Phone, Video, Info, X, Building2, Trash2 } from 'lucide-react';
+import { Search, Send, User, MoreVertical, Paperclip, Smile, Phone, Video, Info, X, Building2, Trash2, ThumbsUp } from 'lucide-react';
 import { useChat } from '../../context/ChatContext';
 import { getStorageUrl } from '../../lib/config';
 import axiosClient from '../../lib/axios';
 import ChatService from '../../services/ChatService';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import LinkPreview from '../../components/LinkPreview';
-import { format } from 'date-fns';
+import { format, isToday, isThisYear } from 'date-fns';
 import './ChatPage.css';
 
 const ChatPage = () => {
@@ -133,8 +133,28 @@ const ChatPage = () => {
         return { students, institutes };
     }, [conversations]);
 
+    const formatMessageDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        const time = format(date, 'HH:mm');
+
+        if (isToday(date)) {
+            return `Today at ${time}`;
+        }
+
+        if (isThisYear(date)) {
+            return `${format(date, 'MMM d').toUpperCase()} at ${time}`;
+        }
+
+        return `${format(date, 'MMM d, yyyy').toUpperCase()} at ${time}`;
+    };
+
     // Memoize the message renderer to avoid re-calculating link matches on every render
     const renderMessage = React.useCallback((msg) => {
+        if (msg.message === '(like)') {
+            return <ThumbsUp size={32} className="acp-sent-like" />;
+        }
+
         const isInternalLink = msg.message?.match(/\/post\/([a-fA-F0-9\-]+)/);
         const hasBackendPreview = msg.link_preview_data;
 
@@ -334,10 +354,10 @@ const ChatPage = () => {
 
                                 return (
                                     <div key={msg.id || index} className={`acp-message-row ${isMine ? 'acp-mine' : 'acp-theirs'}`}>
-                                        <div className="acp-message-bubble">
+                                        <div className={`acp-message-bubble ${msg.message === '(like)' ? 'acp-like-bubble' : ''}`}>
                                             {renderMessage(msg)}
                                             <span className="acp-message-time">
-                                                {format(new Date(msg.created_at), 'HH:mm')}
+                                                {formatMessageDate(msg.created_at)}
                                             </span>
                                         </div>
                                     </div>

@@ -588,3 +588,23 @@
 #analytics-chat-page .acp-close-chat-btn:hover {
     color: var(--c-primary);
 }
+
+/* Chat Sent Like styling */
+.acp-like-bubble {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+.acp-sent-like {
+    color: var(--c-primary);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    transition: transform 0.2s;
+    cursor: default;
+    margin-bottom: 4px;
+}
+
+.acp-sent-like:hover {
+    transform: scale(1.1);
+}

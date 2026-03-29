@@ -56,16 +56,22 @@ export const ChatProvider = ({ children, user }) => {
 
             // Simple optimization to avoid unnecessary re-renders
             setMessages(prev => {
-                if (prev.length === decryptedMessages.length && prev[0]?.id === decryptedMessages[0]?.id) {
+                // Keep optimistic messages (pending)
+                const optimisticMessages = prev.filter(m => m.isOptimistic);
+                const currentRealMessages = prev.filter(m => !m.isOptimistic);
+
+                // Optimization: If nothing changed in the "real" messages, return prev to keep all (including optimistic)
+                if (currentRealMessages.length === decryptedMessages.length && currentRealMessages[0]?.id === decryptedMessages[0]?.id) {
                     return prev;
                 }
 
-                // If we got new messages, mark them as read since the chat is open
-                if (decryptedMessages.length > prev.length) {
+                // If real messages changed (e.g. new messages from others), merge with our optimistic ones
+                if (decryptedMessages.length > currentRealMessages.length) {
                     gotNewMessages = true;
                 }
 
-                return decryptedMessages;
+                // IMPORTANT: optimisticMessages first to keep them at the top
+                return [...optimisticMessages, ...decryptedMessages];
             });
 
             if (gotNewMessages) {
@@ -144,6 +150,20 @@ export const ChatProvider = ({ children, user }) => {
 
     const sendMessage = async (content) => {
         if (!activeConversation) return;
+
+        const tempId = `temp-${Date.now()}`;
+        const optimisticMessage = {
+            id: tempId,
+            message: content,
+            sender_user_id: user?.role === 'User' ? user?.id : null,
+            sender_institute_id: user?.role === 'Institute' ? (user?.institute_id || user?.institute?.id) : null,
+            created_at: new Date().toISOString(),
+            isOptimistic: true 
+        };
+
+        // 1. ADD IMMEDIATELY (Optimistic Update)
+        setMessages(prev => [optimisticMessage, ...prev]);
+
         try {
             // Encrypt message content before sending to API
             const encryptedContent = await EncryptionService.encrypt(content, activeConversation.id);
@@ -151,10 +171,11 @@ export const ChatProvider = ({ children, user }) => {
             const response = await ChatService.sendMessage(activeConversation.id, encryptedContent);
             const sentMessage = response.data.data;
 
-            // Update locally with decrypted version (original content)
+            // Update with decrypted version (original content)
             sentMessage.message = content;
 
-            setMessages(prev => [sentMessage, ...prev]);
+            // 2. REPLACE TEMP WITH REAL (Once confirmed by server)
+            setMessages(prev => prev.map(m => m.id === tempId ? sentMessage : m));
 
             // Update conversation list and move to top
             setConversations(prev => {
@@ -164,7 +185,7 @@ export const ChatProvider = ({ children, user }) => {
                 const updatedConv = {
                     ...prev[updatedConvIndex],
                     latest_message: sentMessage,
-                    updated_at: new Date().toISOString() // Update timestamp for immediate sorting
+                    updated_at: new Date().toISOString() 
                 };
 
                 const newConversations = [...prev];
@@ -175,6 +196,8 @@ export const ChatProvider = ({ children, user }) => {
             return sentMessage;
         } catch (error) {
             console.error('Failed to send message:', error);
+            // 3. REMOVE ON FAILURE
+            setMessages(prev => prev.filter(m => m.id !== tempId));
             throw error;
         }
     };

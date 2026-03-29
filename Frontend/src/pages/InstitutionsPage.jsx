@@ -203,7 +203,7 @@ const InstitutionsPage = () => {
                     animate="visible"
                 >
                     <AnimatePresence mode="popLayout">
-                        {institutions.length > 0 ? (
+                        {institutions.length > 0 &&
                             institutions.map((inst, index) => (
                                 <motion.div
                                     key={inst.id || `inst-${index}`}
@@ -270,7 +270,8 @@ const InstitutionsPage = () => {
                                     </div>
                                 </motion.div>
                             ))
-                        ) : (
+                        }
+                        {institutions.length === 0 && !loading && (
                             <motion.div
                                 className="ins-empty-state"
                                 initial={{ opacity: 0 }}
