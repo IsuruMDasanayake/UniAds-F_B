@@ -20,6 +20,16 @@ const StatCard = ({ icon: Icon, label, value, change, color = 'blue', delay = 0,
     const isPositive = change >= 0;
     const isNeutral = change === 0;
 
+    const formatValue = (val) => {
+        if (typeof val === 'number') {
+            return new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(val);
+        }
+        if (typeof val === 'string' && !isNaN(val) && val.trim() !== '') {
+            return new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(val));
+        }
+        return val;
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -32,7 +42,7 @@ const StatCard = ({ icon: Icon, label, value, change, color = 'blue', delay = 0,
             </div>
             <div className="stat-content">
                 <p className="stat-label">{label}</p>
-                <h3 className="stat-value">{value}</h3>
+                <h3 className="stat-value">{formatValue(value)}</h3>
                 {hasChange && !isNeutral && (
                     <div className={`stat-change ${isPositive ? 'positive' : 'negative'}`}>
                         {isPositive ? (
