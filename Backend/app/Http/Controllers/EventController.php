@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 use App\Services\AdminActivityLogger;
+use Mews\Purifier\Facades\Purifier;
 
 
 class EventController extends Controller
@@ -35,43 +36,35 @@ class EventController extends Controller
 
     public function store(Request $request, $id)
     {
-        $request->validate([
-            'event_title' => 'required|string|max:255',
-            'event_image' => 'required|image|max:2048',
-            'event_description' => 'required|string',
-            'event_date' => 'required|date',
-            'main_location' => 'required|string',
-            'sub_location' => 'required|string',
-        ]);
+        return DB::transaction(function () use ($request, $id) {
+            $request->validate([
+                'event_title' => 'required|string|max:255',
+                'event_image' => 'required|image|max:2048',
+                'event_description' => 'required|string',
+                'event_date' => 'required|date',
+                'main_location' => 'required|string',
+                'sub_location' => 'required|string',
+            ]);
 
-        // Get the logged-in user's institute ID
-        $instituteId = Auth::user()->institute->id;
+            // Handle the image upload
+            $eventImagePath = $request->file('event_image')->store('event_images', 'public');
 
-        // Handle the image upload
-        $eventImagePath = $request->file('event_image')->store('event_images', 'public');
+            // Sanitize event description
+            $sanitizedDescription = Purifier::clean($request->event_description);
 
-        // Store the event data
-        Event::create([
-            'institute_id' => $id,
-            'event_title' => $request->event_title,
-            'event_description' => $request->event_description,
-            'event_image' => $eventImagePath,
-            'event_date' => $request->event_date,
-            'main_location' => $request->main_location,
-            'sub_location' => $request->sub_location,
-        ]);
+            // Store the event data
+            $event = Event::create([
+                'institute_id' => $id,
+                'event_title' => $request->event_title,
+                'event_description' => $sanitizedDescription,
+                'event_image' => $eventImagePath,
+                'event_date' => $request->event_date,
+                'main_location' => $request->main_location,
+                'sub_location' => $request->sub_location,
+            ]);
 
-        // Get the logged-in user's institute and ID
-        $userInstituteId = Auth::user()->institute_id;
-        $userId = Auth::id();
-
-
-
-
-
-
-
-        return redirect()->route('profile.edit', ['id' => $id])->with('success', 'Event created successfully!');
+            return redirect()->route('profile.edit', ['id' => $id])->with('success', 'Event created successfully!');
+        });
     }
 
 
@@ -102,9 +95,12 @@ class EventController extends Controller
             'event_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
+        // Sanitize event description
+        $sanitizedDescription = Purifier::clean($request->event_description);
+
         // Update fields individually
         $event->event_title = $request->event_title;
-        $event->event_description = $request->event_description;
+        $event->event_description = $sanitizedDescription;
         $event->event_date = $request->event_date;
         $event->sub_location = $request->sub_location;
         $event->main_location = $request->main_location;
@@ -333,6 +329,9 @@ class EventController extends Controller
         $filter = $request->query('filter', 'all');
 
         $query = Event::with(['institute'])
+            ->withExists(['interests as is_interested' => function($q) use ($userId) {
+                $q->where('user_id', $userId);
+            }])
             ->where('is_active', true);
 
         // Apply Search
@@ -360,100 +359,98 @@ class EventController extends Controller
         $events = $query->orderBy('event_date', 'asc')
             ->paginate(12);
 
-        // Transformation on the collection
-        $events->getCollection()->transform(function ($event) use ($userId) {
-            $event->is_interested = $userId ? DB::table('event_user_interests')
-                ->where('event_id', $event->id)
-                ->where('user_id', $userId)
-                ->exists() : false;
-            return $event;
-        });
-
         return response()->json($events);
     }
-    // API: Store a new event
     public function apiStore(Request $request, $id)
     {
-        try {
-            $request->validate([
-                'event_title' => 'required|string|max:255',
-                'event_description' => 'required|string',
-                'event_date' => 'required|date',
-                'main_location' => 'required|string',
-                'sub_location' => 'required|string',
-                'event_image' => 'required|image|max:2048',
-            ]);
-
-            $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
-            $id = $institute->id; // Ensure numeric ID for subsequent comparisons
-            $user = Auth::user();
-
-            // Check if user belongs to this institute
-            if ($user->role !== 'Institute' || !$user->institute || $user->institute->id != $id) {
-                return response()->json([
-                    'message' => 'Unauthorized: You do not have permission to post for this institute.',
-                ], 403);
-            }
-
-            // Handle image upload
-            $eventImagePath = null;
-            if ($request->hasFile('event_image')) {
-                $eventImagePath = $request->file('event_image')->store('event_images', 'public');
-            }
-
-            // Create a new event
-            $event = Event::create([
-                'institute_id' => $institute->id,
-                'event_title' => $request->event_title,
-                'event_description' => $request->event_description,
-                'event_image' => $eventImagePath,
-                'event_date' => $request->event_date,
-                'main_location' => $request->main_location,
-                'sub_location' => $request->sub_location,
-                'is_active' => true
-            ]);
-
-
-
-            // Notify Admins
-            $admins = User::where('role', 'Admin')->get();
-            foreach ($admins as $admin) {
-                AdminNotification::create([
-                    'user_id' => $admin->id,
-                    'type' => 'event_new',
-                    'title' => 'New Event Created',
-                    'message' => "{$institute->institute_name} has created a new event: {$event->event_title}",
-                    'data' => [
-                        'event_id' => $event->id,
-                        'institute_id' => $institute->id
-                    ]
+        return DB::transaction(function () use ($request, $id) {
+            try {
+                $request->validate([
+                    'event_title' => 'required|string|max:255',
+                    'event_description' => 'required|string',
+                    'event_date' => 'required|date',
+                    'main_location' => 'required|string',
+                    'sub_location' => 'required|string',
+                    'event_image' => 'required|image|max:2048',
                 ]);
+
+                $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
+                $id = $institute->id; 
+                $user = Auth::user();
+
+                // Check if user belongs to this institute
+                if ($user->role !== 'Institute' || !$user->institute || $user->institute->id != $id) {
+                    return response()->json([
+                        'message' => 'Unauthorized: You do not have permission to post for this institute.',
+                    ], 403);
+                }
+
+                // Handle image upload
+                $eventImagePath = null;
+                if ($request->hasFile('event_image')) {
+                    $eventImagePath = $request->file('event_image')->store('event_images', 'public');
+                }
+
+                // Sanitize event description
+                $sanitizedDescription = Purifier::clean($request->event_description);
+
+                // Create a new event
+                $event = Event::create([
+                    'institute_id' => $institute->id,
+                    'event_title' => $request->event_title,
+                    'event_description' => $sanitizedDescription,
+                    'event_image' => $eventImagePath,
+                    'event_date' => $request->event_date,
+                    'main_location' => $request->main_location,
+                    'sub_location' => $request->sub_location,
+                    'is_active' => true
+                ]);
+
+                // Notify Admins
+                $admins = User::where('role', 'Admin')->get();
+                if ($admins->count() > 0) {
+                    $notifications = $admins->map(fn($admin) => [
+                        'user_id' => $admin->id,
+                        'type' => 'event_new',
+                        'title' => 'New Event Created',
+                        'message' => "{$institute->institute_name} has created a new event: {$event->event_title}",
+                        'data' => json_encode([
+                            'event_id' => $event->id,
+                            'institute_id' => $institute->id
+                        ]),
+                        'is_read' => false,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ])->toArray();
+
+                    AdminNotification::insert($notifications);
+                }
+
+                InstituteActivityLogger::log(
+                    'Event Created',
+                    "Created a new event: \"{$event->event_title}\"",
+                    'Content',
+                    'Event',
+                    $event->id
+                );
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Event created successfully!',
+                    'event' => $event
+                ], 201);
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                return response()->json([
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors()
+                ], 422);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'message' => 'An error occurred',
+                    'error' => $e->getMessage()
+                ], 500);
             }
-
-            InstituteActivityLogger::log(
-                'Event Created',
-                "Created a new event: \"{$event->event_title}\"",
-                'Content',
-                'Event',
-                $event->id
-            );
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Event created successfully!',
-                'event' => $event
-            ], 201);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'An error occurred',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        });
     }
     public function apiUpdate(Request $request, $id)
     {
@@ -478,9 +475,12 @@ class EventController extends Controller
                 'event_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             ]);
 
+            // Sanitize event description
+            $sanitizedDescription = Purifier::clean($request->event_description);
+
             // Update fields individually
             $event->event_title = $request->event_title;
-            $event->event_description = $request->event_description;
+            $event->event_description = $sanitizedDescription;
             $event->event_date = $request->event_date;
             $event->sub_location = $request->sub_location;
             $event->main_location = $request->main_location;

@@ -21,6 +21,7 @@ use App\Models\Notification;
 use App\Models\AdminNotification;
 use App\Services\InstituteActivityLogger;
 use Illuminate\Support\Facades\Storage;
+use Mews\Purifier\Facades\Purifier;
 
 class PostController extends Controller
 {
@@ -30,111 +31,108 @@ class PostController extends Controller
 
     public function apiStore(Request $request, $id)
     {
-        try {
-            // Validate the incoming data
-            $request->validate([
-                'title' => 'required|string|max:255',
-                'description' => 'required|string',
-                'small_description' => 'required|string|max:200',
-                'course_name' => 'required|string',
-                'course_type' => 'required|string',
-                'location' => 'required|array',
-                'location.*' => 'string',
-                'duration' => 'required|string',
-                'course_format' => 'required|string',
-                'attendance_type' => 'required|string',
-                'image' => 'required|image|max:2048',
-            ]);
+        return DB::transaction(function () use ($request, $id) {
+            try {
+                // Validate the incoming data
+                $request->validate([
+                    'title' => 'required|string|max:255',
+                    'description' => 'required|string',
+                    'small_description' => 'required|string|max:200',
+                    'course_name' => 'required|string',
+                    'course_type' => 'required|string',
+                    'location' => 'required|array',
+                    'location.*' => 'string',
+                    'duration' => 'required|string',
+                    'course_format' => 'required|string',
+                    'attendance_type' => 'required|string',
+                    'image' => 'required|image|max:2048',
+                ]);
 
-            $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
-            $id = $institute->id; // Ensure numeric ID for subsequent comparisons
-            $user = Auth::user();
+                $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
+                $id = $institute->id;
+                $user = Auth::user();
 
-            // Check if user belongs to this institute
-            if ($user->role !== 'Institute' || !$user->institute || $user->institute->id != $id) {
+                // Check if user belongs to this institute
+                if ($user->role !== 'Institute' || !$user->institute || $user->institute->id != $id) {
+                    return response()->json([
+                        'message' => 'Unauthorized: You do not have permission to post for this institute.',
+                    ], 403);
+                }
+
+                // Handle image upload
+                $imagePath = null;
+                if ($request->hasFile('image')) {
+                    $imagePath = $request->file('image')->store('post_images', 'public');
+                }
+
+                // Convert array of locations to comma-separated string
+                $locations = implode(', ', $request->location);
+
+                // Robust Sanitization using HTML Purifier
+                $sanitizedDescription = Purifier::clean($request->description);
+                $sanitizedSmallDescription = Purifier::clean($request->small_description);
+
+                // Create a new post
+                $post = Post::create([
+                    'title' => $request->title,
+                    'description' => $sanitizedDescription,
+                    'small_description' => $sanitizedSmallDescription,
+                    'course_name' => $request->course_name,
+                    'course_type' => $request->course_type,
+                    'location' => $locations,
+                    'duration' => $request->duration,
+                    'course_format' => $request->course_format,
+                    'attendance_type' => $request->attendance_type,
+                    'image' => $imagePath,
+                    'institute_id' => $institute->id,
+                    'status' => 'active'
+                ]);
+
+                // Notify Admins
+                $admins = User::where('role', 'Admin')->get();
+                if ($admins->count() > 0) {
+                    $notifications = $admins->map(fn($admin) => [
+                        'user_id' => $admin->id,
+                        'type' => 'post_new',
+                        'title' => 'New Post Created',
+                        'message' => "{$institute->institute_name} has created a new post: {$post->title}",
+                        'data' => json_encode([
+                            'post_id' => $post->id,
+                            'institute_id' => $institute->id
+                        ]),
+                        'is_read' => false,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ])->toArray();
+                    
+                    AdminNotification::insert($notifications);
+                }
+
+                InstituteActivityLogger::log(
+                    'Post Created',
+                    "Created a new post: \"{$post->title}\"",
+                    'Content',
+                    'Post',
+                    $post->id
+                );
+
                 return response()->json([
-                    'message' => 'Unauthorized: You do not have permission to post for this institute.',
-                    'debug_info' => [
-                        'user_role' => $user->role,
-                        'has_institute' => !!$user->institute,
-                        'user_institute_id' => $user->institute?->id,
-                        'request_id' => $id
-                    ]
-                ], 403);
+                    'success' => true,
+                    'message' => 'Post created successfully!',
+                    'post' => $post
+                ], 201);
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                return response()->json([
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors()
+                ], 422);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'message' => 'An error occurred',
+                    'error' => $e->getMessage()
+                ], 500);
             }
-
-            // Handle image upload
-            $imagePath = null;
-            if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('post_images', 'public');
-            }
-
-            // Convert array of locations to comma-separated string
-            $locations = implode(', ', $request->location);
-
-            // Sanitize HTML inputs
-            $allowedTags = '<b><i><u><ul><li><ol><p><br><strong><em>';
-            $sanitizedDescription = strip_tags($request->description, $allowedTags);
-            $sanitizedSmallDescription = strip_tags($request->small_description, $allowedTags);
-
-            // Create a new post
-            $post = Post::create([
-                'title' => $request->title,
-                'description' => $sanitizedDescription,
-                'small_description' => $sanitizedSmallDescription,
-                'course_name' => $request->course_name,
-                'course_type' => $request->course_type,
-                'location' => $locations,
-                'duration' => $request->duration,
-                'course_format' => $request->course_format,
-                'attendance_type' => $request->attendance_type,
-                'image' => $imagePath,
-                'institute_id' => $institute->id,
-                'status' => 'active'
-            ]);
-
-            // Notify Admins - Bulk Insert Optimization
-            $admins = User::where('role', 'Admin')->get();
-            if ($admins->count() > 0) {
-                $notifications = $admins->map(fn($admin) => [
-                    'user_id' => $admin->id,
-                    'type' => 'post_new',
-                    'title' => 'New Post Created',
-                    'message' => "{$institute->institute_name} has created a new post: {$post->title}",
-                    'data' => json_encode([
-                        'post_id' => $post->id,
-                        'institute_id' => $institute->id
-                    ]),
-                    'is_read' => false
-                ])->toArray();
-                
-                AdminNotification::insert($notifications);
-            }
-
-            InstituteActivityLogger::log(
-                'Post Created',
-                "Created a new post: \"{$post->title}\"",
-                'Content',
-                'Post',
-                $post->id
-            );
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Post created successfully!',
-                'post' => $post
-            ], 201);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'An error occurred',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        });
     }
 
 
@@ -185,10 +183,9 @@ class PostController extends Controller
                 $post->image = $imagePath;
             }
 
-            // Sanitize HTML inputs
-            $allowedTags = '<b><i><u><ul><li><ol><p><br><strong><em>';
-            $sanitizedDescription = strip_tags($request->description, $allowedTags);
-            $sanitizedSmallDescription = strip_tags($request->small_description, $allowedTags);
+            // Robust Sanitization using HTML Purifier
+            $sanitizedDescription = Purifier::clean($request->description);
+            $sanitizedSmallDescription = Purifier::clean($request->small_description);
 
             // Convert array of locations to comma-separated string
             $locations = implode(', ', $request->location);
@@ -331,10 +328,19 @@ class PostController extends Controller
         ]));
 
         $postsData = \Illuminate\Support\Facades\Cache::remember($cacheKey, 300, function () use ($filterType, $filterValue, $search, $activeFilters) {
+            $user = Auth::guard('sanctum')->user();
+            $userId = $user ? $user->id : null;
+
             $query = Post::query()
                 ->join('institutes', 'institutes.id', '=', 'posts.institute_id')
                 ->select('posts.*')
-                ->with('institute')
+                ->with(['institute', 'likes'])
+                ->withExists(['likes as is_liked_by_user' => function($q) use ($userId) {
+                    $q->where('user_id', $userId);
+                }])
+                ->withExists(['savedBy as is_saved_by_user' => function($q) use ($user, $userId) {
+                    $q->where('student_id', $userId);
+                }])
                 ->where('posts.status', 'active')
                 ->where('posts.created_at', '>=', now()->subDays(60));
 
@@ -528,8 +534,17 @@ class PostController extends Controller
 
         $posts = $user->savedPosts()
             ->with(['institute', 'likes'])
+            ->withExists(['likes as is_liked_by_user' => function($q) use ($user) {
+                $q->where('user_id', $user->id);
+            }])
             ->latest('saved_posts.created_at')
             ->paginate(10);
+
+        // Map is_saved_by_user for consistency, though inherently true here
+        $posts->getCollection()->transform(function($post) {
+            $post->is_saved_by_user = true;
+            return $post;
+        });
 
         return response()->json([
             'posts' => $posts
@@ -542,20 +557,19 @@ class PostController extends Controller
     public function apiIndex()
     {
         $user = auth()->user();
+        $userId = $user ? $user->id : null;
+
         /** @var \Illuminate\Pagination\LengthAwarePaginator $posts */
         $posts = Post::with(['institute', 'likes'])
+            ->withExists(['likes as is_liked_by_user' => function($q) use ($userId) {
+                $q->where('user_id', $userId);
+            }])
+            ->withExists(['savedBy as is_saved_by_user' => function($q) use ($user, $userId) {
+                $q->where('student_id', $userId);
+            }])
             ->where('status', 'active')
             ->latest()
             ->paginate(10);
-
-        // Apply user-specific liked and saved status
-        $userId = $user ? $user->id : null;
-        /** @var \App\Models\User $user */
-        $posts->getCollection()->transform(function ($post) use ($userId, $user) {
-            $post->is_liked_by_user = $user ? $post->likes()->where('user_id', $user->id)->exists() : false;
-            $post->is_saved_by_user = ($user && $user->role === 'User') ? $user->savedPosts()->where('post_id', $post->id)->exists() : false;
-            return $post;
-        });
 
         return response()->json($posts);
     }

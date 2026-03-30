@@ -43,4 +43,9 @@ class Event extends Model
     {
         return $this->hasMany(EventView::class);
     }
+
+    public function interests()
+    {
+        return $this->hasMany(EventUserInterest::class);
+    }
 }
