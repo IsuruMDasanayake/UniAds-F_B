@@ -670,7 +670,7 @@
         right: 0;
         bottom: 0;
         background: rgba(15, 23, 42, 0.4);
-        z-index: 2004;
+        z-index: 2000;
         -webkit-backdrop-filter: blur(4px);
         backdrop-filter: blur(4px);
     }
@@ -684,7 +684,7 @@
         /* Right above the mobile bottom nav */
         top: auto;
         border-radius: 20px 20px 0 0;
-        max-height: 75vh;
+        max-height: 60vh;
         z-index: 2005;
         box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
     }

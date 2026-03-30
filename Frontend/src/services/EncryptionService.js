@@ -77,6 +77,12 @@ const EncryptionService = {
         }
 
         try {
+            // Browsers block crypto.subtle on non-HTTPS origins (e.g. mobile testing on local network IPs)
+            if (!window.crypto || !window.crypto.subtle) {
+                console.warn('Web Crypto API is disabled in insecure contexts (HTTP). Decryption unavailable.');
+                return '[E2EE Disabled on HTTP - Please use HTTPS]';
+            }
+
             const base64 = encryptedData.substring(4);
             const binaryString = atob(base64);
             const bytes = new Uint8Array(binaryString.length);
@@ -97,7 +103,8 @@ const EncryptionService = {
             return new TextDecoder().decode(decrypted);
         } catch (error) {
             console.error('Decryption failed:', error);
-            return '[Encrypted Message - Click to reset]';
+            // Include error detail if available for debugging
+            return `[Decryption Error - ${error.name || 'Unknown'}]`;
         }
     }
 };

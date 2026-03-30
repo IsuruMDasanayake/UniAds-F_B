@@ -343,14 +343,13 @@ function EventsPage() {
                         </div>
                     ) : (
                         <div className="events-modern-grid">
-                            {events.map((event) => (
+                            {events.map((event, index) => (
                                 <motion.div
                                     key={event.id}
                                     className="modern-event-card"
                                     initial={{ opacity: 0, scale: 0.95 }}
-                                    whileInView={{ opacity: 1, scale: 1 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.3 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ duration: 0.3, delay: (index % 10) * 0.05 }}
                                 >
                                     <div className="card-media">
                                         <img src={getStorageUrl(event.event_image)} alt={event.event_title} onClick={() => openEventModal(event)} />

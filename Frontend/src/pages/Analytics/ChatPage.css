@@ -569,6 +569,11 @@
     #analytics-chat-page .acp-mobile-only-back {
         display: inline-block;
     }
+
+    /* Fix for iOS double-tap issue: hover state changes hijack the first tap */
+    #analytics-chat-page .acp-delete-btn {
+        opacity: 0.6; /* Always visible on mobile */
+    }
 }
 
 #analytics-chat-page .acp-mobile-only-back {

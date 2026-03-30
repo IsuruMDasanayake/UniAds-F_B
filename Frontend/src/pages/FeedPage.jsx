@@ -582,7 +582,7 @@ function FeedPage() {
                                                     onClick={() => handleSavePost(post.id)}
                                                     title={post.is_saved_by_user ? 'Unsave' : 'Save'}
                                                 >
-                                                    <Bookmark size={18} fill={post.is_saved_by_user ? '#ffc107' : 'none'} color={post.is_saved_by_user ? '#ffc107' : 'currentColor'} />
+                                                    <Bookmark size={20} fill={post.is_saved_by_user ? '#ffc107' : 'none'} color={post.is_saved_by_user ? '#ffc107' : 'currentColor'} />
                                                 </button>
                                             )}
                                             <button
