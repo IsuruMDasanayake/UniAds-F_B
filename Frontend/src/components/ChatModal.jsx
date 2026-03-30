@@ -9,7 +9,7 @@ import LinkPreview from './LinkPreview';
 import './Messenger.css';
 
 const ChatModal = () => {
-    const { activeConversation, setActiveConversation, messages, sendMessage, displayUser } = useChat();
+    const { activeConversation, setActiveConversation, messages, sendMessage, displayUser, isMessagesLoading } = useChat();
     const [inputValue, setInputValue] = useState('');
     const messagesEndRef = useRef(null);
  
@@ -34,8 +34,13 @@ const ChatModal = () => {
     };
 
     useEffect(() => {
-        scrollToBottom();
-    }, [messages]);
+        // Ensure DOM has fully painted the new messages or finished loading animations before scrolling
+        const scrollTimeout = setTimeout(() => {
+            scrollToBottom();
+        }, 50);
+
+        return () => clearTimeout(scrollTimeout);
+    }, [messages, isMessagesLoading, activeConversation]);
 
     const handleSend = (e) => {
         if (e) e.preventDefault();
@@ -121,7 +126,11 @@ const ChatModal = () => {
                     </div>
 
                     <div className="chat-messages-area fb premium-scroll">
-                        {messages.length === 0 ? (
+                        {isMessagesLoading ? (
+                            <div className="chat-loading-centered">
+                                <Loader2 size={32} className="chat-loader-spin" />
+                            </div>
+                        ) : messages.length === 0 ? (
                             <div className="chat-welcome-section">
                                 <div className="welcome-avatar-large">
                                     {other?.institute?.profile_photo || other?.user?.profile_photo ? (

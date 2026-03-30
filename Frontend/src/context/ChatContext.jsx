@@ -11,6 +11,7 @@ export const ChatProvider = ({ children, user }) => {
     const [conversations, setConversations] = useState([]);
     const [activeConversation, setActiveConversation] = useState(null);
     const [messages, setMessages] = useState([]);
+    const [isMessagesLoading, setIsMessagesLoading] = useState(false);
     const [unreadTotal, setUnreadTotal] = useState(0);
 
     const fetchConversations = useCallback(async () => {
@@ -116,8 +117,15 @@ export const ChatProvider = ({ children, user }) => {
         setActiveConversation(conversation);
         if (!conversation) {
             setMessages([]);
+            setIsMessagesLoading(false);
             return;
         }
+
+        // Clear only if it is a different conversation or if we want to ensure fresh load
+        // This prevents the "flash" of old messages
+        setMessages([]);
+        setIsMessagesLoading(true);
+
         try {
             const response = await ChatService.getMessages(conversation.id);
             const rawMessages = response.data.data.data;
@@ -145,6 +153,8 @@ export const ChatProvider = ({ children, user }) => {
             await ChatService.markRead(conversation.id);
         } catch (error) {
             console.error('Failed to fetch messages:', error);
+        } finally {
+            setIsMessagesLoading(false);
         }
     };
 
@@ -207,8 +217,10 @@ export const ChatProvider = ({ children, user }) => {
         activeConversation,
         messages,
         unreadTotal,
+        isMessagesLoading,
         selectConversation,
         sendMessage,
+        refreshMessages,
         fetchConversations,
         setActiveConversation,
         displayUser: user
