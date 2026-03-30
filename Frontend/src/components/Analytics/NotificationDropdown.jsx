@@ -81,15 +81,18 @@ const NotificationDropdown = () => {
 
         if (data?.image) {
             return (
-                <img
-                    src={getStorageUrl(data.image)}
-                    alt=""
-                    className="notif-img"
-                    onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'block';
-                    }}
-                />
+                <>
+                    <img
+                        src={getStorageUrl(data.image)}
+                        alt=""
+                        className="notif-img"
+                        onError={(e) => {
+                            e.target.style.display = 'none';
+                            if (e.target.nextSibling) e.target.nextSibling.style.display = 'block';
+                        }}
+                    />
+                    <Bell className="notif-icon-default" size={18} style={{ display: 'none' }} />
+                </>
             );
         }
 
