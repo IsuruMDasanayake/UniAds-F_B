@@ -15,31 +15,57 @@ import ApplyNowModal from '../components/Modals/ApplyNowModal';
 import MoreInfoModal from '../components/Modals/MoreInfoModal';
 import './CoursesPage.css';
 
+import { useUser } from '../hooks/useUser';
+import { usePosts, useCategories, useToggleSavePost } from '../hooks/usePosts';
+
 const CoursesPage = () => {
     const { filterType, filterValue } = useParams();
     const navigate = useNavigate();
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [categories, setCategories] = useState({});
-    const [posts, setPosts] = useState([]);
+    
+    // TanStack Query Hooks
+    const { data: user } = useUser();
+    const { data: categoriesData = {}, isLoading: categoriesLoading } = useCategories();
     
     const [searchQuery, setSearchQuery] = useState('');
-    const [expandedSections, setExpandedSections] = useState({});
-    
-    // New Filter States
-    const [activeFilters, setActiveFilters] = useState({});
-    const [openFilterDropdown, setOpenFilterDropdown] = useState(null);
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+    const [activeFilters, setActiveFilters] = useState({});
+    const [expandedSections, setExpandedSections] = useState({});
+    const [openFilterDropdown, setOpenFilterDropdown] = useState(null);
 
     // Debounce search query
     useEffect(() => {
         const handler = setTimeout(() => {
             setDebouncedSearchQuery(searchQuery);
-        }, 300); // Faster bounce
+        }, 300);
         return () => clearTimeout(handler);
     }, [searchQuery]);
 
+    // Data fetching via React Query
+    const { 
+        data: posts = [], 
+        isLoading: postsLoading, 
+        isFetching: postsFetching 
+    } = usePosts(filterType, filterValue, {
+        searchQuery: debouncedSearchQuery,
+        activeFilters: activeFilters
+    });
 
+    const toggleSaveMutation = useToggleSavePost();
+
+    // Re-sync expanded sections when categories load
+    useEffect(() => {
+        if (Object.keys(categoriesData).length > 0) {
+            const initials = {};
+            Object.keys(categoriesData).forEach(key => initials[key] = true);
+            setExpandedSections(initials);
+        }
+    }, [categoriesData]);
+
+    // Reset search when category changes
+    useEffect(() => {
+        setSearchQuery('');
+        window.scrollTo(0, 0);
+    }, [filterType, filterValue]);
 
     // Click outside handler for dropdowns
     useEffect(() => {
@@ -67,94 +93,6 @@ const CoursesPage = () => {
         privacyConsent: false
     });
 
-    useEffect(() => {
-        // Initial data load (categories and user)
-        loadInitialData();
-        // Reset scroll
-        window.scrollTo(0, 0);
-        // Clear search query when navigating between main categories
-        setSearchQuery('');
-    }, [filterType, filterValue]);
-
-    const loadInitialData = async () => {
-        try {
-            const catResponse = await axiosClient.get('/api/categories');
-            setCategories(catResponse.data);
-            
-            const initials = {};
-            Object.keys(catResponse.data).forEach(key => initials[key] = true);
-            setExpandedSections(initials);
-
-            try {
-                const userRes = await axiosClient.get('/api/profile/me');
-                const currentUser = userRes.data.user;
-                if (userRes.data.role === 'Institute') {
-                    currentUser.institute = userRes.data.institute;
-                }
-                setUser(currentUser);
-                localStorage.setItem('APP_USER', JSON.stringify(currentUser));
-            } catch (err) {
-                console.warn('User not authenticated');
-            }
-        } catch (error) {
-            console.error('Error loading initial data:', error);
-        } finally {
-            // Only stop loading if we aren't about to trigger fetchPosts()
-            if (!filterType || !filterValue) {
-                setLoading(false);
-            }
-        }
-    };
-
-    // Track if search/filter is active
-    const [searching, setSearching] = useState(false);
-
-    useEffect(() => {
-        if (filterType && filterValue) {
-            // Clear current posts when switching between MAJOR categories to ensure clean UI
-            setPosts([]);
-            fetchPosts(true); // Is initial category load
-        }
-    }, [filterType, filterValue]);
-
-    useEffect(() => {
-        if (filterType && filterValue) {
-            // Subsequent updates (search/checkboxes) don't clear posts or show full spinner
-            fetchPosts(false);
-        }
-    }, [debouncedSearchQuery, activeFilters]);
-
-    const fetchPosts = async (isNewCategory = false) => {
-        if (isNewCategory) setLoading(true);
-        else setSearching(true);
-
-        try {
-            const response = await axiosClient.get(`/api/posts/filter/${filterType}/${filterValue}`, {
-                params: {
-                    search: debouncedSearchQuery,
-                    filters: activeFilters
-                }
-            });
-            
-            let fetchedPosts = response.data.posts?.data || response.data.posts || [];
-
-            if (user && user.saved_posts) {
-                const savedIds = user.saved_posts.map(p => p.id);
-                fetchedPosts = fetchedPosts.map(post => ({
-                    ...post,
-                    is_saved: savedIds.includes(post.id)
-                }));
-            }
-
-            setPosts(fetchedPosts);
-        } catch (error) {
-            console.error('Error fetching posts:', error);
-        } finally {
-            setLoading(false);
-            setSearching(false);
-        }
-    };
-
     const toggleSection = (section) => {
         setExpandedSections(prev => ({
             ...prev,
@@ -173,7 +111,6 @@ const CoursesPage = () => {
                 ? currentSelected.filter(v => v !== value)
                 : [...currentSelected, value];
 
-            // If no values left, remove the category key to keep state clean
             if (newSelected.length === 0) {
                 const newState = { ...prev };
                 delete newState[category];
@@ -191,7 +128,6 @@ const CoursesPage = () => {
 
     const openProgrammeInfo = (post) => {
         setSelectedPost(post);
-        // Track view
         axiosClient.post(`/api/posts/${post.id}/track-view`).catch(err => console.error(err));
     };
 
@@ -215,7 +151,6 @@ const CoursesPage = () => {
 
     const handleApplySubmit = async (e) => {
         e.preventDefault();
-
         setApplying(true);
         setSubmissionStatus({ type: '', message: '' });
 
@@ -224,12 +159,10 @@ const CoursesPage = () => {
                 ...applyForm,
                 post_id: selectedPost.id,
                 course_title: selectedPost.title,
-                privacy_consent: applyForm.privacyConsent // Map for backend
+                privacy_consent: applyForm.privacyConsent 
             });
 
             setSubmissionStatus({ type: 'success', message: 'Application submitted successfully! We wish you all the best for your future.' });
-
-            // Clear form
             setApplyForm({ name: '', email: '', phone: '', message: '', privacyConsent: false });
 
             setTimeout(() => {
@@ -255,20 +188,18 @@ const CoursesPage = () => {
         return `${datePart} | ${timePart}`;
     };
 
-    const handleToggleSave = async (postId) => {
-        try {
-            await axiosClient.post(`/api/posts/${postId}/save`);
-            // Update local state
-            setPosts(posts.map(p => p.id === postId ? { ...p, is_saved: !p.is_saved } : p));
-        } catch (error) {
-            console.error('Error saving post:', error);
-        }
+    const handleToggleSave = (postId) => {
+        toggleSaveMutation.mutate(postId);
     };
 
     const itemVariants = {
         hidden: { y: 20, opacity: 0 },
         visible: { y: 0, opacity: 1, transition: { duration: 0.4 } }
     };
+
+    const loading = categoriesLoading || (postsLoading && !postsFetching); // Initial load or non-background fetch
+    const searching = postsFetching;
+    const categories = categoriesData;
 
 
     return (

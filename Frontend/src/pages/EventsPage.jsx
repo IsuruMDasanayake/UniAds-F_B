@@ -14,19 +14,31 @@ import EventDetailsModal from '../components/Modals/EventDetailsModal';
 import AddEventModal from './InstituteProfile/modals/AddEventModal';
 import './EventsPage.css';
 
+import { useUser } from '../hooks/useUser';
+import { useInfiniteEvents, useToggleEventInterest, useDeclineEvent } from '../hooks/useEvents';
+
 function EventsPage() {
-    const [user, setUser] = useState(null);
-    const [events, setEvents] = useState([]);
-    const [eventsPage, setEventsPage] = useState(1);
-    const [hasMoreEvents, setHasMoreEvents] = useState(true);
-    const [loadingMoreEvents, setLoadingMoreEvents] = useState(false);
-    const [totalEvents, setTotalEvents] = useState(0);
-    const [loading, setLoading] = useState(true);
-    const [selectedEvent, setSelectedEvent] = useState(null);
+    const { data: user } = useUser();
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
-    const processingIds = useRef(new Set());
+    
+    // TanStack Query Hooks
+    const { 
+        data: eventsData, 
+        fetchNextPage, 
+        hasNextPage: hasMoreEvents, 
+        isFetchingNextPage: loadingMoreEvents,
+        isLoading: eventsLoading,
+    } = useInfiniteEvents({ searchQuery: debouncedSearchQuery, activeFilter });
+
+    const interestMutation = useToggleEventInterest();
+    const declineMutation = useDeclineEvent();
+
+    const events = eventsData?.pages.flatMap(page => page.data) || [];
+    const totalEvents = eventsData?.pages[0]?.total || 0;
+
+    const [selectedEvent, setSelectedEvent] = useState(null);
     const [showAddEventModal, setShowAddEventModal] = useState(false);
     const eventLoaderRef = useRef(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 900);
@@ -44,190 +56,26 @@ function EventsPage() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const fetchData = async (isInitialAppLoad = false) => {
-        // Only show total page loader if we don't have user data yet (first entry)
-        if (isInitialAppLoad && !user) setLoading(true);
-        else {
-            setLoadingMoreEvents(true);
-            setEvents([]); // Reset events to show skeletons
-        }
-
-        try {
-            const response = await axiosClient.get(`/api/events`, {
-                params: {
-                    page: 1,
-                    search: debouncedSearchQuery,
-                    filter: activeFilter
-                }
-            });
-
-            if (isInitialAppLoad && !user) {
-                const userRes = await axiosClient.get('/api/user');
-                setUser(userRes.data);
-            }
-
-            setEvents(response.data.data || []);
-            setEventsPage(response.data.current_page || 1);
-            setHasMoreEvents(!!response.data.next_page_url);
-            setTotalEvents(response.data.total || 0);
-        } catch (error) {
-            console.error('Failed to fetch events:', error);
-        } finally {
-            setLoading(false);
-            setLoadingMoreEvents(false);
-        }
-    };
-
     useEffect(() => {
-        fetchData(true); // Initial load or re-fetch on filter/search change
-    }, [debouncedSearchQuery, activeFilter]);
-
-    const fetchEvents = async () => {
-        fetchData(true);
-    };
-
-    const handleLoadMoreEvents = useCallback(async () => {
-        if (!hasMoreEvents || loadingMoreEvents) return;
-        setLoadingMoreEvents(true);
-        try {
-            const response = await axiosClient.get(`/api/events`, {
-                params: {
-                    page: eventsPage + 1,
-                    search: debouncedSearchQuery,
-                    filter: activeFilter
-                }
-            });
-            if (response.data && response.data.data) {
-                const newEvents = response.data.data;
-                setEvents(prevEvents => {
-                    const existingIds = new Set(prevEvents.map(e => e.id));
-                    const uniqueNewEvents = newEvents.filter(e => !existingIds.has(e.id));
-                    return [...prevEvents, ...uniqueNewEvents];
-                });
-                setEventsPage(response.data.current_page);
-                setHasMoreEvents(!!response.data.next_page_url);
-            }
-        } catch (error) {
-            console.error('Failed to load more events:', error);
-        } finally {
-            setLoadingMoreEvents(false);
-        }
-    }, [hasMoreEvents, loadingMoreEvents, eventsPage, debouncedSearchQuery, activeFilter]);
-
-
-    useEffect(() => {
-        if (loading) return; // Don't setup observer while full-page loading
-
         const observer = new IntersectionObserver(
             entries => {
-                const target = entries[0];
-                if (target.isIntersecting && hasMoreEvents && !loadingMoreEvents) {
-                    handleLoadMoreEvents();
+                if (entries[0].isIntersecting && hasMoreEvents && !loadingMoreEvents) {
+                    fetchNextPage();
                 }
             },
             { threshold: 0.1, rootMargin: '100px' }
         );
 
-        const currentLoader = eventLoaderRef.current;
-        if (currentLoader) {
-            observer.observe(currentLoader);
-        }
+        if (eventLoaderRef.current) observer.observe(eventLoaderRef.current);
+        return () => observer.disconnect();
+    }, [hasMoreEvents, loadingMoreEvents, fetchNextPage]);
 
-        return () => {
-            if (currentLoader) {
-                observer.unobserve(currentLoader);
-            }
-        };
-    }, [hasMoreEvents, loadingMoreEvents, eventsPage, handleLoadMoreEvents, loading]);
-
-
-    const EventSkeleton = () => (
-        <div className="modern-event-card skeleton-card">
-            <div className="card-media skeleton" style={{ height: '200px' }}></div>
-            <div className="card-details" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
-                <div className="skeleton" style={{ height: '14px', width: '40%', marginBottom: '10px', borderRadius: '4px' }}></div>
-                <div className="skeleton" style={{ height: '20px', width: '80%', marginBottom: '15px', borderRadius: '4px' }}></div>
-                <div className="info-chips" style={{ display: 'flex', gap: '0.5rem' }}>
-                    <div className="skeleton" style={{ height: '28px', width: '90px', borderRadius: '8px' }}></div>
-                    <div className="skeleton" style={{ height: '28px', width: '90px', borderRadius: '8px' }}></div>
-                </div>
-                <div className="card-actions" style={{ display: 'flex', gap: '0.75rem', marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid #f1f5f9' }}>
-                    <div className="skeleton" style={{ height: '42px', flex: 1, borderRadius: '12px' }}></div>
-                    <div className="skeleton" style={{ height: '42px', width: '100px', borderRadius: '12px' }}></div>
-                </div>
-            </div>
-        </div>
-    );
-
-
-
-
-    const handleMarkInterest = async (eventId) => {
-        // Prevent duplicate in-flight requests for the same event
-        if (processingIds.current.has(eventId)) return;
-        processingIds.current.add(eventId);
-
-        // Snapshot for rollback
-        const previousEvents = [...events];
-        const previousSelected = selectedEvent ? { ...selectedEvent } : null;
-
-        // Optimistic UI update
-        const applyToggle = (ev) => {
-            if (ev.id !== eventId) return ev;
-            const isInterested = !ev.is_interested;
-            return {
-                ...ev,
-                is_interested: isInterested,
-                interested_count: isInterested ? (ev.interested_count + 1) : Math.max(0, ev.interested_count - 1)
-            };
-        };
-
-        setEvents(prev => prev.map(applyToggle));
-        if (selectedEvent?.id === eventId) {
-            setSelectedEvent(prev => applyToggle(prev));
-        }
-
-        try {
-            const resp = await axiosClient.post(`/api/events/${eventId}/interest`);
-            const isRemoving = resp.data.status === 'uninterested';
-
-            // Sync with server truth
-            setEvents(prev => prev.map(ev =>
-                ev.id === eventId ? { ...ev, is_interested: !isRemoving } : ev
-            ));
-            if (selectedEvent?.id === eventId) {
-                setSelectedEvent(prev => prev ? { ...prev, is_interested: !isRemoving } : prev);
-            }
-        } catch (error) {
-            console.error('Error marking interest:', error);
-            // Rollback
-            setEvents(previousEvents);
-            if (previousSelected) setSelectedEvent(previousSelected);
-        } finally {
-            processingIds.current.delete(eventId);
-        }
+    const handleMarkInterest = (eventId) => {
+        interestMutation.mutate(eventId);
     };
 
-    const handleDecline = async (eventId) => {
-        if (processingIds.current.has(eventId)) return;
-        processingIds.current.add(eventId);
-
-        // Snapshot for rollback
-        const previousEvents = [...events];
-
-        // Optimistic: remove card immediately
-        setEvents(prev => prev.filter(ev => ev.id !== eventId));
-        if (selectedEvent?.id === eventId) setSelectedEvent(null);
-
-        try {
-            await axiosClient.post(`/api/events/${eventId}/decline`);
-        } catch (error) {
-            console.error('Error declining event:', error);
-            // Rollback
-            setEvents(previousEvents);
-        } finally {
-            processingIds.current.delete(eventId);
-        }
+    const handleDecline = (eventId) => {
+        declineMutation.mutate(eventId);
     };
 
     const openEventModal = (event) => {
@@ -248,6 +96,26 @@ function EventsPage() {
             month: 'long',
         });
     };
+
+    const loading = eventsLoading;
+
+    const EventSkeleton = () => (
+        <div className="modern-event-card skeleton-card">
+            <div className="card-media skeleton" style={{ height: '200px' }}></div>
+            <div className="card-details" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
+                <div className="skeleton" style={{ height: '14px', width: '40%', marginBottom: '10px', borderRadius: '4px' }}></div>
+                <div className="skeleton" style={{ height: '20px', width: '80%', marginBottom: '15px', borderRadius: '4px' }}></div>
+                <div className="info-chips" style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div className="skeleton" style={{ height: '28px', width: '90px', borderRadius: '8px' }}></div>
+                    <div className="skeleton" style={{ height: '28px', width: '90px', borderRadius: '8px' }}></div>
+                </div>
+                <div className="card-actions" style={{ display: 'flex', gap: '0.75rem', marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid #f1f5f9' }}>
+                    <div className="skeleton" style={{ height: '42px', flex: 1, borderRadius: '12px' }}></div>
+                    <div className="skeleton" style={{ height: '42px', width: '100px', borderRadius: '12px' }}></div>
+                </div>
+            </div>
+        </div>
+    );
 
     if (loading) {
         return (
@@ -520,7 +388,7 @@ function EventsPage() {
                         onClose={() => setShowAddEventModal(false)}
                         onSuccess={() => {
                             setShowAddEventModal(false);
-                            fetchEvents();
+                            refetchEvents();
                         }}
                     />
                 )}

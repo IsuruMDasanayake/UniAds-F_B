@@ -44,13 +44,42 @@ const PostSkeleton = () => (
 );
 
 
+import { useUser } from '../hooks/useUser';
+import { useInfinitePosts, useToggleLikePost, useToggleSavePost } from '../hooks/usePosts';
+import { useInfiniteEvents, useToggleEventInterest, useDeclineEvent } from '../hooks/useEvents';
+
 function FeedPage() {
     const { settings } = useSettings();
     const navigate = useNavigate();
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [posts, setPosts] = useState([]);
-    const [events, setEvents] = useState([]);
+    
+    // TanStack Query Hooks
+    const { data: userData } = useUser();
+    const { 
+        data: postsData, 
+        fetchNextPage: fetchNextPosts, 
+        hasNextPage: hasMorePosts, 
+        isFetchingNextPage: loadingMorePosts,
+        isLoading: postsLoading,
+        refetch: refetchPosts
+    } = useInfinitePosts();
+
+    const { 
+        data: eventsData, 
+        fetchNextPage: fetchNextEvents, 
+        hasNextPage: hasMoreEvents, 
+        isFetchingNextPage: loadingMoreEvents,
+        isLoading: eventsLoading
+    } = useInfiniteEvents();
+
+    const likeMutation = useToggleLikePost();
+    const saveMutation = useToggleSavePost();
+    const interestMutation = useToggleEventInterest();
+    const declineMutation = useDeclineEvent();
+
+    const user = userData;
+    const posts = postsData?.pages.flatMap(page => page.data) || [];
+    const events = eventsData?.pages.flatMap(page => page.data) || [];
+
     const [selectedPost, setSelectedPost] = useState(null);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [showApplyModal, setShowApplyModal] = useState(false);
@@ -74,15 +103,6 @@ function FeedPage() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Pagination State
-    const [postsPage, setPostsPage] = useState(1);
-    const [hasMorePosts, setHasMorePosts] = useState(false);
-    const [loadingMorePosts, setLoadingMorePosts] = useState(false);
-
-    const [eventsPage, setEventsPage] = useState(1);
-    const [hasMoreEvents, setHasMoreEvents] = useState(false);
-    const [loadingMoreEvents, setLoadingMoreEvents] = useState(false);
-
     // Sidebar State
     const [expandedSections, setExpandedSections] = useState({
         bachelors: false,
@@ -94,267 +114,49 @@ function FeedPage() {
         setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
     };
 
-
     const loaderRef = useRef(null);
     const eventLoaderRef = useRef(null);
 
-    const fetchMorePosts = useCallback(async (force = false) => {
-        if (loadingMorePosts || (!hasMorePosts && !force)) return;
-        setLoadingMorePosts(true);
-
-        try {
-            const response = await axiosClient.get(`/api/posts?page=${postsPage + 1}`);
-            const newPosts = response.data.data;
-
-            if (newPosts.length === 0) {
-                if (force) setHasMorePosts(false);
-            } else {
-                // Merge with saved status
-                const savedIds = user?.saved_posts?.map(p => p.id) || [];
-                const newPostsWithSaved = newPosts.map(post => ({
-                    ...post,
-                    is_liked_by_user: post.is_liked_by_user || false,
-                    is_saved_by_user: post.is_saved_by_user || savedIds.includes(post.id)
-                }));
-
-                setPosts(prevPosts => {
-                    const existingIds = new Set(prevPosts.map(p => p.id));
-                    const uniqueNewPosts = newPostsWithSaved.filter(p => !existingIds.has(p.id));
-                    return [...prevPosts, ...uniqueNewPosts];
-                });
-
-                setPostsPage(response.data.current_page);
-                setHasMorePosts(!!response.data.next_page_url);
-            }
-            setLoadingMorePosts(false);
-        } catch (error) {
-            console.error('Error loading more posts:', error);
-            setLoadingMorePosts(false);
-        }
-    }, [postsPage, hasMorePosts, loadingMorePosts, user]);
-
     useEffect(() => {
-        const postsContainer = document.querySelector('.posts-section');
-
         const observer = new IntersectionObserver((entries) => {
-            const target = entries[0];
-            if (target.isIntersecting && hasMorePosts && !loadingMorePosts) {
-                fetchMorePosts();
+            if (entries[0].isIntersecting && hasMorePosts && !loadingMorePosts) {
+                fetchNextPosts();
             }
-        }, {
-            root: postsContainer,
-            rootMargin: "300px",
-            threshold: 0.1
-        });
+        }, { threshold: 0.1, rootMargin: '300px' });
 
-        if (loaderRef.current) {
-            observer.observe(loaderRef.current);
-        }
-
-        return () => {
-            if (loaderRef.current) {
-                observer.disconnect();
-            }
-        };
-    }, [fetchMorePosts, hasMorePosts, loadingMorePosts]);
+        if (loaderRef.current) observer.observe(loaderRef.current);
+        return () => observer.disconnect();
+    }, [hasMorePosts, loadingMorePosts, fetchNextPosts]);
 
     useEffect(() => {
-        const eventsContainer = document.querySelector('.events-scroll-container');
-
-        const eventObserver = new IntersectionObserver((entries) => {
-            const target = entries[0];
-            if (target.isIntersecting && hasMoreEvents && !loadingMoreEvents) {
-                handleLoadMoreEvents();
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && hasMoreEvents && !loadingMoreEvents) {
+                fetchNextEvents();
             }
-        }, {
-            root: eventsContainer,
-            rootMargin: "100px",
-            threshold: 0.1
-        });
+        }, { threshold: 0.1, rootMargin: '100px' });
 
-        if (eventLoaderRef.current) {
-            eventObserver.observe(eventLoaderRef.current);
-        }
+        if (eventLoaderRef.current) observer.observe(eventLoaderRef.current);
+        return () => observer.disconnect();
+    }, [hasMoreEvents, loadingMoreEvents, fetchNextEvents]);
 
-        return () => {
-            if (eventLoaderRef.current) {
-                eventObserver.disconnect();
-            }
-        };
-    }, [hasMoreEvents, loadingMoreEvents]); // Need to add handleLoadMoreEvents if it's outside, but we can rely on state
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [profileRes, feedRes, eventsRes] = await Promise.all([
-                    axiosClient.get('/api/profile/me'),
-                    axiosClient.get('/api/feed'),
-                    axiosClient.get('/api/events?page=1')
-                ]);
-
-                const currentUser = {
-                    ...profileRes.data.user,
-                    role: profileRes.data.role,
-                    institute: profileRes.data.institute || null,
-                    saved_posts: profileRes.data.savedPosts || []
-                };
-
-                const savedIds = currentUser.saved_posts?.map(p => p.id) || [];
-
-                const postsWithSaved = (feedRes.data.posts?.data || [])
-                    .map(post => ({
-                        ...post,
-                        is_liked_by_user: post.is_liked_by_user || false,
-                        is_saved_by_user: post.is_saved_by_user || savedIds.includes(post.id)
-                    }));
-
-                setUser(currentUser);
-                setPosts(postsWithSaved);
-                setPostsPage(feedRes.data.posts?.current_page || 1);
-                setHasMorePosts(!!feedRes.data.posts?.next_page_url);
-
-                // Use the explicit events API to guarantee correct pagination offset and ordering
-                setEvents(eventsRes.data.data || []);
-                setEventsPage(eventsRes.data.current_page || 1);
-                setHasMoreEvents(!!eventsRes.data.next_page_url);
-
-            } catch (error) {
-                console.error('Failed to fetch data:', error);
-                navigate('/login');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, [navigate]);
-
-
-    const handleLike = async (postId) => {
-        // Optimistic Update
-        const previousPosts = [...posts];
-        let postToUpdate = null;
-
-        setPosts(prevPosts => prevPosts.map(post => {
-            if (post.id === postId) {
-                postToUpdate = { ...post };
-                const isLiked = !post.is_liked_by_user;
-                return {
-                    ...post,
-                    is_liked_by_user: isLiked,
-                    likes_count: isLiked ? (post.likes_count + 1) : (post.likes_count - 1)
-                };
-            }
-            return post;
-        }));
-
-        try {
-            const response = await axiosClient.post(`/api/posts/${postId}/toggle-like`);
-            // Sync with actual backend data just in case counts differ
-            setPosts(prevPosts => prevPosts.map(post =>
-                post.id === postId
-                    ? { ...post, likes_count: response.data.likes_count, is_liked_by_user: response.data.liked }
-                    : post
-            ));
-        } catch (error) {
-            console.error('Error liking post:', error);
-            // Rollback
-            setPosts(previousPosts);
-        }
+    const handleLike = (postId) => {
+        likeMutation.mutate(postId);
     };
 
-    const handleSavePost = async (postId) => {
-        // Optimistic Update
-        const previousPosts = [...posts];
-        setPosts(prevPosts => prevPosts.map(post =>
-            post.id === postId ? { ...post, is_saved_by_user: !post.is_saved_by_user } : post
-        ));
-
-        try {
-            const response = await axiosClient.post(`/api/posts/${postId}/save`);
-            setPosts(prevPosts => prevPosts.map(post =>
-                post.id === postId ? { ...post, is_saved_by_user: response.data.saved } : post
-            ));
-        } catch (error) {
-            console.error('Error saving post:', error);
-            // Rollback
-            setPosts(previousPosts);
-        }
+    const handleSavePost = (postId) => {
+        saveMutation.mutate(postId);
     };
 
-    const handleEventInterest = async (eventId) => {
-        // Optimistic Update
-        const previousEvents = [...events];
-        setEvents(prevEvents => prevEvents.map(event => {
-            if (event.id === eventId) {
-                const isInterested = !event.is_interested;
-                return {
-                    ...event,
-                    is_interested: isInterested,
-                    interested_count: isInterested ? (event.interested_count + 1) : (event.interested_count - 1)
-                };
-            }
-            return event;
-        }));
-
-        try {
-            const resp = await axiosClient.post(`/api/events/${eventId}/interest`);
-            const isRemoving = resp.data.status === 'uninterested';
-
-            setEvents(prevEvents => prevEvents.map(event =>
-                event.id === eventId
-                    ? {
-                        ...event,
-                        interested_count: resp.data.interested_count ?? (isRemoving ? (event.interested_count) : (event.interested_count)),
-                        is_interested: !isRemoving
-                    }
-                    : event
-            ));
-        } catch (error) {
-            console.error('Error registering event interest:', error);
-            // Rollback
-            setEvents(previousEvents);
-        }
+    const handleEventInterest = (eventId) => {
+        interestMutation.mutate(eventId);
     };
 
-    const handleEventDecline = async (eventId) => {
-        // Optimistic Update
-        const previousEvents = [...events];
-        setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
-
-        try {
-            await axiosClient.post(`/api/events/${eventId}/decline`);
-        } catch (error) {
-            console.error('Error declining event:', error);
-            // Rollback
-            setEvents(previousEvents);
-        }
+    const handleEventDecline = (eventId) => {
+        declineMutation.mutate(eventId);
     };
-
-    const handleLoadMoreEvents = useCallback(async () => {
-        if (loadingMoreEvents || !hasMoreEvents) return;
-        setLoadingMoreEvents(true);
-
-        try {
-            const response = await axiosClient.get(`/api/events?page=${eventsPage + 1}`);
-            const newEvents = response.data.data;
-
-            setEvents(prevEvents => {
-                const existingIds = new Set(prevEvents.map(e => e.id));
-                const uniqueNewEvents = newEvents.filter(e => !existingIds.has(e.id));
-                return [...prevEvents, ...uniqueNewEvents];
-            });
-            setEventsPage(response.data.current_page);
-            setHasMoreEvents(!!response.data.next_page_url);
-        } catch (error) {
-            console.error('Error loading more events:', error);
-        } finally {
-            setLoadingMoreEvents(false);
-        }
-    }, [eventsPage, hasMoreEvents, loadingMoreEvents]);
 
     const openPostModal = (post) => {
         setSelectedPost(post);
-        // Track view
         axiosClient.post(`/api/posts/${post.id}/track-view`).catch(() => { });
     };
 
@@ -395,7 +197,7 @@ function FeedPage() {
                 ...applyForm,
                 course_title: selectedPost.title,
                 post_id: selectedPost.id,
-                privacy_consent: applyForm.privacyConsent // Map privacyConsent to privacy_consent
+                privacy_consent: applyForm.privacyConsent 
             });
 
             setSubmissionStatus({ type: 'success', message: 'Application submitted successfully! We wish you all the best for your future.' });
@@ -425,7 +227,7 @@ function FeedPage() {
         });
     };
 
-
+    const loading = postsLoading;
 
     if (loading) {
         return (
@@ -621,7 +423,7 @@ function FeedPage() {
                                         <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '1rem' }}>No more posts to show</p>
                                         <button
                                             className="btn-secondary"
-                                            onClick={() => fetchMorePosts(true)}
+                                            onClick={() => refetchPosts()}
                                             style={{ margin: '0 auto' }}
                                         >
                                             Refresh Feed
