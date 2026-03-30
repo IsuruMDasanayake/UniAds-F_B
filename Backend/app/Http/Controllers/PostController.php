@@ -592,7 +592,8 @@ class PostController extends Controller
             $post = Post::where('share_link', $share_link)->with('institute')->firstOrFail();
             return response()->json($post);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Post not found'], 404);
+            // Return 200 to prevent loud browser console network errors
+            return response()->json(['error' => true, 'message' => 'Post not found'], 200);
         }
     }
 }

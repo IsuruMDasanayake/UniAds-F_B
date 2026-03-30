@@ -69,12 +69,16 @@ const ChatPage = () => {
     }, [fetchConversations]);
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        setTimeout(() => {
+            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        }, 50);
     };
 
     useEffect(() => {
-        scrollToBottom();
-    }, [messages]);
+        if (!isMessagesLoading) {
+            scrollToBottom();
+        }
+    }, [messages, isMessagesLoading]);
 
     const handleSend = async (e) => {
         e.preventDefault();

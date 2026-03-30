@@ -32,6 +32,20 @@ const LinkPreview = ({ data: initialData, url: initialUrl, showApplyButton = tru
                 try {
                     const response = await axiosClient.get(`/api/posts/share/${uuid}`);
                     const post = response.data;
+                    
+                    if (post.error) {
+                        setData({
+                            url: urlToProbe,
+                            title: 'Post Unavailable',
+                            description: 'This post may have been removed or the link is no longer valid.',
+                            is_internal_post: true,
+                            institute_id: null,
+                            post_id: null,
+                            image: null
+                        });
+                        return;
+                    }
+
                     setData({
                         url: urlToProbe,
                         title: post.title || post.course_name,
@@ -42,7 +56,15 @@ const LinkPreview = ({ data: initialData, url: initialUrl, showApplyButton = tru
                         institute_id: post.institute_id
                     });
                 } catch (error) {
-                    console.error('Failed to fetch link metadata:', error);
+                    setData({
+                        url: urlToProbe,
+                        title: 'Post Unavailable',
+                        description: 'This post may have been removed or the link is no longer valid.',
+                        is_internal_post: true,
+                        institute_id: null,
+                        post_id: null,
+                        image: null
+                    });
                 } finally {
                     setLoading(false);
                 }
