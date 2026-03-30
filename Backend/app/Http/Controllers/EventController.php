@@ -2,38 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
 use App\Models\Event;
 use App\Models\EventView;
 use App\Models\EventUserDeclines;
 use App\Models\Institute;
 use App\Models\User;
 use App\Models\EventUserInterest;
-use Illuminate\Http\Request;
-use App\Models\Post;
 use App\Models\Notification;
 use App\Models\AdminNotification;
 use App\Services\InstituteActivityLogger;
+use App\Services\AdminActivityLogger;
+use App\Services\ImageOptimiser;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Carbon;
-use App\Services\AdminActivityLogger;
 use Mews\Purifier\Facades\Purifier;
-
 
 class EventController extends Controller
 {
-
-    // index removed
-
-
-
-
-    // create removed
-
-
+    /**
+     * Store a new event (Web/Blade)
+     */
     public function store(Request $request, $id)
     {
         return DB::transaction(function () use ($request, $id) {
@@ -46,8 +39,8 @@ class EventController extends Controller
                 'sub_location' => 'required|string',
             ]);
 
-            // Handle the image upload
-            $eventImagePath = $request->file('event_image')->store('event_images', 'public');
+            // Handle image upload with Optimization
+            $eventImagePath = ImageOptimiser::store($request->file('event_image'), 'event_images');
 
             // Sanitize event description
             $sanitizedDescription = Purifier::clean($request->event_description);
@@ -67,25 +60,22 @@ class EventController extends Controller
         });
     }
 
-
-
-    // Show the edit event form and return the event data as JSON
+    /**
+     * Show the edit event form data (JSON)
+     */
     public function edit($id)
     {
-        $event = Event::findOrFail($id); // Fetch the event by ID or fail if not found
-        return response()->json($event); // Return the event data as JSON
+        $event = Event::findOrFail($id);
+        return response()->json($event);
     }
 
-
-
-
-
-    // Update the event in the database
+    /**
+     * Update the event (Web/Blade)
+     */
     public function update(Request $request, $id)
     {
         $event = Event::findOrFail($id);
 
-        // Validate the request
         $request->validate([
             'event_title' => 'required|string|max:255',
             'event_description' => 'required|string',
@@ -105,22 +95,22 @@ class EventController extends Controller
         $event->sub_location = $request->sub_location;
         $event->main_location = $request->main_location;
 
-        // Handle file upload
+        // Handle file upload with Optimization
         if ($request->hasFile('event_image')) {
-            $eventImagePath = $request->file('event_image')->store('event_images', 'public');
-            $event->event_image = $eventImagePath;
+            if ($event->event_image) {
+                Storage::disk('public')->delete($event->event_image);
+            }
+            $event->event_image = ImageOptimiser::store($request->file('event_image'), 'event_images');
         }
 
-        // Save the event
         $event->save();
 
         return redirect()->back()->with('success', 'Event updated successfully.');
     }
 
-
-
-
-
+    /**
+     * Delete an event
+     */
     public function destroy($id)
     {
         $event = Event::findOrFail($id);
@@ -133,16 +123,14 @@ class EventController extends Controller
             }
         }
 
-        // Delete the associated image file if it exists
-        if ($event->event_image && Storage::exists('public/' . $event->event_image)) {
-            Storage::delete('public/' . $event->event_image);
+        // Delete associated image
+        if ($event->event_image) {
+            Storage::disk('public')->delete($event->event_image);
         }
 
-        // Delete the event
         $eventTitle = $event->event_title;
         $eventId = $event->id;
         $event->delete();
-
 
         InstituteActivityLogger::log(
             'Event Deleted',
@@ -156,15 +144,21 @@ class EventController extends Controller
     }
 
     // ==========================================
-    // API METHODS FOR ADMIN DASHBOARD
+    // API METHODS
     // ==========================================
 
+    /**
+     * Admin Index
+     */
     public function apiAdminIndex()
     {
         $events = Event::with('institute')->orderBy('created_at', 'desc')->get();
         return response()->json($events);
     }
 
+    /**
+     * Toggle Active Status
+     */
     public function apiToggleStatus($id)
     {
         $event = Event::findOrFail($id);
@@ -181,39 +175,33 @@ class EventController extends Controller
         return response()->json(['success' => true, 'is_active' => $event->is_active]);
     }
 
-
-
-
-    // Mark an event as interested by the user
+    /**
+     * Mark Interest
+     */
     public function markInterest($eventId)
     {
         $userId = Auth::id();
         $event = Event::findOrFail($eventId);
 
-        // Check if the user has already marked interest
         $interestRecord = EventUserInterest::where('user_id', $userId)
             ->where('event_id', $eventId)
             ->first();
 
         if ($interestRecord) {
-            // Already interested -> UN-INTEREST (Toggle off)
             $interestRecord->delete();
             $event->decrement('interested_count');
             return response()->json(['status' => 'uninterested']);
         } else {
-            // Not interested -> INTEREST (Toggle on)
             EventUserInterest::create([
                 'user_id' => $userId,
                 'event_id' => $eventId,
             ]);
 
-            // Update interested count
             $event->increment('interested_count');
 
-            // Trigger Notification
             Notification::create([
                 'institute_id' => $event->institute_id,
-                'user_id' => auth()->id(),
+                'user_id' => $userId,
                 'type' => 'event_interest',
                 'title' => 'New Event Interest',
                 'message' => auth()->user()->name . " is interested in your event: {$event->event_title}",
@@ -224,78 +212,53 @@ class EventController extends Controller
                 ]
             ]);
 
-            // Track view if not already viewed today
-            $alreadyViewed = EventView::where('user_id', $userId)
-                ->where('event_id', $eventId)
-                ->where('created_at', '>=', now()->startOfDay())
-                ->exists();
-
-            if (!$alreadyViewed) {
-                EventView::create([
-                    'user_id' => $userId,
-                    'event_id' => $eventId,
-                    'viewed_at' => now(),
-                ]);
-                $event->increment('view_count');
-            }
-
             return response()->json(['status' => 'interested']);
         }
     }
 
-    //
-
-
+    /**
+     * Decline Event
+     */
     public function markDecline($eventId)
     {
         $userId = Auth::id();
         $event = Event::findOrFail($eventId);
 
-        // Check if user has already declined this event
         $alreadyDeclined = EventUserDeclines::where('user_id', $userId)
             ->where('event_id', $eventId)
             ->exists();
 
         if (!$alreadyDeclined) {
-            // Save to event_user_declines table
             EventUserDeclines::create([
                 'user_id' => $userId,
                 'event_id' => $eventId,
             ]);
-
-            // Increment decline_count in events table
             $event->increment('decline_count');
         }
 
         return response()->json(['status' => 'declined']);
     }
 
-
-
-    // Track event views
+    /**
+     * Track Event Views
+     */
     public function trackView(Request $request, $id)
     {
         $event = Event::findOrFail($id);
-        // Use sanctum guard explicitly to identify user even on public route
         $user = Auth::guard('sanctum')->user();
         $ip = $request->ip();
         $today = now()->toDateString();
 
-        // Prevent owner from incrementing their own event views
         if ($user && $user->role === 'Institute' && $user->institute && $event->institute_id === $user->institute->id) {
             return response()->json(['status' => 'ignored_own_event']);
         }
 
-        // Generate a unique key for the database to enforce daily uniqueness
-        // Pattern: E:{event_id}:{U/G}:{id/ip}:{date}
         $uniqueKey = $user
             ? "E:{$event->id}:U:{$user->id}:{$today}"
             : "E:{$event->id}:G:{$ip}:{$today}";
 
         try {
             DB::transaction(function () use ($event, $user, $ip, $uniqueKey) {
-                // Attempt to create the view record.
-                // DB unique constraint on unique_key will prevent duplicates.
                 EventView::create([
                     'user_id' => $user ? $user->id : null,
                     'event_id' => $event->id,
@@ -303,25 +266,20 @@ class EventController extends Controller
                     'ip_address' => $ip,
                     'unique_key' => $uniqueKey
                 ]);
-
-                // If create succeeds, increment the main counter
                 $event->increment('view_count');
             });
             return response()->json(['status' => 'success']);
         } catch (\Illuminate\Database\QueryException $e) {
-            // Error code 23000 is for unique constraint violations in MySQL
             if ($e->getCode() == '23000') {
                 return response()->json(['status' => 'already_viewed']);
             }
-            Log::error("Failed to track event view: " . $e->getMessage());
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        } catch (\Exception $e) {
-            Log::error("General error in track event view: " . $e->getMessage());
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+            return response()->json(['status' => 'error'], 500);
         }
     }
 
-    // Get paginated upcoming events API
+    /**
+     * API Index: Paginated feed with relations
+     */
     public function apiIndex(Request $request)
     {
         $userId = Auth::id();
@@ -334,7 +292,6 @@ class EventController extends Controller
             }])
             ->where('is_active', true);
 
-        // Apply Search
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('event_title', 'like', "%{$search}%")
@@ -343,7 +300,6 @@ class EventController extends Controller
             });
         }
 
-        // Apply Filter
         if ($filter === 'today') {
             $query->whereDate('event_date', Carbon::today());
         } elseif ($filter === 'upcoming' || $filter === 'all') {
@@ -355,17 +311,19 @@ class EventController extends Controller
             $query->whereNotIn('id', $declinedIds);
         }
 
-        /** @var \Illuminate\Pagination\LengthAwarePaginator $events */
-        $events = $query->orderBy('event_date', 'asc')
-            ->paginate(12);
+        $events = $query->orderBy('event_date', 'asc')->paginate(12);
 
         return response()->json($events);
     }
+
+    /**
+     * API Store
+     */
     public function apiStore(Request $request, $id)
     {
         return DB::transaction(function () use ($request, $id) {
             try {
-                $request->validate([
+                $validator = Validator::make($request->all(), [
                     'event_title' => 'required|string|max:255',
                     'event_description' => 'required|string',
                     'event_date' => 'required|date',
@@ -374,27 +332,20 @@ class EventController extends Controller
                     'event_image' => 'required|image|max:2048',
                 ]);
 
+                if ($validator->fails()) {
+                    return $this->validationError($validator->errors());
+                }
+
                 $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
-                $id = $institute->id; 
                 $user = Auth::user();
 
-                // Check if user belongs to this institute
-                if ($user->role !== 'Institute' || !$user->institute || $user->institute->id != $id) {
-                    return response()->json([
-                        'message' => 'Unauthorized: You do not have permission to post for this institute.',
-                    ], 403);
+                if ($user->role !== 'Institute' || !$user->institute || $user->institute->id != $institute->id) {
+                    return $this->error('Unauthorized: You do not have permission to post for this institute.', 403);
                 }
 
-                // Handle image upload
-                $eventImagePath = null;
-                if ($request->hasFile('event_image')) {
-                    $eventImagePath = $request->file('event_image')->store('event_images', 'public');
-                }
-
-                // Sanitize event description
+                $eventImagePath = ImageOptimiser::store($request->file('event_image'), 'event_images');
                 $sanitizedDescription = Purifier::clean($request->event_description);
 
-                // Create a new event
                 $event = Event::create([
                     'institute_id' => $institute->id,
                     'event_title' => $request->event_title,
@@ -406,7 +357,7 @@ class EventController extends Controller
                     'is_active' => true
                 ]);
 
-                // Notify Admins
+                // Notifications
                 $admins = User::where('role', 'Admin')->get();
                 if ($admins->count() > 0) {
                     $notifications = $admins->map(fn($admin) => [
@@ -414,115 +365,71 @@ class EventController extends Controller
                         'type' => 'event_new',
                         'title' => 'New Event Created',
                         'message' => "{$institute->institute_name} has created a new event: {$event->event_title}",
-                        'data' => json_encode([
-                            'event_id' => $event->id,
-                            'institute_id' => $institute->id
-                        ]),
+                        'data' => json_encode(['event_id' => $event->id, 'institute_id' => $institute->id]),
                         'is_read' => false,
                         'created_at' => now(),
                         'updated_at' => now()
                     ])->toArray();
-
                     AdminNotification::insert($notifications);
                 }
 
-                InstituteActivityLogger::log(
-                    'Event Created',
-                    "Created a new event: \"{$event->event_title}\"",
-                    'Content',
-                    'Event',
-                    $event->id
-                );
+                InstituteActivityLogger::log('Event Created', "Created a new event: \"{$event->event_title}\"", 'Content', 'Event', $event->id);
 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Event created successfully!',
-                    'event' => $event
-                ], 201);
-            } catch (\Illuminate\Validation\ValidationException $e) {
-                return response()->json([
-                    'message' => 'Validation failed',
-                    'errors' => $e->errors()
-                ], 422);
+                return $this->success($event, 'Event created successfully!', 201);
             } catch (\Exception $e) {
-                return response()->json([
-                    'message' => 'An error occurred',
-                    'error' => $e->getMessage()
-                ], 500);
+                return $this->error('An error occurred during event creation.', 500, $e->getMessage());
             }
         });
     }
+
+    /**
+     * API Update
+     */
     public function apiUpdate(Request $request, $id)
     {
-        try {
-            $event = Event::findOrFail($id);
-            $user = Auth::user();
+        return DB::transaction(function () use ($request, $id) {
+            try {
+                $event = Event::findOrFail($id);
 
-            // Authorization check
-            if ($user->role !== 'Institute' || !$user->institute || $event->institute_id !== $user->institute->id) {
-                return response()->json([
-                    'message' => 'Unauthorized operation.'
-                ], 403);
-            }
+                $validator = Validator::make($request->all(), [
+                    'event_title' => 'required|string|max:255',
+                    'event_description' => 'required|string',
+                    'event_date' => 'required|date',
+                    'main_location' => 'required|string',
+                    'sub_location' => 'required|string',
+                    'event_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                ]);
 
-            // Validate the request
-            $request->validate([
-                'event_title' => 'required|string|max:255',
-                'event_description' => 'required|string',
-                'event_date' => 'required|date',
-                'sub_location' => 'nullable|string',
-                'main_location' => 'nullable|string',
-                'event_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            ]);
-
-            // Sanitize event description
-            $sanitizedDescription = Purifier::clean($request->event_description);
-
-            // Update fields individually
-            $event->event_title = $request->event_title;
-            $event->event_description = $sanitizedDescription;
-            $event->event_date = $request->event_date;
-            $event->sub_location = $request->sub_location;
-            $event->main_location = $request->main_location;
-
-            // Handle file upload
-            if ($request->hasFile('event_image')) {
-                // Delete old image if exists
-                if ($event->event_image && Storage::exists('public/' . $event->event_image)) {
-                    Storage::delete('public/' . $event->event_image);
+                if ($validator->fails()) {
+                    return $this->validationError($validator->errors());
                 }
 
-                $eventImagePath = $request->file('event_image')->store('event_images', 'public');
-                $event->event_image = $eventImagePath;
+                $user = Auth::user();
+                if ($user->role !== 'Institute' || !$user->institute || $user->institute->id != $event->institute_id) {
+                    return $this->error('Unauthorized: You do not have permission to update this event.', 403);
+                }
+
+                if ($request->hasFile('event_image')) {
+                    if ($event->event_image) {
+                        Storage::disk('public')->delete($event->event_image);
+                    }
+                    $event->event_image = ImageOptimiser::store($request->file('event_image'), 'event_images');
+                }
+
+                $sanitizedDescription = Purifier::clean($request->event_description);
+
+                $event->update([
+                    'event_title' => $request->event_title,
+                    'event_description' => $sanitizedDescription,
+                    'event_date' => $request->event_date,
+                    'sub_location' => $request->sub_location,
+                    'main_location' => $request->main_location,
+                ]);
+
+                return $this->success($event, 'Event updated successfully!');
+            } catch (\Exception $e) {
+                return $this->error('An error occurred during event update.', 500, $e->getMessage());
             }
-
-            // Save the event
-            $event->save();
-
-            InstituteActivityLogger::log(
-                'Event Updated',
-                "Updated event: \"{$event->event_title}\"",
-                'Content',
-                'Event',
-                $event->id
-            );
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Event updated successfully.',
-                'event' => $event
-            ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            Log::error('Event Update Error: ' . $e->getMessage());
-            return response()->json([
-                'message' => 'An error occurred while updating the event.',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        });
     }
 }

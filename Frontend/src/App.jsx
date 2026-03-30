@@ -59,6 +59,8 @@ import AdsPlaceholderPage from './pages/Analytics/AdsPlaceholderPage';
 import FloatingAiAdvisor from './components/FloatingAiAdvisor';
 import GlobalFeedbackModal from './components/Modals/GlobalFeedbackModal';
 
+import { Toaster } from 'sonner';
+
 import './App.css';
 
 function App() {
@@ -190,6 +192,7 @@ function App() {
             </Routes>
             <FloatingAiAdvisor user={user} />
             <GlobalFeedbackModal />
+            <Toaster position="top-right" richColors closeButton />
           </div>
         </Router>
       </ChatProvider>

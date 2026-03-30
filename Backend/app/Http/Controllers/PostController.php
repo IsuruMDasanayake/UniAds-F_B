@@ -22,6 +22,7 @@ use App\Models\AdminNotification;
 use App\Services\InstituteActivityLogger;
 use Illuminate\Support\Facades\Storage;
 use Mews\Purifier\Facades\Purifier;
+use App\Services\ImageOptimiser;
 
 class PostController extends Controller
 {
@@ -34,7 +35,7 @@ class PostController extends Controller
         return DB::transaction(function () use ($request, $id) {
             try {
                 // Validate the incoming data
-                $request->validate([
+                $validator = Validator::make($request->all(), [
                     'title' => 'required|string|max:255',
                     'description' => 'required|string',
                     'small_description' => 'required|string|max:200',
@@ -48,21 +49,23 @@ class PostController extends Controller
                     'image' => 'required|image|max:2048',
                 ]);
 
+                if ($validator->fails()) {
+                    return $this->validationError($validator->errors());
+                }
+
                 $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
                 $id = $institute->id;
                 $user = Auth::user();
 
                 // Check if user belongs to this institute
                 if ($user->role !== 'Institute' || !$user->institute || $user->institute->id != $id) {
-                    return response()->json([
-                        'message' => 'Unauthorized: You do not have permission to post for this institute.',
-                    ], 403);
+                    return $this->error('Unauthorized: You do not have permission to post for this institute.', 403);
                 }
 
-                // Handle image upload
+                // Handle image upload with Optimization
                 $imagePath = null;
                 if ($request->hasFile('image')) {
-                    $imagePath = $request->file('image')->store('post_images', 'public');
+                    $imagePath = ImageOptimiser::store($request->file('image'), 'post_images');
                 }
 
                 // Convert array of locations to comma-separated string
@@ -116,21 +119,9 @@ class PostController extends Controller
                     $post->id
                 );
 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Post created successfully!',
-                    'post' => $post
-                ], 201);
-            } catch (\Illuminate\Validation\ValidationException $e) {
-                return response()->json([
-                    'message' => 'Validation failed',
-                    'errors' => $e->errors()
-                ], 422);
+                return $this->success($post, 'Post created successfully!', 201);
             } catch (\Exception $e) {
-                return response()->json([
-                    'message' => 'An error occurred',
-                    'error' => $e->getMessage()
-                ], 500);
+                return $this->error('An error occurred during post creation.', 500, $e->getMessage());
             }
         });
     }
@@ -153,14 +144,15 @@ class PostController extends Controller
     {
         try {
             $post = Post::findOrFail($id);
-            $user = Auth::user();
 
-            // Check if user belongs to this institute
+            // Authentication check
+            $user = Auth::user();
             if ($user->role !== 'Institute' || !$user->institute || $user->institute->id != $post->institute_id) {
-                return response()->json(['message' => 'Unauthorized'], 403);
+                return $this->error('Unauthorized: You do not have permission to update this post.', 403);
             }
 
-            $request->validate([
+            // Validation
+            $validator = Validator::make($request->all(), [
                 'title' => 'required|string|max:255',
                 'description' => 'required|string',
                 'small_description' => 'required|string|max:200',
@@ -174,21 +166,22 @@ class PostController extends Controller
                 'image' => 'nullable|image|max:2048',
             ]);
 
+            if ($validator->fails()) {
+                return $this->validationError($validator->errors());
+            }
+
+            // Update with Image Optimization
             if ($request->hasFile('image')) {
-                // Storage Cleanup: Delete old image if it exists
+                // Delete old image if exists
                 if ($post->image) {
                     Storage::disk('public')->delete($post->image);
                 }
-                $imagePath = $request->file('image')->store('post_images', 'public');
-                $post->image = $imagePath;
+                $post->image = ImageOptimiser::store($request->file('image'), 'post_images');
             }
 
             // Robust Sanitization using HTML Purifier
             $sanitizedDescription = Purifier::clean($request->description);
             $sanitizedSmallDescription = Purifier::clean($request->small_description);
-
-            // Convert array of locations to comma-separated string
-            $locations = implode(', ', $request->location);
 
             $post->update([
                 'title' => $request->title,
@@ -196,30 +189,15 @@ class PostController extends Controller
                 'small_description' => $sanitizedSmallDescription,
                 'course_name' => $request->course_name,
                 'course_type' => $request->course_type,
-                'location' => $locations,
+                'location' => implode(', ', $request->location),
                 'duration' => $request->duration,
                 'course_format' => $request->course_format,
                 'attendance_type' => $request->attendance_type,
             ]);
 
-            InstituteActivityLogger::log(
-                'Post Updated',
-                "Updated post: \"{$post->title}\"",
-                'Content',
-                'Post',
-                $post->id
-            );
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Post updated successfully!',
-                'post' => $post
-            ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json(['message' => 'Validation failed', 'errors' => $e->errors()], 422);
+            return $this->success($post, 'Post updated successfully!');
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Post Update Error: ' . $e->getMessage());
-            return response()->json(['message' => 'An internal server error occurred while updating the post.'], 500);
+            return $this->error('An error occurred during post update.', 500, $e->getMessage());
         }
     }
 

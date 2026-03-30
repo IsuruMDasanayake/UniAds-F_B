@@ -19,33 +19,62 @@ axiosClient.interceptors.request.use((config) => {
     return config;
 });
 
-// Response interceptor for handling 401 errors
+import { toast } from 'sonner';
+
 axiosClient.interceptors.response.use(
     (response) => {
+        // Handle success messages if returned from API
+        if (response.data && response.data.success && response.data.message && 
+            (window.location.pathname.includes('/create') || window.location.pathname.includes('/edit'))) {
+            toast.success(response.data.message);
+        }
         return response;
     },
     (error) => {
         const { response, config } = error;
         
-        // Don't auto-logout for login/register/password-reset endpoints
-        const publicEndpoints = ['/api/login', '/api/register', '/api/register-institute', '/api/password/forgot', '/api/password/reset', '/api/user'];
-        const isPublicEndpoint = publicEndpoints.some(endpoint => config?.url?.includes(endpoint));
-        
-        if (response && response.status === 401 && !isPublicEndpoint) {
-            const token = localStorage.getItem('ACCESS_TOKEN');
-            const user = localStorage.getItem('APP_USER');
+        // Handling specific status codes
+        if (response) {
+            const message = response.data?.message || 'An unexpected error occurred';
             
-            if (token || user) {
-                console.warn('Unauthorized request. Clearing local state and redirecting...', config.url);
-                localStorage.removeItem('ACCESS_TOKEN');
-                localStorage.removeItem('APP_USER');
-                
-                // Avoid infinite redirect if already navigating to /
-                if (window.location.pathname !== '/' && !window.location.pathname.match(/^\/(login|register)/)) {
-                    window.location.href = '/';
-                }
+            switch (response.status) {
+                case 401:
+                    // Only redirect if not on a public endpoint
+                    const publicEndpoints = ['/api/login', '/api/register', '/api/register-institute', '/api/password/forgot', '/api/password/reset', '/api/user'];
+                    const isPublicEndpoint = publicEndpoints.some(endpoint => config?.url?.includes(endpoint));
+                    
+                    if (!isPublicEndpoint) {
+                        localStorage.removeItem('ACCESS_TOKEN');
+                        localStorage.removeItem('APP_USER');
+                        if (window.location.pathname !== '/' && !window.location.pathname.match(/^\/(login|register)/)) {
+                            window.location.href = '/';
+                        }
+                    }
+                    break;
+                case 403:
+                    toast.error('Permission Denied', { description: message });
+                    break;
+                case 422:
+                    // Validation errors
+                    const errors = response.data.errors;
+                    if (errors) {
+                        Object.keys(errors).forEach(key => {
+                            toast.error(`Validation Error: ${key}`, { description: errors[key][0] });
+                        });
+                    } else {
+                        toast.error(message);
+                    }
+                    break;
+                case 500:
+                    toast.error('Server Error', { description: 'Please try again later.' });
+                    break;
+                default:
+                    toast.error('Error', { description: message });
             }
+        } else {
+            toast.error('Network Error', { description: 'Please check your internet connection.' });
         }
+        
         throw error;
     }
 );
