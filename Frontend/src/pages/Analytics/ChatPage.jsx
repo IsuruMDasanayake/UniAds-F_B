@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Send, User, MoreVertical, Paperclip, Smile, Phone, Video, Info, X, Building2, Trash2, ThumbsUp } from 'lucide-react';
+import { Search, Send, User, MoreVertical, Paperclip, Smile, Phone, Video, Info, X, Building2, Trash2, ThumbsUp, Loader2 } from 'lucide-react';
 import { useChat } from '../../context/ChatContext';
 import { getStorageUrl } from '../../lib/config';
 import axiosClient from '../../lib/axios';
@@ -17,7 +17,8 @@ const ChatPage = () => {
         selectConversation,
         sendMessage,
         fetchConversations,
-        displayUser
+        displayUser,
+        isMessagesLoading
     } = useChat();
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -218,13 +219,16 @@ const ChatPage = () => {
                                 onClick={() => selectConversation(conv)}
                             >
                                 <div className="acp-avatar-wrapper">
-                                    {other?.institute?.profile_photo ? (
-                                        <img src={getStorageUrl(other.institute.profile_photo)} alt="Profile" />
-                                    ) : (
-                                        <div className="acp-avatar-placeholder">
-                                            {getInitials(other?.institute?.institute_name || other?.user?.name)}
-                                        </div>
-                                    )}
+                                    {(() => {
+                                        const photo = other?.institute?.profile_photo || other?.user?.profile_picture || other?.user?.profile_photo;
+                                        return photo ? (
+                                            <img src={getStorageUrl(photo)} alt="Profile" />
+                                        ) : (
+                                            <div className="acp-avatar-placeholder">
+                                                {getInitials(other?.institute?.institute_name || other?.user?.name)}
+                                            </div>
+                                        );
+                                    })()}
                                     {conv.unread_count > 0 && <span className="acp-unread-badge">{conv.unread_count}</span>}
                                 </div>
                                 <div className="acp-conv-content">
@@ -347,23 +351,31 @@ const ChatPage = () => {
                         </div>
 
                         <div className="acp-messages-container">
-                            {messages.slice().reverse().map((msg, index) => {
-                                const isMine = displayUser?.role === 'Institute'
-                                    ? (msg.sender_institute_id === displayUser?.institute?.id)
-                                    : (msg.sender_user_id === displayUser?.id);
+                            {isMessagesLoading ? (
+                                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%' }}>
+                                    <Loader2 size={32} className="animate-spin" color="var(--c-slate-400)" />
+                                </div>
+                            ) : (
+                                <>
+                                    {messages.slice().reverse().map((msg, index) => {
+                                        const isMine = displayUser?.role === 'Institute'
+                                            ? (msg.sender_institute_id === displayUser?.institute?.id)
+                                            : (msg.sender_user_id === displayUser?.id);
 
-                                return (
-                                    <div key={msg.id || index} className={`acp-message-row ${isMine ? 'acp-mine' : 'acp-theirs'}`}>
-                                        <div className={`acp-message-bubble ${msg.message === '(like)' ? 'acp-like-bubble' : ''}`}>
-                                            {renderMessage(msg)}
-                                            <span className="acp-message-time">
-                                                {formatMessageDate(msg.created_at)}
-                                            </span>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                            <div ref={messagesEndRef} />
+                                        return (
+                                            <div key={msg.id || index} className={`acp-message-row ${isMine ? 'acp-mine' : 'acp-theirs'}`}>
+                                                <div className={`acp-message-bubble ${msg.message === '(like)' ? 'acp-like-bubble' : ''}`}>
+                                                    {renderMessage(msg)}
+                                                    <span className="acp-message-time">
+                                                        {formatMessageDate(msg.created_at)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                    <div ref={messagesEndRef} />
+                                </>
+                            )}
                         </div>
 
                         <form className="acp-input-container" onSubmit={handleSend}>
