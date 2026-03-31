@@ -21,9 +21,12 @@ use Illuminate\Validation\Rules;
 use App\Mail\WelcomeUserMail;
 use App\Mail\WelcomeInstituteMail;
 use Illuminate\View\View;
+use App\Traits\ApiResponse;
+use Mews\Purifier\Facades\Purifier;
 
 class RegisteredUserController extends Controller
 {
+    use ApiResponse;
     // create removed
 
 
@@ -36,10 +39,7 @@ class RegisteredUserController extends Controller
     {
         if (User::where('email', $request->email)->exists()) {
             if ($request->wantsJson()) {
-                return response()->json([
-                    'message' => 'The email has already been taken.',
-                    'errors' => ['email' => ['The email has already been taken.']]
-                ], 422);
+                return $this->error('The email has already been taken.', 422, ['email' => ['The email has already been taken.']]);
             }
             return back()->withInput()->with('email_exists', true);
         }
@@ -54,49 +54,48 @@ class RegisteredUserController extends Controller
             'education_level' => ['required', 'string'],
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'gender' => $request->gender,
-            'birthday' => $request->birthday,
-            'district' => $request->district,
-            'education_level' => $request->education_level,
-            'role' => 'User',
-        ]);
-
-        // Notify Admins about the new user registration
-        $admins = User::where('role', 'Admin')->get();
-        foreach ($admins as $admin) {
-            AdminNotification::create([
-                'user_id' => $admin->id,
-                'type' => 'new_user_registration',
-                'title' => 'New User Registered',
-                'message' => "A new user \"{$user->name}\" has registered on the platform.",
-                'data' => [
-                    'user_id' => $user->id,
-                    'user_name' => $user->name
-                ]
+        return DB::transaction(function () use ($request) {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'gender' => $request->gender,
+                'birthday' => $request->birthday,
+                'district' => $request->district,
+                'education_level' => $request->education_level,
+                'role' => 'User',
             ]);
-        }
 
-        event(new Registered($user));
+            // Notify Admins about the new user registration
+            $admins = User::where('role', 'Admin')->get();
+            foreach ($admins as $admin) {
+                AdminNotification::create([
+                    'user_id' => $admin->id,
+                    'type' => 'new_user_registration',
+                    'title' => 'New User Registered',
+                    'message' => "A new user \"{$user->name}\" has registered on the platform.",
+                    'data' => [
+                        'user_id' => $user->id,
+                        'user_name' => $user->name
+                    ]
+                ]);
+            }
 
-        // Send Welcome Email to User
-        try {
-            Mail::to($user->email)->send(new WelcomeUserMail($user));
-        } catch (\Exception $e) {
-            Log::error('Welcome email failed: ' . $e->getMessage());
-        }
+            event(new Registered($user));
 
-        // Login user with session (cookie-based)
-        Auth::login($user);
-        $request->session()->regenerate();
+            // Send Welcome Email to User
+            try {
+                Mail::to($user->email)->send(new WelcomeUserMail($user));
+            } catch (\Exception $e) {
+                Log::error('Welcome email failed: ' . $e->getMessage());
+            }
 
-        return response()->json([
-            'message' => 'Registration successful',
-            'user' => $user,
-        ], 201);
+            // Login user with session (cookie-based)
+            Auth::login($user);
+            $request->session()->regenerate();
+
+            return $this->success($user, 'Registration successful', 201);
+        });
     }
 
     /**
@@ -118,6 +117,11 @@ class RegisteredUserController extends Controller
         ]);
 
         try {
+            // Sanitize description
+            if ($request->has('description')) {
+                $request->merge(['description' => Purifier::clean($request->description)]);
+            }
+
             // Store pending registration data in session
             session([
                 'pending_registration' => $request->all(),
@@ -131,10 +135,8 @@ class RegisteredUserController extends Controller
             $otpController = new EmailVerificationController();
             return $otpController->sendOTPGuest($request->email, $request);
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Registration initiation failed. Please try again.',
-                'error' => $e->getMessage()
-            ], 500);
+            return $this->error('Registration initiation failed. Please try again.', 500);
         }
     }
 }
+

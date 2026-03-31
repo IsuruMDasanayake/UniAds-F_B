@@ -27,7 +27,7 @@ export const SettingsProvider = ({ children }) => {
     const fetchSettings = async () => {
         try {
             const response = await axiosClient.get('/api/settings/public');
-            const data = response.data;
+            const data = response.data.data;
             setSettings(data);
 
             // Dynamic Title

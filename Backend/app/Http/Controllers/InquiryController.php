@@ -9,9 +9,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Services\InstituteActivityLogger;
+use App\Traits\ApiResponse;
 
 class InquiryController extends Controller
 {
+    use ApiResponse;
     /**
      * Display a listing of the inquiries for the authenticated institute.
      */
@@ -46,7 +48,7 @@ class InquiryController extends Controller
                 ->count(),
         ];
 
-        return response()->json([
+        return $this->success([
             'inquiries' => $inquiries,
             'stats' => $stats
         ]);
@@ -67,10 +69,9 @@ class InquiryController extends Controller
             ]);
         }
 
-        return response()->json([
-            'success' => true,
+        return $this->success([
             'inquiry' => $inquiry
-        ]);
+        ], 'Inquiry marked as viewed');
     }
 
     /**
@@ -127,18 +128,10 @@ class InquiryController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Reply sent successfully!',
-                'reply' => $reply
-            ]);
+            return $this->success($reply, 'Reply sent successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to send reply.',
-                'error' => $e->getMessage()
-            ], 500);
+            return $this->error('Failed to send reply: ' . $e->getMessage(), 500);
         }
     }
 }

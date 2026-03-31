@@ -6,9 +6,11 @@ use App\Models\CareerGuidance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Exception;
+use App\Traits\ApiResponse;
 
 class AdminCareerGuidanceController extends Controller
 {
+    use ApiResponse;
     public function index(Request $request)
     {
         $query = CareerGuidance::query();
@@ -21,36 +23,46 @@ class AdminCareerGuidanceController extends Controller
         }
 
         $guidances = $query->orderBy('id', 'desc')->get();
-        return response()->json($guidances);
+        return $this->successResponse($guidances);
     }
 
     public function store(Request $request)
     {
-        $data = $request->all();
-        $guidance = CareerGuidance::create($data);
-        return response()->json($guidance, 201);
+        return DB::transaction(function () use ($request) {
+            $data = $request->all();
+            $guidance = CareerGuidance::create($data);
+            return $this->success($guidance, 'Career guidance created successfully', 201);
+        });
     }
+
 
     public function show($id)
     {
         $guidance = CareerGuidance::findOrFail($id);
-        return response()->json($guidance);
+        return $this->success($guidance);
     }
+
 
     public function update(Request $request, $id)
     {
-        $guidance = CareerGuidance::findOrFail($id);
-        $data = $request->all();
-        $guidance->update($data);
-        return response()->json($guidance);
+        return DB::transaction(function () use ($request, $id) {
+            $guidance = CareerGuidance::findOrFail($id);
+            $data = $request->all();
+            $guidance->update($data);
+            return $this->success($guidance);
+        });
     }
+
 
     public function destroy($id)
     {
-        $guidance = CareerGuidance::findOrFail($id);
-        $guidance->delete();
-        return response()->json(['message' => 'Deleted successfully']);
+        return DB::transaction(function () use ($id) {
+            $guidance = CareerGuidance::findOrFail($id);
+            $guidance->delete();
+            return $this->success(null, 'Deleted successfully');
+        });
     }
+
 
     public function executeSql(Request $request)
     {
@@ -62,28 +74,28 @@ class AdminCareerGuidanceController extends Controller
         
         // Basic safety check for admin route
         if (stripos($sql, 'drop') !== false || stripos($sql, 'truncate') !== false || stripos($sql, 'alter') !== false) {
-             return response()->json(['error' => 'DROP, TRUNCATE, and ALTER commands are disabled for safety.'], 403);
+             return $this->error('DROP, TRUNCATE, and ALTER commands are disabled for safety.', 403);
         }
 
         try {
             if (stripos($sql, 'select') === 0 || stripos($sql, 'show') === 0) {
                 // Return result set
                 $results = DB::select($sql);
-                return response()->json(['type' => 'select', 'data' => $results]);
+                return $this->success(['type' => 'select', 'data' => $results]);
             } else if (stripos($sql, 'insert') === 0) {
                 DB::insert($sql);
                 // Can't easily get affected rows for plain insert using raw DB facade without extra steps, return success
-                return response()->json(['type' => 'execute', 'message' => 'INSERT query executed successfully.']);
+                return $this->success(['type' => 'execute'], 'INSERT query executed successfully.');
             } else if (stripos($sql, 'delete') === 0) {
                 $affected = DB::delete($sql);
-                return response()->json(['type' => 'execute', 'affected' => $affected, 'message' => 'DELETE query executed successfully. Rows affected: ' . $affected]);
+                return $this->success(['type' => 'execute', 'affected' => $affected], 'DELETE query executed successfully. Rows affected: ' . $affected);
             } else {
                 // Execute UPDATE and return affected rows
                 $affected = DB::update($sql);
-                return response()->json(['type' => 'execute', 'affected' => $affected, 'message' => 'UPDATE/Query executed successfully. Rows affected: ' . $affected]);
+                return $this->success(['type' => 'execute', 'affected' => $affected], 'UPDATE/Query executed successfully. Rows affected: ' . $affected);
             }
         } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
+            return $this->error($e->getMessage(), 400);
         }
     }
 }

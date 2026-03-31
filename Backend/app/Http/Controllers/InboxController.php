@@ -8,9 +8,11 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use App\Traits\ApiResponse;
 
 class InboxController extends Controller
 {
+    use ApiResponse;
     /**
      * Manual sync with IMAP server
      */
@@ -19,10 +21,7 @@ class InboxController extends Controller
         // Throttle sync to once every 60 seconds to avoid slow page loads
         // But allow bypass if ?force=true is passed
         if (Cache::has('imap_sync_lock') && !$request->has('force')) {
-            return response()->json([
-                'message' => 'Sync skipped: recently synchronized',
-                'status' => 'skipped'
-            ]);
+            return $this->success(null, 'Sync skipped: recently synchronized');
         }
 
         try {
@@ -30,14 +29,9 @@ class InboxController extends Controller
             // Set lock for 60 seconds
             Cache::put('imap_sync_lock', true, 60);
 
-            return response()->json([
-                'message' => 'Synchronization complete',
-                'status' => 'success'
-            ]);
+            return $this->success(null, 'Synchronization complete');
         } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Sync failed: ' . $e->getMessage()
-            ], 500);
+            return $this->error('Sync failed: ' . $e->getMessage(), 500);
         }
     }
 
@@ -70,7 +64,7 @@ class InboxController extends Controller
             $email->sender_avatar = $this->getSenderAvatar($email->from_email, $email->from_name);
         }
 
-        return response()->json($emails);
+        return $this->successResponse($emails);
     }
 
     /**
@@ -80,11 +74,12 @@ class InboxController extends Controller
     {
         $email = IncomingEmail::find($id);
         if (!$email) {
-            return response()->json(['error' => 'Email not found'], 404);
+            return $this->error('Email not found', 404);
         }
 
+
         $email->sender_avatar = $this->getSenderAvatar($email->from_email, $email->from_name);
-        return response()->json($email);
+        return $this->success($email);
     }
 
     /**
@@ -94,11 +89,12 @@ class InboxController extends Controller
     {
         $email = IncomingEmail::find($id);
         if (!$email) {
-            return response()->json(['error' => 'Email not found'], 404);
+            return $this->error('Email not found', 404);
         }
 
+
         $email->update(['is_read' => true]);
-        return response()->json(['message' => 'Email marked as read']);
+        return $this->success(null, 'Email marked as read');
     }
 
     /**
@@ -107,7 +103,7 @@ class InboxController extends Controller
     public function unreadCount()
     {
         $count = IncomingEmail::where('is_read', false)->count();
-        return response()->json(['count' => $count]);
+        return $this->success(['count' => $count]);
     }
 
     /**
@@ -117,11 +113,12 @@ class InboxController extends Controller
     {
         $email = IncomingEmail::find($id);
         if (!$email) {
-            return response()->json(['error' => 'Email not found'], 404);
+            return $this->error('Email not found', 404);
         }
 
+
         $email->delete();
-        return response()->json(['message' => 'Email deleted successfully']);
+        return $this->success(null, 'Email deleted successfully');
     }
 
     /**

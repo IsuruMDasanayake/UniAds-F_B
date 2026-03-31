@@ -47,7 +47,7 @@ class ActivityLogController extends Controller
 
         $logs = $query->paginate($request->input('per_page', 20));
 
-        return response()->json($logs);
+        return $this->successResponse($logs);
     }
 
     /**
@@ -62,7 +62,7 @@ class ActivityLogController extends Controller
             ->select('id', 'name')
             ->get();
 
-        return response()->json([
+        return $this->success([
             'actions' => $actions,
             'admins' => $admins
         ]);

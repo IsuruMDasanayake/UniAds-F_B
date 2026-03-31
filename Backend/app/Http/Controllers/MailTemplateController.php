@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\MailTemplate;
 use Illuminate\Http\Request;
+use App\Traits\ApiResponse;
 
 class MailTemplateController extends Controller
 {
+    use ApiResponse;
     /**
      * Display a listing of the resource.
      */
@@ -20,6 +22,7 @@ class MailTemplateController extends Controller
 
         $templates = $query->get();
 
-        return response()->json($templates);
+        return $this->success($templates);
     }
 }
+

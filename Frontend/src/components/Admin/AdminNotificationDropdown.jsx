@@ -13,8 +13,10 @@ const AdminNotificationDropdown = () => {
     const fetchNotifications = async (isSilent = false) => {
         try {
             const { data } = await axiosClient.get('/api/admin/notifications');
-            setNotifications(data.notifications.data);
-            setUnreadCount(data.unreadCount);
+            if (data.data) {
+                setNotifications(data.data.notifications.data);
+                setUnreadCount(data.data.unreadCount);
+            }
         } catch (error) {
             console.error('Error fetching admin notifications:', error);
         }

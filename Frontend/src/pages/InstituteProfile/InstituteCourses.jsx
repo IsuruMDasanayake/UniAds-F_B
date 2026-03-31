@@ -38,8 +38,18 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
         const fetchUserData = async () => {
             try {
                 const response = await axiosClient.get('/api/profile/me');
-                setUserRole(response.data.role);
-                setSavedPostIds(response.data.savedPosts?.map(p => p.id) || []);
+                const payload = response.data.data;
+                setUserRole(payload.role);
+                const savedIds = payload.savedPosts?.map(p => String(p.id).trim()) || [];
+                setSavedPostIds(savedIds);
+                
+                // If courses were passed, we can also sync their internal state for extra reliability
+                if (localCourses.length > 0) {
+                    setLocalCourses(current => current.map(c => ({
+                        ...c,
+                        is_saved_by_user: savedIds.includes(String(c.id).trim())
+                    })));
+                }
             } catch (error) {
                 console.error("Failed to fetch user data", error);
             }
@@ -74,7 +84,7 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
             const endpoint = isOwner ? `/api/profile/me?page=${nextPage}&per_page=12` : `/api/institutions/${instId}/profile?page=${nextPage}&per_page=12`;
             
             const response = await axiosClient.get(endpoint);
-            const newPosts = response.data.posts?.data || [];
+            const newPosts = response.data.data?.posts?.data || [];
 
             if (newPosts.length === 0) {
                 setHasMore(false);
@@ -183,11 +193,19 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
         if (userRole !== 'User') return;
 
         // Optimistic UI update
-        const isCurrentlySaved = savedPostIds.includes(postId);
+        const stringPostId = String(postId).trim();
+        const isCurrentlySaved = savedPostIds.some(id => String(id).trim() === stringPostId) || !!course?.is_saved_by_user;
+        
         if (isCurrentlySaved) {
-            setSavedPostIds(prev => prev.filter(id => id !== postId));
+            setSavedPostIds(prev => prev.filter(id => String(id).trim() !== stringPostId));
+            setLocalCourses(prev => prev.map(c => 
+                String(c.id).trim() === stringPostId ? { ...c, is_saved_by_user: false } : c
+            ));
         } else {
-            setSavedPostIds(prev => [...prev, postId]);
+            setSavedPostIds(prev => [...prev, stringPostId]);
+            setLocalCourses(prev => prev.map(c => 
+                String(c.id).trim() === stringPostId ? { ...c, is_saved_by_user: true } : c
+            ));
         }
 
         try {
@@ -245,10 +263,11 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
                             />
                             {userRole === 'User' && (
                                 <button
-                                    className={`save-circle ${savedPostIds.includes(course.id) ? 'saved' : ''}`}
+                                    className={`save-circle ${ (savedPostIds.some(id => String(id).trim() === String(course.id).trim()) || course.is_saved_by_user) ? 'saved' : ''}`}
                                     onClick={(e) => handleToggleSave(e, course.id)}
+                                    title={(savedPostIds.some(id => String(id).trim() === String(course.id).trim()) || course.is_saved_by_user) ? "Remove from saved" : "Save post"}
                                 >
-                                    <Bookmark size={18} fill={savedPostIds.includes(course.id) ? "currentColor" : "none"} />
+                                    <Bookmark size={18} fill={(savedPostIds.some(id => String(id).trim() === String(course.id).trim()) || course.is_saved_by_user) ? "currentColor" : "none"} />
                                 </button>
                             )}
                             {/* Copy Link Button */}
@@ -275,7 +294,7 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
                             <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="3.6" className="loader-circle loader-circle-animation"></circle>
                         </svg>
                     </div>
-                    <p>Loading more courses...</p>
+                    {/* <p>Loading more courses...</p> */}
                 </div>
             )}
 

@@ -103,8 +103,9 @@ const UserProfilePage = () => {
     const fetchProfile = async () => {
         try {
             const response = await axiosClient.get('/api/profile/me');
-            const userData = response.data.user;
-            setProfileData(response.data);
+            const profilePayload = response.data.data;
+            const userData = profilePayload.user;
+            setProfileData(profilePayload);
             if (!avatarSeedRef.current) {
                 avatarSeedRef.current = userData.name || 'User';
             }
@@ -280,7 +281,7 @@ const UserProfilePage = () => {
     const fetchRoadmaps = async () => {
         try {
             const response = await axiosClient.get('/api/ai-advisor/saved-roadmaps');
-            setSavedRoadmaps(response.data);
+            setSavedRoadmaps(response.data.data || []);
         } catch (error) {
             console.error("Error fetching roadmaps:", error);
         }
@@ -290,7 +291,7 @@ const UserProfilePage = () => {
         setLoadingApplications(true);
         try {
             const response = await axiosClient.get('/api/applications/me');
-            setApplications(response.data);
+            setApplications(response.data.data || []);
         } catch (error) {
             console.error("Error fetching applications:", error);
         } finally {
@@ -302,7 +303,7 @@ const UserProfilePage = () => {
         setLoadingSavedPosts(true);
         try {
             const response = await axiosClient.get('/api/posts/saved');
-            let posts = response.data.posts.data || [];
+            let posts = response.data.data?.posts?.data || [];
             // For normal users, filter out inactive posts
             if (profileData?.user?.role === 'User') {
                 posts = posts.filter(p => p.status === 'active');
@@ -433,7 +434,7 @@ const UserProfilePage = () => {
                 education_level: formData.education_level
             });
             showAlert('success', 'Profile updated successfully!');
-            setProfileData(prev => ({ ...prev, user: response.data.user }));
+            setProfileData(prev => ({ ...prev, user: response.data.data?.user ?? response.data.data }));
         } catch (err) {
             if (err.response?.status === 422) {
                 setErrors(err.response.data.errors);
@@ -567,7 +568,7 @@ const UserProfilePage = () => {
             setProfileData(prev => {
                 const updatedUser = {
                     ...prev.user,
-                    profile_picture: response.data.profile_picture
+                    profile_picture: response.data.data?.profile_picture ?? response.data.data
                 };
                 // Sync with localStorage for Navbar/Sidebar consistency
                 localStorage.setItem('APP_USER', JSON.stringify(updatedUser));

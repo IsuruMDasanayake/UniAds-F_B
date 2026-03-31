@@ -20,12 +20,12 @@ function InstituteDashboard() {
                     axiosClient.get('/api/analytics/overview')
                 ]);
 
-                if (userRes.data.role !== 'Institute') {
+                if (userRes.data.data?.role !== 'Institute') {
                     navigate('/dashboard');
                     return;
                 }
-                setUser(userRes.data);
-                setStats(analyticsRes.data.overviewStats.metrics);
+                setUser(userRes.data.data);
+                setStats(analyticsRes.data.data?.overviewStats?.metrics);
             } catch (error) {
                 console.error('Failed to fetch dashboard data:', error);
                 if (error.response?.status === 401) navigate('/login');

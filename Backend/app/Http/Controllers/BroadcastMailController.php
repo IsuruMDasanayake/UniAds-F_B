@@ -11,55 +11,34 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use App\Services\AdminActivityLogger;
+use App\Traits\ApiResponse;
+use Mews\Purifier\Facades\Purifier;
+use Illuminate\Support\Facades\DB;
+
 
 class BroadcastMailController extends Controller
 {
+    use ApiResponse;
+
     /**
      * Get available filter options for users and institutes
      */
     public function getFilterOptions()
     {
-        return response()->json([
+        return $this->success([
             'users' => [
                 'districts' => [
-                    "Colombo",
-                    "Gampaha",
-                    "Kalutara",
-                    "Kandy",
-                    "Matale",
-                    "Nuwara Eliya",
-                    "Galle",
-                    "Matara",
-                    "Hambantota",
-                    "Jaffna",
-                    "Kilinochchi",
-                    "Mannar",
-                    "Vavuniya",
-                    "Mullaitivu",
-                    "Batticaloa",
-                    "Ampara",
-                    "Trincomalee",
-                    "Kurunegala",
-                    "Puttalam",
-                    "Anuradhapura",
-                    "Polonnaruwa",
-                    "Badulla",
-                    "Monaragala",
-                    "Ratnapura",
-                    "Kegalle"
+                    "Colombo", "Gampaha", "Kalutara", "Kandy", "Matale", "Nuwara Eliya",
+                    "Galle", "Matara", "Hambantota", "Jaffna", "Kilinochchi", "Mannar",
+                    "Vavuniya", "Mullaitivu", "Batticaloa", "Ampara", "Trincomalee",
+                    "Kurunegala", "Puttalam", "Anuradhapura", "Polonnaruwa", "Badulla",
+                    "Monaragala", "Ratnapura", "Kegalle"
                 ],
                 'education_levels' => [
-                    "O/L Student",
-                    "A/L Student",
-                    "Undergraduate",
-                    "Postgraduate",
-                    "Other"
+                    "O/L Student", "A/L Student", "Undergraduate", "Postgraduate", "Other"
                 ],
                 'age_groups' => [
-                    "Under 18",
-                    "18-22",
-                    "23-30",
-                    "30+"
+                    "Under 18", "18-22", "23-30", "30+"
                 ],
                 'genders' => ['Male', 'Female', 'Other']
             ],
@@ -68,6 +47,7 @@ class BroadcastMailController extends Controller
                 'premium_options' => ['Premium', 'Non-premium']
             ]
         ]);
+
     }
 
     /**
@@ -85,7 +65,8 @@ class BroadcastMailController extends Controller
                 return $inst;
             });
 
-        return response()->json($institutes);
+        return $this->successResponse($institutes);
+
     }
 
     /**
@@ -101,8 +82,9 @@ class BroadcastMailController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return $this->validationError($validator->errors());
         }
+
 
         $targetType = $request->target_type;
         $recipientEmail = $request->recipient_email;
@@ -111,7 +93,8 @@ class BroadcastMailController extends Controller
 
         $count = $this->getRecipientsCount($targetType, $recipientEmail, $filters, $selectedInstitutes);
 
-        return response()->json(['count' => $count]);
+        return $this->success(['count' => $count]);
+
     }
 
     /**
@@ -127,8 +110,9 @@ class BroadcastMailController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return $this->validationError($validator->errors());
         }
+
 
         $targetType = $request->target_type;
         $recipientEmail = $request->recipient_email;
@@ -140,7 +124,7 @@ class BroadcastMailController extends Controller
             if ($targetType === 'users') {
                 $user = User::where('email', $recipientEmail)->first();
                 if ($user) {
-                    return response()->json([
+                    return $this->success([
                         'count' => 1,
                         'sample' => [[
                             'id' => $user->id,
@@ -152,8 +136,9 @@ class BroadcastMailController extends Controller
                     ]);
                 }
             }
-            return response()->json(['count' => 0, 'sample' => []]);
+            return $this->success(['count' => 0, 'sample' => []]);
         }
+
 
         // Priority 2: Selected institutes
         if ($targetType === 'institutes' && !empty($selectedInstitutes)) {
@@ -169,11 +154,12 @@ class BroadcastMailController extends Controller
                 ];
             });
 
-            return response()->json([
+            return $this->success([
                 'count' => $count,
                 'sample' => $sample
             ]);
         }
+
 
         // Priority 3: Apply filters
         $query = $this->buildRecipientQuery($targetType, $filters, $selectedInstitutes);
@@ -199,10 +185,11 @@ class BroadcastMailController extends Controller
             }
         });
 
-        return response()->json([
+        return $this->success([
             'count' => $count,
             'sample' => $sample
         ]);
+
     }
 
     /**
@@ -210,71 +197,76 @@ class BroadcastMailController extends Controller
      */
     public function sendMail(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
-            'message' => 'required|string',
-            'target_type' => 'required|in:users,institutes',
-            'recipient_email' => 'nullable|email',
-            'filters' => 'nullable|array',
-            'selected_institutes' => 'nullable|array'
-        ]);
+        return DB::transaction(function () use ($request) {
+            $validator = Validator::make($request->all(), [
+                'title' => 'required|string|max:255',
+                'message' => 'required|string',
+                'target_type' => 'required|in:users,institutes',
+                'recipient_email' => 'nullable|email',
+                'filters' => 'nullable|array',
+                'selected_institutes' => 'nullable|array'
+            ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        $targetType = $request->target_type;
-        $recipientEmail = $request->recipient_email;
-        $filters = $request->filters ?? [];
-        $selectedInstitutes = $request->selected_institutes ?? [];
-
-        // Get recipients based on priority
-        $recipients = $this->getRecipients($targetType, $recipientEmail, $filters, $selectedInstitutes);
-        $recipientCount = $recipients->count();
-
-        if ($recipientCount === 0) {
-            return response()->json(['error' => 'No recipients found matching the criteria'], 400);
-        }
-
-        // Create broadcast mail record
-        $broadcastMail = BroadcastMail::create([
-            'title' => $request->title,
-            'message' => $request->message,
-            'target_type' => $targetType,
-            'recipient_count' => $recipientCount,
-            'created_by' => auth()->id()
-        ]);
-
-        // Dispatch jobs in chunks to prevent memory issues
-        $recipients->chunk(200)->each(function ($chunk) use ($request, $targetType) {
-            foreach ($chunk as $recipient) {
-                $email = $recipient->email;
-                $name = $targetType === 'users'
-                    ? $recipient->name
-                    : $recipient->institute_name;
-
-                SendBroadcastMailJob::dispatch(
-                    $request->title,
-                    $request->message,
-                    $email,
-                    $name
-                );
+            if ($validator->fails()) {
+                return $this->validationError($validator->errors());
             }
+
+            $targetType = $request->target_type;
+            $recipientEmail = $request->recipient_email;
+            $filters = $request->filters ?? [];
+            $selectedInstitutes = $request->selected_institutes ?? [];
+
+            // Get recipients based on priority
+            $recipients = $this->getRecipients($targetType, $recipientEmail, $filters, $selectedInstitutes);
+            $recipientCount = $recipients->count();
+
+            if ($recipientCount === 0) {
+                return $this->error('No recipients found matching the criteria', 400);
+            }
+
+            $sanitizedTitle = Purifier::clean($request->title);
+            $sanitizedMessage = Purifier::clean($request->message);
+
+            // Create broadcast mail record
+            $broadcastMail = BroadcastMail::create([
+                'title' => $sanitizedTitle,
+                'message' => $sanitizedMessage,
+                'target_type' => $targetType,
+                'recipient_count' => $recipientCount,
+                'created_by' => auth()->id()
+            ]);
+
+            // Dispatch jobs in chunks to prevent memory issues
+            $recipients->chunk(200)->each(function ($chunk) use ($sanitizedTitle, $sanitizedMessage, $targetType) {
+                foreach ($chunk as $recipient) {
+                    $email = $recipient->email;
+                    $name = $targetType === 'users'
+                        ? $recipient->name
+                        : $recipient->institute_name;
+
+                    SendBroadcastMailJob::dispatch(
+                        $sanitizedTitle,
+                        $sanitizedMessage,
+                        $email,
+                        $name
+                    );
+                }
+            });
+
+            AdminActivityLogger::log(
+                'Sent Broadcast Mail',
+                'BroadcastMail',
+                $broadcastMail->id,
+                auth()->user()->name . " sent a broadcast email \"{$sanitizedTitle}\" to {$recipientCount} recipients"
+            );
+
+            return $this->success([
+                'broadcast_id' => $broadcastMail->id,
+                'recipient_count' => $recipientCount
+            ], "Broadcast email queued successfully! Sending to {$recipientCount} recipients.");
         });
-
-        AdminActivityLogger::log(
-            'Sent Broadcast Mail',
-            'BroadcastMail',
-            $broadcastMail->id,
-            auth()->user()->name . " sent a broadcast email \"{$request->title}\" to {$recipientCount} recipients"
-        );
-
-        return response()->json([
-            'message' => "Broadcast email queued successfully! Sending to {$recipientCount} recipients.",
-            'broadcast_id' => $broadcastMail->id,
-            'recipient_count' => $recipientCount
-        ]);
     }
+
 
     /**
      * Get broadcast mail history
@@ -285,7 +277,8 @@ class BroadcastMailController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
-        return response()->json($history);
+        return $this->successResponse($history);
+
     }
 
     /**

@@ -118,7 +118,7 @@ const EditProfileModal = ({ institute, onClose, onUpdate }) => {
                 setSuccessMessage("");
                 // Wait a bit to show success before updating parent and closing
                 setTimeout(() => {
-                    onUpdate(response.data.institute);
+                    onUpdate(response.data.data?.institute ?? response.data.data);
                     onClose();
                 }, 1500);
             }

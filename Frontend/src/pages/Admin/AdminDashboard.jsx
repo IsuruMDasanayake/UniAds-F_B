@@ -36,6 +36,14 @@ import {
 import axiosClient from '../../lib/axios';
 import './AdminDashboard.css';
 
+const formatNumber = (num) => {
+    if (num === null || num === undefined || isNaN(num)) return 0;
+    if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
+    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+    return num.toString();
+};
+
 const AdminDashboard = () => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -45,7 +53,7 @@ const AdminDashboard = () => {
             if (!isSilent) setLoading(true);
             try {
                 const response = await axiosClient.get('/api/admin/dashboard');
-                setData(response.data);
+                setData(response.data.data);
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
             } finally {
@@ -128,7 +136,7 @@ const AdminDashboard = () => {
                         </div>
                         <div className="stat-content">
                             <span className="stat-sub">{card.title}</span>
-                            <span className="stat-value">{card.value?.toLocaleString() || 0}</span>
+                            <span className="stat-value">{formatNumber(card.value)}</span>
                             <span className="stat-label text-muted mt-1">{card.sub}</span>
                         </div>
                     </div>

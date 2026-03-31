@@ -10,13 +10,14 @@ export const useUser = () => {
     queryFn: async () => {
       try {
         const response = await axiosClient.get('/api/profile/me');
-        const userData = response.data.user;
+        const payload = response.data.data;
+        const userData = payload.user;
         
         // Add role and institute info if it exists in the response
         const fullUser = {
           ...userData,
-          role: response.data.role,
-          institute: response.data.institute || null
+          role: payload.role,
+          institute: payload.institute || null
         };
         
         // Sync with localStorage for legacy compatibility

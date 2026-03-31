@@ -38,7 +38,7 @@ const AddPostModal = ({ institute, onClose, onSuccess }) => {
                 const res = await axiosClient.get('/api/categories');
                 // The API returns data grouped by main_category (e.g. { "Courses": [...], "Location": [...] })
                 // We flatten it into a single array for easier filtering in the UI
-                const categoryData = res.data;
+                const categoryData = res.data.data;
                 const flatCategories = Object.values(categoryData).flat();
                 setCategories(flatCategories);
             } catch (error) {

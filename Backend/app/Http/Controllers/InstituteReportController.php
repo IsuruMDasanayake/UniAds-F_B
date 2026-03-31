@@ -19,9 +19,12 @@ use App\Models\PostView;
 use App\Models\EventView;
 use App\Models\InstituteProfileView;
 use App\Models\PlatformSetting;
+use App\Traits\ApiResponse;
 
 class InstituteReportController extends Controller
 {
+    use ApiResponse;
+
     /**
      * Download analytics reports for institutes.
      */
@@ -67,8 +70,9 @@ class InstituteReportController extends Controller
             case 'Reviews Summary':
                 return $this->exportReviews($instituteId, $startDate, $endDate, $format, $filename);
             default:
-                return response()->json(['message' => 'Invalid report type'], 400);
+                return $this->error('Invalid report type', 400);
         }
+
     }
 
     private function parseDateRange($range, $request)

@@ -44,8 +44,7 @@ const ApplicationsPage = () => {
     const fetchInstitutes = async () => {
         try {
             const response = await axiosClient.get('/api/institutions');
-            const payload = response.data;
-            setInstitutes(Array.isArray(payload) ? payload : (payload.data || []));
+            setInstitutes(response.data.data?.data || response.data.data || []);
         } catch (error) {
             console.error('Error fetching institutes:', error);
         }
@@ -61,8 +60,8 @@ const ApplicationsPage = () => {
             };
 
             const response = await axiosClient.get('/api/admin/applications', { params });
-            setApplications(response.data.data);
-            setTotalPages(response.data.last_page);
+            setApplications(response.data.data.data);
+            setTotalPages(response.data.data.last_page);
         } catch (error) {
             console.error('Error fetching applications:', error);
         } finally {

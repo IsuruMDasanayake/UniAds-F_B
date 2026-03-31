@@ -21,9 +21,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Carbon;
 use Mews\Purifier\Facades\Purifier;
+use App\Traits\ApiResponse;
 
 class EventController extends Controller
 {
+    use ApiResponse;
     /**
      * Store a new event (Web/Blade)
      */
@@ -66,7 +68,7 @@ class EventController extends Controller
     public function edit($id)
     {
         $event = Event::findOrFail($id);
-        return response()->json($event);
+        return $this->successResponse($event);
     }
 
     /**
@@ -119,7 +121,7 @@ class EventController extends Controller
         // Authorization: Admin OR Owner
         if ($user->role !== 'Admin') {
             if ($user->role !== 'Institute' || !$user->institute || $event->institute_id !== $user->institute->id) {
-                return response()->json(['message' => 'Unauthorized'], 403);
+                return $this->error('Unauthorized', 403);
             }
         }
 
@@ -140,7 +142,7 @@ class EventController extends Controller
             $eventId
         );
 
-        return response()->json(['success' => true, 'message' => 'Event deleted successfully.']);
+        return $this->success(null, 'Event deleted successfully.');
     }
 
     // ==========================================
@@ -153,7 +155,7 @@ class EventController extends Controller
     public function apiAdminIndex()
     {
         $events = Event::with('institute')->orderBy('created_at', 'desc')->get();
-        return response()->json($events);
+        return $this->successResponse($events);
     }
 
     /**
@@ -172,7 +174,7 @@ class EventController extends Controller
             auth()->user()->name . " changed active status of event \"{$event->event_title}\" to " . ($event->is_active ? 'Active' : 'Inactive')
         );
 
-        return response()->json(['success' => true, 'is_active' => $event->is_active]);
+        return $this->success(['is_active' => $event->is_active], 'Event status toggled successfully.');
     }
 
     /**
@@ -183,37 +185,39 @@ class EventController extends Controller
         $userId = Auth::id();
         $event = Event::findOrFail($eventId);
 
-        $interestRecord = EventUserInterest::where('user_id', $userId)
-            ->where('event_id', $eventId)
-            ->first();
+        return DB::transaction(function () use ($eventId, $userId, $event) {
+            $interestRecord = EventUserInterest::where('user_id', $userId)
+                ->where('event_id', $eventId)
+                ->first();
 
-        if ($interestRecord) {
-            $interestRecord->delete();
-            $event->decrement('interested_count');
-            return response()->json(['status' => 'uninterested']);
-        } else {
-            EventUserInterest::create([
-                'user_id' => $userId,
-                'event_id' => $eventId,
-            ]);
+            if ($interestRecord) {
+                $interestRecord->delete();
+                $event->decrement('interested_count');
+                return $this->success(['status' => 'uninterested']);
+            } else {
+                EventUserInterest::create([
+                    'user_id' => $userId,
+                    'event_id' => $eventId,
+                ]);
 
-            $event->increment('interested_count');
+                $event->increment('interested_count');
 
-            Notification::create([
-                'institute_id' => $event->institute_id,
-                'user_id' => $userId,
-                'type' => 'event_interest',
-                'title' => 'New Event Interest',
-                'message' => auth()->user()->name . " is interested in your event: {$event->event_title}",
-                'data' => [
-                    'event_id' => $event->id,
-                    'event_title' => $event->event_title,
-                    'image' => $event->event_image
-                ]
-            ]);
+                Notification::create([
+                    'institute_id' => $event->institute_id,
+                    'user_id' => $userId,
+                    'type' => 'event_interest',
+                    'title' => 'New Event Interest',
+                    'message' => auth()->user()->name . " is interested in your event: {$event->event_title}",
+                    'data' => [
+                        'event_id' => $event->id,
+                        'event_title' => $event->event_title,
+                        'image' => $event->event_image
+                    ]
+                ]);
 
-            return response()->json(['status' => 'interested']);
-        }
+                return $this->success(['status' => 'interested']);
+            }
+        });
     }
 
     /**
@@ -224,19 +228,21 @@ class EventController extends Controller
         $userId = Auth::id();
         $event = Event::findOrFail($eventId);
 
-        $alreadyDeclined = EventUserDeclines::where('user_id', $userId)
-            ->where('event_id', $eventId)
-            ->exists();
+        return DB::transaction(function () use ($eventId, $userId, $event) {
+            $alreadyDeclined = EventUserDeclines::where('user_id', $userId)
+                ->where('event_id', $eventId)
+                ->exists();
 
-        if (!$alreadyDeclined) {
-            EventUserDeclines::create([
-                'user_id' => $userId,
-                'event_id' => $eventId,
-            ]);
-            $event->increment('decline_count');
-        }
+            if (!$alreadyDeclined) {
+                EventUserDeclines::create([
+                    'user_id' => $userId,
+                    'event_id' => $eventId,
+                ]);
+                $event->increment('decline_count');
+            }
 
-        return response()->json(['status' => 'declined']);
+            return $this->success(['status' => 'declined']);
+        });
     }
 
     /**
@@ -250,7 +256,7 @@ class EventController extends Controller
         $today = now()->toDateString();
 
         if ($user && $user->role === 'Institute' && $user->institute && $event->institute_id === $user->institute->id) {
-            return response()->json(['status' => 'ignored_own_event']);
+            return $this->success(null, 'Ignored own event view');
         }
 
         $uniqueKey = $user
@@ -268,12 +274,12 @@ class EventController extends Controller
                 ]);
                 $event->increment('view_count');
             });
-            return response()->json(['status' => 'success']);
+            return $this->success(null, 'View tracked successfully');
         } catch (\Illuminate\Database\QueryException $e) {
             if ($e->getCode() == '23000') {
-                return response()->json(['status' => 'already_viewed']);
+                return $this->success(null, 'Already viewed');
             }
-            return response()->json(['status' => 'error'], 500);
+            return $this->error($e->getMessage(), 500);
         }
     }
 
@@ -302,7 +308,9 @@ class EventController extends Controller
 
         if ($filter === 'today') {
             $query->whereDate('event_date', Carbon::today());
-        } elseif ($filter === 'upcoming' || $filter === 'all') {
+        } elseif ($filter === 'upcoming') {
+            $query->whereDate('event_date', '>', Carbon::today());
+        } elseif ($filter === 'all') {
             $query->whereDate('event_date', '>=', Carbon::today());
         }
 
@@ -311,9 +319,10 @@ class EventController extends Controller
             $query->whereNotIn('id', $declinedIds);
         }
 
-        $events = $query->orderBy('event_date', 'asc')->paginate(12);
+        $limit = $request->query('limit', 12);
+        $events = $query->orderBy('event_date', 'asc')->paginate($limit);
 
-        return response()->json($events);
+        return $this->successResponse($events);
     }
 
     /**

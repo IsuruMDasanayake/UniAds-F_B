@@ -12,7 +12,7 @@ const GlobalFeedbackModal = () => {
             try {
                 // Check if user is eligible to give feedback
                 const response = await axiosClient.get('/api/feedback/check-eligibility');
-                if (response.data.eligible) {
+                if (response.data.data?.eligible) {
                     setIsOpen(true);
                     setStatus({ type: '', message: '' });
                 }

@@ -24,18 +24,24 @@ use App\Models\Subscription;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use App\Models\AdminNotification;
+use App\Traits\ApiResponse;
+use Mews\Purifier\Facades\Purifier;
+
 
 
 class AnalyticsController extends Controller
 {
+    use ApiResponse;
+
     public function apiOverview(Request $request)
     {
         $user = auth()->user();
         $institute = $user->institute;
 
         if (!$institute) {
-            return response()->json(['error' => 'Institute profile not found'], 404);
+            return $this->error('Institute profile not found', 404);
         }
+
 
         // Get period parameter (default 30 days) - ONLY for Performance Highlights
         $period = (int) $request->query('period', 30);
@@ -151,7 +157,7 @@ class AnalyticsController extends Controller
             : "No applications recorded yet. Try creating more engaging posts or events to attract potential students.";
 
         // 5. BUILD RESPONSE
-        return response()->json([
+        return $this->success([
             'overviewStats' => [
                 'metrics' => [
                     'profile_views' => $totalProfileViews,
@@ -195,6 +201,7 @@ class AnalyticsController extends Controller
                 ]
             ]
         ]);
+
     }
 
     public function apiTrends(Request $request)
@@ -518,7 +525,7 @@ class AnalyticsController extends Controller
         if ($peakViews > ($totalViews / ($days ?: 1)) * 2) $insights[] = "Significant traffic spike detected on $peakDate.";
         if (empty($insights)) $insights[] = "Maintain your current posting frequency to keep engagement stable.";
 
-        return response()->json([
+        return $this->success([
             'postViews' => $postViewsProcessed,
             'eventViews' => $eventViewsProcessed,
             'profileViews' => $profileViewsProcessed,
@@ -533,6 +540,7 @@ class AnalyticsController extends Controller
             'summary' => $summary,
             'insights' => $insights
         ]);
+
     }
 
     public function apiPosts(Request $request)
@@ -587,10 +595,11 @@ class AnalyticsController extends Controller
             'total_applications' => ApplyCase::where('institute_id', $instituteId)->count(),
         ];
 
-        return response()->json([
+        return $this->success([
             'posts' => $posts,
             'stats' => $stats
         ]);
+
     }
 
     public function apiEvents(Request $request)
@@ -668,13 +677,14 @@ class AnalyticsController extends Controller
 
         $events = $query->paginate(10);
 
-        return response()->json([
+        return $this->success([
             'data' => $events->items(),
             'current_page' => $events->currentPage(),
             'last_page' => $events->lastPage(),
             'total' => $events->total(),
             'stats' => $stats,
         ]);
+
     }
 
     public function apiRatings(Request $request)
@@ -741,62 +751,70 @@ class AnalyticsController extends Controller
                 1 => Rating::where('institute_id', $instituteId)->where('rating', 1)->count(),
             ];
 
-            return response()->json([
+            return $this->success([
                 'ratings' => $ratings,
                 'stats' => $stats,
                 'distribution' => $distribution
             ]);
+
         } catch (\Exception $e) {
             Log::error('Ratings Analytics Error: ' . $e->getMessage());
-            return response()->json(['error' => $e->getMessage()], 500);
+            return $this->error($e->getMessage(), 500);
+
         }
     }
 
     public function apiReportRating(Request $request, $id)
     {
-        $request->validate([
-            'reason' => 'required|string',
-        ]);
-
-        $institute = auth()->user()->institute;
-        $rating = Rating::where('institute_id', $institute->id)
-            ->findOrFail($id);
-
-        $rating->is_reported = true;
-        $rating->report_reason = $request->reason;
-        $rating->save();
-
-        // Notify Admins
-        $admins = User::where('role', 'Admin')->get();
-        foreach ($admins as $admin) {
-            AdminNotification::create([
-                'user_id' => $admin->id,
-                'type' => 'review_reported',
-                'title' => 'Review Reported',
-                'message' => "A review for {$institute->institute_name} has been reported.",
-                'data' => [
-                    'rating_id' => $rating->id,
-                    'institute_id' => $institute->id,
-                    'reason' => $request->reason
-                ]
+        return DB::transaction(function () use ($request, $id) {
+            $request->validate([
+                'reason' => 'required|string',
             ]);
-        }
 
-        return response()->json(['message' => 'Review reported successfully']);
+            $institute = auth()->user()->institute;
+            $rating = Rating::where('institute_id', $institute->id)
+                ->findOrFail($id);
+
+            $sanitizedReason = Purifier::clean($request->reason);
+
+            $rating->is_reported = true;
+            $rating->report_reason = $sanitizedReason;
+            $rating->save();
+
+            // Notify Admins
+            $admins = User::where('role', 'Admin')->get();
+            foreach ($admins as $admin) {
+                AdminNotification::create([
+                    'user_id' => $admin->id,
+                    'type' => 'review_reported',
+                    'title' => 'Review Reported',
+                    'message' => "A review for {$institute->institute_name} has been reported.",
+                    'data' => [
+                        'rating_id' => $rating->id,
+                        'institute_id' => $institute->id,
+                        'reason' => $sanitizedReason
+                    ]
+                ]);
+            }
+
+            return $this->success(null, 'Review reported successfully');
+        });
     }
+
 
     public function apiSubscription()
     {
         $institute = auth()->user()->institute;
         $subscription = $institute->subscription;
 
-        return response()->json([
+        return $this->success([
             'plan' => $subscription ? ucfirst($subscription->plan) : 'Free',
             'status' => $subscription ? $subscription->status : ($institute->is_trial_used ? 'Expired' : 'Trial'),
             'started_at' => $subscription ? $subscription->created_at : null,
             'ends_at' => $subscription ? $subscription->ends_at : $institute->trial_ends_at,
             'is_trial' => !$subscription && !$institute->is_trial_used,
         ]);
+
     }
 
     public function apiSubscriptions()
@@ -915,7 +933,7 @@ class AnalyticsController extends Controller
             'next_billing_date' => ($currentPlan['status'] === 'active' && !$currentPlan['cancelled_at']) ? $currentPlan['ends_at'] : null
         ];
 
-        return response()->json([
+        return $this->success([
             'current_plan' => $currentPlan,
             'trial_info' => [
                 'status' => $institute->trial_status,
@@ -926,53 +944,58 @@ class AnalyticsController extends Controller
             'history' => $history,
             'stats' => $stats
         ]);
+
     }
 
     public function toggleStatus($id)
     {
-        $post = Post::findOrFail($id);
-        $post->status = $post->status === 'active' ? 'inactive' : 'active';
-        $post->save();
+        return DB::transaction(function () use ($id) {
+            $post = Post::findOrFail($id);
+            $post->status = $post->status === 'active' ? 'inactive' : 'active';
+            $post->save();
 
-        return response()->json([
-            'success' => true,
-            'new_status' => $post->status
-        ]);
+            return $this->success([
+                'new_status' => $post->status
+            ], 'Status toggled successfully');
+        });
     }
+
 
     public function toggleEventStatus($id)
     {
-        $event = Event::findOrFail($id);
-        $event->is_active = !$event->is_active;
-        $event->save();
+        return DB::transaction(function () use ($id) {
+            $event = Event::findOrFail($id);
+            $event->is_active = !$event->is_active;
+            $event->save();
 
-        return response()->json([
-            'success' => true,
-            'is_active' => $event->is_active
-        ]);
+            return $this->success([
+                'is_active' => $event->is_active
+            ], 'Event status toggled successfully');
+        });
     }
+
 
     public function deletePost($id)
     {
-        $post = Post::where('institute_id', auth()->user()->institute->id)->findOrFail($id);
-        $post->delete();
+        return DB::transaction(function () use ($id) {
+            $post = Post::where('institute_id', auth()->user()->institute->id)->findOrFail($id);
+            $post->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Post deleted successfully'
-        ]);
+            return $this->success(null, 'Post deleted successfully');
+        });
     }
+
 
     public function deleteEvent($id)
     {
-        $event = Event::where('institute_id', auth()->user()->institute->id)->findOrFail($id);
-        $event->delete();
+        return DB::transaction(function () use ($id) {
+            $event = Event::where('institute_id', auth()->user()->institute->id)->findOrFail($id);
+            $event->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Event deleted successfully'
-        ]);
+            return $this->success(null, 'Event deleted successfully');
+        });
     }
+
 
     public function apiDemographics(Request $request)
     {
@@ -1055,9 +1078,10 @@ class AnalyticsController extends Controller
 
         $userIds = array_unique($userIds);
 
-        return response()->json([
+        return $this->success([
             'demographics' => $this->calculateDemographics($userIds)
         ]);
+
     }
 
     private function calculateDemographics($userIds)

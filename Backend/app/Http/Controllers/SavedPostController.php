@@ -7,38 +7,43 @@ use App\Models\SavedPost;
 use App\Models\Post;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Traits\ApiResponse;
 
 class SavedPostController extends Controller
 {
+    use ApiResponse;
+
     public function toggleSave($postId)
-{
-    $user = auth()->user();
-    
-    if (!$user) {
-        return redirect()->route('login')->with('error', 'Please log in to save posts.');
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if (!$user) {
+            return $this->error('Please log in to save posts.', 401);
+        }
+
+        $isSaved = $user->savedPosts()->where('post_id', $postId)->exists();
+
+        if ($isSaved) {
+            $user->savedPosts()->detach($postId);
+            return $this->success(['status' => 'unsaved']);
+        } else {
+            $user->savedPosts()->attach($postId);
+            return $this->success(['status' => 'saved']);
+        }
     }
 
-    $isSaved = $user->savedPosts()->where('post_id', $postId)->exists();
+    public function viewSaved()
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
-    if ($isSaved) {
-        $user->savedPosts()->detach($postId);
-        return response()->json(['status' => 'unsaved']);
-    } else {
-        $user->savedPosts()->attach($postId);
-        return response()->json(['status' => 'saved']);
+        if (!$user || $user->role !== 'User') {
+            abort(403, 'Unauthorized access.');
+        }
+
+        $posts = $user->savedPosts()->with('institute')->get();
+
+        return view('frontend.saved-posts', compact('posts'));
     }
-}
-
-public function viewSaved()
-{
-    $user = auth()->user();
-
-    if (!$user || $user->role !== 'User') {
-        abort(403, 'Unauthorized access.');
-    }
-
-    $posts = $user->savedPosts()->with('institute')->get();
-
-    return view('frontend.saved-posts', compact('posts'));
-}
 }

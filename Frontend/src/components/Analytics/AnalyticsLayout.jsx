@@ -71,8 +71,8 @@ const AnalyticsLayout = () => {
             const { data } = await axiosClient.get('/api/institute/applications', {
                 params: { per_page: 1 }
             });
-            if (data.stats && data.stats.new !== undefined) {
-                setNewAppsCount(data.stats.new);
+            if (data.data?.stats && data.data.stats.new !== undefined) {
+                setNewAppsCount(data.data.stats.new);
             }
         } catch (error) {
             console.error('Error fetching new apps count:', error);
@@ -84,8 +84,8 @@ const AnalyticsLayout = () => {
             const { data } = await axiosClient.get('/api/institute/inquiries', {
                 params: { page: 1 }
             });
-            if (data.stats && data.stats.new !== undefined) {
-                setNewInquiriesCount(data.stats.new);
+            if (data.data?.stats && data.data.stats.new !== undefined) {
+                setNewInquiriesCount(data.data.stats.new);
             }
         } catch (error) {
             console.error('Error fetching new inquiries count:', error);

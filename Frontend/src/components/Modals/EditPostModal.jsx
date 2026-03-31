@@ -32,7 +32,7 @@ const EditPostModal = ({ isOpen, onClose, post, onUpdate }) => {
         const fetchCategories = async () => {
             try {
                 const res = await axiosClient.get('/api/categories');
-                const categoryData = res.data;
+                const categoryData = res.data.data;
                 const flatCategories = Object.values(categoryData).flat();
                 setCategories(flatCategories);
             } catch (error) {
@@ -128,7 +128,7 @@ const EditPostModal = ({ isOpen, onClose, post, onUpdate }) => {
                     setUploadProgress(progress);
                 }
             });
-            onUpdate(response.data.post);
+            onUpdate(response.data.data);
             onClose();
         } catch (error) {
             console.error("Failed to update post:", error);

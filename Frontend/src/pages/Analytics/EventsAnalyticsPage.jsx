@@ -43,7 +43,7 @@ const EventsAnalyticsPage = () => {
         else if (!isSilent) setIsUpdating(true);
 
         try {
-            const { data } = await axiosClient.get(`/api/institute/analytics/events`, {
+            const response = await axiosClient.get(`/api/institute/analytics/events`, {
                 params: {
                     page,
                     search,
@@ -52,12 +52,13 @@ const EventsAnalyticsPage = () => {
                     sort_order: sortConfig.direction
                 }
             });
-            setEvents(data.data);
-            setStats(data.stats);
+            const payload = response.data.data;
+            setEvents(payload.data);
+            setStats(payload.stats);
             setPagination({
-                current_page: data.current_page,
-                last_page: data.last_page,
-                total: data.total,
+                current_page: payload.current_page,
+                last_page: payload.last_page,
+                total: payload.total,
             });
         } catch (error) {
             console.error('Error fetching events:', error);
@@ -71,10 +72,10 @@ const EventsAnalyticsPage = () => {
         const fetchTrends = async () => {
             setLoadingTrend(true);
             try {
-                const { data } = await axiosClient.get('/api/institute/analytics/trends', {
+                const response = await axiosClient.get('/api/institute/analytics/trends', {
                     params: { range: '90', compare: 'false' }
                 });
-                setTrendData(data || null);
+                setTrendData(response.data.data || null);
             } catch (error) {
                 console.error('Error fetching event trends:', error);
             } finally {

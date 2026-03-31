@@ -59,7 +59,7 @@ const BroadcastMailPage = () => {
     const fetchTemplates = async () => {
         try {
             const response = await axiosClient.get(`/api/admin/mail-templates?target_type=${targetType}`);
-            setTemplates(response.data);
+            setTemplates(response.data.data || []);
         } catch (error) {
             console.error('Error fetching templates:', error);
         }
@@ -96,7 +96,7 @@ const BroadcastMailPage = () => {
                 filters,
                 selected_institutes: selectedInstitutes
             });
-            setRecipientCount(response.data.count);
+            setRecipientCount(response.data.data?.count ?? response.data.count ?? 0);
         } catch (error) {
             console.error('Error fetching recipient count:', error);
             setRecipientCount(0);
@@ -109,7 +109,7 @@ const BroadcastMailPage = () => {
         setHistoryLoading(true);
         try {
             const response = await axiosClient.get(`/api/admin/broadcast-mail/history?page=${page}`);
-            setHistory(response.data);
+            setHistory(response.data.data || {});
             setCurrentPage(page);
         } catch (error) {
             console.error('Error fetching history:', error);
@@ -141,7 +141,7 @@ const BroadcastMailPage = () => {
                 filters,
                 selected_institutes: selectedInstitutes
             });
-            setPreviewData(response.data);
+            setPreviewData(response.data.data);
             setShowPreview(true);
         } catch (error) {
             console.error('Error previewing recipients:', error);

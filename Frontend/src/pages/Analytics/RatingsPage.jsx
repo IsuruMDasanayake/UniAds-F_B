@@ -90,6 +90,11 @@ const RatingsAnalyticsPage = () => {
         }
     };
 
+    const stripHtml = (html) => {
+        if (!html) return '';
+        return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ');
+    };
+
     const columns = [
         {
             header: 'Student',
@@ -152,7 +157,7 @@ const RatingsAnalyticsPage = () => {
                 return (
                     <div className="comment-cell-v2" title={comment}>
                         {comment ? (
-                            <span className="comment-text">{comment}</span>
+                            <span className="comment-text">{stripHtml(comment)}</span>
                         ) : (
                             <span className="no-comment">No comment provided</span>
                         )}
@@ -165,10 +170,13 @@ const RatingsAnalyticsPage = () => {
             accessor: 'created_at',
             render: (row) => (
                 <div className="date-cell-v2">
-                    {new Date(row.created_at).toLocaleDateString(undefined, {
-                        year: 'numeric',
+                    {new Date(row.created_at).toLocaleString('en-US', {
                         month: 'short',
-                        day: 'numeric'
+                        day: 'numeric',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
                     })}
                 </div>
             )

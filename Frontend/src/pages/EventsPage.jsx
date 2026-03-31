@@ -15,22 +15,24 @@ import AddEventModal from './InstituteProfile/modals/AddEventModal';
 import './EventsPage.css';
 
 import { useUser } from '../hooks/useUser';
-import { useInfiniteEvents, useToggleEventInterest, useDeclineEvent } from '../hooks/useEvents';
+import { useInfiniteEvents, useToggleEventInterest, useDeclineEvent, useLatestEvents } from '../hooks/useEvents';
 
 function EventsPage() {
     const { data: user } = useUser();
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
-    
+
     // TanStack Query Hooks
-    const { 
-        data: eventsData, 
-        fetchNextPage, 
-        hasNextPage: hasMoreEvents, 
+    const {
+        data: eventsData,
+        fetchNextPage,
+        hasNextPage: hasMoreEvents,
         isFetchingNextPage: loadingMoreEvents,
         isLoading: eventsLoading,
     } = useInfiniteEvents({ searchQuery: debouncedSearchQuery, activeFilter });
+
+    const { data: latestEvents = [] } = useLatestEvents(2);
 
     const interestMutation = useToggleEventInterest();
     const declineMutation = useDeclineEvent();
@@ -40,6 +42,7 @@ function EventsPage() {
 
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [showAddEventModal, setShowAddEventModal] = useState(false);
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
     const eventLoaderRef = useRef(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 900);
 
@@ -55,6 +58,12 @@ function EventsPage() {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    useEffect(() => {
+        if (!eventsLoading && events.length > 0) {
+            setIsInitialLoad(false);
+        }
+    }, [eventsLoading, events]);
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -117,15 +126,18 @@ function EventsPage() {
         </div>
     );
 
-    if (loading) {
+    // Show full-page loader only on the very first visit
+    if (eventsLoading && isInitialLoad) {
         return (
-            <div className="events-loading">
-                <div className="ui-loader loader-blk">
-                    <svg viewBox="22 22 44 44" className="multiColor-loader">
-                        <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="3.6" className="loader-circle loader-circle-animation"></circle>
-                    </svg>
+            <div className="events-page-v2 events-loading">
+                <div className="spinner-box">
+                    <div className="ui-loader loader-blk">
+                        <svg viewBox="22 22 44 44" className="multiColor-loader">
+                            <circle cx="44" cy="44" r="20.2" fill="none" strokeWidth="3.6" className="loader-circle loader-circle-animation"></circle>
+                        </svg>
+                    </div>
+                    <p>Loading Events...</p>
                 </div>
-                <p>Loading Events...</p>
             </div>
         );
     }
@@ -198,7 +210,14 @@ function EventsPage() {
                         </div>
                     </div>
 
-                    {events.length === 0 && !loadingMoreEvents ? (
+                    {/* Show skeletons during filter switches (when not the initial load) */}
+                    {eventsLoading && !isInitialLoad ? (
+                         <div className="events-modern-grid">
+                            {[...Array(6)].map((_, i) => (
+                                <EventSkeleton key={i} />
+                            ))}
+                        </div>
+                    ) : events.length === 0 && !loadingMoreEvents ? (
                         <div className="empty-state">
                             <div className="empty-icon-box">
                                 <Calendar size={64} />
@@ -274,7 +293,7 @@ function EventsPage() {
                                     </div>
                                 </motion.div>
                             ))}
-                            
+
                             {(loadingMoreEvents && events.length === 0) && (
                                 <>
                                     <EventSkeleton />
@@ -282,34 +301,34 @@ function EventsPage() {
                                     <EventSkeleton />
                                 </>
                             )}
-                            
+
                             {loadingMoreEvents && events.length > 0 && !isMobile && (
                                 <>
                                     <EventSkeleton />
                                     <EventSkeleton />
                                 </>
                             )}
-                            
+
                             {loadingMoreEvents && isMobile && (
                                 <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'center', padding: '20px 0' }}>
                                     <Loader2 className="animate-spin" size={32} color="var(--c-primary)" />
                                 </div>
                             )}
-                            
+
                             {hasMoreEvents && (
-                                <div 
-                                    ref={eventLoaderRef} 
-                                    style={{ 
-                                        height: '50px', 
+                                <div
+                                    ref={eventLoaderRef}
+                                    style={{
+                                        height: '50px',
                                         gridColumn: '1 / -1',
                                         visibility: 'hidden'
-                                    }} 
+                                    }}
                                 />
                             )}
-                            
+
                             {!hasMoreEvents && events.length > 0 && (
                                 <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px 0', color: 'var(--c-text-muted)', fontSize: '0.9rem' }}>
-                                    
+
                                 </div>
                             )}
 
@@ -327,9 +346,7 @@ function EventsPage() {
                         <div className="notification-list">
                             {(() => {
                                 const dotColors = ['blue', 'gold', 'green', 'purple', 'red'];
-                                const recentUpdates = [...events]
-                                    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-                                    .slice(0, 2);
+                                const recentUpdates = latestEvents.slice(0, 2);
 
                                 if (recentUpdates.length === 0) {
                                     return (

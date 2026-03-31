@@ -50,7 +50,7 @@ const GeneralInquiriesPage = () => {
         else if (!isSilent) setIsUpdating(true);
 
         try {
-            const { data } = await axiosClient.get('/api/institute/inquiries', {
+            const response = await axiosClient.get('/api/institute/inquiries', {
                 params: {
                     page,
                     search,
@@ -58,14 +58,15 @@ const GeneralInquiriesPage = () => {
                 }
             });
 
-            setInquiries(data.inquiries.data || []);
-            setStats(data.stats);
+            const payload = response.data.data;
+            setInquiries(payload.inquiries.data || []);
+            setStats(payload.stats);
             setPagination({
-                current_page: data.inquiries.current_page,
-                last_page: data.inquiries.last_page,
-                total: data.inquiries.total,
-                from: data.inquiries.from,
-                to: data.inquiries.to
+                current_page: payload.inquiries.current_page,
+                last_page: payload.inquiries.last_page,
+                total: payload.inquiries.total,
+                from: payload.inquiries.from,
+                to: payload.inquiries.to
             });
         } catch (error) {
             console.error('Error fetching inquiries:', error);
@@ -98,9 +99,9 @@ const GeneralInquiriesPage = () => {
         // Mark as viewed if new
         if (inquiry.status === 'new') {
             try {
-                const { data } = await axiosClient.put(`/api/institute/inquiries/${inquiry.id}/view`);
+                const response = await axiosClient.put(`/api/institute/inquiries/${inquiry.id}/view`);
                 // Update local state
-                setInquiries(prev => prev.map(i => i.id === inquiry.id ? { ...i, status: 'viewed', viewed_at: data.inquiry.viewed_at } : i));
+                setInquiries(prev => prev.map(i => i.id === inquiry.id ? { ...i, status: 'viewed', viewed_at: response.data.data.inquiry.viewed_at } : i));
                 setStats(prev => ({ ...prev, new: Math.max(0, prev.new - 1) }));
                 // Refresh sidebar badge
                 fetchNewInquiriesCount();
@@ -127,10 +128,10 @@ const GeneralInquiriesPage = () => {
 
         setFetchingHistory(true);
         try {
-            const { data } = await axiosClient.get('/api/institute/communications/history', {
+            const response = await axiosClient.get('/api/institute/communications/history', {
                 params: { type: 'inquiry' }
             });
-            setCommunicationsHistory(data);
+            setCommunicationsHistory(response.data.data);
             setShowHistoryModal(true);
         } catch (error) {
             console.error('Error fetching communications history:', error);

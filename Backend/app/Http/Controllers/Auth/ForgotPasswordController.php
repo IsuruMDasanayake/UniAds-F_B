@@ -9,9 +9,12 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use App\Mail\PasswordResetMail;
+use App\Traits\ApiResponse;
+use Illuminate\Support\Facades\DB;
 
 class ForgotPasswordController extends Controller
 {
+    use ApiResponse;
     // Show the form to request a reset code
     public function showLinkRequestForm()
     {
@@ -38,9 +41,11 @@ class ForgotPasswordController extends Controller
         try {
             Mail::to($user->email)->send(new PasswordResetMail($resetCode));
         } catch (\Exception $e) {
-            \Log::error('Mail sending failed: ' . $e->getMessage());
+            Log::error('Mail sending failed: ' . $e->getMessage());
             return back()->withErrors(['email' => 'Failed to send email. Please try again.']);
         }
+
+
 
         // Redirect to confirm the reset code form
         return redirect()->route('confirm.passwordForm')->with('status', 'A reset code has been sent to your email!');
@@ -67,17 +72,11 @@ class ForgotPasswordController extends Controller
             Mail::to($user->email)->send(new PasswordResetMail($resetCode));
         } catch (\Exception $e) {
             \Log::error('Mail sending failed: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to send email. Please try again.'
-            ], 500);
+            return $this->error('Failed to send email. Please try again.', 500);
         }
 
         // Return JSON response for API
-        return response()->json([
-            'success' => true,
-            'message' => 'A reset code has been sent to your email!'
-        ]);
+        return $this->success(null, 'A reset code has been sent to your email!');
     }
 
     // Show the form to reset the password
@@ -114,17 +113,19 @@ class ForgotPasswordController extends Controller
             return back()->withErrors(['email' => 'No user found with that email address.']);
         }
 
-        // Update the user's password
-        $user->password = Hash::make($request->password);
-        $user->save();
+        return DB::transaction(function () use ($request, $user) {
+            // Update the user's password
+            $user->password = Hash::make($request->password);
+            $user->save();
 
-        // Clear the reset code from the session after resetting the password
-        session()->forget('reset_code');
-        session()->forget('reset_code_time');
-        session()->forget('email'); // Clear the email from session
+            // Clear the reset code from the session after resetting the password
+            session()->forget('reset_code');
+            session()->forget('reset_code_time');
+            session()->forget('email'); // Clear the email from session
 
-        // Redirect to the home page with a success message
-        return redirect()->route('home')->with('status', 'Your password has been successfully reset!');
+            // Redirect to the home page with a success message
+            return redirect()->route('home')->with('status', 'Your password has been successfully reset!');
+        });
     }
 
     // API version - Handle password reset (returns JSON)
@@ -140,44 +141,34 @@ class ForgotPasswordController extends Controller
         if (now()->diffInMinutes(session('reset_code_time')) > 2) {
             session()->forget('reset_code');
             session()->forget('reset_code_time');
-            return response()->json([
-                'success' => false,
-                'message' => 'The reset code has expired.'
-            ], 422);
+            return $this->error('The reset code has expired.', 422);
         }
 
         // Check if the entered reset code matches the one in session
         if ($request->reset_code != session('reset_code')) {
-            return response()->json([
-                'success' => false,
-                'message' => 'The reset code is invalid.'
-            ], 422);
+            return $this->error('The reset code is invalid.', 422);
         }
 
         // Retrieve the user based on the email stored in the session
         $user = User::where('email', session('email'))->first();
 
         if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No user found with that email address.'
-            ], 404);
+            return $this->error('No user found with that email address.', 404);
         }
 
-        // Update the user's password
-        $user->password = Hash::make($request->password);
-        $user->save();
+        return DB::transaction(function () use ($request, $user) {
+            // Update the user's password
+            $user->password = Hash::make($request->password);
+            $user->save();
 
-        // Clear the reset code from the session after resetting the password
-        session()->forget('reset_code');
-        session()->forget('reset_code_time');
-        session()->forget('email');
+            // Clear the reset code from the session after resetting the password
+            session()->forget('reset_code');
+            session()->forget('reset_code_time');
+            session()->forget('email');
 
-        // Return JSON response for API
-        return response()->json([
-            'success' => true,
-            'message' => 'Your password has been successfully reset!'
-        ]);
+            // Return JSON response for API
+            return $this->success(null, 'Your password has been successfully reset!');
+        });
     }
 
     // Show the form to confirm the reset code
@@ -186,3 +177,4 @@ class ForgotPasswordController extends Controller
         return view('auth.reset-password');
     }
 }
+

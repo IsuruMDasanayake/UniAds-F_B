@@ -88,9 +88,9 @@ function App() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axiosClient.get('/api/user');
-        setUser(response.data);
-        localStorage.setItem('APP_USER', JSON.stringify(response.data));
+        const userData = response.data.data;
+        setUser(userData);
+        localStorage.setItem('APP_USER', JSON.stringify(userData));
       } catch (error) {
         if (error.response?.status === 401) {
           setUser(null);
@@ -104,6 +104,7 @@ function App() {
     }
   }, []);
 
+  return (
     <QueryClientProvider client={queryClient}>
       <SettingsProvider>
         <ChatProvider user={user}>
@@ -210,6 +211,7 @@ function App() {
         </ChatProvider>
       </SettingsProvider>
     </QueryClientProvider>
+  );
 }
 
 export default App;

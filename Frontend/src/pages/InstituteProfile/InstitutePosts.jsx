@@ -107,7 +107,7 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
             }
 
             const response = await axiosClient.get(endpoint);
-            const newPosts = response.data.posts?.data || [];
+            const newPosts = response.data.data?.posts?.data || [];
 
             if (newPosts.length === 0) {
                 setHasMore(false);
@@ -169,9 +169,14 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
 
         try {
             const response = await axiosClient.post(`/api/posts/${postId}/toggle-like`);
-            if (response.data.status === 'success') {
+            if (response.data.success) {
+                const payload = response.data.data;
                 setLocalPosts(current => current.map(p =>
-                    p.id === postId ? { ...p, likes_count: response.data.likes_count, is_liked_by_user: response.data.liked } : p
+                    p.id === postId ? { 
+                        ...p, 
+                        likes_count: payload.likes_count, 
+                        is_liked_by_user: payload.is_liked_by_user 
+                    } : p
                 ));
             }
         } catch (error) {
@@ -192,9 +197,10 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
 
         try {
             const response = await axiosClient.post(`/api/posts/${postId}/save`);
-            if (response.data.status === 'success') {
+            if (response.data.success) {
+                const payload = response.data.data;
                 setLocalPosts(current => current.map(p =>
-                    p.id === postId ? { ...p, is_saved_by_user: response.data.saved } : p
+                    p.id === postId ? { ...p, is_saved_by_user: payload.is_saved_by_user } : p
                 ));
             }
         } catch (error) {

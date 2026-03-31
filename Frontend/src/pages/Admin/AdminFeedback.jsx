@@ -29,7 +29,7 @@ const AdminFeedback = () => {
         try {
             if (!isSilent) setLoading(true);
             const response = await axiosClient.get('/api/admin/feedbacks');
-            setFeedbacks(response.data);
+            setFeedbacks(response.data.data || []);
         } catch (error) {
             console.error('Error fetching feedbacks:', error);
         } finally {

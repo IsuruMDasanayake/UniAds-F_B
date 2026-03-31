@@ -51,7 +51,7 @@ const InstituteEvents = ({ events, institute, isOwner, onEventsUpdate, isSidebar
             }
 
             const response = await axiosClient.get(endpoint);
-            const newEvents = response.data.events?.data || [];
+            const newEvents = response.data.data?.events?.data || [];
 
             if (newEvents.length === 0) {
                 setHasMore(false);

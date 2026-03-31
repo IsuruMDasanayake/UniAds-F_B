@@ -8,9 +8,13 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Services\AdminActivityLogger;
+use App\Traits\ApiResponse;
+use Mews\Purifier\Facades\Purifier;
 
 class PlatformSettingsController extends Controller
 {
+    use ApiResponse;
+
     /**
      * Get platform settings (cached).
      *
@@ -22,7 +26,7 @@ class PlatformSettingsController extends Controller
             return PlatformSetting::getInstance();
         });
 
-        return response()->json($settings);
+        return $this->successResponse($settings);
     }
 
     /**
@@ -33,7 +37,7 @@ class PlatformSettingsController extends Controller
     public function publicIndex()
     {
         $settings = PlatformSetting::getInstance();
-        return response()->json($settings);
+        return $this->successResponse($settings);
     }
 
     /**
@@ -73,10 +77,7 @@ class PlatformSettingsController extends Controller
 
         if ($validator->fails()) {
             \Illuminate\Support\Facades\Log::warning('PlatformSettings Validation Failed:', $validator->errors()->toArray());
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
+            return $this->validationError($validator->errors());
         }
 
         // Get or create settings instance
@@ -122,14 +123,11 @@ class PlatformSettingsController extends Controller
             }
         }
 
-        // Debug log for files
+        // Upload new slides
         if ($request->hasFile('home_slides')) {
             $uploadedFiles = $request->file('home_slides');
-            \Illuminate\Support\Facades\Log::info('Home Slides uploaded:', ['count' => count($uploadedFiles)]);
-            foreach ($uploadedFiles as $index => $slideFile) {
-                if (!$slideFile->isValid()) {
-                    \Illuminate\Support\Facades\Log::error("Slide {$index} is not valid. Error: " . $slideFile->getErrorMessage());
-                } else {
+            foreach ($uploadedFiles as $slideFile) {
+                if ($slideFile->isValid()) {
                     $path = $slideFile->store('settings/slides', 'public');
                     $slides[] = $path;
                 }
@@ -147,10 +145,13 @@ class PlatformSettingsController extends Controller
         $settings->allow_user_registration = $request->boolean('allow_user_registration');
         $settings->allow_login = $request->boolean('allow_login');
         $settings->subscription_price = $request->input('subscription_price');
-        $settings->about_text = $request->input('about_text');
-        $settings->vision_text = $request->input('vision_text');
-        $settings->mission_text = $request->input('mission_text');
-        $settings->address_text = $request->input('address_text');
+        
+        // Sanitization
+        $settings->about_text = Purifier::clean($request->input('about_text'));
+        $settings->vision_text = Purifier::clean($request->input('vision_text'));
+        $settings->mission_text = Purifier::clean($request->input('mission_text'));
+        $settings->address_text = Purifier::clean($request->input('address_text'));
+        
         $settings->show_testimonials = $request->boolean('show_testimonials');
         $settings->show_partners = $request->boolean('show_partners');
 
@@ -161,8 +162,7 @@ class PlatformSettingsController extends Controller
         }
 
         // Save settings
-        $saved = $settings->save();
-        \Illuminate\Support\Facades\Log::info('PlatformSettings Save Result: ' . ($saved ? 'Success' : 'Failed'));
+        $settings->save();
 
         // Clear cache
         Cache::forget('platform_settings');
@@ -174,9 +174,6 @@ class PlatformSettingsController extends Controller
             auth()->user()->name . " updated platform settings (site name, registration rules, etc.)"
         );
 
-        return response()->json([
-            'message' => 'Settings updated successfully',
-            'settings' => $settings->fresh()
-        ]);
+        return $this->success($settings->fresh(), 'Settings updated successfully');
     }
 }

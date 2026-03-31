@@ -61,12 +61,14 @@ const InstitutionsPage = () => {
     const fetchUserProfile = async () => {
         try {
             const profileRes = await axiosClient.get('/api/profile/me');
-            const currentUser = profileRes.data.user;
-            if (profileRes.data.role === 'Institute') {
-                currentUser.institute = profileRes.data.institute;
+            const payload = profileRes.data.data;
+            const currentUser = payload.user;
+            if (payload.role === 'Institute') {
+                currentUser.institute = payload.institute;
             }
             setUser(currentUser);
         } catch (e) {
+            console.error('Error fetching profile', e);
             setUser(null);
         }
     };
@@ -81,10 +83,18 @@ const InstitutionsPage = () => {
 
         try {
             const response = await axiosClient.get(`/api/institutions?query=${debouncedQuery}&page=${pageNum}&per_page=12`);
-            const newData = response.data.data || [];
+            // response.data is { success, message, data: { data: [...], current_page, ... } }
+            const paginator = response.data.data;
+            const newData = (paginator && Array.isArray(paginator.data)) ? paginator.data : (Array.isArray(paginator) ? paginator : []);
             
             setInstitutions(prev => isInitial ? newData : [...prev, ...newData]);
-            setHasMore(response.data.current_page < response.data.last_page);
+            
+            if (paginator && paginator.current_page !== undefined) {
+                setHasMore(paginator.current_page < paginator.last_page);
+            } else {
+                setHasMore(false);
+            }
+
             if (isFirstLoad) setIsFirstLoad(false);
         } catch (error) {
             console.error('Error fetching institutions:', error);

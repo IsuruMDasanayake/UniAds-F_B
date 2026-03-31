@@ -227,7 +227,7 @@ const CategoryManagement = () => {
         try {
             setLoading(true);
             const response = await axiosClient.get('/api/admin/categories');
-            setCategories(response.data);
+            setCategories(response.data.data || []);
         } catch (error) {
             console.error('Error fetching categories:', error);
         } finally {

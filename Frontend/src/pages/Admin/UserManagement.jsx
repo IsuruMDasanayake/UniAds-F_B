@@ -193,7 +193,7 @@ const UserManagement = () => {
         try {
             if (!isSilent) setLoading(true);
             const response = await axiosClient.get('/api/admin/users');
-            setUsers(response.data);
+            setUsers(response.data.data || []);
         } catch (error) {
             console.error('Error fetching users:', error);
         } finally {
@@ -223,14 +223,14 @@ const UserManagement = () => {
         if (modalMode === 'add') {
             const response = await axiosClient.post('/api/admin/users', formData);
             if (response.data.success) {
-                setUsers([...users, response.data.user]);
+                setUsers([...users, response.data.data]);
                 // Re-fetch to be sure or just append
                 fetchUsers();
             }
         } else {
             const response = await axiosClient.put(`/api/admin/users/${selectedUser.id}`, formData);
             if (response.data.success) {
-                setUsers(users.map(u => u.id === selectedUser.id ? response.data.user : u));
+                setUsers(users.map(u => u.id === selectedUser.id ? response.data.data : u));
             }
         }
     };

@@ -15,6 +15,11 @@ import axiosClient from '../../lib/axios';
 import './RatingManagement.css';
 
 const RatingManagement = () => {
+    const stripHtml = (html) => {
+        if (!html) return '';
+        return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ');
+    };
+
     const [ratings, setRatings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -30,7 +35,7 @@ const RatingManagement = () => {
         try {
             if (!isSilent) setLoading(true);
             const response = await axiosClient.get('/api/admin/ratings');
-            setRatings(response.data);
+            setRatings(response.data.data || []);
         } catch (error) {
             console.error('Error fetching ratings:', error);
         } finally {
@@ -168,8 +173,8 @@ const RatingManagement = () => {
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="comment-cell" title={rating.comment}>
-                                                {rating.comment || <span className="text-muted italic">No comment provided</span>}
+                                            <div className="comment-cell" title={stripHtml(rating.comment)}>
+                                                {stripHtml(rating.comment) || <span className="text-muted italic">No comment provided</span>}
                                             </div>
                                         </td>
                                         <td>
@@ -177,7 +182,14 @@ const RatingManagement = () => {
                                                 <span>{rating.institute?.institute_name || '-'}</span>
                                             </div>
                                         </td>
-                                        <td>{rating.created_at ? new Date(rating.created_at).toLocaleDateString() : '-'}</td>
+                                        <td>{rating.created_at ? new Date(rating.created_at).toLocaleString('en-US', {
+                                            month: 'short',
+                                            day: 'numeric',
+                                            year: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            hour12: true
+                                        }) : '-'}</td>
                                         <td>
                                             <span className={rating.is_reported ? 'reason-reported' : 'reason-none'}>
                                                 {rating.report_reason || '—'}

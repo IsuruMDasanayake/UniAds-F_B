@@ -54,15 +54,16 @@ const LoginPage = () => {
             });
 
             // 2. Login Successful - Save Token & User
-            if (response.data.token) {
-                localStorage.setItem('ACCESS_TOKEN', response.data.token);
-                if (response.data.user) {
-                    localStorage.setItem('APP_USER', JSON.stringify(response.data.user));
+            const payload = response.data.data;
+            if (payload?.token) {
+                localStorage.setItem('ACCESS_TOKEN', payload.token);
+                if (payload.user) {
+                    localStorage.setItem('APP_USER', JSON.stringify(payload.user));
                 }
             }
 
             // Role-based redirect using window.location to ensure fresh page load
-            const userRole = response.data.user?.role;
+            const userRole = payload?.user?.role;
 
             if (userRole === 'Admin') {
                 window.location.href = '/admin/dashboard';

@@ -66,7 +66,7 @@ const ReviewsModal = ({ institute, currentUser, onClose }) => {
         try {
             setLoading(true);
             const res = await axiosClient.get(`/api/institutes/${institute.id}/ratings`);
-            setReviews(res.data);
+            setReviews(res.data.data || []);
             setError(null);
         } catch (error) {
             console.error("Failed to fetch reviews", error);
@@ -124,11 +124,19 @@ const ReviewsModal = ({ institute, currentUser, onClose }) => {
         if (!dateString) return '';
         const s = dateString.includes('T') ? dateString : dateString.replace(/-/g, "/");
         const date = new Date(s);
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
+        return date.toLocaleString('en-US', {
             month: 'short',
-            day: 'numeric'
+            day: 'numeric',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
         });
+    };
+
+    const stripHtml = (html) => {
+        if (!html) return '';
+        return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ');
     };
 
     const canReview = currentUser && currentUser.role === 'User' && institute.reviews_enabled;
@@ -277,7 +285,7 @@ const ReviewsModal = ({ institute, currentUser, onClose }) => {
                                                             ))}
                                                         </div>
                                                     </div>
-                                                    <p className="review-comment">{review.comment}</p>
+                                                    <p className="review-comment">{stripHtml(review.comment)}</p>
 
                                                     {(currentUser?.id === review.user_id || currentUser?.role === 'Admin') && (
                                                         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>

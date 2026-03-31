@@ -304,7 +304,7 @@ const CoursesPage = () => {
                                     />
                                     {searchQuery && (
                                         <button className="search-clear" onClick={() => setSearchQuery('')}>
-                                            <X size={14} style={{ marginLeft: '-10px' }} />
+                                            <X size={14} style={{ marginLeft: '-15px' }} />
                                         </button>
                                     )}
                                 </div>
@@ -312,77 +312,91 @@ const CoursesPage = () => {
                         </header>
 
                         <div className="posts-grid-v2">
+                            {/* RESULTS CONTENT */}
                             {posts.length > 0 ? (
-                                posts.map(post => (
-                                    <motion.div
-                                        key={post.id}
-                                        className={`premium-course-card ${post.status !== 'active' ? 'post-inactive' : ''}`}
-                                        variants={itemVariants}
-                                        initial="hidden"
-                                        animate="visible"
-                                    >
-                                        <div className="card-top">
-                                            {/* Inactive Badge */}
-                                            {post.status !== 'active' && (
-                                                <div className="inactive-badge">
-                                                    Inactive
-                                                </div>
-                                            )}
-                                            <img src={getStorageUrl(post.image)} alt={post.title} />
-                                            <div className="type-badge">{post.course_type}</div>
-                                            {user?.role !== 'Institute' && (
-                                                <button
-                                                    className={`save-circle ${post.is_saved ? 'saved' : ''}`}
-                                                    onClick={(e) => { e.preventDefault(); handleToggleSave(post.id); }}
-                                                >
-                                                    <Bookmark size={18} fill={post.is_saved ? "currentColor" : "none"} />
-                                                </button>
-                                            )}
-                                            {/* Copy Link Button - Visible to all roles */}
-                                            <button
-                                                className={`copy-link-btn ${copiedPostId === post.id ? 'copied' : ''}`}
-                                                onClick={(e) => { e.preventDefault(); handleCopyPostLink(post); }}
-                                                title="Copy shareable link"
-                                            >
-                                                {copiedPostId === post.id ? <Check size={18} /> : <Link2 size={18} />}
-                                            </button>
+                                <>
+                                    {/* Subtle fetching indicator when update is in progress */}
+                                    {postsFetching && (
+                                        <div className="grid-fetch-overlay">
+                                            <Loader2 size={32} className="chat-loader-spin" />
                                         </div>
-                                        <div className="card-inner">
-                                            <div className="inst-row">
-                                                <Link
-                                                    to={(user?.role === 'Institute' && user?.institute?.id === post.institute?.id) ? '/profile' : `/institutions/${post.institute?.slug || post.institute?.id}/profile`}
-                                                    style={{ textDecoration: 'none' }}
+                                    )}
+                                    
+                                    {posts.map(post => (
+                                        <motion.div
+                                            key={post.id}
+                                            className={`premium-course-card ${post.status !== 'active' ? 'post-inactive' : ''}`}
+                                            variants={itemVariants}
+                                            initial="hidden"
+                                            animate="visible"
+                                        >
+                                            <div className="card-top">
+                                                {/* Inactive Badge */}
+                                                {post.status !== 'active' && (
+                                                    <div className="inactive-badge">
+                                                        Inactive
+                                                    </div>
+                                                )}
+                                                <img src={getStorageUrl(post.image)} alt={post.title} />
+                                                <div className="type-badge">{post.course_type}</div>
+                                                {user?.role !== 'Institute' && (
+                                                    <button
+                                                        className={`save-circle ${post.is_saved_by_user ? 'saved' : ''}`}
+                                                        onClick={(e) => { e.preventDefault(); handleToggleSave(post.id); }}
+                                                    >
+                                                        <Bookmark size={18} fill={post.is_saved_by_user ? "currentColor" : "none"} />
+                                                    </button>
+                                                )}
+                                                <button
+                                                    className={`copy-link-btn ${copiedPostId === post.id ? 'copied' : ''}`}
+                                                    onClick={(e) => { e.preventDefault(); handleCopyPostLink(post); }}
+                                                    title="Copy shareable link"
                                                 >
-                                                    <img
-                                                        src={getStorageUrl(post.institute?.profile_photo) || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.institute?.institute_name || 'I')}&background=random`}
-                                                        alt={post.institute?.institute_name}
-                                                    />
-                                                </Link>
-                                                <div className="inst-meta">
+                                                    {copiedPostId === post.id ? <Check size={18} /> : <Link2 size={18} />}
+                                                </button>
+                                            </div>
+                                            <div className="card-inner">
+                                                <div className="inst-row">
                                                     <Link
                                                         to={(user?.role === 'Institute' && user?.institute?.id === post.institute?.id) ? '/profile' : `/institutions/${post.institute?.slug || post.institute?.id}/profile`}
-                                                        style={{ textDecoration: 'none', color: 'inherit' }}
+                                                        style={{ textDecoration: 'none' }}
                                                     >
-                                                        <span className="name">
-                                                              {post.institute?.institute_name}
-                                                            {!!post.institute?.is_premium && <BadgeCheck size={18} fill="#ff4757" color="#ffffff" style={{ marginLeft: '4px', display: 'inline-block' }} className="v-badge" />}
-                                                        </span>
+                                                        <img
+                                                            src={getStorageUrl(post.institute?.profile_photo) || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.institute?.institute_name || 'I')}&background=random`}
+                                                            alt={post.institute?.institute_name}
+                                                        />
                                                     </Link>
-                                                    <span className="loc">{formatDate(post.created_at)}</span>
+                                                    <div className="inst-meta">
+                                                        <Link
+                                                            to={(user?.role === 'Institute' && user?.institute?.id === post.institute?.id) ? '/profile' : `/institutions/${post.institute?.slug || post.institute?.id}/profile`}
+                                                            style={{ textDecoration: 'none', color: 'inherit' }}
+                                                        >
+                                                            <span className="name">
+                                                                {post.institute?.institute_name}
+                                                                {!!post.institute?.is_premium && <BadgeCheck size={18} fill="#ff4757" color="#ffffff" style={{ marginLeft: '4px', display: 'inline-block' }} className="v-badge" />}
+                                                            </span>
+                                                        </Link>
+                                                        <span className="loc">{formatDate(post.created_at)}</span>
+                                                    </div>
                                                 </div>
+                                                <h3 className="course-title">{post.title}</h3>
+                                                <p className="description">{post.small_description}</p>
+                                                <div className="course-stats">
+                                                    <span><Clock size={14} /> {post.duration}</span>
+                                                    <span><MapPin size={14} /> {post.location}</span>
+                                                </div>
+                                                <button className="main-apply-btn" onClick={() => openProgrammeInfo(post)}>
+                                                    View Information
+                                                </button>
                                             </div>
-                                            <h3 className="course-title">{post.title}</h3>
-                                            <p className="description">{post.small_description}</p>
-                                            <div className="course-stats">
-                                                <span><Clock size={14} /> {post.duration}</span>
-                                                <span><MapPin size={14} /> {post.location}</span>
-                                            </div>
-                                            <button className="main-apply-btn" onClick={() => openProgrammeInfo(post)}>
-                                                View Information
-                                            </button>
-                                        </div>
-                                    </motion.div>
-                                ))
+                                        </motion.div>
+                                    ))}
+                                </>
+                            ) : postsLoading || (postsFetching && posts.length === 0) ? (
+                                <div className="grid-loading-placeholder">
+                                    <Loader2 size={48} className="chat-loader-spin" />
+                                    <p>Gathering the best programs for you...</p>
+                                </div>
                             ) : (
                                 <div className="no-courses">
                                     <Info size={48} />
@@ -390,8 +404,7 @@ const CoursesPage = () => {
                                     <p>We couldn't find any programs matching your filters. Try adjusting them!</p>
                                     <button onClick={clearAllFilters} className="back-btn">Clear All Filters</button>
                                 </div>
-                            )
-                            }
+                            )}
                         </div>
                     </div >
                 ) : (

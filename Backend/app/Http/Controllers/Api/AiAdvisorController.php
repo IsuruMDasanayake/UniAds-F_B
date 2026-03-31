@@ -489,8 +489,7 @@ class AiAdvisorController extends Controller
                     if ($targetLang === 'Sinhala') $noSearchMsg = "ඔබට කිසිදු පෙර සෙවීමක් හමු නොවීය. 🔍";
                     elseif ($targetLang === 'Tamil') $noSearchMsg = "உங்கள் முந்தைய தேடல்கள் எதுவும் கிடைக்கவில்லை. 🔍";
 
-                    return response()->json([
-                        'status'            => 'success',
+                    return $this->success([
                         'recommendation'    => $noSearchMsg,
                         'profile'           => $currentProfile,
                         'suggested_replies' => ['Start New Search'],
@@ -508,8 +507,7 @@ class AiAdvisorController extends Controller
 
                 if ($savedRoadmap) {
                     $refreshedPosts = $this->getMappedPosts($subField)['mappedPosts'];
-                    return response()->json([
-                        'status'            => 'success',
+                    return $this->success([
                         'recommendation'    => $recallHeader . $savedRoadmap->recommendation_text,
                         'profile'           => $currentProfile,
                         'real_posts'        => !empty($refreshedPosts) ? $refreshedPosts : ($savedRoadmap->real_posts_json ?? []),
@@ -588,8 +586,7 @@ class AiAdvisorController extends Controller
             if ($questionToAsk) {
                 Log::info("Returning guiding question directly (no AI call needed): $questionToAsk");
 
-                return response()->json([
-                    'status'            => 'success',
+                return $this->success([
                     'recommendation'    => $questionToAsk,
                     'profile'           => $currentProfile,
                     'real_posts'        => [],
@@ -685,7 +682,7 @@ class AiAdvisorController extends Controller
             return $this->generateResponse($matches, $currentProfile);
         } catch (\Throwable $e) {
             Log::error("FATAL Recommendation Error: " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine() . "\n" . $e->getTraceAsString());
-            return response()->json(['error' => 'An internal error occurred. Please try again later.'], 500);
+            return $this->error('An internal error occurred. Please try again later.');
         }
     }
 
@@ -732,8 +729,7 @@ Would you like to try one of those?",
 நீங்கள் அவற்றை முயற்சிக்க விரும்புகிறீர்களா?"
             ];
 
-            return response()->json([
-                'status'           => 'success',
+            return $this->success([
                 'recommendation'   => $noDataMessages[$targetLang] ?? $noDataMessages['English'],
                 'profile'          => $currentProfile,
                 'real_posts'       => $mappedPosts,
@@ -896,8 +892,7 @@ RULES
                     $text = $choices[0]['message']['content'];
                 }
 
-                return response()->json([
-                    'status'           => 'success',
+                return $this->success([
                     'recommendation'   => $text,
                     'profile'          => $profile,
                     'real_posts'       => $realPosts,
@@ -909,8 +904,7 @@ RULES
                 Log::error("Groq API Error ($status): " . $body);
 
                 if ($status === 429) {
-                    return response()->json([
-                        'status'           => 'success',
+                    return $this->success([
                         'recommendation'   => "I'm currently receiving too many requests. Please wait a few seconds and try again! ⏳",
                         'profile'          => $profile,
                         'suggested_replies' => $suggestedReplies,
@@ -921,8 +915,7 @@ RULES
             Log::error("Groq Call Error: " . $e->getMessage());
         }
 
-        return response()->json([
-            'status'           => 'success',
+        return $this->success([
             'recommendation'   => "I'm having a bit of trouble connecting right now. Please try again in a moment! 🧠",
             'profile'          => $profile,
             'suggested_replies' => $suggestedReplies,
@@ -935,7 +928,7 @@ RULES
     public function getSavedRoadmaps(Request $request)
     {
         $roadmaps = $request->user()->savedRoadmaps()->latest()->get();
-        return response()->json($roadmaps);
+        return $this->successResponse($roadmaps);
     }
 
     public function saveRoadmap(Request $request)
@@ -956,11 +949,7 @@ RULES
             'real_posts_json'     => $request->real_posts,
         ]);
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Roadmap saved to your profile! ✅',
-            'roadmap' => $roadmap,
-        ]);
+        return $this->success($roadmap, 'Roadmap saved to your profile! ✅');
     }
 
     public function deleteRoadmap(Request $request, $id)
@@ -968,10 +957,7 @@ RULES
         $roadmap = $request->user()->savedRoadmaps()->findOrFail($id);
         $roadmap->delete();
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Roadmap deleted.',
-        ]);
+        return $this->success(null, 'Roadmap deleted.');
     }
 
     /**

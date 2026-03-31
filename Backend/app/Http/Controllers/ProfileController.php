@@ -13,10 +13,14 @@ use App\Models\Category;
 use App\Models\Post;
 use App\Models\Event;
 use App\Models\Follower;
+use App\Traits\ApiResponse;
+use Mews\Purifier\Facades\Purifier;
+use Illuminate\Support\Facades\DB;
 
 
 class ProfileController extends Controller
 {
+    use ApiResponse;
 
     // edit removed
 
@@ -33,15 +37,18 @@ class ProfileController extends Controller
 
     public function destroy()
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        if ($user->profile_picture) {
-            Storage::delete('public/' . $user->profile_picture);
-        }
-        $user->delete();
+        return DB::transaction(function () {
+            /** @var \App\Models\User $user */
+            $user = Auth::user();
+            if ($user->profile_picture) {
+                Storage::delete('public/' . $user->profile_picture);
+            }
+            $user->delete();
 
-        return response()->json(['message' => 'Account deleted successfully.']);
+            return $this->success(null, 'Account deleted successfully.');
+        });
     }
+
 
 
 
@@ -85,7 +92,7 @@ class ProfileController extends Controller
             $data['savedPosts'] = $user->savedPosts;
         }
 
-        return response()->json($data);
+        return $this->success($data);
     }
 
     public function apiUpdate(Request $request)
@@ -93,44 +100,48 @@ class ProfileController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        if ($user->role === 'Institute') {
-            $request->validate([
-                'institute_name' => 'required|string|max:255',
-                'location' => 'nullable|string|max:255',
-                'bio' => 'nullable|string|max:1000',
-            ]);
+        return DB::transaction(function () use ($user, $request) {
+            if ($user->role === 'Institute') {
+                $request->validate([
+                    'institute_name' => 'required|string|max:255',
+                    'location' => 'nullable|string|max:255',
+                    'bio' => 'nullable|string|max:1000',
+                ]);
 
-            $institute = Institute::where('email', $user->email)->first();
-            $institute->update($request->only(['institute_name', 'location', 'bio']));
-            $institute->save();
-        } else {
-            $rules = [
-                'name' => 'required|string|max:255',
-                'gender' => 'required|in:Male,Female',
-                'birthday' => 'required|date|before_or_equal:today',
-                'district' => 'required|string',
-                'education_level' => 'required|string',
-            ];
+                $institute = Institute::where('email', $user->email)->first();
+                $data = $request->only(['institute_name', 'location', 'bio']);
+                if (isset($data['bio'])) {
+                    $data['bio'] = Purifier::clean($data['bio']);
+                }
+                $institute->update($data);
+                $institute->save();
+            } else {
+                $rules = [
+                    'name' => 'required|string|max:255',
+                    'gender' => 'required|in:Male,Female',
+                    'birthday' => 'required|date|before_or_equal:today',
+                    'district' => 'required|string',
+                    'education_level' => 'required|string',
+                ];
 
-            // Relax validation for Admin role
-            if ($user->role === 'Admin') {
-                $rules['gender'] = 'nullable|in:Male,Female';
-                $rules['birthday'] = 'nullable|date|before_or_equal:today';
-                $rules['district'] = 'nullable|string';
-                $rules['education_level'] = 'nullable|string';
+                // Relax validation for Admin role
+                if ($user->role === 'Admin') {
+                    $rules['gender'] = 'nullable|in:Male,Female';
+                    $rules['birthday'] = 'nullable|date|before_or_equal:today';
+                    $rules['district'] = 'nullable|string';
+                    $rules['education_level'] = 'nullable|string';
+                }
+
+                $request->validate($rules);
+
+                $user->update($request->only(['name', 'gender', 'birthday', 'district', 'education_level']));
+                $user->save();
             }
 
-            $request->validate($rules);
-
-            $user->update($request->only(['name', 'gender', 'birthday', 'district', 'education_level']));
-            $user->save();
-        }
-
-        return response()->json([
-            'message' => 'Profile updated successfully',
-            'user' => $user->fresh($user->role === 'Institute' ? 'institute' : 'savedPosts')
-        ]);
+            return $this->success($user->fresh($user->role === 'Institute' ? 'institute' : 'savedPosts'), 'Profile updated successfully');
+        });
     }
+
 
     public function apiSendOtpForPasswordChange(Request $request)
     {
@@ -139,14 +150,15 @@ class ProfileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return $this->validationError($validator->errors());
         }
+
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
         if (!Hash::check($request->current_password, $user->password)) {
-            return response()->json(['errors' => ['current_password' => ['The current password is incorrect.']]], 422);
+            return $this->error('The current password is incorrect.', 422, ['current_password' => ['The current password is incorrect.']]);
         }
 
         // Generate 6-digit OTP
@@ -164,16 +176,10 @@ class ProfileController extends Controller
             $request->session()->save();
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Mail sending failed: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to send verification email. Please try again.'
-            ], 500);
+            return $this->error('Failed to send verification email. Please try again.', 500);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Verification code sent to your email.'
-        ]);
+        return $this->success(null, 'Verification code sent to your email.');
     }
 
     public function apiUpdatePassword(Request $request)
@@ -192,69 +198,68 @@ class ProfileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return $this->validationError($validator->errors());
         }
+
 
         $sessionOtp = session('password_change_otp');
         $otpTime = session('password_change_otp_time');
 
         if (!$sessionOtp || !$otpTime) {
-            return response()->json([
-                'errors' => ['otp' => ['No verification code found or it has expired. Please request a new one.']]
-            ], 422);
+            return $this->error('No verification code found or it has expired. Please request a new one.', 422, ['otp' => ['No verification code found or it has expired. Please request a new one.']]);
         }
 
         // Check expiration (5 minutes)
         if (now()->diffInMinutes($otpTime) >= 5) {
             session()->forget(['password_change_otp', 'password_change_otp_time']);
-            return response()->json([
-                'errors' => ['otp' => ['The verification code has expired.']]
-            ], 422);
+            return $this->error('The verification code has expired.', 422, ['otp' => ['The verification code has expired.']]);
         }
 
         if ($request->otp != $sessionOtp) {
-            return response()->json([
-                'errors' => ['otp' => ['Invalid verification code.']]
-            ], 422);
+            return $this->error('Invalid verification code.', 422, ['otp' => ['Invalid verification code.']]);
         }
 
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        $user->password = Hash::make($request->new_password);
-        $user->save();
+        return DB::transaction(function () use ($request) {
+            /** @var \App\Models\User $user */
+            $user = Auth::user();
+            $user->password = Hash::make($request->new_password);
+            $user->save();
 
-        // Clear session after successful change
-        session()->forget(['password_change_otp', 'password_change_otp_time']);
+            // Clear session after successful change
+            session()->forget(['password_change_otp', 'password_change_otp_time']);
 
-        return response()->json(['message' => 'Password updated successfully!']);
+            return $this->success(null, 'Password updated successfully!');
+        });
     }
 
     public function apiUpdatePicture(Request $request)
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
+        return DB::transaction(function () use ($request) {
+            /** @var \App\Models\User $user */
+            $user = Auth::user();
 
-        $request->validate([
-            'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:4096',
-        ]);
+            $request->validate([
+                'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:4096',
+            ]);
 
-        if ($request->hasFile('profile_picture')) {
-            // Delete old profile picture if exists
-            if ($user->profile_picture && Storage::disk('public')->exists($user->profile_picture)) {
-                Storage::disk('public')->delete($user->profile_picture);
+            if ($request->hasFile('profile_picture')) {
+                // Delete old profile picture if exists
+                if ($user->profile_picture && Storage::disk('public')->exists($user->profile_picture)) {
+                    Storage::disk('public')->delete($user->profile_picture);
+                }
+
+                // Store new picture
+                $path = $request->file('profile_picture')->store('profile_pictures', 'public');
+                $user->profile_picture = $path;
+                $user->save();
+
+                return $this->success([
+                    'profile_picture' => $path
+                ], 'Profile picture updated successfully');
             }
 
-            // Store new picture
-            $path = $request->file('profile_picture')->store('profile_pictures', 'public');
-            $user->profile_picture = $path;
-            $user->save();
-
-            return response()->json([
-                'message' => 'Profile picture updated successfully',
-                'profile_picture' => $path
-            ]);
-        }
-
-        return response()->json(['message' => 'No file uploaded'], 400);
+            return $this->error('No file uploaded', 400);
+        });
     }
+
 }

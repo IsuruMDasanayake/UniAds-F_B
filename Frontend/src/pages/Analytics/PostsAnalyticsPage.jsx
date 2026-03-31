@@ -61,7 +61,7 @@ const PostsAnalyticsPage = () => {
         else if (!isSilent) setIsUpdating(true);
 
         try {
-            const { data } = await axiosClient.get(`/api/institute/analytics/posts`, {
+            const response = await axiosClient.get(`/api/institute/analytics/posts`, {
                 params: {
                     page,
                     search,
@@ -72,8 +72,9 @@ const PostsAnalyticsPage = () => {
             });
 
             // Handle enhanced API response
-            const postsData = data.posts || data; // Fallback for old API if cached
-            const statsData = data.stats || null;
+            const payload = response.data.data;
+            const postsData = payload.posts || payload; // Handle wrapped or direct
+            const statsData = payload.stats || null;
 
             setPosts(postsData.data || []);
             setStats(statsData);
@@ -102,10 +103,10 @@ const PostsAnalyticsPage = () => {
         const fetchAnalytics = async () => {
             setLoadingTrend(true);
             try {
-                const { data } = await axiosClient.get('/api/institute/analytics/trends', {
+                const response = await axiosClient.get('/api/institute/analytics/trends', {
                     params: { range: '90', compare: 'false' }
                 });
-                setTrendData(data || null);
+                setTrendData(response.data.data || null);
             } catch (error) {
                 console.error('Error fetching post trends:', error);
             } finally {

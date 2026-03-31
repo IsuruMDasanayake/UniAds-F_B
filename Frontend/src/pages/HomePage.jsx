@@ -63,7 +63,7 @@ const HomePage = () => {
         const fetchFeedbacks = async () => {
             try {
                 const response = await axiosClient.get('/api/feedbacks/public');
-                setFeedbacks(response.data);
+                setFeedbacks(response.data.data || []);
             } catch (error) {
                 console.error('Error fetching feedbacks:', error);
             }
@@ -72,7 +72,7 @@ const HomePage = () => {
         const fetchPartners = async () => {
             try {
                 const response = await axiosClient.get('/api/institutes/partners');
-                setPartners(response.data);
+                setPartners(response.data.data || []);
             } catch (error) {
                 console.error('Error fetching partners:', error);
             }
@@ -132,6 +132,11 @@ const HomePage = () => {
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    const stripHtml = (html) => {
+        if (!html) return '';
+        return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ');
     };
 
     const getSocialIcon = (platform) => {
@@ -371,7 +376,7 @@ const HomePage = () => {
                                                         <i key={i} className={`fas fa-star ${i < feedback.rating ? 'active' : ''}`}></i>
                                                     ))}
                                                 </div>
-                                                <p className="testimonial-message">"{feedback.message}"</p>
+                                                <p className="testimonial-message">"{stripHtml(feedback.message)}"</p>
                                             </div>
                                         </div>
                                     ))}

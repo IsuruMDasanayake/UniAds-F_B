@@ -121,10 +121,11 @@ const RegisterPage = () => {
             const response = await axiosClient.post('/api/register', formData);
 
             // Save token if returned
-            if (response.data.token) {
-                localStorage.setItem('ACCESS_TOKEN', response.data.token);
-                if (response.data.user) {
-                    localStorage.setItem('APP_USER', JSON.stringify(response.data.user));
+            const payload = response.data.data;
+            if (payload?.token) {
+                localStorage.setItem('ACCESS_TOKEN', payload.token);
+                if (payload.user) {
+                    localStorage.setItem('APP_USER', JSON.stringify(payload.user));
                 }
             }
 
@@ -132,7 +133,7 @@ const RegisterPage = () => {
             console.log("Registration Success:", response.data);
 
             // Role-based redirect (new users default to 'User' role)
-            const userRole = response.data.user?.role;
+            const userRole = payload?.user?.role;
             if (userRole === 'Admin') {
                 navigate('/admin/dashboard');
             } else if (userRole === 'Institute') {

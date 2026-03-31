@@ -21,7 +21,7 @@ class NotificationController extends Controller
             ->where('is_read', false)
             ->count();
 
-        return response()->json([
+        return $this->success([
             'notifications' => $notifications,
             'unreadCount' => $unreadCount
         ]);
@@ -37,7 +37,7 @@ class NotificationController extends Controller
             'read_at' => now()
         ]);
 
-        return response()->json(['success' => true]);
+        return $this->success(null, 'Operation successful');
     }
 
     public function markAllAsRead()
@@ -51,7 +51,7 @@ class NotificationController extends Controller
                 'read_at' => now()
             ]);
 
-        return response()->json(['success' => true]);
+        return $this->success(null, 'Operation successful');
     }
 
     public function destroy($id)
@@ -61,7 +61,7 @@ class NotificationController extends Controller
 
         $notification->delete();
 
-        return response()->json(['success' => true]);
+        return $this->success(null, 'Operation successful');
     }
 
     // --- Admin Notification Methods ---
@@ -78,7 +78,7 @@ class NotificationController extends Controller
             ->where('is_read', false)
             ->count();
 
-        return response()->json([
+        return $this->success([
             'notifications' => $notifications,
             'unreadCount' => $unreadCount
         ]);
@@ -95,7 +95,7 @@ class NotificationController extends Controller
             'read_at' => now()
         ]);
 
-        return response()->json(['success' => true]);
+        return $this->success(null, 'Operation successful');
     }
 
     public function adminMarkAllAsRead()
@@ -109,7 +109,7 @@ class NotificationController extends Controller
                 'read_at' => now()
             ]);
 
-        return response()->json(['success' => true]);
+        return $this->success(null, 'Operation successful');
     }
 
     public function adminDestroy($id)
@@ -120,6 +120,7 @@ class NotificationController extends Controller
 
         $notification->delete();
 
-        return response()->json(['success' => true]);
+        return $this->success(null, 'Operation successful');
     }
+
 }

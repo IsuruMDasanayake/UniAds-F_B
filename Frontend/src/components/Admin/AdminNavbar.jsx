@@ -146,9 +146,10 @@ const AdminNavbar = ({ toggleSidebar }) => {
     const fetchAdminData = async () => {
         try {
             const response = await axiosClient.get('/api/user');
-            setAdmin(response.data);
+            const userData = response.data.data;
+            setAdmin(userData);
             // Sync with localStorage
-            localStorage.setItem('APP_USER', JSON.stringify(response.data));
+            localStorage.setItem('APP_USER', JSON.stringify(userData));
         } catch (error) {
             console.error('Error fetching admin data:', error);
             // Fallback to localStorage if API fails

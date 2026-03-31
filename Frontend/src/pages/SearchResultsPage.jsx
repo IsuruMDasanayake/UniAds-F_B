@@ -45,14 +45,15 @@ function SearchResultsPage() {
                     axiosClient.get('/api/user'),
                     axiosClient.get(`/api/search?query=${query}`)
                 ]);
-                setUser(userRes.data);
+                setUser(userRes.data.data);
 
+                const searchData = searchRes.data.data;
                 // The backend now returns paginated posts or an object with 'posts'
-                const results = searchRes.data.posts.data || searchRes.data.posts || [];
+                const results = searchData?.posts?.data || searchData?.posts || [];
                 setPosts(results);
 
                 // If the search was a share_link match, auto-open the modal
-                if (searchRes.data.is_share_link_match && results.length === 1) {
+                if (searchData?.is_share_link_match && results.length === 1) {
                     setSelectedPost(results[0]);
                     axiosClient.post(`/api/posts/${results[0].id}/track-view`).catch(() => { });
                 }
@@ -85,7 +86,7 @@ function SearchResultsPage() {
             }));
             // Refresh user to get updated saved_posts
             const userRes = await axiosClient.get('/api/user');
-            setUser(userRes.data);
+            setUser(userRes.data.data);
         } catch (error) {
             console.error('Error toggling save:', error);
         }

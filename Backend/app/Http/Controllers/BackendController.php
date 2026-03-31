@@ -12,21 +12,16 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Services\AdminActivityLogger;
+use App\Traits\ApiResponse;
 
 class BackendController extends Controller
 {
+    use ApiResponse;
     // admindash removed
-
-
-
 
     // index removed
 
-
-
-
     // update (web) removed
-
 
     public function destroy($id)
     {
@@ -50,17 +45,7 @@ class BackendController extends Controller
         }
     }
 
-
-
     // store (web) removed
-
-
-
-
-
-
-
-
 
     // ==========================================
     // API METHODS FOR REACT ADMIN DASHBOARD
@@ -204,7 +189,7 @@ class BackendController extends Controller
             'avgViewsPerPost' => $avgViews,
         ];
 
-        return response()->json([
+        return $this->success([
             'stats' => $stats,
             'demographics' => [
                 'gender' => $genderDist,
@@ -235,7 +220,7 @@ class BackendController extends Controller
     public function apiIndex()
     {
         $users = User::all();
-        return response()->json($users);
+        return $this->success($users);
     }
 
     public function apiStore(Request $request)
@@ -247,14 +232,16 @@ class BackendController extends Controller
             'password' => 'required|string|min:8',
         ]);
 
-        $user = User::create([
-            'name' => $validatedData['name'],
-            'email' => $validatedData['email'],
-            'role' => $validatedData['role'],
-            'password' => bcrypt($validatedData['password']),
-        ]);
+        return DB::transaction(function () use ($validatedData) {
+            $user = User::create([
+                'name' => $validatedData['name'],
+                'email' => $validatedData['email'],
+                'role' => $validatedData['role'],
+                'password' => bcrypt($validatedData['password']),
+            ]);
 
-        return response()->json(['success' => true, 'user' => $user, 'message' => 'User created successfully']);
+            return $this->success($user, 'User created successfully', 201);
+        });
     }
 
     public function apiUpdate(Request $request, $id)
@@ -266,47 +253,52 @@ class BackendController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+            return $this->validationError($validator->errors());
         }
 
-        $user = User::find($id);
-        if (!$user) {
-            return response()->json(['success' => false, 'message' => 'User not found'], 404);
-        }
+        return DB::transaction(function () use ($request, $id) {
+            $user = User::find($id);
+            if (!$user) {
+                return $this->error('User not found', 404);
+            }
 
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->role = $request->role;
-        $user->save();
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->role = $request->role;
+            $user->save();
 
-        AdminActivityLogger::log(
-            'Updated User',
-            'User',
-            $user->id,
-            auth()->user()->name . " updated user details for \"{$user->name}\" via API"
-        );
+            AdminActivityLogger::log(
+                'Updated User',
+                'User',
+                $user->id,
+                auth()->user()->name . " updated user details for \"{$user->name}\" via API"
+            );
 
-        return response()->json(['success' => true, 'user' => $user, 'message' => 'User updated successfully']);
+            return $this->success($user, 'User updated successfully');
+        });
     }
 
     public function apiDestroy($id)
     {
-        $user = User::find($id);
-        if (!$user) {
-            return response()->json(['success' => false, 'message' => 'User not found'], 404);
-        }
+        return DB::transaction(function () use ($id) {
+            $user = User::find($id);
+            if (!$user) {
+                return $this->error('User not found', 404);
+            }
 
-        $userName = $user->name;
-        $userId = $user->id;
-        $user->delete();
+            $userName = $user->name;
+            $userId = $user->id;
+            $user->delete();
 
-        AdminActivityLogger::log(
-            'Deleted User',
-            'User',
-            $userId,
-            auth()->user()->name . " deleted user \"{$userName}\" via API"
-        );
+            AdminActivityLogger::log(
+                'Deleted User',
+                'User',
+                $userId,
+                auth()->user()->name . " deleted user \"{$userName}\" via API"
+            );
 
-        return response()->json(['success' => true, 'message' => 'User deleted successfully']);
+            return $this->success(null, 'User deleted successfully');
+        });
     }
 }
+

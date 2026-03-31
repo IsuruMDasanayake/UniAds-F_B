@@ -17,7 +17,8 @@ export const useInfiniteEvents = (options = {}) => {
                     filter: activeFilter
                 }
             });
-            return response.data;
+            // response.data is { success, message, data: { data: [...], current_page, ... } }
+            return response.data.data;
         },
         getNextPageParam: (lastPage) => {
             if (lastPage.next_page_url) {
@@ -25,6 +26,21 @@ export const useInfiniteEvents = (options = {}) => {
             }
             return undefined;
         },
+    });
+};
+
+/**
+ * Hook to fetch latest events (Sidebar)
+ */
+export const useLatestEvents = (limit = 3) => {
+    return useQuery({
+        queryKey: ['events', 'latest', limit],
+        queryFn: async () => {
+            const response = await axiosClient.get(`/api/events`, {
+                params: { page: 1, limit: limit }
+            });
+            return response.data.data.data;
+        }
     });
 };
 

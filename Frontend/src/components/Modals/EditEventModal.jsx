@@ -95,7 +95,7 @@ const EditEventModal = ({ isOpen, onClose, event, onUpdate }) => {
                 }
             });
 
-            onUpdate(response.data.event);
+            onUpdate(response.data.data);
             onClose();
         } catch (error) {
             console.error("Failed to update event:", error);

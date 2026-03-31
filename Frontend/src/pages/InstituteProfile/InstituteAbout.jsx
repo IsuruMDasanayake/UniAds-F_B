@@ -21,7 +21,7 @@ const InstituteAbout = ({ about: initialAbout, institute }) => {
     useEffect(() => {
         // Fetch current user to check permissions
         axiosClient.get('/api/user')
-            .then(res => setUser(res.data))
+            .then(res => setUser(res.data.data))
             .catch(() => setUser(null));
     }, []);
 

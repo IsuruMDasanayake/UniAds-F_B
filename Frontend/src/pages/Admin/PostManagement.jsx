@@ -39,7 +39,7 @@ const PostManagement = () => {
         try {
             if (!isSilent) setLoading(true);
             const response = await axiosClient.get('/api/admin/posts');
-            setPosts(response.data);
+            setPosts(response.data.data || []);
         } catch (error) {
             console.error('Error fetching posts:', error);
         } finally {
@@ -69,7 +69,7 @@ const PostManagement = () => {
         try {
             const resp = await axiosClient.post(`/api/admin/posts/${toggleModal.id}/toggle-status`);
             setPosts(posts.map(p =>
-                p.id === toggleModal.id ? { ...p, status: resp.data.status } : p
+                p.id === toggleModal.id ? { ...p, status: resp.data.data.status } : p
             ));
             setToggleModal({ isOpen: false, id: null, title: '', currentStatus: '' });
         } catch (error) {

@@ -56,8 +56,12 @@ const ChatPage = () => {
         setInstitutesLoading(true);
         ChatService.getInstitutions()
             .then(res => {
+                // Handle standard ApiResponse wrapper
+                const payload = res.data.data;
+                const dataArray = Array.isArray(payload) ? payload : (payload?.data || []);
+                
                 // Filter to only premium institutes
-                const premiumOnly = (res.data.data || res.data || []).filter(inst => inst.is_premium);
+                const premiumOnly = dataArray.filter(inst => inst.is_premium);
                 setInstitutes(premiumOnly);
             })
             .catch(err => console.error('Failed to load institutes:', err))

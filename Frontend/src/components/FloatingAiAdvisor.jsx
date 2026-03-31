@@ -75,14 +75,15 @@ const FloatingAiAdvisor = ({ user }) => {
         profile: profile
       });
 
-      if (response.data.status === 'success') {
+      if (response.data.success) {
+        const payload = response.data.data;
         setMessages(prev => [...prev, {
           role: 'bot',
-          content: response.data.recommendation,
-          real_posts: response.data.real_posts,
-          suggested_replies: response.data.suggested_replies
+          content: payload.recommendation,
+          real_posts: payload.real_posts,
+          suggested_replies: payload.suggested_replies
         }]);
-        setProfile(response.data.profile);
+        setProfile(payload.profile);
       }
     } catch (err) {
       console.error('Error in AI Chat:', err);
@@ -168,7 +169,7 @@ const FloatingAiAdvisor = ({ user }) => {
         real_posts: msg.real_posts
       });
 
-      if (response.data.status === 'success') {
+      if (response.data.success) {
         // Mark this specific message as saved in state
         setMessages(prev => prev.map(m =>
           m.content === msg.content ? { ...m, is_saved: true } : m

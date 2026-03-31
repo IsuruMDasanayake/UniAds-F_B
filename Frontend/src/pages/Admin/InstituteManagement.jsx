@@ -36,7 +36,7 @@ const InstituteManagement = () => {
         try {
             if (!isSilent) setLoading(true);
             const response = await axiosClient.get('/api/admin/institutes');
-            setInstitutes(response.data);
+            setInstitutes(response.data.data || []);
         } catch (error) {
             console.error('Error fetching institutes:', error);
         } finally {
@@ -117,7 +117,7 @@ const InstituteManagement = () => {
         try {
             const resp = await axiosClient.post(`/api/admin/institutes/${id}/toggle-premium`);
             setInstitutes(institutes.map(inst =>
-                inst.id === id ? { ...inst, is_premium: resp.data.is_premium } : inst
+                inst.id === id ? { ...inst, is_premium: resp.data.data?.is_premium ?? resp.data.is_premium } : inst
             ));
         } catch (error) {
             console.error('Error toggling premium status:', error);
@@ -136,8 +136,9 @@ const InstituteManagement = () => {
         try {
             const response = await axiosClient.put(`/api/admin/institutes/${editModal.institute.id}`, updatedData);
             if (response.data.success) {
+                const updated = response.data.data;
                 setInstitutes(institutes.map(inst =>
-                    inst.id === editModal.institute.id ? response.data.institute : inst
+                    inst.id === editModal.institute.id ? updated : inst
                 ));
                 setEditModal({ isOpen: false, institute: null });
             }

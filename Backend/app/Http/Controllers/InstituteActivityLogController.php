@@ -6,9 +6,11 @@ use App\Models\InstituteActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
+use App\Traits\ApiResponse;
 
 class InstituteActivityLogController extends Controller
 {
+    use ApiResponse;
     /**
      * Get paginated activity logs for the authenticated institute.
      */
@@ -36,7 +38,7 @@ class InstituteActivityLogController extends Controller
 
         $logs = $query->paginate($request->input('per_page', 20));
 
-        return response()->json($logs);
+        return $this->successResponse($logs);
     }
 
     /**
@@ -103,6 +105,6 @@ class InstituteActivityLogController extends Controller
 
         InstituteActivityLog::where('institute_id', $instituteId)->delete();
 
-        return response()->json(['success' => true, 'message' => 'Activity logs cleared successfully.']);
+        return $this->success(null, 'Activity logs cleared successfully.');
     }
 }

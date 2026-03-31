@@ -40,7 +40,7 @@ const PolicyManagement = () => {
                 activeTab === 'terms' ? '/api/admin/policies/terms' :
                     '/api/admin/policies/refund';
             const response = await axiosClient.get(endpoint);
-            setPolicies(response.data);
+            setPolicies(response.data.data || []);
         } catch (error) {
             console.error('Error fetching policies:', error);
         } finally {

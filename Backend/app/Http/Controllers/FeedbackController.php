@@ -6,9 +6,13 @@ use Illuminate\Http\Request;
 use App\Models\Feedback;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Traits\ApiResponse;
+use Mews\Purifier\Facades\Purifier;
+use Illuminate\Support\Facades\DB;
 
 class FeedbackController extends Controller
 {
+    use ApiResponse;
     /**
      * Store new feedback
      */
@@ -24,21 +28,20 @@ class FeedbackController extends Controller
         // Check if the user has already submitted feedback
         $existing = Feedback::where('user_id', $user->id)->first();
         if ($existing) {
-            return response()->json(['message' => 'Feedback already submitted'], 400);
+            return $this->error('Feedback already submitted');
         }
 
-        $feedback = Feedback::create([
-            'user_id' => $user->id,
-            'role' => $user->role,
-            'rating' => $validated['rating'],
-            'message' => $validated['message'],
-            'status' => 'approved',
-        ]);
+        return DB::transaction(function () use ($user, $validated) {
+            $feedback = Feedback::create([
+                'user_id' => $user->id,
+                'role' => $user->role,
+                'rating' => $validated['rating'],
+                'message' => Purifier::clean($validated['message']),
+                'status' => 'approved',
+            ]);
 
-        return response()->json([
-            'message' => 'Feedback submitted successfully',
-            'feedback' => $feedback
-        ], 201);
+            return $this->success($feedback, 'Feedback submitted successfully', 201);
+        });
     }
 
     /**
@@ -55,7 +58,7 @@ class FeedbackController extends Controller
             ->take(10)
             ->get();
 
-        return response()->json($feedbacks);
+        return $this->success($feedbacks);
     }
 
     /**
@@ -68,21 +71,21 @@ class FeedbackController extends Controller
         // Has the user already submitted feedback?
         $hasFeedback = Feedback::where('user_id', $user->id)->exists();
         if ($hasFeedback) {
-            return response()->json(['eligible' => false]);
+            return $this->success(['eligible' => false]);
         }
 
         // For Institutes, check if the account is > 90 days old
         if ($user->role === 'Institute') {
             $daysOld = $user->created_at->diffInDays(Carbon::now());
             if ($daysOld >= 90) {
-                return response()->json(['eligible' => true]);
+                return $this->success(['eligible' => true]);
             }
-            return response()->json(['eligible' => false]);
+            return $this->success(['eligible' => false]);
         }
 
         // Users are triggered directly from the application form process, 
         // so the frontend will just check if they haven't submitted one yet.
-        return response()->json(['eligible' => true]);
+        return $this->success(['eligible' => true]);
     }
 
     /**
@@ -94,7 +97,7 @@ class FeedbackController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return response()->json($feedbacks);
+        return $this->success($feedbacks);
     }
 
     /**
@@ -102,9 +105,12 @@ class FeedbackController extends Controller
      */
     public function destroy($id)
     {
-        $feedback = Feedback::findOrFail($id);
-        $feedback->delete();
+        return DB::transaction(function () use ($id) {
+            $feedback = Feedback::findOrFail($id);
+            $feedback->delete();
 
-        return response()->json(['message' => 'Feedback deleted successfully']);
+            return $this->success(null, 'Feedback deleted successfully');
+        });
     }
 }
+

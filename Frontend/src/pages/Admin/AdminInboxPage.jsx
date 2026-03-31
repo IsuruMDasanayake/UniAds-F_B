@@ -34,11 +34,12 @@ const AdminInboxPage = () => {
                 status: filter === 'unread' ? 'unread' : undefined
             };
             const response = await axiosClient.get('/api/admin/inbox', { params });
-            setEmails(response.data.data);
+            const paginator = response.data.data;
+            setEmails(paginator.data);
             setPagination({
-                current_page: response.data.current_page,
-                last_page: response.data.last_page,
-                total: response.data.total
+                current_page: paginator.current_page,
+                last_page: paginator.last_page,
+                total: paginator.total
             });
         } catch (error) {
             console.error('Error fetching emails', error);

@@ -799,6 +799,48 @@
     filter: grayscale(100%);
 }
 
+.grid-loading-placeholder {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8rem 2rem;
+    background: white;
+    border-radius: var(--c-radius-lg);
+    border: 1px solid #f1f5f9;
+    color: var(--c-text-muted);
+    gap: 1.5rem;
+    text-align: center;
+}
+
+.grid-loading-placeholder p {
+    font-weight: 500;
+    font-size: 1.1rem;
+    color: var(--c-dark);
+}
+
+.grid-fetch-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 1rem;
+    border-radius: 50%;
+    box-shadow: var(--c-shadow-md);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    pointer-events: none;
+}
+
+/* Ensure the grid relative for the overlay */
+.posts-grid-v2 {
+    position: relative;
+    min-height: 400px;
+}
+
 .inactive-badge {
     position: absolute;
     top: 10px;

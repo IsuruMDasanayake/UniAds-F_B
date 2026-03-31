@@ -31,7 +31,7 @@ const LinkPreview = ({ data: initialData, url: initialUrl, showApplyButton = tru
                 setLoading(true);
                 try {
                     const response = await axiosClient.get(`/api/posts/share/${uuid}`);
-                    const post = response.data;
+                    const post = response.data.data;
                     
                     if (post.error) {
                         setData({

@@ -18,9 +18,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Auth\Events\Registered;
 use Carbon\Carbon;
+use App\Traits\ApiResponse;
 
 class EmailVerificationController extends Controller
 {
+    use ApiResponse;
     /**
      * Send OTP to the authenticated user's email.
      */
@@ -29,7 +31,7 @@ class EmailVerificationController extends Controller
         $user = Auth::user();
 
         if (!$user) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+            return $this->error('Unauthorized', 401);
         }
 
         return $this->sendOTPGuest($user->email, $request);
@@ -57,17 +59,10 @@ class EmailVerificationController extends Controller
             $request->session()->save();
         } catch (\Exception $e) {
             Log::error('Mail sending failed: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to send verification email. Please try again.'
-            ], 500);
+            return $this->error('Failed to send verification email. Please try again.', 500);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Verification code sent to your email.',
-            'verification_required' => true
-        ]);
+        return $this->success(['verification_required' => true], 'Verification code sent to your email.');
     }
 
     /**
@@ -84,26 +79,17 @@ class EmailVerificationController extends Controller
         $email = session('verification_email');
 
         if (!$sessionOtp || !$otpTime) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No verification code found. Please request a new one.'
-            ], 422);
+            return $this->error('No verification code found. Please request a new one.', 422);
         }
 
         // Check expiration (2 minutes)
         if (now()->diffInMinutes($otpTime) >= 2) {
             $this->clearOTPSession();
-            return response()->json([
-                'success' => false,
-                'message' => 'The verification code has expired.'
-            ], 422);
+            return $this->error('The verification code has expired.', 422);
         }
 
         if ($request->otp != $sessionOtp) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid verification code.'
-            ], 422);
+            return $this->error('Invalid verification code.', 422);
         }
 
         // Handle Pending Registration
@@ -123,14 +109,10 @@ class EmailVerificationController extends Controller
 
             $this->clearOTPSession();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Email verified successfully!',
-                'redirect' => '/feed'
-            ]);
+            return $this->success(['redirect' => '/feed'], 'Email verified successfully!');
         }
 
-        return response()->json(['message' => 'User not found or session expired'], 404);
+        return $this->error('User not found or session expired', 404);
     }
 
     /**
@@ -210,20 +192,15 @@ class EmailVerificationController extends Controller
             Auth::login($user);
             $request->session()->regenerate();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Account created and email verified successfully!',
-                'redirect' => '/feed',
-                'user' => $user
-            ]);
+            return $this->success([
+                'user' => $user,
+                'redirect' => '/feed'
+            ], 'Account created and email verified successfully!');
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Post-verification registration failed: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Verification succeeded but account creation failed. Please contact support.',
-                'error' => $e->getMessage()
-            ], 500);
+            return $this->error('Verification succeeded but account creation failed. Please contact support.', 500);
         }
     }
 
@@ -241,10 +218,7 @@ class EmailVerificationController extends Controller
                 'request_has_email' => $request->has('email')
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Session expired. Please try registering again.'
-            ], 422);
+            return $this->error('Session expired. Please try registering again.', 422);
         }
 
         return $this->sendOTPGuest($email, $request);
@@ -262,3 +236,4 @@ class EmailVerificationController extends Controller
         ]);
     }
 }
+

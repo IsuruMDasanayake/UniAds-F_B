@@ -6,9 +6,15 @@ use App\Models\PrivacyPolicy;
 use App\Models\TermsAndConditions;
 use App\Models\RefundPolicy;
 use Illuminate\Http\Request;
+use App\Traits\ApiResponse;
+use Mews\Purifier\Facades\Purifier;
+use Illuminate\Support\Facades\DB;
+
 
 class PolicyController extends Controller
 {
+    use ApiResponse;
+
     //Helper to get model class based on type
     private function getModelClass($type)
     {
@@ -37,16 +43,18 @@ class PolicyController extends Controller
     public function apiIndex(string $type)
     {
         $modelClass = $this->getModelClass($type);
-        if (!$modelClass) return response()->json(['error' => 'Invalid policy type'], 404);
+        if (!$modelClass) return $this->error('Invalid policy type', 404);
 
         $sections = $modelClass::orderBy('order_index')->get();
-        return response()->json($sections);
+        return $this->success($sections);
     }
+
 
     public function apiStore(Request $request, string $type)
     {
         $modelClass = $this->getModelClass($type);
-        if (!$modelClass) return response()->json(['error' => 'Invalid policy type'], 404);
+        if (!$modelClass) return $this->error('Invalid policy type', 404);
+
 
         $request->validate([
             'title' => 'required|string|max:255',
@@ -54,23 +62,23 @@ class PolicyController extends Controller
             'order_index' => 'nullable|integer',
         ]);
 
-        $section = $modelClass::create([
-            'title' => $request->title,
-            'content' => $request->input('content'),
-            'order_index' => $request->order_index ?? 0,
-        ]);
+        return DB::transaction(function () use ($modelClass, $request, $type) {
+            $section = $modelClass::create([
+                'title' => $request->title,
+                'content' => Purifier::clean($request->input('content')),
+                'order_index' => $request->order_index ?? 0,
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => $this->getReadableName($type) . ' section added successfully.',
-            'data' => $section
-        ]);
+            return $this->success($section, $this->getReadableName($type) . ' section added successfully.');
+        });
     }
+
 
     public function apiUpdate(Request $request, string $type, $id)
     {
         $modelClass = $this->getModelClass($type);
-        if (!$modelClass) return response()->json(['error' => 'Invalid policy type'], 404);
+        if (!$modelClass) return $this->error('Invalid policy type', 404);
+
 
         $request->validate([
             'title' => 'required|string|max:255',
@@ -78,33 +86,33 @@ class PolicyController extends Controller
             'order_index' => 'nullable|integer',
         ]);
 
-        $section = $modelClass::findOrFail($id);
-        $section->update([
-            'title' => $request->title,
-            'content' => $request->input('content'),
-            'order_index' => $request->order_index ?? 0,
-        ]);
+        return DB::transaction(function () use ($modelClass, $id, $request, $type) {
+            $section = $modelClass::findOrFail($id);
+            $section->update([
+                'title' => $request->title,
+                'content' => Purifier::clean($request->input('content')),
+                'order_index' => $request->order_index ?? 0,
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => $this->getReadableName($type) . ' section updated successfully.',
-            'data' => $section
-        ]);
+            return $this->success($section, $this->getReadableName($type) . ' section updated successfully.');
+        });
     }
+
 
     public function apiDestroy(string $type, $id)
     {
         $modelClass = $this->getModelClass($type);
-        if (!$modelClass) return response()->json(['error' => 'Invalid policy type'], 404);
+        if (!$modelClass) return $this->error('Invalid policy type', 404);
 
-        $section = $modelClass::findOrFail($id);
-        $section->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => $this->getReadableName($type) . ' section deleted successfully.'
-        ]);
+        return DB::transaction(function () use ($modelClass, $id, $type) {
+            $section = $modelClass::findOrFail($id);
+            $section->delete();
+
+            return $this->success(null, $this->getReadableName($type) . ' section deleted successfully.');
+        });
     }
+
 
 
     // ==========================================

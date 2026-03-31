@@ -4,16 +4,19 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\MessageRead;
 use Illuminate\Support\Facades\DB;
 use App\Events\MessageSent;
 use Illuminate\Support\Facades\Http;
+use App\Traits\ApiResponse;
+use Mews\Purifier\Facades\Purifier;
 
 class ChatMessageController extends Controller
 {
+    use ApiResponse;
+
     /**
      * Get paginated messages for a conversation
      */
@@ -28,7 +31,7 @@ class ChatMessageController extends Controller
         })->exists();
 
         if (!$isParticipant) {
-            return response()->json(['message' => 'Unauthorized access to conversation'], 403);
+            return $this->error('Unauthorized access to conversation', 403);
         }
 
         $messages = $conversation->messages()
@@ -36,10 +39,7 @@ class ChatMessageController extends Controller
             ->latest()
             ->paginate(50);
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $messages
-        ]);
+        return $this->success($messages);
     }
 
     /**
@@ -59,10 +59,11 @@ class ChatMessageController extends Controller
         })->exists();
 
         if (!$isParticipant) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return $this->error('Unauthorized', 403);
         }
 
-        $messageContent = $request->message;
+        // Sanitize message content for XSS using the 'chat' profile (no auto-p)
+        $messageContent = Purifier::clean($request->message, 'chat');
 
         // Basic URL detection
         $type = 'text';
@@ -74,7 +75,7 @@ class ChatMessageController extends Controller
             $post = \App\Models\Post::where('share_link', $postUuid)->first();
 
             if (!$post) {
-                return response()->json(['message' => 'Invalid post link.'], 422);
+                return $this->error('Invalid post link.', 422);
             }
 
             $type = 'link';
@@ -90,7 +91,6 @@ class ChatMessageController extends Controller
             ];
 
             // Clear the actual text so the bubble ONLY shows the preview card
-            // We can just set it to a placeholder since the frontend shouldn't render it anyway
             $messageContent = '';
         } else {
             // General external link parsing
@@ -101,23 +101,22 @@ class ChatMessageController extends Controller
             }
         }
 
-        $message = $conversation->messages()->create([
-            'sender_user_id' => $institute ? null : $user->id,
-            'sender_institute_id' => $institute ? $institute->id : null,
-            'message' => $messageContent,
-            'type' => $type,
-            'link_preview_data' => $linkPreviewData
-        ]);
+        return DB::transaction(function () use ($conversation, $institute, $user, $messageContent, $type, $linkPreviewData) {
+            $message = $conversation->messages()->create([
+                'sender_user_id' => $institute ? null : $user->id,
+                'sender_institute_id' => $institute ? $institute->id : null,
+                'message' => $messageContent,
+                'type' => $type,
+                'link_preview_data' => $linkPreviewData
+            ]);
 
-        $message->load(['senderUser', 'senderInstitute']);
+            $message->load(['senderUser', 'senderInstitute']);
 
-        // Broadcast the event
-        broadcast(new MessageSent($message))->toOthers();
+            // Broadcast the event
+            broadcast(new MessageSent($message))->toOthers();
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $message
-        ]);
+            return $this->success($message, 'Message sent successfully', 201);
+        });
     }
 
     /**
@@ -128,45 +127,44 @@ class ChatMessageController extends Controller
         $user = $request->user();
         $institute = $user->institute;
 
-        // Find unread messages not sent by the current user
-        $unreadMessages = $conversation->messages()
-            ->where(function ($q) use ($user, $institute) {
-                if ($institute) {
-                    $q->where('sender_institute_id', '!=', $institute->id)->orWhereNull('sender_institute_id');
-                } else {
-                    $q->where('sender_user_id', '!=', $user->id)->orWhereNull('sender_user_id');
-                }
-            })
-            ->whereDoesntHave('reads', function ($query) use ($user, $institute) {
-                if ($institute) {
-                    $query->where('institute_id', $institute->id);
-                } else {
-                    $query->where('user_id', $user->id);
-                }
-            })
-            ->get();
+        return DB::transaction(function () use ($user, $institute, $conversation) {
+            // Find unread messages not sent by the current user
+            $unreadMessages = $conversation->messages()
+                ->where(function ($q) use ($user, $institute) {
+                    if ($institute) {
+                        $q->where('sender_institute_id', '!=', $institute->id)->orWhereNull('sender_institute_id');
+                    } else {
+                        $q->where('sender_user_id', '!=', $user->id)->orWhereNull('sender_user_id');
+                    }
+                })
+                ->whereDoesntHave('reads', function ($query) use ($user, $institute) {
+                    if ($institute) {
+                        $query->where('institute_id', $institute->id);
+                    } else {
+                        $query->where('user_id', $user->id);
+                    }
+                })
+                ->get();
 
-        $readData = [];
-        $now = now();
-        foreach ($unreadMessages as $message) {
-            $readData[] = [
-                'message_id' => $message->id,
-                'user_id' => $institute ? null : $user->id,
-                'institute_id' => $institute ? $institute->id : null,
-                'read_at' => $now,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ];
-        }
+            $readData = [];
+            $now = now();
+            foreach ($unreadMessages as $message) {
+                $readData[] = [
+                    'message_id' => $message->id,
+                    'user_id' => $institute ? null : $user->id,
+                    'institute_id' => $institute ? $institute->id : null,
+                    'read_at' => $now,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }
 
-        if (!empty($readData)) {
-            MessageRead::insert($readData);
-        }
+            if (!empty($readData)) {
+                MessageRead::insert($readData);
+            }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => count($readData) . ' messages marked as read.'
-        ]);
+            return $this->success(null, count($readData) . ' messages marked as read.');
+        });
     }
 
     /**
@@ -214,3 +212,5 @@ class ChatMessageController extends Controller
         return ['url' => $url, 'title' => parse_url($url, PHP_URL_HOST)];
     }
 }
+
+

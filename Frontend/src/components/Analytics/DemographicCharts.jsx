@@ -39,7 +39,7 @@ const DemographicChart = ({ title, type, initialData, chartType = 'pie', chartOp
                 const response = await axiosClient.get(`/api/institute/analytics/demographics`, {
                     params: { interaction_type: filter }
                 });
-                const newData = response.data.demographics[type];
+                const newData = response.data.data?.demographics?.[type];
                 setData(newData);
             } catch (error) {
                 console.error(`Error fetching demographics for ${type}:`, error);

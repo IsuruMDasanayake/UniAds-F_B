@@ -4,15 +4,17 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
 use App\Models\Conversation;
 use App\Models\ConversationParticipant;
 use App\Models\User;
 use App\Models\Institute;
 use Illuminate\Support\Facades\DB;
+use App\Traits\ApiResponse;
 
 class ChatConversationController extends Controller
 {
+    use ApiResponse;
+
     /**
      * Get all conversations for the authenticated user/institute
      */
@@ -71,10 +73,7 @@ class ChatConversationController extends Controller
             });
 
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $conversations
-        ]);
+        return $this->success($conversations);
     }
 
     /**
@@ -95,7 +94,7 @@ class ChatConversationController extends Controller
 
         // Premium Check - Only premium institutes or a student chatting with premium institute
         if (!$this->isAuthorizedToChat($currentUser, $currentInstitute, $targetType, $targetId)) {
-            return response()->json(['message' => 'Unauthorized or premium required.'], 403);
+            return $this->error('Unauthorized or premium required.', 403);
         }
 
         // Determine participants
@@ -115,15 +114,10 @@ class ChatConversationController extends Controller
         $existingConversation = $this->findExistingConversation($participant1, $participant2);
 
         if ($existingConversation) {
-            return response()->json([
-                'status' => 'success',
-                'data' => $existingConversation->load(['participants.user', 'participants.institute'])
-            ]);
+            return $this->success($existingConversation->load(['participants.user', 'participants.institute']));
         }
 
-        // Create new conversation
-        DB::beginTransaction();
-        try {
+        return DB::transaction(function () use ($participant1, $participant2) {
             $type = ($participant1['role'] === 'student' || $participant2['role'] === 'student')
                 ? 'student_institute'
                 : 'institute_institute';
@@ -132,16 +126,8 @@ class ChatConversationController extends Controller
 
             $conversation->participants()->createMany([$participant1, $participant2]);
 
-            DB::commit();
-
-            return response()->json([
-                'status' => 'success',
-                'data' => $conversation->load(['participants.user', 'participants.institute'])
-            ], 201);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Failed to start conversation'], 500);
-        }
+            return $this->success($conversation->load(['participants.user', 'participants.institute']), 'Conversation started', 201);
+        });
     }
 
     private function findExistingConversation($p1, $p2)
@@ -193,23 +179,26 @@ class ChatConversationController extends Controller
         $userId = $request->user()->id;
         $instituteId = $request->user()->institute ? $request->user()->institute->id : null;
 
-        $participant = ConversationParticipant::where('conversation_id', $conversationId)
-            ->where(function ($q) use ($userId, $instituteId) {
-                // Critical: Strictly isolate by user_id
-                $q->where('user_id', $userId);
-                
-                if ($instituteId) {
-                    $q->orWhere('institute_id', $instituteId);
-                }
-            })
-            ->first();
+        return DB::transaction(function () use ($userId, $instituteId, $conversationId) {
+            $participant = ConversationParticipant::where('conversation_id', $conversationId)
+                ->where(function ($q) use ($userId, $instituteId) {
+                    // Critical: Strictly isolate by user_id
+                    $q->where('user_id', $userId);
+                    
+                    if ($instituteId) {
+                        $q->orWhere('institute_id', $instituteId);
+                    }
+                })
+                ->first();
 
-        if (!$participant) {
-            return response()->json(['message' => 'Conversation not found'], 404);
-        }
+            if (!$participant) {
+                return $this->error('Conversation not found', 404);
+            }
 
-        $participant->update(['hidden_at' => now()]);
+            $participant->update(['hidden_at' => now()]);
 
-        return response()->json(['status' => 'success', 'message' => 'Conversation hidden']);
+            return $this->success(null, 'Conversation hidden');
+        });
     }
 }
+

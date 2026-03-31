@@ -6,9 +6,11 @@ use App\Models\InstituteGallery;
 use App\Models\Institute;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Traits\ApiResponse;
 
 class GalleryController extends Controller
 {
+    use ApiResponse;
     public function index(Request $request, $id)
     {
         $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
@@ -16,7 +18,7 @@ class GalleryController extends Controller
         $gallery = InstituteGallery::where('institute_id', $institute->id)
             ->latest()
             ->paginate($perPage);
-        return response()->json($gallery);
+        return $this->successResponse($gallery);
     }
 
     public function store(Request $request, $id)
@@ -39,10 +41,7 @@ class GalleryController extends Controller
         ]);
 
         // Return the response with the newly uploaded image's details
-        return response()->json([
-            'message' => 'Image uploaded successfully!',
-            'image' => $gallery, // Send the image info back to update the gallery dynamically
-        ]);
+        return $this->success($gallery, 'Image uploaded successfully!');
     }
 
     public function destroy($id)
@@ -56,6 +55,6 @@ class GalleryController extends Controller
 
         $galleryItem->delete();
 
-        return response()->json(['success' => true]);
+        return $this->success(null, 'Gallery item deleted successfully');
     }
 }

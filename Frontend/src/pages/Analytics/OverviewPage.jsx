@@ -26,8 +26,8 @@ const OverviewPage = () => {
             }
 
             try {
-                const { data } = await axiosClient.get(`/api/institute/analytics/overview?period=${period}`);
-                setStats(data.overviewStats);
+                const response = await axiosClient.get(`/api/institute/analytics/overview?period=${period}`);
+                setStats(response.data.data.overviewStats);
             } catch (error) {
                 console.error('Error fetching overview stats:', error);
             } finally {

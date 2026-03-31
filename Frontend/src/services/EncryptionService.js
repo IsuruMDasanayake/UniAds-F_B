@@ -72,8 +72,16 @@ const EncryptionService = {
      * Decrypts an encrypted message string (prefixed with 'enc:').
      */
     decrypt: async (encryptedData, conversationId) => {
-        if (!encryptedData || !encryptedData.startsWith('enc:')) {
-            return encryptedData;
+        if (!encryptedData) return encryptedData;
+
+        // Strip HTML tags if any (handles cases where backend wraps in <p>)
+        let cleanData = encryptedData;
+        if (typeof encryptedData === 'string' && (encryptedData.includes('<') || encryptedData.includes('>'))) {
+            cleanData = encryptedData.replace(/<[^>]*>/g, '').trim();
+        }
+
+        if (!cleanData.startsWith('enc:')) {
+            return cleanData; // Return the cleaned (but not encrypted) data
         }
 
         try {
@@ -83,7 +91,7 @@ const EncryptionService = {
                 return '[E2EE Disabled on HTTP - Please use HTTPS]';
             }
 
-            const base64 = encryptedData.substring(4);
+            const base64 = cleanData.substring(4);
             const binaryString = atob(base64);
             const bytes = new Uint8Array(binaryString.length);
             for (let i = 0; i < binaryString.length; i++) {

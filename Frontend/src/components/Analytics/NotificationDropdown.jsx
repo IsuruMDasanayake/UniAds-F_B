@@ -15,8 +15,10 @@ const NotificationDropdown = () => {
     const fetchNotifications = async () => {
         try {
             const { data } = await axiosClient.get('/api/institute/notifications');
-            setNotifications(data.notifications.data);
-            setUnreadCount(data.unreadCount);
+            if (data.data) {
+                setNotifications(data.data.notifications.data);
+                setUnreadCount(data.data.unreadCount);
+            }
         } catch (error) {
             console.error('Error fetching notifications:', error);
         }

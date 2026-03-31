@@ -9,11 +9,12 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
-
 use App\Services\AdminActivityLogger;
+use App\Traits\ApiResponse;
 
 class AuthenticatedSessionController extends Controller
 {
+    use ApiResponse;
     // create removed
 
 
@@ -29,9 +30,7 @@ class AuthenticatedSessionController extends Controller
 
         // Manual authentication for SPA (cookie-based)
         if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json([
-                'message' => 'Invalid credentials'
-            ], 422);
+            return $this->error('Invalid credentials', 422);
         }
 
         $user = Auth::user();
@@ -52,15 +51,11 @@ class AuthenticatedSessionController extends Controller
         // Create a Sanctum token for API authentication
         $token = $user->createToken('auth-token')->plainTextToken;
 
-        return response()->json([
-            'message' => 'Login successful',
+        return $this->success([
             'user' => $user,
             'token' => $token,
-        ]);
+        ], 'Login successful');
     }
-
-
-
 
     // destroy removed
 
@@ -87,7 +82,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return response()->json(['message' => 'Logged out successfully']);
+        return $this->success(null, 'Logged out successfully');
     }
 
     /**
@@ -117,6 +112,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return response()->json(['message' => 'Logged out from all devices successfully']);
+        return $this->success(null, 'Logged out from all devices successfully');
     }
 }
+

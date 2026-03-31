@@ -9,10 +9,14 @@ use App\Models\Follower;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Category;
 use App\Models\InstituteInquiry;
+use App\Traits\ApiResponse;
+use Mews\Purifier\Facades\Purifier;
 
 
 class ContactController extends Controller
 {
+    use ApiResponse;
+
     // showContactPage removed
 
 
@@ -90,16 +94,9 @@ class ContactController extends Controller
                     ->from($request->email, $request->name);
             });
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Your message has been sent successfully!'
-            ], 200);
+            return $this->success(null, 'Your message has been sent successfully!');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to send message. Please try again later.',
-                'error' => $e->getMessage()
-            ], 500);
+            return $this->error('Failed to send message. Please try again later.', 500);
         }
     }
 
@@ -111,10 +108,7 @@ class ContactController extends Controller
 
         // Store application in apply_cases table
         if (!$institute->inquiries_enabled) {
-            return response()->json([
-                'success' => false,
-                'message' => 'General inquiries are currently disabled for this institute.'
-            ], 403);
+            return $this->error('General inquiries are currently disabled for this institute.', 403);
         }
 
         $request->validate([
@@ -132,13 +126,13 @@ class ContactController extends Controller
             'messageContent' => $request->message,
         ];
 
-        // Persist Inquiry
+        // Persist Inquiry with XSS sanitization
         InstituteInquiry::create([
             'institute_id' => $institute->id,
             'name' => $request->name,
             'email' => $request->email,
             'subject' => $request->subject,
-            'message' => $request->message,
+            'message' => Purifier::clean($request->message),
         ]);
 
         try {
@@ -148,16 +142,9 @@ class ContactController extends Controller
                     ->from($request->email, $request->name);
             });
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Your message has been sent to the institute.'
-            ], 200);
+            return $this->success(null, 'Your message has been sent to the institute.');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to send message. Please try again.',
-                'error' => $e->getMessage()
-            ], 500);
+            return $this->error('Failed to send message. Please try again.', 500);
         }
     }
 }

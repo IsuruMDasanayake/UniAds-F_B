@@ -66,7 +66,7 @@ const AdminSettings = () => {
     const fetchSettings = async () => {
         try {
             const response = await axiosClient.get('/api/admin/settings');
-            const settings = response.data;
+            const settings = response.data.data;
 
             setFormData({
                 site_name: settings.site_name || '',
@@ -188,10 +188,10 @@ const AdminSettings = () => {
             setMessage({ type: 'success', text: 'Settings updated successfully!' });
 
             // Update current images with new URLs
-            if (response.data.settings) {
+            if (response.data.data) {
                 setCurrentImages({
-                    logo_url: response.data.settings.logo_url,
-                    favicon_url: response.data.settings.favicon_url,
+                    logo_url: response.data.data.logo_url,
+                    favicon_url: response.data.data.favicon_url,
                 });
                 // Clear file inputs and previews
                 setFiles({ logo: null, favicon: null });

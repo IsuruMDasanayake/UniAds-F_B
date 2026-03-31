@@ -69,17 +69,19 @@ Route::post('/contact', [ContactController::class, 'apiSubmitContactForm']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     $user = $request->user();
 
-    // Load institute relationship for Institute users
     if ($user->role === 'Institute') {
         $user->load('institute');
     }
 
-    // Load savedPosts for regular Users
     if ($user->role === 'User') {
         $user->load('savedPosts');
     }
 
-    return $user;
+    return response()->json([
+        'success' => true,
+        'message' => 'User fetched',
+        'data'    => $user,
+    ]);
 });
 
 // API Logout route

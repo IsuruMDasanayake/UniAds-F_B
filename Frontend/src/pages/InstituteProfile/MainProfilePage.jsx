@@ -55,11 +55,12 @@ const MainProfilePage = () => {
             try {
                 // Use /api/profile/me so we get the 'institute' relation if logged in as Institute
                 const res = await axiosClient.get('/api/profile/me');
-                const userData = res.data.user;
+                const payload = res.data.data;
+                const userData = payload?.user;
 
                 // If Institute, we merge the institute details so Navbar can access user.institute
-                if (res.data.role === 'Institute' && res.data.institute) {
-                    userData.institute = res.data.institute;
+                if (payload?.role === 'Institute' && payload?.institute) {
+                    userData.institute = payload.institute;
                 }
 
                 setCurrentUser(userData);
@@ -84,10 +85,10 @@ const MainProfilePage = () => {
             const response = await axiosClient.get(endpoint, {
                 params: { per_page: 12 }
             });
-            const data = response.data;
+            const data = response.data.data;
 
             if (!id) {
-                if (data.role === 'Institute') {
+                if (data?.role === 'Institute') {
                     setInstitute(data.institute);
                     setPosts(data.posts?.data || []);
                     setEvents(data.events?.data || []);
@@ -107,7 +108,7 @@ const MainProfilePage = () => {
                 }
             }
 
-            if (!id && data.institute) {
+            if (!id && data?.institute) {
                 fetchExtras(data.institute.id);
             } else if (id) {
                 fetchExtras(id);
@@ -125,7 +126,10 @@ const MainProfilePage = () => {
     const fetchExtras = async (instId) => {
         try {
             const res = await axiosClient.get(`/api/institutions/${instId}/gallery`);
-            setGallery(res.data);
+            // GalleryController returns paginated successResponse: { success: true, data: { data: [...], current_page, ... } }
+            const payload = res.data.data;
+            const images = (payload && Array.isArray(payload.data)) ? payload.data : (Array.isArray(payload) ? payload : []);
+            setGallery(images);
         } catch (e) {
             console.error("Error fetching gallery", e);
         }
@@ -170,8 +174,8 @@ const MainProfilePage = () => {
 
         try {
             const res = await axiosClient.post(`/api/institutions/${institute.id}/follow`);
-            setIsFollowing(res.data.status === 'followed');
-            setInstitute(prev => ({ ...prev, followers_count: res.data.followers_count }));
+            setIsFollowing(res.data.data?.status === 'followed');
+            setInstitute(prev => ({ ...prev, followers_count: res.data.data?.followers_count }));
         } catch (e) {
             console.error("Follow error", e);
             // Rollback

@@ -30,7 +30,7 @@ const TrendsPage = () => {
 
             try {
                 const response = await axiosClient.get(`/api/institute/analytics/trends?range=${range}&compare=${compare}`);
-                setData(response.data);
+                setData(response.data.data);
             } catch (error) {
                 console.error('Error fetching trends v2:', error);
             } finally {

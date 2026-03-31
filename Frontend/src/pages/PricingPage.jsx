@@ -47,7 +47,7 @@ const PricingPage = () => {
         try {
             setLoading(true);
             const response = await axiosClient.get('/api/pricing');
-            setPricingData(response.data);
+            setPricingData(response.data.data);
             setLoading(false);
         } catch (err) {
             console.error('Error fetching pricing data:', err);
@@ -95,7 +95,7 @@ const PricingPage = () => {
             const response = await axiosClient.post('/api/payment/initiate', { type: 'trial' });
 
             if (response.data.success) {
-                const completed = await launchPayHere(response.data.payment_data);
+                const completed = await launchPayHere(response.data.data?.payment_data);
                 if (completed) {
                     await fetchPricingData();
                     setShowSuccess(true);
@@ -117,7 +117,7 @@ const PricingPage = () => {
             const response = await axiosClient.post('/api/payment/initiate', { type: 'subscription' });
 
             if (response.data.success) {
-                const completed = await launchPayHere(response.data.payment_data);
+                const completed = await launchPayHere(response.data.data?.payment_data);
                 if (completed) {
                     setShowSuccess(true);
                     await fetchPricingData();

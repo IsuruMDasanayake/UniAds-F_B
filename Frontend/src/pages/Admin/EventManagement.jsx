@@ -40,7 +40,7 @@ const EventManagement = () => {
         try {
             if (!isSilent) setLoading(true);
             const response = await axiosClient.get('/api/admin/events');
-            setEvents(response.data);
+            setEvents(response.data.data || []);
         } catch (error) {
             console.error('Error fetching events:', error);
         } finally {
@@ -70,7 +70,7 @@ const EventManagement = () => {
         try {
             const resp = await axiosClient.post(`/api/admin/events/${toggleModal.id}/toggle-status`);
             setEvents(events.map(e =>
-                e.id === toggleModal.id ? { ...e, is_active: resp.data.is_active } : e
+                e.id === toggleModal.id ? { ...e, is_active: resp.data.data.is_active } : e
             ));
             setToggleModal({ isOpen: false, id: null, title: '', isActive: false });
         } catch (error) {

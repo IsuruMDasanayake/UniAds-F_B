@@ -11,8 +11,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 
 
+use App\Traits\ApiResponse;
+
 class SearchController extends Controller
 {
+    use ApiResponse;
 
 
     public function search(Request $request)
@@ -53,11 +56,12 @@ class SearchController extends Controller
         $query = trim($request->query('query'));
 
         if (strlen($query) < 2) {
-            return response()->json([
+            return $this->success([
                 'posts' => [],
                 'is_share_link_match' => false,
             ]);
         }
+
 
         // Try to extract UUID if it's a full URL or contains a UUID
         $searchKey = $query;
@@ -73,7 +77,7 @@ class SearchController extends Controller
             ->first();
 
         if ($sharePost) {
-            return response()->json([
+            return $this->successResponse([
                 'posts' => [$sharePost],
                 'is_share_link_match' => true,
             ]);
@@ -98,7 +102,7 @@ class SearchController extends Controller
             ->orderByDesc('score')
             ->paginate(15);
 
-        return response()->json([
+        return $this->successResponse([
             'posts' => $posts,
             'is_share_link_match' => false,
         ]);

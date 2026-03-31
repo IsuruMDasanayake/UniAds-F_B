@@ -43,7 +43,7 @@ const VisibilitySettingsTab = ({ institute, onRefresh }) => {
 
                 // Update local storage
                 const storedUser = JSON.parse(localStorage.getItem('APP_USER'));
-                storedUser.institute = response.data.institute;
+                storedUser.institute = response.data.data?.institute ?? response.data.data;
                 localStorage.setItem('APP_USER', JSON.stringify(storedUser));
 
                 // Reload section by refreshing parent data

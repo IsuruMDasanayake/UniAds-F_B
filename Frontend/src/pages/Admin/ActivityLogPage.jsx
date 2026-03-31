@@ -36,7 +36,7 @@ const ActivityLogPage = () => {
     const fetchFilters = async () => {
         try {
             const response = await axiosClient.get('/api/admin/activity-logs/filters');
-            setFilters(response.data);
+            setFilters(response.data.data || { actions: [], admins: [] });
         } catch (error) {
             console.error('Error fetching filters', error);
         }
@@ -55,11 +55,12 @@ const ActivityLogPage = () => {
                 per_page: 20
             };
             const response = await axiosClient.get('/api/admin/activity-logs', { params });
-            setLogs(response.data.data);
+            const paginator = response.data.data;
+            setLogs(paginator.data || []);
             setPagination({
-                current_page: response.data.current_page,
-                last_page: response.data.last_page,
-                total: response.data.total
+                current_page: paginator.current_page,
+                last_page: paginator.last_page,
+                total: paginator.total
             });
         } catch (error) {
             console.error('Error fetching logs', error);

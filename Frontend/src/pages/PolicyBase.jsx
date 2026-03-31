@@ -12,11 +12,12 @@ const PolicyBase = ({ title, type }) => {
             try {
                 setLoading(true);
                 const response = await axiosClient.get(`/api/policies/${type}`);
-                setSections(response.data);
+                const sections = response.data.data || [];
+                setSections(sections);
 
                 // Find most recent updated_at
-                if (response.data.length > 0) {
-                    const latest = response.data.reduce((prev, current) => {
+                if (sections.length > 0) {
+                    const latest = sections.reduce((prev, current) => {
                         return (new Date(prev.updated_at) > new Date(current.updated_at)) ? prev : current;
                     });
                     setLastUpdated(new Date(latest.updated_at).toLocaleDateString('en-US', {

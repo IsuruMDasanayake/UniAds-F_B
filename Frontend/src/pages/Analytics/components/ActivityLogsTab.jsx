@@ -32,11 +32,11 @@ const ActivityLogsTab = () => {
             params.append('page', filters.page);
 
             const response = await axiosClient.get(`/api/institute/activity-logs?${params.toString()}`);
-            setLogs(response.data.data);
+            setLogs(response.data.data?.data || []);
             setPagination({
-                current_page: response.data.current_page,
-                last_page: response.data.last_page,
-                total: response.data.total
+                current_page: response.data.data?.current_page ?? 1,
+                last_page: response.data.data?.last_page ?? 1,
+                total: response.data.data?.total ?? 0
             });
         } catch (error) {
             console.error("Failed to fetch logs:", error);

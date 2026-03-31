@@ -60,7 +60,7 @@ const ApplicationsPage = () => {
         else if (!isSilent) setIsUpdating(true);
 
         try {
-            const { data } = await axiosClient.get('/api/institute/applications', {
+            const response = await axiosClient.get('/api/institute/applications', {
                 params: {
                     page,
                     search,
@@ -68,14 +68,15 @@ const ApplicationsPage = () => {
                 }
             });
 
-            setApplications(data.applications.data || []);
-            setStats(data.stats);
+            const payload = response.data.data;
+            setApplications(payload.applications.data || []);
+            setStats(payload.stats);
             setPagination({
-                current_page: data.applications.current_page,
-                last_page: data.applications.last_page,
-                total: data.applications.total,
-                from: data.applications.from,
-                to: data.applications.to
+                current_page: payload.applications.current_page,
+                last_page: payload.applications.last_page,
+                total: payload.applications.total,
+                from: payload.applications.from,
+                to: payload.applications.to
             });
         } catch (error) {
             console.error('Error fetching applications:', error);
@@ -105,10 +106,10 @@ const ApplicationsPage = () => {
         const fetchTrends = async () => {
             setLoadingTrend(true);
             try {
-                const { data } = await axiosClient.get('/api/institute/analytics/trends', {
+                const response = await axiosClient.get('/api/institute/analytics/trends', {
                     params: { range: '90', compare: 'false' }
                 });
-                setTrendData(data.applications || null);
+                setTrendData(response.data.data.applications || null);
             } catch (error) {
                 console.error('Error fetching application trends:', error);
             } finally {
@@ -126,9 +127,9 @@ const ApplicationsPage = () => {
         // Mark as viewed if new
         if (application.status === 'new') {
             try {
-                const { data } = await axiosClient.put(`/api/institute/applications/${application.id}/view`);
+                const response = await axiosClient.put(`/api/institute/applications/${application.id}/view`);
                 // Update local state update
-                setApplications(prev => prev.map(a => a.id === application.id ? { ...a, status: 'viewed', viewed_at: data.application.viewed_at } : a));
+                setApplications(prev => prev.map(a => a.id === application.id ? { ...a, status: 'viewed', viewed_at: response.data.data.application.viewed_at } : a));
                 // Update stats
                 setStats(prev => ({ ...prev, new: prev.new - 1 }));
                 // Refresh sidebar badge
@@ -149,10 +150,10 @@ const ApplicationsPage = () => {
 
         setFetchingHistory(true);
         try {
-            const { data } = await axiosClient.get('/api/institute/communications/history', {
+            const response = await axiosClient.get('/api/institute/communications/history', {
                 params: { type: 'application' }
             });
-            setCommunicationsHistory(data);
+            setCommunicationsHistory(response.data.data);
             setShowHistoryModal(true);
         } catch (error) {
             console.error('Error fetching communications history:', error);

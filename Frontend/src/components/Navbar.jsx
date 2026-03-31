@@ -117,8 +117,8 @@ function Navbar({ user }) {
                 setIsSearchingLink(true);
                 try {
                     const response = await axiosClient.get(`/api/search?query=${query}`);
-                    if (response.data.is_share_link_match && response.data.posts.length === 1) {
-                        const post = response.data.posts[0];
+                    if (response.data.data?.is_share_link_match && response.data.data?.posts?.length === 1) {
+                        const post = response.data.data.posts[0];
                         setSelectedPost(post);
                         setSearchQuery(''); // Clear search bar on success
                         // Track view

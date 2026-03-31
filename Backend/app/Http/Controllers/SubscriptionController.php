@@ -11,20 +11,25 @@ use App\Models\Notification;
 use App\Models\AdminNotification;
 use App\Models\User;
 
+use App\Traits\ApiResponse;
+use Illuminate\Support\Facades\DB;
+
 class SubscriptionController extends Controller
 {
+    use ApiResponse;
+
     // --- API Methods ---
 
     public function apiShowPricing()
     {
         $user = auth()->user();
         if ($user->role !== 'Institute') {
-            return response()->json(['error' => 'Unauthorized access.'], 403);
+            return $this->error('Unauthorized access.', 403);
         }
 
         $institute = $user->institute;
         if (!$institute) {
-            return response()->json(['error' => 'No institute found for user.'], 404);
+            return $this->error('No institute found for user.', 404);
         }
 
         // Check if trial has expired and update status if necessary
@@ -64,7 +69,7 @@ class SubscriptionController extends Controller
             $status = 'subscribe';
         }
 
-        return response()->json([
+        return $this->successResponse([
             'status' => $status,
             'institute' => $institute,
             'activeSubscription' => $activeSubscription,
@@ -79,43 +84,45 @@ class SubscriptionController extends Controller
     {
         $user = auth()->user();
         if ($user->role !== 'Institute') {
-            return response()->json(['error' => 'Unauthorized access.'], 403);
+            return $this->error('Unauthorized access.', 403);
         }
 
         $institute = $user->institute;
         if (!$institute) {
-            return response()->json(['error' => 'Institute not found.'], 404);
+            return $this->error('Institute not found.', 404);
         }
 
         if ($institute->trial_status !== 'not_used') {
-            return response()->json(['error' => 'Trial already used or active.'], 400);
+            return $this->error('Trial already used or active.', 400);
         }
 
-        $trialDays = 30;
-        $institute->update([
-            'trial_status' => 'active',
-            'trial_expires_at' => now()->addDays($trialDays),
-            'trial_cancelled_at' => null,
-            'is_premium' => true,
-            'premium_expires_at' => now()->addDays($trialDays),
-        ]);
-
-        // Notify Admins
-        $admins = User::where('role', 'Admin')->get();
-        foreach ($admins as $admin) {
-            AdminNotification::create([
-                'user_id' => $admin->id,
-                'type' => 'subscription_new',
-                'title' => 'New Trial Started',
-                'message' => "{$institute->institute_name} has started a 30-day free trial.",
-                'data' => [
-                    'institute_id' => $institute->id,
-                    'type' => 'trial'
-                ]
+        DB::transaction(function () use ($institute) {
+            $trialDays = 30;
+            $institute->update([
+                'trial_status' => 'active',
+                'trial_expires_at' => now()->addDays($trialDays),
+                'trial_cancelled_at' => null,
+                'is_premium' => true,
+                'premium_expires_at' => now()->addDays($trialDays),
             ]);
-        }
 
-        return response()->json(['message' => 'Trial started successfully.', 'institute' => $institute]);
+            // Notify Admins
+            $admins = User::where('role', 'Admin')->get();
+            foreach ($admins as $admin) {
+                AdminNotification::create([
+                    'user_id' => $admin->id,
+                    'type' => 'subscription_new',
+                    'title' => 'New Trial Started',
+                    'message' => "{$institute->institute_name} has started a 30-day free trial.",
+                    'data' => [
+                        'institute_id' => $institute->id,
+                        'type' => 'trial'
+                    ]
+                ]);
+            }
+        });
+
+        return $this->success($institute, 'Trial started successfully.');
     }
 
 
@@ -123,19 +130,19 @@ class SubscriptionController extends Controller
     {
         $user = auth()->user();
         if ($user->role !== 'Institute') {
-            return response()->json(['error' => 'Unauthorized access.'], 403);
+            return $this->error('Unauthorized access.', 403);
         }
 
         $institute = $user->institute;
         if (!$institute) {
-            return response()->json(['error' => 'Institute not found.'], 404);
+            return $this->error('Institute not found.', 404);
         }
 
         $type = $request->input('type'); // 'subscription' or 'trial'
 
         if ($type === 'trial') {
             if ($institute->trial_status !== 'not_used') {
-                return response()->json(['error' => 'Trial already used.'], 400);
+                return $this->error('Trial already used.', 400);
             }
             $amount = 100.00;
             $items = "UniAds Free Trial";
@@ -188,8 +195,7 @@ class SubscriptionController extends Controller
             "country" => "Sri Lanka",
         ];
 
-        return response()->json([
-            "success" => true,
+        return $this->successResponse([
             "payment_data" => $paymentData,
             "order_id" => $orderId
         ]);
@@ -299,14 +305,14 @@ class SubscriptionController extends Controller
                 }
             }
 
-            return response()->json(["status" => "success"]);
+            return $this->success(null, "Payment processed successfully");
         } else {
             Log::error("PayHere Payment verification failed", [
                 "order_id" => $orderId,
                 "status_code" => $statusCode
             ]);
 
-            return response()->json(["status" => "failed"], 400);
+            return $this->error("Payment verification failed", 400);
         }
     }
 
@@ -314,12 +320,14 @@ class SubscriptionController extends Controller
     {
         $user = auth()->user();
         if ($user->role !== 'Institute') {
-            return response()->json(['error' => 'Unauthorized access.'], 403);
+            return $this->error('Unauthorized access.', 403);
+
         }
 
         $institute = $user->institute;
         if (!$institute) {
-            return response()->json(['error' => 'Institute not found.'], 404);
+            return $this->error('Institute not found.', 404);
+
         }
 
         // 1. Try to find the Active Subscription in DB
@@ -335,7 +343,7 @@ class SubscriptionController extends Controller
                 'cancel_reason' => $request->input('reason'),
             ]);
             // Premium benefits remain until premium_expires_at
-            return response()->json(['message' => 'Subscription cancelled successfully.']);
+            return $this->success(null, 'Subscription cancelled successfully.');
         }
 
         // 2. Fallback: If no active subscription is found, but the user IS premium
@@ -354,27 +362,29 @@ class SubscriptionController extends Controller
                 'is_trial' => false,
             ]);
 
-            return response()->json(['message' => 'Subscription cancelled successfully.']);
+            return $this->success(null, 'Subscription cancelled successfully.');
         }
 
-        return response()->json(['error' => 'No active subscription found to cancel.'], 400);
+        return $this->error('No active subscription found to cancel.', 400);
     }
 
     public function apiCancelTrial(Request $request)
     {
         $user = auth()->user();
         if ($user->role !== 'Institute') {
-            return response()->json(['error' => 'Unauthorized access.'], 403);
+            return $this->error('Unauthorized access.', 403);
+
         }
 
         $institute = $user->institute;
         if (!$institute) {
-            return response()->json(['error' => 'Institute not found.'], 404);
+            return $this->error('Institute not found.', 404);
+
         }
 
         // Relaxed check: Simply needs to be 'active' to cancel
         if ($institute->trial_status !== 'active') {
-            return response()->json(['error' => 'Trial is not active.'], 400);
+            return $this->error('Trial is not active.', 400);
         }
 
         // Immediate cancellation for trials
@@ -386,7 +396,7 @@ class SubscriptionController extends Controller
             'premium_expires_at' => null,
         ]);
 
-        return response()->json(['message' => 'Free trial cancelled.']);
+        return $this->success(null, 'Free trial cancelled.');
     }
 
     public function apiCancelUnified(Request $request)
@@ -395,7 +405,8 @@ class SubscriptionController extends Controller
         $institute = $user->institute;
 
         if (!$institute) {
-            return response()->json(['error' => 'Institute not found.'], 404);
+            return $this->error('Institute not found.', 404);
+
         }
 
         // 1. Check for Active Subscription first
@@ -413,7 +424,7 @@ class SubscriptionController extends Controller
             return $this->apiCancelTrial($request);
         }
 
-        return response()->json(['error' => 'No active subscription or trial found to cancel.'], 400);
+        return $this->error('No active subscription or trial found to cancel.', 400);
     }
 
     public function apiVerifyPayment(Request $request)
@@ -422,7 +433,7 @@ class SubscriptionController extends Controller
         $orderId = $request->order_id;
 
         if (!$user->institute || !$orderId) {
-            return response()->json(['error' => 'Invalid data'], 400);
+            return $this->error('Invalid data', 400);
         }
 
         $institute = $user->institute;
@@ -432,7 +443,7 @@ class SubscriptionController extends Controller
         // Prevent duplicates
         if ($orderType === 'TRIAL') {
             if ($institute->trial_status === 'active' && $institute->trial_expires_at) {
-                return response()->json(['success' => true]);
+                return $this->success(null);
             }
             // Activate Trial
             $institute->update([
@@ -448,7 +459,7 @@ class SubscriptionController extends Controller
                 ->first();
 
             if ($existing) {
-                return response()->json(['success' => true]);
+                return $this->success(null);
             }
 
             // Renew or Create Subscription Record
@@ -484,7 +495,7 @@ class SubscriptionController extends Controller
             ]);
         }
 
-        return response()->json(['success' => true]);
+        return $this->success(null);
     }
 
     // Kept for backward compatibility if needed, using old logic but redirecting to new API flow
@@ -508,12 +519,14 @@ class SubscriptionController extends Controller
         $trialInstitutes = Institute::where('trial_status', '!=', 'not_used')
             ->get();
 
-        $merged = $subscriptions->map(function ($sub) {
-            // Dynamically determine status: Active if not expired, regardless of cancellation
+        $merged = collect();
+
+        foreach ($subscriptions as $sub) {
+            /** @var \App\Models\Subscription $sub */
             $isExpired = $sub->ends_at && Carbon::parse($sub->ends_at)->isPast();
             $sub->status = $isExpired ? 'expired' : 'active';
-            return $sub;
-        });
+            $merged->push($sub->toArray());
+        }
 
         foreach ($trialInstitutes as $inst) {
             $isExpired = $inst->trial_expires_at && Carbon::parse($inst->trial_expires_at)->isPast();
@@ -545,7 +558,7 @@ class SubscriptionController extends Controller
             return is_array($item) ? ($item['started_at'] ?? $item['created_at']) : ($item->started_at ?? $item->created_at);
         })->values();
 
-        return response()->json($sorted);
+        return $this->successResponse($sorted);
     }
 
     public function apiToggleStatus(Request $request, $id)
@@ -554,7 +567,7 @@ class SubscriptionController extends Controller
         $newStatus = strtolower($request->input('status'));
 
         if (!in_array($newStatus, ['active', 'cancelled', 'expired'])) {
-            return response()->json(['success' => false, 'message' => 'Invalid status'], 400);
+            return $this->error('Invalid status', 400);
         }
 
         // Handle Virtual Trial Status
@@ -581,11 +594,7 @@ class SubscriptionController extends Controller
 
             $institute->save();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Trial status updated',
-                'status' => $newStatus
-            ]);
+            return $this->success(['status' => $newStatus], 'Trial status updated');
         }
 
         $subscription = Subscription::findOrFail($id);
@@ -617,10 +626,6 @@ class SubscriptionController extends Controller
         }
 
         $subscription->save();
-        return response()->json([
-            'success' => true,
-            'message' => 'Subscription status updated',
-            'status' => $subscription->status
-        ]);
+        return $this->success(['status' => $subscription->status], 'Subscription status updated');
     }
 }

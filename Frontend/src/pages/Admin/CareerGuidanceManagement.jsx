@@ -35,7 +35,7 @@ const CareerGuidanceManagement = () => {
         try {
             setLoading(true);
             const response = await axiosClient.get('/api/admin/career-guidance');
-            setGuidances(response.data);
+            setGuidances(response.data.data || []);
         } catch (error) {
             console.error('Error fetching career guidances:', error);
         } finally {
@@ -73,7 +73,7 @@ const CareerGuidanceManagement = () => {
         setSqlResult(null);
         try {
             const response = await axiosClient.post('/api/admin/career-guidance/sql', { query: sqlQuery });
-            setSqlResult({ type: 'success', data: response.data });
+            setSqlResult({ type: 'success', data: response.data.data });
             if (response.data.type !== 'select') {
                // Refresh CRUD data implicitly in background if a mutation happened
                fetchGuidances();

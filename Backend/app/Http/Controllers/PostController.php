@@ -134,7 +134,7 @@ class PostController extends Controller
         $post = Post::findOrFail($id);
 
         // Return the post data as JSON
-        return response()->json($post);
+        return $this->successResponse($post);
     }
 
 
@@ -197,50 +197,48 @@ class PostController extends Controller
 
             return $this->success($post, 'Post updated successfully!');
         } catch (\Exception $e) {
-            return $this->error('An error occurred during post update.', 500, $e->getMessage());
+            return $this->error($e->getMessage(), 500);
         }
     }
+
 
     public function apiDestroy($id)
     {
-        try {
-            $post = Post::findOrFail($id);
-            $user = Auth::user();
+        return DB::transaction(function () use ($id) {
+            try {
+                $post = Post::findOrFail($id);
+                $user = Auth::user();
 
-            // Check if user belongs to this institute OR is Admin
-            if ($user->role !== 'Admin' && ($user->role !== 'Institute' || !$user->institute || $user->institute->id != $post->institute_id)) {
-                return response()->json(['message' => 'Unauthorized'], 403);
+                // Check if user belongs to this institute OR is Admin
+                if ($user->role !== 'Admin' && ($user->role !== 'Institute' || !$user->institute || $user->institute->id != $post->institute_id)) {
+                    return $this->error('Unauthorized', 403);
+                }
+
+                $postTitle = $post->title;
+                $postId = $post->id;
+
+                // Storage Cleanup: Delete associated image file
+                if ($post->image) {
+                    Storage::disk('public')->delete($post->image);
+                }
+
+                $post->delete();
+
+                InstituteActivityLogger::log(
+                    'Post Deleted',
+                    "Deleted post: \"{$postTitle}\"",
+                    'Content',
+                    'Post',
+                    $postId
+                );
+
+                return $this->success(null, 'Post deleted successfully!');
+            } catch (\Exception $e) {
+                return $this->error('Failed to delete post: ' . $e->getMessage(), 500);
             }
-
-            $postTitle = $post->title;
-            $postId = $post->id;
-
-            // Storage Cleanup: Delete associated image file
-            if ($post->image) {
-                Storage::disk('public')->delete($post->image);
-            }
-
-            $post->delete();
-
-            InstituteActivityLogger::log(
-                'Post Deleted',
-                "Deleted post: \"{$postTitle}\"",
-                'Content',
-                'Post',
-                $postId
-            );
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Post deleted successfully!'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to delete post: ' . $e->getMessage()
-            ], 500);
-        }
+        });
     }
+
 
 
 
@@ -255,41 +253,42 @@ class PostController extends Controller
         $post = Post::findOrFail($postId);
         $userId = auth()->id(); // Get the logged-in user's ID
 
-        // Check if the user has already liked the post
-        $likedPost = $post->likes()->where('user_id', $userId)->first();
+        return DB::transaction(function () use ($post, $userId) {
+            // Check if the user has already liked the post
+            $likedPost = $post->likes()->where('user_id', $userId)->first();
 
-        if ($likedPost) {
-            // If the user has liked the post, remove the like (decrease the like count)
-            $likedPost->delete();
-            $post->decrement('likes_count');
-            $liked = false;
-        } else {
-            // If the user hasn't liked yet, add the like (increase the like count)
-            $post->likes()->create(['user_id' => $userId]);
-            $post->increment('likes_count');
-            $liked = true;
+            if ($likedPost) {
+                // If the user has liked the post, remove the like (decrease the like count)
+                $likedPost->delete();
+                $post->decrement('likes_count');
+                $liked = false;
+            } else {
+                // If the user hasn't liked yet, add the like (increase the like count)
+                $post->likes()->create(['user_id' => $userId]);
+                $post->increment('likes_count');
+                $liked = true;
 
-            // Trigger Notification
-            Notification::create([
-                'institute_id' => $post->institute_id,
-                'user_id' => $userId,
-                'type' => 'post_like',
-                'title' => 'New Like on Post',
-                'message' => auth()->user()->name . ' liked your post: ' . $post->title,
-                'data' => [
-                    'post_id' => $post->id,
-                    'post_title' => $post->title,
-                    'image' => $post->image
-                ]
-            ]);
-        }
+                // Trigger Notification
+                Notification::create([
+                    'institute_id' => $post->institute_id,
+                    'user_id' => $userId,
+                    'type' => 'post_like',
+                    'title' => 'New Like on Post',
+                    'message' => auth()->user()->name . ' liked your post: ' . $post->title,
+                    'data' => [
+                        'post_id' => $post->id,
+                        'post_title' => $post->title,
+                        'image' => $post->image
+                    ]
+                ]);
+            }
 
-        // Return the updated like count and liked status
-        return response()->json([
-            'status' => 'success',
-            'likes_count' => $post->likes_count,
-            'liked' => $liked
-        ]);
+            // Return the updated like count and liked status
+            return $this->success([
+                'likes_count' => $post->likes_count,
+                'is_liked_by_user' => $liked
+            ], 'Status toggled');
+        });
     }
 
     // filter removed
@@ -301,8 +300,11 @@ class PostController extends Controller
         $search = $request->get('search', '');
         $activeFilters = $request->get('filters', []); // e.g. ?filters[Location][]=Colombo
         
+        $user = Auth::guard('sanctum')->user();
+        $userId = $user ? $user->id : 'guest';
+        
         $cacheKey = 'api_filter_v1_' . md5(json_encode([
-            $filterType, $filterValue, $page, $search, $activeFilters
+            $filterType, $filterValue, $page, $search, $activeFilters, $userId
         ]));
 
         $postsData = \Illuminate\Support\Facades\Cache::remember($cacheKey, 300, function () use ($filterType, $filterValue, $search, $activeFilters) {
@@ -320,7 +322,7 @@ class PostController extends Controller
                     $q->where('student_id', $userId);
                 }])
                 ->where('posts.status', 'active')
-                ->where('posts.created_at', '>=', now()->subDays(60));
+                ->where('posts.created_at', '>=', now()->subDays(365));
 
             $filterMap = [
                 'Courses' => 'course_name',
@@ -371,7 +373,7 @@ class PostController extends Controller
                 ->paginate(100);
         });
 
-        return response()->json([
+        return $this->successResponse([
             'posts' => $postsData,
             'filterType' => $filterType,
             'filterValue' => $filterValue
@@ -392,7 +394,7 @@ class PostController extends Controller
 
         // Skip increment if the user is an institute AND owns the post
         if ($user && $user->role === 'Institute' && $user->institute && $post->institute_id === $user->institute->id) {
-            return response()->json(['status' => 'ignored_own_post']);
+            return $this->success(null, 'Ignored own post view');
         }
 
         // Generate a unique key for the database to enforce daily uniqueness
@@ -417,17 +419,17 @@ class PostController extends Controller
                 $post->increment('view_count');
             });
 
-            return response()->json(['status' => 'success']);
+            return $this->success(null, 'View tracked');
         } catch (\Illuminate\Database\QueryException $e) {
             // Error code 23000 is for unique constraint violations in MySQL
             if ($e->getCode() == '23000') {
-                return response()->json(['status' => 'already_viewed']);
+                return $this->success(null, 'Already viewed');
             }
             Log::error("Failed to track post view: " . $e->getMessage());
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+            return $this->error($e->getMessage(), 500);
         } catch (\Exception $e) {
             Log::error("General error in track post view: " . $e->getMessage());
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+            return $this->error($e->getMessage(), 500);
         }
     }
 
@@ -480,24 +482,17 @@ class PostController extends Controller
 
 
     // Toggle Save Post
-    public function apiToggleSave($postId)
+    public function apiToggleSave($id)
     {
-        $post = Post::findOrFail($postId);
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        if ($user->role !== 'User') {
-            return response()->json(['message' => 'Only students can save posts'], 403);
-        }
-
-        $result = $user->savedPosts()->toggle($postId);
+        $result = $user->savedPosts()->toggle($id);
         $isSaved = count($result['attached']) > 0;
 
-        return response()->json([
-            'status' => 'success',
-            'saved' => $isSaved,
-            'is_saved_by_user' => $isSaved // For consistency
-        ]);
+        return $this->success([
+            'is_saved_by_user' => $isSaved
+        ], 'Post saved status toggled');
     }
 
     // Get all Saved Posts for the authenticated user
@@ -507,7 +502,7 @@ class PostController extends Controller
         $user = auth()->user();
 
         if ($user->role !== 'User') {
-            return response()->json(['posts' => []]);
+            return $this->success(['posts' => []]);
         }
 
         $posts = $user->savedPosts()
@@ -524,7 +519,7 @@ class PostController extends Controller
             return $post;
         });
 
-        return response()->json([
+        return $this->successResponse([
             'posts' => $posts
         ]);
     }
@@ -549,8 +544,9 @@ class PostController extends Controller
             ->latest()
             ->paginate(10);
 
-        return response()->json($posts);
+        return $this->success($posts);
     }
+
 
     // ==========================================
     // API METHODS FOR ADMIN DASHBOARD
@@ -559,33 +555,39 @@ class PostController extends Controller
     public function apiAdminIndex()
     {
         $posts = Post::with('institute')->withCount('likes')->latest()->get();
-        return response()->json($posts);
+        return $this->success($posts);
     }
+
 
     public function apiToggleStatus($id)
     {
-        $post = Post::findOrFail($id);
-        $post->status = $post->status === 'active' ? 'inactive' : 'active';
-        $post->save();
+        return DB::transaction(function () use ($id) {
+            $post = Post::findOrFail($id);
+            $post->status = $post->status === 'active' ? 'inactive' : 'active';
+            $post->save();
 
-        AdminActivityLogger::log(
-            'Updated Post Status',
-            'Post',
-            $post->id,
-            auth()->user()->name . " changed status of post \"{$post->title}\" to {$post->status}"
-        );
+            AdminActivityLogger::log(
+                'Updated Post Status',
+                'Post',
+                $post->id,
+                auth()->user()->name . " changed status of post \"{$post->title}\" to {$post->status}"
+            );
 
-        return response()->json(['success' => true, 'message' => 'Post status updated', 'status' => $post->status]);
+            return $this->success(['status' => $post->status], 'Post status updated');
+        });
     }
+
 
     public function showByShareLink($share_link)
     {
         try {
             $post = Post::where('share_link', $share_link)->with('institute')->firstOrFail();
-            return response()->json($post);
+            return $this->success($post);
+
         } catch (\Exception $e) {
             // Return 200 to prevent loud browser console network errors
-            return response()->json(['error' => true, 'message' => 'Post not found'], 200);
+            return $this->success(null, 'Post not found');
         }
     }
+
 }

@@ -11,26 +11,22 @@ use App\Models\EventUserDeclines;
 use Carbon\Carbon;
 
 use Illuminate\Http\Request;
+use App\Traits\ApiResponse;
 
 class FrontendController extends Controller
 {
+    use ApiResponse;
     // profile removed
 
-
     // feed removed
-
 
     // institutions removed
 
     // showInstitutions removed
 
-
-
     // courses removed
 
-
     // courselist removed
-
 
     /**
      * API endpoint for feed data
@@ -80,10 +76,11 @@ class FrontendController extends Controller
             return $event;
         });
 
-        return response()->json([
+        return $this->success([
             'posts' => $posts,
             'categories' => $categories,
             'events' => $events,
         ]);
     }
 }
+

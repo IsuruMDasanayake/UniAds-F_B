@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Services\AdminActivityLogger;
+use App\Traits\ApiResponse;
 
 
 class CategoryController extends Controller
 {
+    use ApiResponse;
+
     // Display the category management page
     // categories removed
 
@@ -22,7 +25,7 @@ class CategoryController extends Controller
     public function apiIndex()
     {
         $categories = Category::all()->groupBy('main_category');
-        return response()->json($categories);
+        return $this->successResponse($categories);
     }
 
 
@@ -46,7 +49,7 @@ class CategoryController extends Controller
         );
 
         if ($request->wantsJson()) {
-            return response()->json($category, 201);
+            return $this->success($category, 'Category added successfully!', 201);
         }
 
         return redirect()->back()->with('success', 'Category added successfully!');
@@ -69,18 +72,18 @@ class CategoryController extends Controller
             );
 
             if ($request->wantsJson()) {
-                return response()->json(['message' => 'Category deleted successfully!'], 200);
+                return $this->success(null, 'Category deleted successfully!');
             }
 
             return redirect()->back()->with('success', 'Category deleted successfully!');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             if ($request->wantsJson()) {
-                return response()->json(['message' => 'Category not found.'], 404);
+                return $this->error('Category not found.', 404);
             }
             return redirect()->back()->with('error', 'Category not found.');
         } catch (\Exception $e) {
             if ($request->wantsJson()) {
-                return response()->json(['message' => 'Failed to delete category. It may have associated content.'], 500);
+                return $this->error('Failed to delete category. It may have associated content.', 500);
             }
             return redirect()->back()->with('error', 'Failed to delete category.');
         }
@@ -114,13 +117,13 @@ class CategoryController extends Controller
             );
 
             if ($request->wantsJson()) {
-                return response()->json($category, 200);
+                return $this->success($category, 'Category updated successfully!');
             }
 
             return redirect()->back()->with('success', 'Category updated successfully!');
         } catch (\Exception $e) {
             if ($request->wantsJson()) {
-                return response()->json(['message' => 'Failed to update category.'], 500);
+                return $this->error('Failed to update category.', 500);
             }
             return redirect()->back()->with('error', 'Failed to update category.');
         }
@@ -165,7 +168,7 @@ class CategoryController extends Controller
             }
         }
 
-        return response()->json($categories);
+        return $this->successResponse($categories);
     }
 
     public function apiStore(Request $request)
@@ -178,7 +181,7 @@ class CategoryController extends Controller
 
         $category = Category::create($validated);
 
-        return response()->json(['success' => true, 'message' => 'Category added successfully!', 'category' => $category]);
+        return $this->success($category, 'Category added successfully!', 201);
     }
 
     public function apiUpdate(Request $request, $id)
@@ -204,7 +207,7 @@ class CategoryController extends Controller
             auth()->user()->name . " updated category \"{$category->name}\" via API"
         );
 
-        return response()->json(['success' => true, 'message' => 'Category updated successfully!', 'category' => $category]);
+        return $this->success($category, 'Category updated successfully!');
     }
 
     public function apiDestroy($id)
@@ -221,6 +224,6 @@ class CategoryController extends Controller
             auth()->user()->name . " deleted category \"{$categoryName}\" via API"
         );
 
-        return response()->json(['success' => true, 'message' => 'Category deleted successfully!']);
+        return $this->success(null, 'Category deleted successfully!');
     }
 }

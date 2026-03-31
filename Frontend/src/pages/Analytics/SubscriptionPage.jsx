@@ -22,8 +22,8 @@ const SubscriptionPage = () => {
         else if (!isSilent) setIsUpdating(true);
 
         try {
-            const { data } = await axiosClient.get('/api/institute/analytics/subscriptions');
-            setData(data);
+            const response = await axiosClient.get('/api/institute/analytics/subscriptions');
+            setData(response.data.data);
         } catch (error) {
             console.error('Error fetching subscription data:', error);
         } finally {
@@ -71,7 +71,7 @@ const SubscriptionPage = () => {
 
             if (response.data.success) {
                 // Launch PayHere payment gateway
-                const paymentData = response.data.payment_data;
+                const paymentData = response.data.data?.payment_data;
 
                 window.payhere.onCompleted = async function onCompleted(orderId) {
                     console.log("Payment completed. OrderID:" + orderId);

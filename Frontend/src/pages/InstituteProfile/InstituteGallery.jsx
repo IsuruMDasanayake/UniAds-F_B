@@ -109,12 +109,12 @@ const InstituteGallery = ({ institute, isOwner, onGalleryUpdate }) => {
             const res = await axiosClient.get(`/api/institutions/${institute.id}/gallery`, {
                 params: { page: pageNum, per_page: perPage }
             });
-            const data = res.data.data || [];
-            const nextPageUrl = res.data.next_page_url;
-
-            setImages(prev => replace ? data : [...prev, ...data]);
-            setPage(res.data.current_page);
-            setHasMore(!!nextPageUrl);
+            const payload = res.data.data;
+            const dataArray = (payload && Array.isArray(payload.data)) ? payload.data : (Array.isArray(payload) ? payload : []);
+            
+            setImages(prev => replace ? dataArray : [...prev, ...dataArray]);
+            setPage(payload?.current_page || 1);
+            setHasMore(!!payload?.next_page_url);
         } catch (err) {
             console.error('Gallery fetch failed', err);
         } finally {

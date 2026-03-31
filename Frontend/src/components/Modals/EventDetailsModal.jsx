@@ -94,14 +94,14 @@ const EventDetailsModal = ({ isOpen, event, onClose, onInterestToggle }) => {
                                     </div>
 
                                     {/* Only show interest button if handler is provided (e.g. for students) */}
-                                    {onInterestToggle && (
+                                    {/* {onInterestToggle && (
                                         <button
                                             className={`modal-action-btn ${event.is_interested ? 'active' : ''}`}
                                             onClick={() => onInterestToggle(event.id)}
                                         >
                                             {event.is_interested ? 'Interested (Leave?)' : 'I am Interested'}
                                         </button>
-                                    )}
+                                    )} */}
                                 </div>
                             </div>
                         </div>

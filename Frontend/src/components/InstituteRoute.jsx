@@ -10,19 +10,18 @@ const InstituteRoute = ({ children }) => {
     useEffect(() => {
         const checkAccess = async () => {
             try {
-                const { data } = await axiosClient.get('/api/profile/me');
+                const response = await axiosClient.get('/api/profile/me');
+                const payload = response.data.data;
 
-                if (data.role !== 'Institute') {
+                if (payload.role !== 'Institute') {
                     setAccessState('DENIED_USER');
-                } else if (!data.institute?.is_premium) {
+                } else if (!payload.institute?.is_premium) {
                     setAccessState('DENIED_NONPREMIUM');
                 } else {
                     setAccessState('AUTHORIZED');
                 }
             } catch (error) {
                 console.error('Access check failed', error);
-                // If 401, axiosClient interceptor will handle redirect to login
-                // For other errors, we default to denied user to be safe
                 setAccessState('DENIED_USER');
             } finally {
                 setLoading(false);

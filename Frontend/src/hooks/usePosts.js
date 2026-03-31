@@ -9,7 +9,8 @@ export const useInfinitePosts = () => {
         queryKey: ['posts', 'infinite'],
         queryFn: async ({ pageParam = 1 }) => {
             const response = await axiosClient.get(`/api/posts?page=${pageParam}`);
-            return response.data;
+            // Paginator is inside response.data.data
+            return response.data.data;
         },
         getNextPageParam: (lastPage) => {
             if (lastPage.next_page_url) {
@@ -38,10 +39,21 @@ export const usePosts = (filterType, filterValue, options = {}) => {
         }
       });
 
-      return response.data.posts?.data || response.data.posts || [];
+      const payload = response.data.data;
+      
+      // Handle standardized response: { posts: { data: [...] }, ... }
+      if (payload?.posts) {
+        return payload.posts.data || (Array.isArray(payload.posts) ? payload.posts : []);
+      }
+
+      // Handle simple paginated response: { data: [...] }
+      if (payload?.data) return payload.data;
+
+      // Handle raw array
+      return Array.isArray(payload) ? payload : [];
     },
     enabled: !!(filterType && filterValue),
-    keepPreviousData: true,
+    placeholderData: (prev) => prev,
   });
 };
 
@@ -53,7 +65,7 @@ export const useCategories = () => {
     queryKey: ['categories'],
     queryFn: async () => {
       const response = await axiosClient.get('/api/categories');
-      return response.data;
+      return response.data.data;
     },
     staleTime: 1000 * 60 * 60, // Categories change very rarely, cache for 1 hour
   });
@@ -82,7 +94,7 @@ export const useToggleSavePost = () => {
       queryClient.setQueriesData({ queryKey: ['posts'] }, (oldData) => {
         if (!oldData) return oldData;
         return oldData.map(post => 
-          post.id === postId ? { ...post, is_saved: !post.is_saved } : post
+          post.id === postId ? { ...post, is_saved_by_user: !post.is_saved_by_user } : post
         );
       });
 

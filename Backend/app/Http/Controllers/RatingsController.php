@@ -10,9 +10,13 @@ use App\Models\Institute;
 use App\Models\Notification;
 use App\Models\AdminNotification;
 use App\Models\User;
+use App\Traits\ApiResponse;
+use Mews\Purifier\Facades\Purifier;
+use Illuminate\Support\Facades\DB;
 
 class RatingsController extends Controller
 {
+    use ApiResponse;
     public function apiIndex($id)
     {
         $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
@@ -21,7 +25,7 @@ class RatingsController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return response()->json($ratings);
+        return $this->successResponse($ratings);
     }
 
     public function apiRate(Request $request, $id)
@@ -31,30 +35,40 @@ class RatingsController extends Controller
             'comment' => 'nullable|string|max:500',
         ]);
 
-        $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
+        DB::beginTransaction();
+        try {
+            $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
 
-        $rating = Rating::updateOrCreate(
-            ['user_id' => auth()->id(), 'institute_id' => $institute->id],
-            ['rating' => $request->rating, 'comment' => $request->comment]
-        );
+            $rating = Rating::updateOrCreate(
+                ['user_id' => auth()->id(), 'institute_id' => $institute->id],
+                [
+                    'rating' => $request->rating,
+                    'comment' => Purifier::clean($request->comment)
+                ]
+            );
 
-        // Trigger Notification
-        Notification::create([
-            'institute_id' => $institute->id,
-            'user_id' => auth()->id(),
-            'type' => 'review_new',
-            'title' => 'New Review Received',
-            'message' => auth()->user()->name . " gave you a {$request->rating}-star review.",
-            'data' => [
-                'rating_id' => $rating->id,
-                'rating' => $request->rating
-            ]
-        ]);
+            // Trigger Notification
+            Notification::create([
+                'institute_id' => $institute->id,
+                'user_id' => auth()->id(),
+                'type' => 'review_new',
+                'title' => 'New Review Received',
+                'message' => auth()->user()->name . " gave you a {$request->rating}-star review.",
+                'data' => [
+                    'rating_id' => $rating->id,
+                    'rating' => $request->rating
+                ]
+            ]);
 
-        return response()->json([
-            'message' => 'Thank you for your feedback!',
-            'rating' => $rating->load('user:id,name,profile_picture')
-        ]);
+            DB::commit();
+
+            return $this->success([
+                'rating' => $rating->load('user:id,name,profile_picture')
+            ], 'Thank you for your feedback!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->error('Failed to submit rating: ' . $e->getMessage(), 500);
+        }
     }
 
     public function apiDelete($id)
@@ -62,11 +76,11 @@ class RatingsController extends Controller
         $review = Rating::findOrFail($id);
 
         if (Auth::id() !== $review->user_id && Auth::user()->role !== 'Admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return $this->error('Unauthorized', 403);
         }
 
         $review->delete();
-        return response()->json(['message' => 'Review deleted successfully.']);
+        return $this->success(null, 'Review deleted successfully.');
     }
 
     public function storeRating(Request $request, $id)
@@ -103,47 +117,55 @@ class RatingsController extends Controller
             'reason' => 'required|string|max:500',
         ]);
 
-        $rating = Rating::findOrFail($id);
+        DB::beginTransaction();
+        try {
+            $rating = Rating::findOrFail($id);
 
-        // Prevent multiple reports
-        if ($rating->is_reported) {
-            return response()->json(['message' => 'This comment has already been reported.'], 400);
-        }
+            // Prevent multiple reports
+            if ($rating->is_reported) {
+                return $this->error('This comment has already been reported.');
+            }
 
-        $rating->update([
-            'is_reported' => true,
-            'report_reason' => $request->reason,
-        ]);
+            $rating->update([
+                'is_reported' => true,
+                'report_reason' => Purifier::clean($request->reason),
+            ]);
 
-        // Trigger Notification for reported review
-        Notification::create([
-            'institute_id' => $rating->institute_id,
-            'type' => 'review_reported',
-            'title' => 'Review Reported',
-            'message' => "A review has been reported for: {$request->reason}",
-            'data' => [
-                'rating_id' => $rating->id,
-                'reason' => $request->reason
-            ]
-        ]);
-
-        // Notify Admins
-        $admins = User::where('role', 'Admin')->get();
-        foreach ($admins as $admin) {
-            AdminNotification::create([
-                'user_id' => $admin->id,
+            // Trigger Notification for reported review
+            Notification::create([
+                'institute_id' => $rating->institute_id,
                 'type' => 'review_reported',
                 'title' => 'Review Reported',
-                'message' => "A review for {$rating->institute->institute_name} has been reported.",
+                'message' => "A review has been reported for: {$request->reason}",
                 'data' => [
                     'rating_id' => $rating->id,
-                    'institute_id' => $rating->institute_id,
                     'reason' => $request->reason
                 ]
             ]);
-        }
 
-        return response()->json(['message' => 'Report submitted successfully.']);
+            // Notify Admins
+            $admins = User::where('role', 'Admin')->get();
+            foreach ($admins as $admin) {
+                AdminNotification::create([
+                    'user_id' => $admin->id,
+                    'type' => 'review_reported',
+                    'title' => 'Review Reported',
+                    'message' => "A review for {$rating->institute->institute_name} has been reported.",
+                    'data' => [
+                        'rating_id' => $rating->id,
+                        'institute_id' => $rating->institute_id,
+                        'reason' => $request->reason
+                    ]
+                ]);
+            }
+
+            DB::commit();
+
+            return $this->success(null, 'Report submitted successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->error('Failed to submit report: ' . $e->getMessage(), 500);
+        }
     }
 
 
@@ -161,6 +183,6 @@ class RatingsController extends Controller
     public function apiAdminIndex()
     {
         $ratings = Rating::with(['user', 'institute'])->orderBy('created_at', 'desc')->get();
-        return response()->json($ratings);
+        return $this->successResponse($ratings);
     }
 }

@@ -154,7 +154,7 @@ const UpdateInfoModal = ({ isOpen, onClose, instituteId, initialData, onSuccess 
                     setUploadProgress(percentCompleted);
                 }
             });
-            onSuccess(response.data.about); // Assume backend returns updated object
+            onSuccess(response.data.data?.about); // Assume backend returns updated object
             setStatus({ type: 'success', message: '' });
             setTimeout(() => onClose(), 2000);
         } catch (error) {

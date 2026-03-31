@@ -31,7 +31,7 @@ const SubscriptionManagement = () => {
         try {
             if (!isSilent) setLoading(true);
             const response = await axiosClient.get('/api/admin/subscriptions');
-            setSubscriptions(response.data);
+            setSubscriptions(response.data.data || []);
         } catch (error) {
             console.error('Error fetching subscriptions:', error);
         } finally {

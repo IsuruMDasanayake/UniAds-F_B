@@ -9,9 +9,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use App\Services\InstituteActivityLogger;
+use App\Traits\ApiResponse;
+use Mews\Purifier\Facades\Purifier;
 
 class ApplicationController extends Controller
 {
+    use ApiResponse;
     /**
      * Display a listing of the applications (Admin).
      *
@@ -47,7 +50,7 @@ class ApplicationController extends Controller
 
         $applications = $query->paginate(15);
 
-        return response()->json($applications);
+        return $this->successResponse($applications);
     }
 
     /**
@@ -85,7 +88,7 @@ class ApplicationController extends Controller
                 ->count(),
         ];
 
-        return response()->json([
+        return $this->success([
             'applications' => $applications,
             'stats' => $stats
         ]);
@@ -98,7 +101,7 @@ class ApplicationController extends Controller
             ->where('institute_id', $instituteId)
             ->findOrFail($id);
 
-        return response()->json($application);
+        return $this->success($application);
     }
 
     public function markAsViewed($id)
@@ -113,7 +116,7 @@ class ApplicationController extends Controller
             ]);
         }
 
-        return response()->json(['success' => true, 'application' => $application]);
+        return $this->success($application, 'Application marked as viewed');
     }
 
     public function sendReply(Request $request, $id)
@@ -134,7 +137,7 @@ class ApplicationController extends Controller
                 'institute_id' => $institute->id,
                 'student_email' => $application->student_email,
                 'subject' => $request->subject,
-                'message' => $request->message,
+                'message' => Purifier::clean($request->message),
                 'sent_at' => now(),
             ]);
 
@@ -168,18 +171,10 @@ class ApplicationController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Reply sent successfully!',
-                'reply' => $reply
-            ]);
+            return $this->success($reply, 'Reply sent successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to send reply.',
-                'error' => $e->getMessage()
-            ], 500);
+            return $this->error('Failed to send reply: ' . $e->getMessage(), 500);
         }
     }
     public function communicationsHistory(Request $request)
@@ -214,6 +209,6 @@ class ApplicationController extends Controller
 
         $sortedHistory = $history->sortByDesc('sent_at')->values();
 
-        return response()->json($sortedHistory);
+        return $this->successResponse($sortedHistory);
     }
 }

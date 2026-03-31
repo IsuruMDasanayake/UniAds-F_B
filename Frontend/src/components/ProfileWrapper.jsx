@@ -13,7 +13,7 @@ const ProfileWrapper = () => {
         const fetchProfileData = async () => {
             try {
                 const response = await axiosClient.get('/api/profile/me');
-                setRole(response.data.role);
+                setRole(response.data.data?.role);
             } catch (error) {
                 console.error("Error fetching profile info", error);
                 navigate('/login');

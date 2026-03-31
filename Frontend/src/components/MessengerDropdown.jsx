@@ -42,10 +42,12 @@ const MessengerDropdown = ({ isOpen, onClose }) => {
         setIsLoadingInst(true);
         try {
             const res = await ChatService.getInstitutions();
-            // Handle both raw array and { data: [...] } structure
-            const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+            // Handle standard ApiResponse wrapper { success, message, data: [...] OR data: { data: [...] } }
+            const payload = res.data.data;
+            const dataArray = Array.isArray(payload) ? payload : (payload?.data || []);
+            
             // Filter for premium partners
-            setInstitutions(data.filter(i => Boolean(i.is_premium)));
+            setInstitutions(dataArray.filter(i => Boolean(i.is_premium)));
         } catch (error) {
             console.error('Failed to fetch institutions:', error);
             setInstitutions([]);
