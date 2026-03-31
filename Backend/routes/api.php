@@ -334,7 +334,6 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::prefix('career-guidance')->group(function () {
         Route::get('/', [AdminCareerGuidanceController::class, 'index']);
         Route::post('/', [AdminCareerGuidanceController::class, 'store']);
-        Route::post('/sql', [AdminCareerGuidanceController::class, 'executeSql']);
         Route::get('/{id}', [AdminCareerGuidanceController::class, 'show']);
         Route::put('/{id}', [AdminCareerGuidanceController::class, 'update']);
         Route::delete('/{id}', [AdminCareerGuidanceController::class, 'destroy']);

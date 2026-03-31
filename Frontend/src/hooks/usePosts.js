@@ -90,12 +90,26 @@ export const useToggleSavePost = () => {
       // Snapshot the previous value
       const previousQueries = queryClient.getQueriesData({ queryKey: ['posts'] });
 
+      const updatePost = (post) => 
+        post.id === postId ? { ...post, is_saved_by_user: !post.is_saved_by_user } : post;
+
       // Optimistically update to the new value in all cached post queries
       queryClient.setQueriesData({ queryKey: ['posts'] }, (oldData) => {
         if (!oldData) return oldData;
-        return oldData.map(post => 
-          post.id === postId ? { ...post, is_saved_by_user: !post.is_saved_by_user } : post
-        );
+
+        // Handle both simple arrays (usePosts) and infinite query data
+        if (Array.isArray(oldData)) {
+          return oldData.map(updatePost);
+        } else if (oldData.pages) {
+          return {
+            ...oldData,
+            pages: oldData.pages.map(page => ({
+              ...page,
+              data: page.data.map(updatePost)
+            }))
+          };
+        }
+        return oldData;
       });
 
       // Return a context object with the snapshotted value

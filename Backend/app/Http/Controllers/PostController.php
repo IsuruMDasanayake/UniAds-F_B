@@ -554,15 +554,28 @@ class PostController extends Controller
 
         /** @var \Illuminate\Pagination\LengthAwarePaginator $posts */
         $posts = Post::with(['institute', 'likes'])
-            ->withExists(['likes as is_liked_by_user' => function($q) use ($userId) {
-                $q->where('user_id', $userId);
-            }])
-            ->withExists(['savedBy as is_saved_by_user' => function($q) use ($user, $userId) {
-                $q->where('student_id', $userId);
-            }])
             ->where('status', 'active')
             ->latest()
             ->paginate(10);
+
+        // Inject liked/saved booleans (standardized logic)
+        if ($userId && $posts->count() > 0) {
+            $postIds = $posts->pluck('id')->toArray();
+            $likedPostIds = \App\Models\PostLike::where('user_id', $userId)->whereIn('post_id', $postIds)->pluck('post_id')->toArray();
+            $savedPostIds = \App\Models\SavedPost::where('student_id', $userId)->whereIn('post_id', $postIds)->pluck('post_id')->toArray();
+
+            $posts->getCollection()->transform(function($post) use ($likedPostIds, $savedPostIds) {
+                $post->is_liked_by_user = in_array($post->id, $likedPostIds);
+                $post->is_saved_by_user = in_array($post->id, $savedPostIds);
+                return $post;
+            });
+        } else {
+            $posts->getCollection()->transform(function($post) {
+                $post->is_liked_by_user = false;
+                $post->is_saved_by_user = false;
+                return $post;
+            });
+        }
 
         return $this->success($posts);
     }

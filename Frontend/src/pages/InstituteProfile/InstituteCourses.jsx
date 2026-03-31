@@ -194,7 +194,8 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
 
         // Optimistic UI update
         const stringPostId = String(postId).trim();
-        const isCurrentlySaved = savedPostIds.some(id => String(id).trim() === stringPostId) || !!course?.is_saved_by_user;
+        const targetCourse = localCourses.find(c => String(c.id).trim() === stringPostId);
+        const isCurrentlySaved = savedPostIds.some(id => String(id).trim() === stringPostId) || (targetCourse && !!targetCourse.is_saved_by_user);
         
         if (isCurrentlySaved) {
             setSavedPostIds(prev => prev.filter(id => String(id).trim() !== stringPostId));

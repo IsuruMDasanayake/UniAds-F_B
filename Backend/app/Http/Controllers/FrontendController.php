@@ -33,6 +33,9 @@ class FrontendController extends Controller
      */
     public function feedApi()
     {
+        $userId = auth()->id();
+        $user = auth()->user();
+
         $posts = Post::with(['institute', 'likes'])
             ->where('status', 'active')
             ->latest()
@@ -60,14 +63,24 @@ class FrontendController extends Controller
             ->take(10)
             ->get();
 
-        $userId = auth()->id();
-        $user = auth()->user();
+        // Inject liked/saved booleans (standardized logic)
+        if ($userId && $posts->count() > 0) {
+            $postIds = $posts->pluck('id')->toArray();
+            $likedPostIds = \App\Models\PostLike::where('user_id', $userId)->whereIn('post_id', $postIds)->pluck('post_id')->toArray();
+            $savedPostIds = \App\Models\SavedPost::where('student_id', $userId)->whereIn('post_id', $postIds)->pluck('post_id')->toArray();
 
-        $posts->getCollection()->transform(function ($post) use ($user) {
-            $post->is_liked_by_user = $user ? $post->likes()->where('user_id', $user->id)->exists() : false;
-            $post->is_saved_by_user = ($user && $user->role === 'User') ? $user->savedPosts()->where('post_id', $post->id)->exists() : false;
-            return $post;
-        });
+            $posts->getCollection()->transform(function($post) use ($likedPostIds, $savedPostIds) {
+                $post->is_liked_by_user = in_array($post->id, $likedPostIds);
+                $post->is_saved_by_user = in_array($post->id, $savedPostIds);
+                return $post;
+            });
+        } else {
+            $posts->getCollection()->transform(function($post) {
+                $post->is_liked_by_user = false;
+                $post->is_saved_by_user = false;
+                return $post;
+            });
+        }
 
         $events->transform(function ($event) use ($userId) {
             $event->is_interested = $userId ? EventUserInterest::where('user_id', $userId)
