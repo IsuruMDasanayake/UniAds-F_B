@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 
 class Institute extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
 
     protected $fillable = [
         'institute_name',
@@ -55,6 +56,19 @@ class Institute extends Model
                 $institute->slug = \Illuminate\Support\Str::slug($institute->institute_name);
             }
         });
+    }
+
+    public function toSearchableArray()
+    {
+        return [
+            'id' => $this->id,
+            'institute_name' => $this->institute_name,
+            'institute_type' => $this->institute_type,
+            'location' => $this->location,
+            'bio' => strip_tags($this->bio),
+            'status' => $this->status,
+            'is_premium' => (bool) $this->is_premium,
+        ];
     }
 
     protected $appends = ['average_rating', 'rating_count', 'logo_url'];

@@ -93,6 +93,21 @@ services:
     networks:
       - uniads-network
 
+  # Meilisearch Service (Search Engine)
+  meilisearch:
+    image: getmeili/meilisearch:v1.6
+    container_name: uniads-meilisearch
+    restart: unless-stopped
+    environment:
+      - MEILI_MASTER_KEY=masterKey
+      - MEILI_ENV=development
+    ports:
+      - "7700:7700"
+    volumes:
+      - meilisearch-data:/meili_data
+    networks:
+      - uniads-network
+
 #  # ChromaDB Service (Vector Database) - Currently unused
 #  chromadb:
 #    image: chromadb/chroma:latest
@@ -113,3 +128,4 @@ volumes:
   db-data:
   frontend-node-modules:
   chromadb-data:
+  meilisearch-data:

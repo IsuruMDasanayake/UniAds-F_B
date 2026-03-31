@@ -26,23 +26,14 @@ class SearchController extends Controller
             return redirect()->back()->with('error', 'Please enter a search term.');
         }
 
-        $posts = Post::where('title', 'LIKE', "%{$query}%")
-            ->with('institute') // eager load
-            ->select('posts.*')
-            ->addSelect(DB::raw("
-            (
-                CASE 
-                    WHEN institutes.is_premium = 1 
-                        AND posts.created_at >= NOW() - INTERVAL 10 DAY 
-                    THEN 2 
-                    ELSE 0 
-                END 
-                + institutes.followers_count * 0.01
-            ) as priority
-        "))
-            ->join('institutes', 'institutes.id', '=', 'posts.institute_id')
-            ->orderByDesc('priority')
-            ->orderByDesc('posts.created_at')
+        // Use Scout/Meilisearch for searching and sorting
+        $posts = Post::search($query)
+            ->query(function ($builder) {
+                // Eager load the institute relation for blade rendering
+                $builder->with('institute');
+            })
+            ->orderBy('score_cache', 'desc')
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return view('frontend.search.course-results', compact('query', 'posts'));
@@ -83,23 +74,15 @@ class SearchController extends Controller
             ]);
         }
 
-        // Normal search with improved ranking formula
-        $posts = Post::query()
-            ->join('institutes', 'posts.institute_id', '=', 'institutes.id')
-            ->select('posts.*')
-            ->selectRaw("
-                (
-                    (CASE WHEN institutes.is_premium = 1 THEN 30 ELSE 0 END) +
-                    (LOG(institutes.followers_count + 1) * 10) +
-                    (100 - TIMESTAMPDIFF(HOUR, posts.created_at, NOW())) +
-                    (MOD(posts.id, 10) * 0.5)
-                ) as score
-            ")
-            ->with('institute')
-            ->where('posts.title', 'LIKE', "%{$query}%")
-            ->where('posts.status', 'active')
-            ->where('posts.created_at', '>=', now()->subDays(60))
-            ->orderByDesc('score')
+        // Normal search using Meilisearch!
+        $posts = Post::search($query)
+            ->where('status', 'active')
+            ->orderBy('score_cache', 'desc')
+            ->query(function ($builder) {
+                // Eager load and apply SQL-only conditions that don't need index search
+                $builder->with('institute')
+                        ->where('created_at', '>=', now()->subDays(60));
+            })
             ->paginate(15);
 
         return $this->successResponse([

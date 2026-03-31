@@ -301,26 +301,18 @@ class PostController extends Controller
         $activeFilters = $request->get('filters', []); // e.g. ?filters[Location][]=Colombo
         
         $user = Auth::guard('sanctum')->user();
-        $userId = $user ? $user->id : 'guest';
+        $userId = $user ? $user->id : null;
         
+        // Use a global cache key devoid of user-specific elements
         $cacheKey = 'api_filter_v1_' . md5(json_encode([
-            $filterType, $filterValue, $page, $search, $activeFilters, $userId
+            $filterType, $filterValue, $page, $search, $activeFilters
         ]));
 
         $postsData = \Illuminate\Support\Facades\Cache::remember($cacheKey, 300, function () use ($filterType, $filterValue, $search, $activeFilters) {
-            $user = Auth::guard('sanctum')->user();
-            $userId = $user ? $user->id : null;
-
             $query = Post::query()
                 ->join('institutes', 'institutes.id', '=', 'posts.institute_id')
                 ->select('posts.*')
-                ->with(['institute', 'likes'])
-                ->withExists(['likes as is_liked_by_user' => function($q) use ($userId) {
-                    $q->where('user_id', $userId);
-                }])
-                ->withExists(['savedBy as is_saved_by_user' => function($q) use ($user, $userId) {
-                    $q->where('student_id', $userId);
-                }])
+                ->with(['institute', 'likes']) // We keep likes for global count if needed
                 ->where('posts.status', 'active')
                 ->where('posts.created_at', '>=', now()->subDays(365));
 
@@ -344,11 +336,12 @@ class PostController extends Controller
 
             // Secondary Search Query
             if (!empty($search)) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('posts.title', 'LIKE', "%{$search}%")
-                      ->orWhere('posts.course_name', 'LIKE', "%{$search}%")
-                      ->orWhere('institutes.institute_name', 'LIKE', "%{$search}%");
-                });
+                $scoutIds = \App\Models\Post::search($search)->take(1000)->keys();
+                if ($scoutIds->isEmpty()) {
+                    $query->whereRaw('1 = 0');
+                } else {
+                    $query->whereIn('posts.id', $scoutIds);
+                }
             }
 
             // Secondary Checkbox Filters
@@ -372,6 +365,33 @@ class PostController extends Controller
             return $query->orderByDesc('posts.score_cache')
                 ->paginate(100);
         });
+
+        // Inject user-specific boolean flags (likes/saves) dynamically outside of the cache
+        if ($userId && $postsData->count() > 0) {
+            $postIds = collect($postsData->items())->pluck('id');
+            
+            $likedPostIds = \App\Models\PostLike::where('user_id', $userId)
+                                ->whereIn('post_id', $postIds)
+                                ->pluck('post_id')
+                                ->toArray();
+                                
+            $savedPostIds = \App\Models\SavedPost::where('student_id', $userId)
+                                ->whereIn('post_id', $postIds)
+                                ->pluck('post_id')
+                                ->toArray();
+
+            $postsData->getCollection()->transform(function($post) use ($likedPostIds, $savedPostIds) {
+                $post->is_liked_by_user = in_array($post->id, $likedPostIds);
+                $post->is_saved_by_user = in_array($post->id, $savedPostIds);
+                return $post;
+            });
+        } else {
+            $postsData->getCollection()->transform(function($post) {
+                $post->is_liked_by_user = false;
+                $post->is_saved_by_user = false;
+                return $post;
+            });
+        }
 
         return $this->successResponse([
             'posts' => $postsData,
