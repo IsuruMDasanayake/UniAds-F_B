@@ -37,12 +37,7 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request)
     {
-        if (User::where('email', $request->email)->exists()) {
-            if ($request->wantsJson()) {
-                return $this->error('The email has already been taken.', 422, ['email' => ['The email has already been taken.']]);
-            }
-            return back()->withInput()->with('email_exists', true);
-        }
+
 
         $request->validate([
             'name' => ['required', 'string', 'max:255'],

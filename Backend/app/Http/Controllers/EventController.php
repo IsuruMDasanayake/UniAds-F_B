@@ -154,7 +154,7 @@ class EventController extends Controller
      */
     public function apiAdminIndex()
     {
-        $events = Event::with('institute')->orderBy('created_at', 'desc')->get();
+        $events = Event::with('institute')->orderBy('created_at', 'desc')->paginate(20);
         return $this->successResponse($events);
     }
 

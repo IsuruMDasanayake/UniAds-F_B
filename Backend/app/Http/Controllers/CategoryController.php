@@ -153,16 +153,31 @@ class CategoryController extends Controller
             'Courses' => 'course_name'
         ];
 
+        // Optimized approach to avoid N+1 queries:
+        // 1. Fetch exact match counts for mapped columns in grouped queries
+        $counts = [];
+        foreach (['course_type', 'duration', 'course_format', 'attendance_type', 'course_name'] as $col) {
+            $counts[$col] = \App\Models\Post::select($col, \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+                ->whereNotNull($col)
+                ->groupBy($col)
+                ->pluck('total', $col)
+                ->toArray();
+        }
+
+        // 2. Fetch location counts (harder due to LIKE but we can optimize)
+        $locationCounts = [];
+        $locations = $categories->where('main_category', 'Location')->pluck('name');
+        foreach ($locations as $loc) {
+            $locationCounts[$loc] = \App\Models\Post::where('location', 'LIKE', '%' . $loc . '%')->count();
+        }
+
+        // 3. Map back to categories
         foreach ($categories as $category) {
             $column = $columnMapping[$category->main_category] ?? null;
-
-            if ($column) {
-                if ($column === 'location') {
-                    // Location is often a comma-separated string in this DB
-                    $category->posts_count = \App\Models\Post::where($column, 'LIKE', '%' . $category->name . '%')->count();
-                } else {
-                    $category->posts_count = \App\Models\Post::where($column, $category->name)->count();
-                }
+            if ($column === 'location') {
+                $category->posts_count = $locationCounts[$category->name] ?? 0;
+            } elseif ($column && isset($counts[$column])) {
+                $category->posts_count = $counts[$column][$category->name] ?? 0;
             } else {
                 $category->posts_count = 0;
             }

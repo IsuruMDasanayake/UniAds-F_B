@@ -33,14 +33,20 @@ const EventManagement = () => {
     const [isToggling, setIsToggling] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [pagination, setPagination] = useState({ current_page: 1, last_page: 1 });
 
 
 
-    const fetchEvents = async (isSilent = false) => {
+    const fetchEvents = async (page = 1, isSilent = false) => {
         try {
             if (!isSilent) setLoading(true);
-            const response = await axiosClient.get('/api/admin/events');
-            setEvents(response.data.data || []);
+            const response = await axiosClient.get(`/api/admin/events?page=${page}`);
+            // Backend now returns paginated data: { data: { data: [...], ... } }
+            setEvents(response.data.data.data || []);
+            setPagination({
+                current_page: response.data.data.current_page,
+                last_page: response.data.data.last_page
+            });
         } catch (error) {
             console.error('Error fetching events:', error);
         } finally {
@@ -49,11 +55,11 @@ const EventManagement = () => {
     };
 
     useEffect(() => {
-        fetchEvents();
+        fetchEvents(pagination.current_page);
 
-        const intervalId = setInterval(() => fetchEvents(true), 30000);
+        const intervalId = setInterval(() => fetchEvents(pagination.current_page, true), 30000);
         return () => clearInterval(intervalId);
-    }, []);
+    }, [pagination.current_page]);
 
     const handleToggleClick = (event) => {
         setToggleModal({
@@ -269,6 +275,27 @@ const EventManagement = () => {
                             )}
                         </tbody>
                     </table>
+                </div>
+
+                {/* Pagination Controls */}
+                <div className="table-pagination-footer flex justify-between items-center p-4 border-t border-glass">
+                    <button
+                        className="admin-btn-outline"
+                        disabled={pagination.current_page === 1}
+                        onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page - 1 }))}
+                    >
+                        Previous
+                    </button>
+                    <span className="text-muted">
+                        Page {pagination.current_page} of {pagination.last_page}
+                    </span>
+                    <button
+                        className="admin-btn-outline"
+                        disabled={pagination.current_page === pagination.last_page}
+                        onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page + 1 }))}
+                    >
+                        Next
+                    </button>
                 </div>
             </div>
 

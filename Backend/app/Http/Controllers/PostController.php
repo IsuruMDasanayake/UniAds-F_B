@@ -587,7 +587,7 @@ class PostController extends Controller
 
     public function apiAdminIndex()
     {
-        $posts = Post::with('institute')->withCount('likes')->latest()->get();
+        $posts = Post::with('institute')->withCount('likes')->latest()->paginate(20);
         return $this->success($posts);
     }
 

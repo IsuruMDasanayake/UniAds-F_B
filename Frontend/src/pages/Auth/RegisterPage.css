@@ -369,14 +369,12 @@
 .register-auth-container .error-text {
     color: var(--c-accent);
     font-size: 0.8rem;
-    margin-top: 1rem;
     font-weight: 500;
 }
 
 .register-auth-container .success-text {
     color: var(--c-success);
     font-size: 0.8rem;
-    margin-top: 1rem;
     font-weight: 500;
 }
 
