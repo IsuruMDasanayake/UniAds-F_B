@@ -41,6 +41,7 @@ class AiAdvisorController extends Controller
 
             $user = $request->user();
             $currentProfile = array_merge($defaults, $validated['profile'] ?? []);
+            $initialProfile = $currentProfile; // [NEW] Capture profile state before extraction logic
 
             // ─────────────────────────────────────────────
             // 0. Global Command Reset (Another Field / Start Over)
@@ -584,10 +585,33 @@ class AiAdvisorController extends Controller
             }
 
             if ($questionToAsk) {
-                Log::info("Returning guiding question directly (no AI call needed): $questionToAsk");
+                // [NEW] Logic to detect "State Lock" (No progress made)
+                // Filter out commands that intentionally don't change fields yet (like 'Help' or 'Check last search')
+                $isSystemCommand = preg_match('/\b(start over|reset|another field|help|check last search)\b/i', $lowerInput);
+                
+                // Compare relevant profile fields
+                $fieldsToWatch = ['education_level', 'path_preference', 'al_stream', 'main_field', 'interest', 'study_preference'];
+                $progressMade = false;
+                foreach ($fieldsToWatch as $f) {
+                    if (($currentProfile[$f] ?? null) !== ($initialProfile[$f] ?? null)) {
+                        $progressMade = true;
+                        break;
+                    }
+                }
+
+                $nudgeMessage = $questionToAsk;
+                if (!$progressMade && !$isSystemCommand && !empty($lastUserMessage)) {
+                    $prefix = "I'm sorry, I didn't quite catch that. 😅 To help you better, ";
+                    if ($targetLang === 'Sinhala') $prefix = "සමාවන්න, මට එය හරියටම වැටහුණේ නැහැ. 😅 ඔබට වඩා හොඳින් උදවු කිරීමට, ";
+                    elseif ($targetLang === 'Tamil') $prefix = "மன்னிக்கவும், எனக்கு அது சரியாக புரியவில்லை. 😅 உங்களுக்கு சிறப்பாக உதவ, ";
+                    
+                    $nudgeMessage = $prefix . mb_strtolower(mb_substr($questionToAsk, 0, 1)) . mb_substr($questionToAsk, 1);
+                }
+
+                Log::info("Returning guiding question (Progress: " . ($progressMade ? 'Yes' : 'No') . "): $nudgeMessage");
 
                 return $this->success([
-                    'recommendation'    => $questionToAsk,
+                    'recommendation'    => $nudgeMessage,
                     'profile'           => $currentProfile,
                     'real_posts'        => [],
                     'suggested_replies' => $suggestedReplies,
