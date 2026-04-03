@@ -286,7 +286,10 @@ function Navbar({ user }) {
                                     {displayUser?.role === 'User' && (
                                         <Link to="/profile">Profile</Link>
                                     )}
-                                    {displayUser?.role === 'Institute' && Boolean(displayUser?.institute?.is_premium) && (
+                                    {displayUser?.role === 'Institute' && 
+                                     Boolean(displayUser?.institute?.is_premium) && 
+                                     displayUser?.institute?.premium_expires_at &&
+                                     new Date(displayUser?.institute?.premium_expires_at) > new Date() && (
                                         <Link to={`/analytics/${displayUser?.institute?.slug || displayUser?.institute?.id}/overview`} className="analytics-link" target="_blank" rel="noopener noreferrer">
                                             Dashboard
                                         </Link>

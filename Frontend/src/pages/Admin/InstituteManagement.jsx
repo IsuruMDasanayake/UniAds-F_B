@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Shield, MoreVertical, Building2, CheckCircle, XCircle, AlertCircle, Eye, Crown, Edit } from 'lucide-react';
+import { toast } from 'sonner';
 import axiosClient from '../../lib/axios';
 import ActionConfirmModal from '../../components/Modals/ActionConfirmModal';
 import AdminEditInstituteModal from './modals/AdminEditInstituteModal';
@@ -86,11 +87,12 @@ const InstituteManagement = () => {
                     setInstitutes(institutes.map(inst =>
                         inst.id === instituteId ? { ...inst, status: 'approved' } : inst
                     ));
+                    toast.success('Institute approved successfully');
                     setConfirmModal(prev => ({ ...prev, isOpen: false }));
                 })
                 .catch(err => {
                     console.error('Error approving institute:', err);
-                    alert('Failed to approve institute');
+                    toast.error('Failed to approve institute');
                 })
                 .finally(() => {
                     setIsProcessingAction(false);
@@ -101,11 +103,12 @@ const InstituteManagement = () => {
                     setInstitutes(institutes.map(inst =>
                         inst.id === instituteId ? { ...inst, status: 'unapproved' } : inst
                     ));
+                    toast.success('Institute unapproved');
                     setConfirmModal(prev => ({ ...prev, isOpen: false }));
                 })
                 .catch(err => {
                     console.error('Error unapproving institute:', err);
-                    alert('Failed to unapprove institute');
+                    toast.error('Failed to unapprove institute');
                 })
                 .finally(() => {
                     setIsProcessingAction(false);
@@ -140,11 +143,12 @@ const InstituteManagement = () => {
                 setInstitutes(institutes.map(inst =>
                     inst.id === editModal.institute.id ? updated : inst
                 ));
+                toast.success('Institute details updated successfully');
                 setEditModal({ isOpen: false, institute: null });
             }
         } catch (error) {
             console.error('Error updating institute:', error);
-            alert('Failed to update institute details. ' + (error.response?.data?.message || ''));
+            toast.error('Failed to update institute details');
         } finally {
             setIsUpdating(false);
         }

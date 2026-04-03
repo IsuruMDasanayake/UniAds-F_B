@@ -15,7 +15,9 @@ const InstituteRoute = ({ children }) => {
 
                 if (payload.role !== 'Institute') {
                     setAccessState('DENIED_USER');
-                } else if (!payload.institute?.is_premium) {
+                } else if (!payload.institute?.is_premium || 
+                           !payload.institute?.premium_expires_at || 
+                           new Date(payload.institute.premium_expires_at) < new Date()) {
                     setAccessState('DENIED_NONPREMIUM');
                 } else {
                     setAccessState('AUTHORIZED');

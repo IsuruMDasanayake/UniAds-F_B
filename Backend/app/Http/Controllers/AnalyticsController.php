@@ -919,6 +919,7 @@ class AnalyticsController extends Controller
         $history = $history->merge($paidHistory)->sortByDesc('started_at')->values();
 
         // 3. Stats
+        $remainingDays = 0;
         if ($currentPlan['ends_at']) {
             $endsAt = Carbon::parse($currentPlan['ends_at']);
             if ($endsAt->isFuture()) {

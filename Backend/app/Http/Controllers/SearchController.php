@@ -77,11 +77,14 @@ class SearchController extends Controller
         // Normal search using Meilisearch!
         $posts = Post::search($query)
             ->where('status', 'active')
-            ->orderBy('score_cache', 'desc')
             ->query(function ($builder) {
-                // Eager load and apply SQL-only conditions that don't need index search
-                $builder->with('institute')
-                        ->where('created_at', '>=', now()->subDays(60));
+                // Eager load and apply SQL-only conditions
+                $builder->join('institutes', 'institutes.id', '=', 'posts.institute_id')
+                        ->select('posts.*')
+                        ->with('institute')
+                        ->where('posts.created_at', '>=', now()->subDays(60))
+                        ->orderByDesc('institutes.is_premium')
+                        ->orderByDesc('posts.score_cache');
             })
             ->paginate(15);
 

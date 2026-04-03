@@ -7,10 +7,13 @@ import { Ban, Calendar } from 'lucide-react';
 const SubscriptionHistoryTable = ({ history, loading, onCancel }) => {
     const formatDate = (dateString) => {
         if (!dateString) return '-';
-        return new Date(dateString).toLocaleDateString('en-GB', {
+        return new Date(dateString).toLocaleString('en-GB', {
             day: '2-digit',
             month: 'short',
-            year: 'numeric'
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
         });
     };
 
@@ -35,15 +38,30 @@ const SubscriptionHistoryTable = ({ history, loading, onCancel }) => {
         },
         {
             header: 'Started At',
-            render: (row) => formatDate(row.started_at)
+            render: (row) => (
+                <div className="date-time-v2">
+                    <div className="date-main">{row.started_at ? new Date(row.started_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}</div>
+                    <div className="time-sub">{row.started_at ? new Date(row.started_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase() : ''}</div>
+                </div>
+            )
         },
         {
             header: 'Ends At',
-            render: (row) => formatDate(row.ends_at)
+            render: (row) => (
+                <div className="date-time-v2">
+                    <div className="date-main">{row.ends_at ? new Date(row.ends_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}</div>
+                    <div className="time-sub">{row.ends_at ? new Date(row.ends_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase() : ''}</div>
+                </div>
+            )
         },
         {
             header: 'Cancelled At',
-            render: (row) => formatDate(row.cancelled_at)
+            render: (row) => (
+                <div className="date-time-v2">
+                    <div className="date-main">{row.cancelled_at ? new Date(row.cancelled_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}</div>
+                    <div className="time-sub">{row.cancelled_at ? new Date(row.cancelled_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase() : ''}</div>
+                </div>
+            )
         },
         {
             header: 'Cancel Reason',

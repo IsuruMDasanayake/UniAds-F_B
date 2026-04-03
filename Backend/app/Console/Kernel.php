@@ -18,8 +18,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('notifications:send-scheduled')->dailyAt('09:00');
         $schedule->command('chat:cleanup')->daily();
 
-        // Recalculate post scores for ranking
-        $schedule->job(new \App\Jobs\UpdatePostScoresJob)->hourly();
+        // Sync expired premium statuses and subscriptions
+        $schedule->command('subscriptions:sync-expiry')->everyMinute();
+
+        // Recalculate post scores for ranking every 15 minutes
+        $schedule->job(new \App\Jobs\UpdatePostScoresJob)->everyFifteenMinutes();
     }
 
 

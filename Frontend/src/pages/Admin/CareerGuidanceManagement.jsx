@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Search, Edit2, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import axiosClient from '../../lib/axios';
 import ActionConfirmModal from '../../components/Modals/ActionConfirmModal';
 import CareerGuidanceModal from '../../components/Admin/Modals/CareerGuidanceModal';
@@ -38,12 +39,20 @@ const CareerGuidanceManagement = () => {
     };
 
     const handleSave = async (formData) => {
-        if (modalMode === 'add') {
-            await axiosClient.post('/api/admin/career-guidance', formData);
-        } else {
-            await axiosClient.put(`/api/admin/career-guidance/${selectedGuidance.id}`, formData);
+        try {
+            if (modalMode === 'add') {
+                await axiosClient.post('/api/admin/career-guidance', formData);
+                toast.success('New career path added successfully!');
+            } else {
+                await axiosClient.put(`/api/admin/career-guidance/${selectedGuidance.id}`, formData);
+                toast.success('Career path updated successfully!');
+            }
+            setShowModal(false);
+            fetchGuidances();
+        } catch (error) {
+            console.error('Error saving career guidance:', error);
+            toast.error('Failed to save career guidance.');
         }
-        fetchGuidances();
     };
 
     const confirmDelete = async () => {
@@ -52,10 +61,11 @@ const CareerGuidanceManagement = () => {
         try {
             await axiosClient.delete(`/api/admin/career-guidance/${deleteModal.id}`);
             setGuidances(guidances.filter(g => g.id !== deleteModal.id));
+            toast.success('Career path deleted.');
             setDeleteModal({ isOpen: false, id: null, title: '' });
         } catch (error) {
             console.error('Error deleting:', error);
-            alert('Failed to delete record.');
+            toast.error('Failed to delete record.');
         } finally {
             setIsDeleting(false);
         }

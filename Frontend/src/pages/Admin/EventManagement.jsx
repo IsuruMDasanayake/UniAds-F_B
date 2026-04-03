@@ -16,6 +16,7 @@ import {
     FileText,
     Activity
 } from 'lucide-react';
+import { toast } from 'sonner';
 import axiosClient from '../../lib/axios';
 import ActionConfirmModal from '../../components/Modals/ActionConfirmModal';
 import { getStorageUrl } from '../../lib/config';
@@ -78,9 +79,11 @@ const EventManagement = () => {
             setEvents(events.map(e =>
                 e.id === toggleModal.id ? { ...e, is_active: resp.data.data.is_active } : e
             ));
+            toast.success(`Event ${resp.data.data.is_active ? 'visible' : 'hidden'} successfully!`);
             setToggleModal({ isOpen: false, id: null, title: '', isActive: false });
         } catch (error) {
             console.error('Error toggling event status:', error);
+            toast.error('Failed to update event status.');
         } finally {
             setIsToggling(false);
         }
@@ -100,9 +103,11 @@ const EventManagement = () => {
         try {
             await axiosClient.delete(`/api/admin/events/${deleteModal.id}`);
             setEvents(events.filter(e => e.id !== deleteModal.id));
+            toast.success('Event deleted successfully.');
             setDeleteModal({ isOpen: false, id: null, title: '' });
         } catch (error) {
             console.error('Error deleting event:', error);
+            toast.error('Failed to delete event.');
         } finally {
             setIsDeleting(false);
         }

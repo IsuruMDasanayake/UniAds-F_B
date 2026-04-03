@@ -12,6 +12,7 @@ import {
     X,
     AlertTriangle
 } from 'lucide-react';
+import { toast } from 'sonner';
 import axiosClient from '../../lib/axios';
 import ActionConfirmModal from '../../components/Modals/ActionConfirmModal';
 import './UserManagement.css';
@@ -220,18 +221,25 @@ const UserManagement = () => {
     };
 
     const handleSaveUser = async (formData) => {
-        if (modalMode === 'add') {
-            const response = await axiosClient.post('/api/admin/users', formData);
-            if (response.data.success) {
-                setUsers([...users, response.data.data]);
-                // Re-fetch to be sure or just append
-                fetchUsers();
+        try {
+            if (modalMode === 'add') {
+                const response = await axiosClient.post('/api/admin/users', formData);
+                if (response.data.success) {
+                    setUsers([...users, response.data.data]);
+                    toast.success('User created successfully!');
+                    fetchUsers();
+                }
+            } else {
+                const response = await axiosClient.put(`/api/admin/users/${selectedUser.id}`, formData);
+                if (response.data.success) {
+                    setUsers(users.map(u => u.id === selectedUser.id ? response.data.data : u));
+                    toast.success('User updated successfully!');
+                }
             }
-        } else {
-            const response = await axiosClient.put(`/api/admin/users/${selectedUser.id}`, formData);
-            if (response.data.success) {
-                setUsers(users.map(u => u.id === selectedUser.id ? response.data.data : u));
-            }
+        } catch (error) {
+            console.error('Error saving user:', error);
+            toast.error(error.response?.data?.message || 'Failed to save user');
+            throw error;
         }
     };
 
@@ -258,10 +266,11 @@ const UserManagement = () => {
         try {
             await axiosClient.delete(`/api/admin/users/${deleteModal.userId}`);
             setUsers(users.filter(u => u.id !== deleteModal.userId));
+            toast.success('User deleted successfully.');
             setDeleteModal({ isOpen: false, userId: null, userName: '' });
         } catch (error) {
             console.error('Error deleting user:', error);
-            alert('Failed to delete user');
+            toast.error(error.response?.data?.message || 'Failed to delete user');
         } finally {
             setIsDeleting(false);
         }

@@ -233,8 +233,8 @@
 
 /* Modal Styles */
 .admin-subscription-scope .subscription-details-modal {
-    max-width: 800px;
-    width: 90%;
+    max-width: 1000px;
+    width: 95%;
     background: #0f172a;
     /* Dark background matching theme */
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -301,9 +301,26 @@
 
 .admin-subscription-scope .modal-table td {
     background: rgba(255, 255, 255, 0.03);
-    padding: 1rem;
+    padding: 0.75rem 1rem;
     color: #e2e8f0;
     font-size: 0.9rem;
+    vertical-align: middle;
+}
+
+.admin-subscription-scope .date-time-cell {
+    line-height: 1.4;
+}
+
+.admin-subscription-scope .date-part {
+    font-weight: 500;
+    color: #fff;
+    white-space: nowrap;
+}
+
+.admin-subscription-scope .time-part {
+    font-size: 0.75rem;
+    color: var(--admin-text-muted);
+    font-weight: 400;
 }
 
 .admin-subscription-scope .modal-table tr td:first-child {

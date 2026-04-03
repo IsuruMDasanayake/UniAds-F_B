@@ -307,8 +307,13 @@ const FloatingAiAdvisor = ({ user }) => {
               ))}
 
               {loading && (
-                <div className="message bot-message loading-indicator">
-                  <span className="dot"></span><span className="dot"></span><span className="dot"></span>
+                <div className="message bot-message emy-thinking">
+                  <div className="bot-avatar-mini">
+                    <img src="/images/emy/emy_character.png" alt="EMY" />
+                  </div>
+                  <div className="thinking-text">
+                    EMY is thinking<span className="dot">.</span><span className="dot">.</span><span className="dot">.</span>
+                  </div>
                 </div>
               )}
 

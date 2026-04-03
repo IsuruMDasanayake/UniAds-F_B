@@ -15,6 +15,7 @@ import {
     FileText,
     Filter
 } from 'lucide-react';
+import { toast } from 'sonner';
 import axiosClient from '../../lib/axios';
 import ActionConfirmModal from '../../components/Modals/ActionConfirmModal';
 import { getStorageUrl } from '../../lib/config';
@@ -77,9 +78,11 @@ const PostManagement = () => {
             setPosts(posts.map(p =>
                 p.id === toggleModal.id ? { ...p, status: resp.data.data.status } : p
             ));
+            toast.success(`Post ${resp.data.data.status === 'active' ? 'activated' : 'deactivated'} successfully!`);
             setToggleModal({ isOpen: false, id: null, title: '', currentStatus: '' });
         } catch (error) {
             console.error('Error toggling post status:', error);
+            toast.error('Failed to update post status.');
         } finally {
             setIsToggling(false);
         }
@@ -99,9 +102,11 @@ const PostManagement = () => {
         try {
             await axiosClient.delete(`/api/admin/posts/${deleteModal.id}`);
             setPosts(posts.filter(p => p.id !== deleteModal.id));
+            toast.success('Post deleted permanently.');
             setDeleteModal({ isOpen: false, id: null, title: '' });
         } catch (error) {
             console.error('Error deleting post:', error);
+            toast.error('Failed to delete post.');
         } finally {
             setIsDeleting(false);
         }

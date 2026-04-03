@@ -9,6 +9,7 @@ import {
     Filter,
     PlusCircle
 } from 'lucide-react';
+import { toast } from 'sonner';
 import axiosClient from '../../lib/axios';
 import ActionConfirmModal from '../../components/Modals/ActionConfirmModal';
 import './CategoryManagement.css';
@@ -236,14 +237,20 @@ const CategoryManagement = () => {
     };
 
     const handleSave = async (formData) => {
-        if (modalMode === 'add') {
-            const response = await axiosClient.post('/api/admin/categories', formData);
-            // Assuming simplified response structure tailored for frontend update
-            // Ideally re-fetch or append correctly based on actual API response
+        try {
+            if (modalMode === 'add') {
+                await axiosClient.post('/api/admin/categories', formData);
+                toast.success('Category created successfully!');
+            } else {
+                await axiosClient.put(`/api/admin/categories/${selectedCategory.id}`, formData);
+                toast.success('Category updated successfully!');
+            }
+            setShowModal(false);
             fetchCategories();
-        } else {
-            const response = await axiosClient.put(`/api/admin/categories/${selectedCategory.id}`, formData);
-            setCategories(categories.map(cat => cat.id === selectedCategory.id ? { ...cat, ...formData } : cat));
+        } catch (error) {
+            console.error('Error saving category:', error);
+            toast.error('Failed to save category.');
+            throw error; // Re-throw for modal 'saving' state
         }
     };
 
@@ -257,11 +264,12 @@ const CategoryManagement = () => {
         try {
             await axiosClient.delete(`/api/admin/categories/${deleteModal.id}`);
             setCategories(categories.filter(cat => cat.id !== deleteModal.id));
+            toast.success('Category deleted successfully.');
             setDeleteModal({ isOpen: false, id: null, name: '' });
         } catch (error) {
             console.error('Error deleting category:', error);
-            const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Failed to delete category. It may have associated content.';
-            alert(errorMessage);
+            const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Failed to delete category.';
+            toast.error(errorMessage);
         } finally {
             setIsDeleting(false);
         }

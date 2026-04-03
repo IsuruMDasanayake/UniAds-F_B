@@ -276,9 +276,18 @@ const SubscriptionManagement = () => {
                                                         {sub.status}
                                                     </span>
                                                 </td>
-                                                <td>{sub.started_at ? new Date(sub.started_at).toLocaleDateString() : '-'}</td>
-                                                <td>{sub.ends_at ? new Date(sub.ends_at).toLocaleDateString() : '-'}</td>
-                                                <td>{sub.cancelled_at ? new Date(sub.cancelled_at).toLocaleDateString() : '—'}</td>
+                                                <td className="date-time-cell">
+                                                    <div className="date-part">{sub.started_at ? new Date(sub.started_at).toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' }) : '-'}</div>
+                                                    <div className="time-part">{sub.started_at ? new Date(sub.started_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase() : ''}</div>
+                                                </td>
+                                                <td className="date-time-cell">
+                                                    <div className="date-part">{sub.ends_at ? new Date(sub.ends_at).toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' }) : '-'}</div>
+                                                    <div className="time-part">{sub.ends_at ? new Date(sub.ends_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase() : ''}</div>
+                                                </td>
+                                                <td className="date-time-cell">
+                                                    <div className="date-part">{sub.cancelled_at ? new Date(sub.cancelled_at).toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' }) : '—'}</div>
+                                                    <div className="time-part">{sub.cancelled_at ? new Date(sub.cancelled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase() : ''}</div>
+                                                </td>
                                                 <td>{sub.cancel_reason || sub.trial_cancel_reason || '—'}</td>
                                             </tr>
                                         ))}

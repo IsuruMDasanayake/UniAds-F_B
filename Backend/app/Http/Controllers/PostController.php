@@ -260,7 +260,7 @@ class PostController extends Controller
             if ($likedPost) {
                 // If the user has liked the post, remove the like (decrease the like count)
                 $likedPost->delete();
-                $post->decrement('likes_count');
+                $post->where('id', $post->id)->where('likes_count', '>', 0)->decrement('likes_count');
                 $liked = false;
             } else {
                 // If the user hasn't liked yet, add the like (increase the like count)
@@ -362,7 +362,8 @@ class PostController extends Controller
                 }
             }
 
-            return $query->orderByDesc('posts.score_cache')
+            return $query->orderByDesc('institutes.is_premium')
+                ->orderByDesc('posts.score_cache')
                 ->paginate(100);
         });
 

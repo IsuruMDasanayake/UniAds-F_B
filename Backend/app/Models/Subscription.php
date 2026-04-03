@@ -27,9 +27,9 @@ class Subscription extends Model
 
     protected $casts = [
         'is_trial' => 'boolean',
-        'started_at' => 'date',
-        'ends_at' => 'date',
-        'cancelled_at' => 'date',
+        'started_at' => 'datetime',
+        'ends_at' => 'datetime',
+        'cancelled_at' => 'datetime',
     ];
 
     public function institute()

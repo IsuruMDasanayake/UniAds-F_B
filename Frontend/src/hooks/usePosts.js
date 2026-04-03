@@ -154,7 +154,7 @@ export const useToggleLikePost = () => {
             return {
               ...post,
               is_liked_by_user: isLiked,
-              likes_count: isLiked ? (post.likes_count + 1) : (post.likes_count - 1),
+              likes_count: isLiked ? (post.likes_count + 1) : Math.max(0, post.likes_count - 1),
             };
           }
           return post;

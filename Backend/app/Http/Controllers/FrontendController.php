@@ -69,25 +69,50 @@ class FrontendController extends Controller
             $likedPostIds = \App\Models\PostLike::where('user_id', $userId)->whereIn('post_id', $postIds)->pluck('post_id')->toArray();
             $savedPostIds = \App\Models\SavedPost::where('student_id', $userId)->whereIn('post_id', $postIds)->pluck('post_id')->toArray();
 
-            $posts->getCollection()->transform(function($post) use ($likedPostIds, $savedPostIds) {
+            $posts->transform(function($post) use ($likedPostIds, $savedPostIds) {
+                // Security: Hide sensitive institute/user data
+                if ($post->institute) {
+                    $post->institute->makeHidden(['email', 'contact_number', 'gov_register_number', 'status', 'trial_status', 'followers_count']);
+                }
                 $post->is_liked_by_user = in_array($post->id, $likedPostIds);
                 $post->is_saved_by_user = in_array($post->id, $savedPostIds);
                 return $post;
             });
         } else {
-            $posts->getCollection()->transform(function($post) {
+            $posts->transform(function($post) {
+                if ($post->institute) {
+                    $post->institute->makeHidden(['email', 'contact_number', 'gov_register_number', 'status', 'trial_status', 'followers_count']);
+                }
                 $post->is_liked_by_user = false;
                 $post->is_saved_by_user = false;
                 return $post;
             });
         }
 
-        $events->transform(function ($event) use ($userId) {
-            $event->is_interested = $userId ? EventUserInterest::where('user_id', $userId)
-                ->where('event_id', $event->id)
-                ->exists() : false;
-            return $event;
-        });
+        // Performance: Fix N+1 for Event Interests
+        if ($userId && $events->count() > 0) {
+            $eventIds = $events->pluck('id')->toArray();
+            $interestedEventIds = EventUserInterest::where('user_id', $userId)
+                ->whereIn('event_id', $eventIds)
+                ->pluck('event_id')
+                ->toArray();
+            
+            $events->transform(function ($event) use ($interestedEventIds) {
+                $event->is_interested = in_array($event->id, $interestedEventIds);
+                if ($event->institute) {
+                    $event->institute->makeHidden(['email', 'contact_number', 'gov_register_number', 'status', 'trial_status', 'followers_count']);
+                }
+                return $event;
+            });
+        } else {
+            $events->transform(function ($event) {
+                $event->is_interested = false;
+                if ($event->institute) {
+                    $event->institute->makeHidden(['email', 'contact_number', 'gov_register_number', 'status', 'trial_status', 'followers_count']);
+                }
+                return $event;
+            });
+        }
 
         return $this->success([
             'posts' => $posts,

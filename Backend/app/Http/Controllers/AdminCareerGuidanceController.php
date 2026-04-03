@@ -28,19 +28,38 @@ class AdminCareerGuidanceController extends Controller
 
     public function store(Request $request)
     {
-        return DB::transaction(function () use ($request) {
-            $data = $request->only([
-                'education_level', 'stream_or_subject_interest', 'recommended_degree_or_course', 
-                'career_field', 'entry_level_job', 'mid_level_job', 'senior_level_job', 
-                'key_skills_required', 'recommended_soft_skills', 'typical_university_subjects', 
-                'certifications_or_extra_training', 'industry_growth_in_sri_lanka', 
-                'global_demand_level', 'average_starting_salary_lkr', 'future_salary_range_lkr', 
-                'remote_work_possibility', 'freelance_opportunity', 'automation_risk', 
-                'job_description', 'category', 'alternative_path', 'recommended_first_step', 
-                'top_university_specialization', 'professional_body_in_sri_lanka', 
-                'common_interview_questions', 'tags', 'postgrad_path'
-            ]);
-            $guidance = CareerGuidance::create($data);
+        $validated = $request->validate([
+            'education_level' => 'required|string',
+            'stream_or_subject_interest' => 'nullable|string',
+            'recommended_degree_or_course' => 'nullable|string',
+            'career_field' => 'required|string',
+            'entry_level_job' => 'nullable|string',
+            'mid_level_job' => 'nullable|string',
+            'senior_level_job' => 'nullable|string',
+            'key_skills_required' => 'nullable|string',
+            'recommended_soft_skills' => 'nullable|string',
+            'typical_university_subjects' => 'nullable|string',
+            'certifications_or_extra_training' => 'nullable|string',
+            'industry_growth_in_sri_lanka' => 'nullable|string',
+            'global_demand_level' => 'nullable|string',
+            'average_starting_salary_lkr' => 'nullable|string',
+            'future_salary_range_lkr' => 'nullable|string',
+            'remote_work_possibility' => 'nullable|string',
+            'freelance_opportunity' => 'nullable|string',
+            'automation_risk' => 'nullable|string',
+            'job_description' => 'required|string',
+            'category' => 'nullable|string',
+            'alternative_path' => 'nullable|string',
+            'recommended_first_step' => 'nullable|string',
+            'top_university_specialization' => 'nullable|string',
+            'professional_body_in_sri_lanka' => 'nullable|string',
+            'common_interview_questions' => 'nullable|string',
+            'tags' => 'nullable|string',
+            'postgrad_path' => 'nullable|string',
+        ]);
+
+        return DB::transaction(function () use ($validated) {
+            $guidance = CareerGuidance::create($validated);
             return $this->success($guidance, 'Career guidance created successfully', 201);
         });
     }
@@ -55,20 +74,39 @@ class AdminCareerGuidanceController extends Controller
 
     public function update(Request $request, $id)
     {
-        return DB::transaction(function () use ($request, $id) {
+        $validated = $request->validate([
+            'education_level' => 'sometimes|required|string',
+            'stream_or_subject_interest' => 'nullable|string',
+            'recommended_degree_or_course' => 'nullable|string',
+            'career_field' => 'sometimes|required|string',
+            'entry_level_job' => 'nullable|string',
+            'mid_level_job' => 'nullable|string',
+            'senior_level_job' => 'nullable|string',
+            'key_skills_required' => 'nullable|string',
+            'recommended_soft_skills' => 'nullable|string',
+            'typical_university_subjects' => 'nullable|string',
+            'certifications_or_extra_training' => 'nullable|string',
+            'industry_growth_in_sri_lanka' => 'nullable|string',
+            'global_demand_level' => 'nullable|string',
+            'average_starting_salary_lkr' => 'nullable|string',
+            'future_salary_range_lkr' => 'nullable|string',
+            'remote_work_possibility' => 'nullable|string',
+            'freelance_opportunity' => 'nullable|string',
+            'automation_risk' => 'nullable|string',
+            'job_description' => 'sometimes|required|string',
+            'category' => 'nullable|string',
+            'alternative_path' => 'nullable|string',
+            'recommended_first_step' => 'nullable|string',
+            'top_university_specialization' => 'nullable|string',
+            'professional_body_in_sri_lanka' => 'nullable|string',
+            'common_interview_questions' => 'nullable|string',
+            'tags' => 'nullable|string',
+            'postgrad_path' => 'nullable|string',
+        ]);
+
+        return DB::transaction(function () use ($validated, $id) {
             $guidance = CareerGuidance::findOrFail($id);
-            $data = $request->only([
-                'education_level', 'stream_or_subject_interest', 'recommended_degree_or_course', 
-                'career_field', 'entry_level_job', 'mid_level_job', 'senior_level_job', 
-                'key_skills_required', 'recommended_soft_skills', 'typical_university_subjects', 
-                'certifications_or_extra_training', 'industry_growth_in_sri_lanka', 
-                'global_demand_level', 'average_starting_salary_lkr', 'future_salary_range_lkr', 
-                'remote_work_possibility', 'freelance_opportunity', 'automation_risk', 
-                'job_description', 'category', 'alternative_path', 'recommended_first_step', 
-                'top_university_specialization', 'professional_body_in_sri_lanka', 
-                'common_interview_questions', 'tags', 'postgrad_path'
-            ]);
-            $guidance->update($data);
+            $guidance->update($validated);
             return $this->success($guidance);
         });
     }
