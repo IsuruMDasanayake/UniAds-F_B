@@ -7,6 +7,7 @@ import ChatService from '../../services/ChatService';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import LinkPreview from '../../components/LinkPreview';
 import { format, isToday, isThisYear } from 'date-fns';
+import { isPremiumActive } from '../../utils/premium';
 import './ChatPage.css';
 
 const ChatPage = () => {
@@ -61,7 +62,7 @@ const ChatPage = () => {
                 const dataArray = Array.isArray(payload) ? payload : (payload?.data || []);
                 
                 // Filter to only premium institutes
-                const premiumOnly = dataArray.filter(inst => inst.is_premium);
+                const premiumOnly = dataArray.filter(inst => isPremiumActive(inst));
                 setInstitutes(premiumOnly);
             })
             .catch(err => console.error('Failed to load institutes:', err))

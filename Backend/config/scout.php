@@ -141,8 +141,8 @@ return [
         'key' => env('MEILISEARCH_KEY'),
         'index-settings' => [
             \App\Models\Post::class => [
-                'filterableAttributes'=> ['id', 'status', 'course_type', 'attendance_type', 'course_format', 'created_at'],
-                'sortableAttributes' => ['score_cache', 'created_at'],
+                'filterableAttributes'=> ['id', 'status', 'course_type', 'attendance_type', 'course_format', 'created_at', 'is_premium_active'],
+                'sortableAttributes' => ['score_cache', 'created_at', 'is_premium_active'],
             ],
             \App\Models\Institute::class => [
                 'filterableAttributes'=> ['id', 'status', 'is_premium', 'institute_type'],

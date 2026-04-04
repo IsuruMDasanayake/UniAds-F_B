@@ -17,6 +17,7 @@ import ProgrammeInfoModal from '../components/Modals/ProgrammeInfoModal';
 import ApplyNowModal from '../components/Modals/ApplyNowModal';
 import MoreInfoModal from '../components/Modals/MoreInfoModal';
 import EventDetailsModal from '../components/Modals/EventDetailsModal';
+import { isPremiumActive } from '../utils/premium';
 import './FeedPage.css';
 
 const PostSkeleton = () => (
@@ -353,7 +354,7 @@ function FeedPage() {
                                                 >
                                                     <span className="institute-name">
                                                         {post.institute?.institute_name}
-                                                        {!!(post.institute?.is_premium && post.institute?.premium_expires_at && new Date() <= new Date(post.institute.premium_expires_at)) && (
+                                                        {isPremiumActive(post.institute) && (
                                                             <BadgeCheck size={18} fill="#ff4757" color="#ffffff" style={{ marginLeft: '4px', verticalAlign: 'middle', display: 'inline-block' }} />
                                                         )}
                                                     </span>
@@ -559,7 +560,7 @@ function FeedPage() {
                 onApply={() => setShowApplyModal(true)}
                 onMoreInfo={() => setShowInfoModal(true)}
                 userRole={user?.role}
-                isPremium={!!selectedPost?.institute?.is_premium}
+                isPremium={isPremiumActive(selectedPost?.institute)}
             />
 
             <ApplyNowModal

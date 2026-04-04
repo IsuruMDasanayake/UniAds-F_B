@@ -88,6 +88,7 @@ function App() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
+        const response = await axiosClient.get('/api/user');
         const userData = response.data.data;
         setUser(userData);
         localStorage.setItem('APP_USER', JSON.stringify(userData));

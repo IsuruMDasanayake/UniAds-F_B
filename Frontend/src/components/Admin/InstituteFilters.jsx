@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp, Search, Building2 } from 'lucide-react';
 import axiosClient from '../../lib/axios';
+import { isPremiumActive } from '../../utils/premium';
 import './FilterComponents.css';
 
 const InstituteFilters = ({ filters, onFilterChange, selectedInstitutes, onInstituteSelect }) => {
@@ -118,7 +119,7 @@ const InstituteFilters = ({ filters, onFilterChange, selectedInstitutes, onInsti
                                             <span className="bfc-institute-email">{institute.email}</span>
                                         </div>
                                         <div className="bfc-institute-badges">
-                                            {!!institute.is_premium && (
+                                            {isPremiumActive(institute) && (
                                                 <span className="bfc-badge bfc-premium-badge">Premium</span>
                                             )}
                                             <span className={`bfc-badge bfc-status-badge ${institute.status}`}>

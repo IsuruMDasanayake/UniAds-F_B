@@ -87,19 +87,31 @@ const MainProfilePage = () => {
             });
             const data = response.data.data;
 
-            if (!id) {
-                if (data?.role === 'Institute') {
-                    setInstitute(data.institute);
-                    setPosts(data.posts?.data || []);
-                    setEvents(data.events?.data || []);
-                    setAbout(data.about);
+            if (!id && data?.role === 'Institute') {
+                setInstitute(data.institute);
+                setPosts(data.posts?.data || []);
+                setEvents(data.events?.data || []);
+                setAbout(data.about);
+                
+                // Sync session cache with fresh data from server
+                const savedUser = JSON.parse(localStorage.getItem('APP_USER') || '{}');
+                if (savedUser && data.user) {
+                    const updatedUser = { ...data.user, institute: data.institute };
+                    localStorage.setItem('APP_USER', JSON.stringify(updatedUser));
+                    setCurrentUser(updatedUser);
                 }
-            } else {
+            } else if (id) {
                 setInstitute(data.institute);
                 setPosts(data.posts?.data || []);
                 setEvents(data.events?.data || []);
                 setAbout(data.about);
                 setIsFollowing(!!data.isFollowing);
+
+                // If this happens to be the logged in user's profile found via ID
+                if (currentUser && currentUser.id === data.institute.user_id) {
+                    const updatedUser = { ...currentUser, institute: data.institute };
+                    localStorage.setItem('APP_USER', JSON.stringify(updatedUser));
+                }
 
                 // Add redirection logic for numeric IDs to slugs
                 if (/^\d+$/.test(id) && data.institute.slug) {

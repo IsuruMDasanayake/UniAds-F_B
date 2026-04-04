@@ -5,6 +5,7 @@ import axiosClient from '../../lib/axios';
 import ActionConfirmModal from '../../components/Modals/ActionConfirmModal';
 import AdminEditInstituteModal from './modals/AdminEditInstituteModal';
 import { getStorageUrl } from '../../lib/config';
+import { isPremiumActive } from '../../utils/premium';
 import './InstituteManagement.css';
 
 const InstituteManagement = () => {
@@ -279,10 +280,10 @@ const InstituteManagement = () => {
                                         </td>
                                         <td>
                                             <span
-                                                className={`premium-badge ${inst.is_premium ? 'premium' : 'basic'}`}
+                                                className={`premium-badge ${isPremiumActive(inst) ? 'premium' : 'basic'}`}
                                             >
                                                 <Crown size={14} />
-                                                {inst.is_premium ? '' : ''}
+                                                {inst.is_premium ? (isPremiumActive(inst) ? 'Premium' : 'Expired') : 'Basic'}
                                             </span>
                                         </td>
                                         <td>

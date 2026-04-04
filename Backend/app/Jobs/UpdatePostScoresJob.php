@@ -24,7 +24,7 @@ class UpdatePostScoresJob implements ShouldQueue
                 UPDATE posts
                 JOIN institutes ON posts.institute_id = institutes.id
                 SET posts.score_cache = (
-                    (CASE WHEN institutes.is_premium = 1 THEN 30 ELSE 0 END) +
+                    (CASE WHEN (institutes.is_premium = 1 AND (institutes.premium_expires_at IS NULL OR institutes.premium_expires_at > NOW())) THEN 30 ELSE 0 END) +
                     (LOG(institutes.followers_count + 1) * 10) +
                     (100 - TIMESTAMPDIFF(HOUR, posts.created_at, NOW())) +
                     (MOD(posts.id, 10) * 0.5)

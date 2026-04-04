@@ -16,6 +16,7 @@ import ApplyNowModal from './Modals/ApplyNowModal';
 import MoreInfoModal from './Modals/MoreInfoModal';
 import MessengerDropdown from './MessengerDropdown';
 import ChatModal from './ChatModal';
+import { isPremiumActive } from '../utils/premium';
 import './Navbar.css';
 import './Messenger.css';
 
@@ -286,10 +287,7 @@ function Navbar({ user }) {
                                     {displayUser?.role === 'User' && (
                                         <Link to="/profile">Profile</Link>
                                     )}
-                                    {displayUser?.role === 'Institute' && 
-                                     Boolean(displayUser?.institute?.is_premium) && 
-                                     displayUser?.institute?.premium_expires_at &&
-                                     new Date(displayUser?.institute?.premium_expires_at) > new Date() && (
+                                    {displayUser?.role === 'Institute' && isPremiumActive(displayUser.institute) && (
                                         <Link to={`/analytics/${displayUser?.institute?.slug || displayUser?.institute?.id}/overview`} className="analytics-link" target="_blank" rel="noopener noreferrer">
                                             Dashboard
                                         </Link>
@@ -353,7 +351,7 @@ function Navbar({ user }) {
                 onApply={() => setShowApplyModal(true)}
                 onMoreInfo={() => setShowInfoModal(true)}
                 userRole={displayUser?.role}
-                isPremium={!!selectedPost?.institute?.is_premium}
+                isPremium={isPremiumActive(selectedPost?.institute)}
                 institute={selectedPost?.institute}
             />
 

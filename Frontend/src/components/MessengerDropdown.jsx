@@ -6,6 +6,7 @@ import { useChat } from '../context/ChatContext';
 import ChatService from '../services/ChatService';
 import { getStorageUrl } from '../lib/config';
 import { formatDistanceToNow } from 'date-fns';
+import { isPremiumActive } from '../utils/premium';
 
 const MessengerDropdown = ({ isOpen, onClose }) => {
     const { conversations, selectConversation, fetchConversations, setActiveConversation, displayUser } = useChat();
@@ -47,7 +48,7 @@ const MessengerDropdown = ({ isOpen, onClose }) => {
             const dataArray = Array.isArray(payload) ? payload : (payload?.data || []);
             
             // Filter for premium partners
-            setInstitutions(dataArray.filter(i => Boolean(i.is_premium)));
+            setInstitutions(dataArray.filter(i => isPremiumActive(i)));
         } catch (error) {
             console.error('Failed to fetch institutions:', error);
             setInstitutions([]);

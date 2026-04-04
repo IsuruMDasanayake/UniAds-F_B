@@ -153,7 +153,7 @@ const ApplicationsPage = () => {
             const response = await axiosClient.get('/api/institute/communications/history', {
                 params: { type: 'application' }
             });
-            setCommunicationsHistory(response.data.data);
+            setCommunicationsHistory(response.data.data.data || []);
             setShowHistoryModal(true);
         } catch (error) {
             console.error('Error fetching communications history:', error);

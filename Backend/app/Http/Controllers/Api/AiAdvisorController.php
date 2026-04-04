@@ -1002,7 +1002,7 @@ RULES
             ->join('institutes', 'posts.institute_id', '=', 'institutes.id')
             ->select('posts.*')
             ->with(['institute', 'category'])
-            ->orderBy('institutes.is_premium', 'desc')
+            ->orderByRaw('(CASE WHEN (institutes.is_premium = 1 AND (institutes.premium_expires_at IS NULL OR institutes.premium_expires_at > NOW())) THEN 1 ELSE 0 END) DESC')
             ->limit(3)
             ->get();
 

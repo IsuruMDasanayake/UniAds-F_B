@@ -161,17 +161,39 @@ class BackendController extends Controller
         $activityFeed = array_slice($activityFeed, 0, 10);
 
 
-        // --- Trends (Existing + New) ---
+        // --- Trends (Optimized N+1 Fix) ---
+        $thirtyDaysAgo = Carbon::today()->subDays(30);
+
+        $usersGrouped = DB::table('users')->where('created_at', '>=', $thirtyDaysAgo)
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as count'))
+            ->pluck('count', 'date')->toArray();
+
+        $institutesGrouped = DB::table('institutes')->where('created_at', '>=', $thirtyDaysAgo)
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as count'))
+            ->pluck('count', 'date')->toArray();
+
+        $postsGrouped = DB::table('posts')->where('created_at', '>=', $thirtyDaysAgo)
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as count'))
+            ->pluck('count', 'date')->toArray();
+
+        $applicationsGrouped = DB::table('apply_cases')->where('created_at', '>=', $thirtyDaysAgo)
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as count'))
+            ->pluck('count', 'date')->toArray();
+
         $userCounts = [];
         $instituteCounts = [];
         $postCounts = [];
         $applicationCounts = [];
 
         foreach ($labels as $date) {
-            $userCounts[] = DB::table('users')->whereDate('created_at', $date)->count();
-            $instituteCounts[] = DB::table('institutes')->whereDate('created_at', $date)->count();
-            $postCounts[] = DB::table('posts')->whereDate('created_at', $date)->count();
-            $applicationCounts[] = DB::table('apply_cases')->whereDate('created_at', $date)->count();
+            $userCounts[] = $usersGrouped[$date] ?? 0;
+            $instituteCounts[] = $institutesGrouped[$date] ?? 0;
+            $postCounts[] = $postsGrouped[$date] ?? 0;
+            $applicationCounts[] = $applicationsGrouped[$date] ?? 0;
         }
 
         $stats = [
@@ -219,7 +241,7 @@ class BackendController extends Controller
 
     public function apiIndex()
     {
-        $users = User::all();
+        $users = User::latest()->paginate(15);
         return $this->success($users);
     }
 

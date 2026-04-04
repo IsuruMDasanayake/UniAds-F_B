@@ -13,6 +13,7 @@ import { copyToClipboard } from '../lib/clipboard';
 import ProgrammeInfoModal from '../components/Modals/ProgrammeInfoModal';
 import ApplyNowModal from '../components/Modals/ApplyNowModal';
 import MoreInfoModal from '../components/Modals/MoreInfoModal';
+import { isPremiumActive } from '../utils/premium';
 import './CoursesPage.css';
 
 import { useUser } from '../hooks/useUser';
@@ -373,7 +374,7 @@ const CoursesPage = () => {
                                                         >
                                                             <span className="name">
                                                                 {post.institute?.institute_name}
-                                                                {!!post.institute?.is_premium && <BadgeCheck size={18} fill="#ff4757" color="#ffffff" style={{ marginLeft: '4px', display: 'inline-block' }} className="v-badge" />}
+                                                                {isPremiumActive(post.institute) && <BadgeCheck size={18} fill="#ff4757" color="#ffffff" style={{ marginLeft: '4px', display: 'inline-block' }} className="v-badge" />}
                                                             </span>
                                                         </Link>
                                                         <span className="loc">{formatDate(post.created_at)}</span>
@@ -483,7 +484,7 @@ const CoursesPage = () => {
                 onApply={() => setShowApplyModal(true)}
                 onMoreInfo={() => setShowInfoModal(true)}
                 userRole={user?.role}
-                isPremium={!!(selectedPost?.institute?.is_premium && new Date(selectedPost?.institute?.premium_expires_at?.replace(/-/g, "/")) > new Date())}
+                isPremium={isPremiumActive(selectedPost?.institute)}
                 institute={selectedPost?.institute}
             />
 

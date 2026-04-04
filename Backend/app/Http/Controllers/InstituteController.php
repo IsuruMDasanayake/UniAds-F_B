@@ -513,6 +513,7 @@ class InstituteController extends Controller
 
         return DB::transaction(function () use ($request, $about) {
             $data = $request->except(['removed_academic_images', 'removed_programs_images', 'removed_partnerships_images', 'removed_life_images', 'removed_sports_images', 'removed_upcoming_images', 'removed_campus_images', 'chancellor_photo', 'vice_chancellor_photo', 'academic_images', 'programs_images', 'partnerships_images', 'life_images', 'sports_images', 'upcoming_images', 'campus_images']);
+            $data['institute_id'] = $about->institute_id; // Fix mass assignment vulnerability
 
             // Sanitize long-form fields
             $richTextFields = ['institute_overview', 'mission', 'vision', 'accreditations', 'facilities', 'chancellor_bio', 'vice_chancellor_bio'];

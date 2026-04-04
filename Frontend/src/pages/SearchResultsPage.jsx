@@ -12,6 +12,7 @@ import Navbar from '../components/Navbar';
 import ProgrammeInfoModal from '../components/Modals/ProgrammeInfoModal';
 import ApplyNowModal from '../components/Modals/ApplyNowModal';
 import MoreInfoModal from '../components/Modals/MoreInfoModal';
+import { isPremiumActive } from '../utils/premium';
 import './SearchResultsPage.css';
 
 function SearchResultsPage() {
@@ -225,7 +226,7 @@ function SearchResultsPage() {
                                                 <span className="institute-name-text">
                                                     {post.institute?.institute_name || 'UniAds'}
                                                 </span>
-                                                {!!(post.institute?.is_premium) && (
+                                                {isPremiumActive(post.institute) && (
                                                     <BadgeCheck size={18} fill="#ff4757" color="#ffffff" style={{ marginLeft: '4px', verticalAlign: 'middle', display: 'inline-block', marginTop: '-0.4rem' }} />
                                                 )}
                                             </Link>
@@ -289,7 +290,7 @@ function SearchResultsPage() {
                 onApply={() => setShowApplyModal(true)}
                 onMoreInfo={() => setShowInfoModal(true)}
                 userRole={user?.role}
-                isPremium={!!selectedPost?.institute?.is_premium}
+                isPremium={isPremiumActive(selectedPost?.institute)}
                 institute={selectedPost?.institute}
             />
 

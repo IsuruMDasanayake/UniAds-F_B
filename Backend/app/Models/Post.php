@@ -50,7 +50,7 @@ class Post extends Model
             return 0;
         }
 
-        $premiumBonus = $this->institute->is_premium ? 30 : 0;
+        $premiumBonus = $this->institute->hasActivePremium() ? 30 : 0;
         $followerBonus = log($this->institute->followers_count + 1) * 10;
         $idBonus = ($this->id % 10) * 0.5;
 
@@ -72,6 +72,7 @@ class Post extends Model
             'course_format' => $this->course_format,
             'attendance_type' => $this->attendance_type,
             'status' => $this->status,
+            'is_premium_active' => $this->institute ? (bool)$this->institute->hasActivePremium() : false,
             'score_cache' => (int) $this->score_cache,
             'created_at' => $this->created_at ? $this->created_at->timestamp : null,
         ];

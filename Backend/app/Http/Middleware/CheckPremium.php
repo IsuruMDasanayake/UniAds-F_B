@@ -25,11 +25,7 @@ class CheckPremium
     $institute = $user->institute;
 
     // Check if the institute is not premium or expired
-    if (
-        !$institute ||
-        !$institute->is_premium ||
-        now()->greaterThan($institute->premium_expires_at)
-    ) {
+    if (!$institute || !$institute->hasActivePremium()) {
         return redirect()->route('pricing')->with('error', 'You need a premium subscription to access this feature.');
     }
 

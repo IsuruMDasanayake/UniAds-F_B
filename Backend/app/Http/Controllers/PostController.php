@@ -362,7 +362,7 @@ class PostController extends Controller
                 }
             }
 
-            return $query->orderByDesc('institutes.is_premium')
+            return $query->orderByRaw('(CASE WHEN (institutes.is_premium = 1 AND (institutes.premium_expires_at IS NULL OR institutes.premium_expires_at > NOW())) THEN 1 ELSE 0 END) DESC')
                 ->orderByDesc('posts.score_cache')
                 ->paginate(100);
         });

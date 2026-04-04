@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import axiosClient from '../lib/axios';
 import UnauthorizedAccess from './Analytics/UnauthorizedAccess';
+import { isPremiumActive } from '../utils/premium';
 
 const InstituteRoute = ({ children }) => {
     const [loading, setLoading] = useState(true);
@@ -15,9 +16,7 @@ const InstituteRoute = ({ children }) => {
 
                 if (payload.role !== 'Institute') {
                     setAccessState('DENIED_USER');
-                } else if (!payload.institute?.is_premium || 
-                           !payload.institute?.premium_expires_at || 
-                           new Date(payload.institute.premium_expires_at) < new Date()) {
+                } else if (!isPremiumActive(payload.institute)) {
                     setAccessState('DENIED_NONPREMIUM');
                 } else {
                     setAccessState('AUTHORIZED');

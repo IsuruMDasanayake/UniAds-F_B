@@ -180,35 +180,38 @@ class ApplicationController extends Controller
     public function communicationsHistory(Request $request)
     {
         $instituteId = Auth::user()->institute->id;
-        $type = $request->query('type');
+        $type = $request->query('type', 'application'); // default to 'application' if not provided
+        $perPage = 15;
 
-        $history = collect();
-
-        if (!$type || $type === 'application') {
-            $appHistory = ContactedEmail::with('applyCase:id,course_title')
+        if ($type === 'application') {
+            $history = ContactedEmail::with('applyCase:id,course_title')
                 ->where('institute_id', $instituteId)
-                ->get()
-                ->map(function ($item) {
-                    $item->type = 'application';
-                    return $item;
-                });
-            $history = $history->concat($appHistory);
+                ->orderByDesc('sent_at')
+                ->paginate($perPage);
+
+            $history->getCollection()->transform(function ($item) {
+                $item->type = 'application';
+                return $item;
+            });
+
+            return $this->successResponse($history);
         }
 
-        if (!$type || $type === 'inquiry') {
-            $inquiryHistory = \App\Models\InquiryCommunication::with('inquiry:id,subject,email')
+        if ($type === 'inquiry') {
+            $history = \App\Models\InquiryCommunication::with('inquiry:id,subject,email')
                 ->where('institute_id', $instituteId)
-                ->get()
-                ->map(function ($item) {
-                    $item->type = 'inquiry';
-                    $item->student_email = $item->inquiry?->email;
-                    return $item;
-                });
-            $history = $history->concat($inquiryHistory);
+                ->orderByDesc('sent_at')
+                ->paginate($perPage);
+
+            $history->getCollection()->transform(function ($item) {
+                $item->type = 'inquiry';
+                $item->student_email = $item->inquiry?->email;
+                return $item;
+            });
+
+            return $this->successResponse($history);
         }
 
-        $sortedHistory = $history->sortByDesc('sent_at')->values();
-
-        return $this->successResponse($sortedHistory);
+        return $this->successResponse([]);
     }
 }

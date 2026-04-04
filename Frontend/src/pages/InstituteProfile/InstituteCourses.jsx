@@ -7,6 +7,7 @@ import { Bookmark, Link2, Check, Loader2 } from 'lucide-react';
 import ProgrammeInfoModal from '../../components/Modals/ProgrammeInfoModal';
 import ApplyNowModal from '../../components/Modals/ApplyNowModal';
 import MoreInfoModal from '../../components/Modals/MoreInfoModal';
+import { isPremiumActive } from '../../utils/premium';
 import './InstituteCourses.css';
 
 const InstituteCourses = ({ institute, courses, isOwner }) => {
@@ -306,7 +307,7 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
                 onApply={() => setShowApplyModal(true)}
                 onMoreInfo={() => setShowInfoModal(true)}
                 userRole={userRole}
-                isPremium={!!institute?.is_premium}
+                isPremium={isPremiumActive(institute)}
                 institute={institute}
             />
 

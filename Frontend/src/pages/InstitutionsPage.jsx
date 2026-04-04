@@ -5,6 +5,7 @@ import { MapPin, ExternalLink, BadgeCheck, Search, X } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import axiosClient from '../lib/axios';
 import { getStorageUrl } from '../lib/config';
+import { isPremiumActive } from '../utils/premium';
 import './InstitutionsPage.css';
 
 const InstitutionsPage = () => {
@@ -243,7 +244,7 @@ const InstitutionsPage = () => {
                                                 className="ins-logo-img"
                                             />
                                         </Link>
-                                        {!!inst.is_premium && (
+                                        {isPremiumActive(inst) && (
                                             <div className="ins-premium-tag">
                                                 <BadgeCheck size={16} fill="#ff4757" color="#fff" />
                                                 <span>Premium</span>

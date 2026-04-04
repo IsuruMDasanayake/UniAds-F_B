@@ -178,8 +178,8 @@ class SubscriptionController extends Controller
         $paymentData = [
             "sandbox" => env("PAYHERE_SANDBOX", true),
             "merchant_id" => $merchantId,
-            "return_url" => env("FRONTEND_URL", "http://localhost:5173") . "/pricing?success=1",
-            "cancel_url" => env("FRONTEND_URL", "http://localhost:5173") . "/pricing?cancelled=1",
+            "return_url" => env("FRONTEND_URL_LOCAL", "http://localhost:5173") . "/pricing?success=1",
+            "cancel_url" => env("FRONTEND_URL_LOCAL", "http://localhost:5173") . "/pricing?cancelled=1",
             "notify_url" => url("/api/payment/notify"), // This must be publicly accessible in prod
             "order_id" => $orderId,
             "items" => $items,
@@ -429,6 +429,7 @@ class SubscriptionController extends Controller
 
     public function apiVerifyPayment(Request $request)
     {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
         $orderId = $request->order_id;
 
@@ -488,14 +489,17 @@ class SubscriptionController extends Controller
                     'is_trial' => false,
                 ]);
             }
-
-            $institute->update([
-                'is_premium' => true,
-                'premium_expires_at' => now()->addDays(30),
-            ]);
         }
 
-        return $this->success(null);
+        // Update Institute
+        $institute->update([
+            'is_premium' => true,
+            'premium_expires_at' => now()->addDays(30),
+        ]);
+
+        // Return fresh user data for frontend immediate sync
+        $user->load('institute');
+        return $this->success($user, 'Payment verified and premium activated.');
     }
 
     // Kept for backward compatibility if needed, using old logic but redirecting to new API flow

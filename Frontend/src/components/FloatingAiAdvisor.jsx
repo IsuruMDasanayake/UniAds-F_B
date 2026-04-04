@@ -8,6 +8,7 @@ import { Bookmark, Check, Sparkles, Send, X, User, Bot, Trash2, Save, CheckCircl
 import ProgrammeInfoModal from './Modals/ProgrammeInfoModal';
 import ApplyNowModal from './Modals/ApplyNowModal';
 import MoreInfoModal from './Modals/MoreInfoModal';
+import { isPremiumActive } from '../utils/premium';
 import './FloatingAiAdvisor.css';
 
 const FloatingAiAdvisor = ({ user }) => {
@@ -353,7 +354,7 @@ const FloatingAiAdvisor = ({ user }) => {
             onApply={() => setShowApplyModal(true)}
             onMoreInfo={() => setShowInfoModal(true)}
             userRole={user?.role}
-            isPremium={!!(selectedPost?.is_premium && selectedPost?.premium_expires_at && new Date() <= new Date(selectedPost.premium_expires_at))}
+            isPremium={isPremiumActive(selectedPost)}
           />
           <ApplyNowModal
             isOpen={showApplyModal}

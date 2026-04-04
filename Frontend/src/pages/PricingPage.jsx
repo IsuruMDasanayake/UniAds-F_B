@@ -63,27 +63,44 @@ const PricingPage = () => {
     // Generic function to handle PayHere Payment Launch
     const launchPayHere = (paymentData) => {
         return new Promise((resolve, reject) => {
-            window.payhere.onCompleted = async function onCompleted(orderId) {
-                console.log("Payment completed. OrderID:" + orderId);
-                try {
-                    await axiosClient.post('/api/payment/verify', { order_id: orderId });
-                    resolve(true); // Payment Verified
-                } catch (verifyErr) {
-                    console.error('Verification error:', verifyErr);
-                    resolve(true); // Resolve true anyway so UI updates
-                }
+            window.payhere.onCompleted = function onCompleted(orderId) {
+                console.log("PayHere: Payment completed callback fired. OrderID:", orderId);
+                
+                // Immediately update backend while the user waits
+                axiosClient.post('/api/payment/verify', { order_id: orderId })
+                    .then(response => {
+                        console.log("PayHere: Verification successful", response.data);
+                        
+                        // Sync local state with fresh user data from server
+                        if (response.data.success && response.data.data) {
+                            localStorage.setItem('APP_USER', JSON.stringify(response.data.data));
+                        }
+                        
+                        resolve(true);
+                        
+                        // Force a slight delay before reload so the user sees the success state if needed,
+                        // or just reload to refresh the whole app (Navbar, etc)
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    })
+                    .catch(err => {
+                        console.error("PayHere: Verification failed, but resolving true to allow UI refresh", err);
+                        resolve(true); // Resolve anyway so parent can refresh data
+                    });
             };
 
             window.payhere.onDismissed = function onDismissed() {
-                console.log("Payment dismissed");
+                console.log("PayHere: Payment dismissed by user");
                 resolve(false);
             };
 
             window.payhere.onError = function onError(error) {
-                console.log("Error:" + error);
+                console.error("PayHere: SDK Error:", error);
                 reject(error);
             };
 
+            console.log("PayHere: Starting payment request...", paymentData);
             window.payhere.startPayment(paymentData);
         });
     };
@@ -391,11 +408,11 @@ const PricingPage = () => {
 
                                 {status === 'subscribe' && (
                                     <div className="w-full">
-                                        {institute?.trial_status === 'expired' && (
+                                        {/* {institute?.trial_status === 'expired' && (
                                             <div className="trial-expired-msg">
                                                 Your free trial has ended.
                                             </div>
-                                        )}
+                                        )} */}
                                         <button
                                             className="subscribe-btn"
                                             onClick={handleSubscribe}

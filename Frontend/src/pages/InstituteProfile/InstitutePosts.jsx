@@ -3,6 +3,7 @@ import { MapPin, Heart, Edit2, Trash2, Send, Info, Link2, Check, Loader2 } from 
 import axiosClient from '../../lib/axios';
 import { getStorageUrl } from '../../lib/config';
 import { copyToClipboard } from '../../lib/clipboard';
+import { isPremiumActive } from '../../utils/premium';
 import './InstitutePosts.css';
 
 // Import Modals
@@ -318,7 +319,7 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
         });
     };
 
-    const isPremium = !!(institute?.is_premium && new Date(institute.premium_expires_at?.replace(/-/g, "/")) > new Date());
+    const isPremium = isPremiumActive(institute);
 
     const visiblePosts = localPosts.filter(post => {
         // If owner, show all. If not owner, show only active.
@@ -372,7 +373,7 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
                                 <div className="post-info">
                                     <div className="post-author">
                                         <span className="author-name">{institute?.institute_name}</span>
-                                        {institute?.is_premium && (
+                                        {isPremium && (
                                             <img
                                                 src="/images/verified-badge.png"
                                                 alt="Premium"
@@ -402,7 +403,7 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
                             </div>
 
                             <div className="post-footer">
-                                {isOwner && institute?.is_premium && (
+                                {isOwner && isPremium && (
                                     <button className="post-action-btn btn-boost">
                                         Boost Campaign
                                     </button>

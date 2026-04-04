@@ -22,6 +22,7 @@ import ProgrammeInfoModal from '../components/Modals/ProgrammeInfoModal';
 import ApplyNowModal from '../components/Modals/ApplyNowModal';
 import MoreInfoModal from '../components/Modals/MoreInfoModal';
 import { Link2, Check, ExternalLink } from 'lucide-react';
+import { isPremiumActive } from '../utils/premium';
 import { districts, educationLevels } from '../lib/constants';
 import { useChat } from '../context/ChatContext';
 import { copyToClipboard } from '../lib/clipboard';
@@ -291,7 +292,7 @@ const UserProfilePage = () => {
         setLoadingApplications(true);
         try {
             const response = await axiosClient.get('/api/applications/me');
-            setApplications(response.data.data || []);
+            setApplications(response.data.data.data || []);
         } catch (error) {
             console.error("Error fetching applications:", error);
         } finally {
@@ -1011,7 +1012,7 @@ const UserProfilePage = () => {
                                                                     <img src={getStorageUrl(post.institute.profile_photo)} alt="" />
                                                                 ) : <Building2 size={12} />}
                                                                 {post.institute?.institute_name}
-                                                                {!!post.institute?.is_premium && <BadgeCheck size={14} className="text-red-500 ml-1" />}
+                                                                {isPremiumActive(post.institute) && <BadgeCheck size={14} className="text-red-500 ml-1" />}
                                                             </Link>
                                                             <span className="upp-saved-date">{formatDate(post.created_at)}</span>
                                                         </div>
@@ -1207,7 +1208,7 @@ const UserProfilePage = () => {
                         course={selectedPost}
                         institute={selectedInstitute}
                         userRole={profileData?.user?.role}
-                        isPremium={selectedInstitute?.is_premium}
+                        isPremium={isPremiumActive(selectedInstitute)}
                         onMoreInfo={() => openInfoModal()}
                         onApply={() => openSavedApplyModal()}
                         hideApply={activeTab === 'applications'}

@@ -3,6 +3,7 @@ import { Mail, MapPin, UserPlus, Check, PlusCircle, Calendar as CalendarIcon, Ed
 import { useChat } from '../../context/ChatContext';
 import ChatService from '../../services/ChatService';
 import { getStorageUrl } from '../../lib/config';
+import { isPremiumActive } from '../../utils/premium';
 import './ProfileHeader.css';
 
 // Assuming these modals are defined elsewhere and imported
@@ -35,7 +36,7 @@ const ProfileHeader = ({
     const [isMsgLoading, setIsMsgLoading] = useState(false);
 
     // Helpers
-    const isPremium = Number(institute.is_premium) === 1;
+    const isPremium = isPremiumActive(institute);
 
     const isApproved = institute.status === 'approved';
 
@@ -176,7 +177,7 @@ const ProfileHeader = ({
                             <div className="visitor-tools">
                                 {currentUser && !isOwner && isPremium && institute.chat_enabled == 1 && (
                                     currentUser.role !== 'Institute' || 
-                                    (currentUser.institute && Number(currentUser.institute.is_premium) === 1)
+                                    isPremiumActive(currentUser.institute)
                                 ) && (
                                     <button
                                         className="btn-inst btn-message"

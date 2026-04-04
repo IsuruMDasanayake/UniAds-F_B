@@ -194,7 +194,7 @@ const UserManagement = () => {
         try {
             if (!isSilent) setLoading(true);
             const response = await axiosClient.get('/api/admin/users');
-            setUsers(response.data.data || []);
+            setUsers(response.data.data.data || []);
         } catch (error) {
             console.error('Error fetching users:', error);
         } finally {

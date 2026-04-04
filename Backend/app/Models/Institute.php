@@ -71,7 +71,7 @@ class Institute extends Model
         ];
     }
 
-    protected $appends = ['average_rating', 'rating_count', 'logo_url'];
+    protected $appends = ['average_rating', 'rating_count', 'logo_url', 'is_premium_active'];
 
     public function getAverageRatingAttribute()
     {
@@ -145,12 +145,34 @@ class Institute extends Model
 
     protected $casts = [
         'is_premium' => 'boolean',
+        'premium_expires_at' => 'datetime',
+        'trial_expires_at' => 'datetime',
+        'trial_cancelled_at' => 'datetime',
         'followers_enabled' => 'boolean',
         'reviews_enabled' => 'boolean',
         'chat_enabled' => 'boolean',
         'inquiries_enabled' => 'boolean',
         'applications_enabled' => 'boolean',
     ];
+
+    /**
+     * Check if the institute has an active premium subscription.
+     * Dual Logic: is_premium must be 1 AND premium_expires_at must be in the future.
+     */
+    public function hasActivePremium(): bool
+    {
+        return $this->is_premium && 
+               $this->premium_expires_at && 
+               $this->premium_expires_at->isFuture();
+    }
+
+    /**
+     * Accessor for is_premium_active.
+     */
+    public function getIsPremiumActiveAttribute(): bool
+    {
+        return $this->hasActivePremium();
+    }
 
     public function subscription()
     {
