@@ -98,6 +98,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/posts/share/{share_link}', [PostController::class, 'showByShareLink']);
     Route::post('/posts/{postId}/toggle-like', [PostController::class, 'toggleLike']);
     Route::get('/posts/saved', [PostController::class, 'getSavedPosts']);
+
+    // View Tracking (Throttled 5/min)
+    Route::middleware('throttle:views')->group(function () {
+        Route::post('/posts/{id}/track-view', [PostController::class, 'trackView']);
+        Route::post('/events/{id}/track-view', [EventController::class, 'trackView']);
+        Route::post('/institutions/{id}/track-view', [InstituteController::class, 'trackView']);
+    });
     Route::post('/posts/{postId}/save', [PostController::class, 'apiToggleSave']);
     Route::post('/institutes/{id}/posts', [PostController::class, 'apiStore']);
     Route::post('/posts/{id}/update', [PostController::class, 'apiUpdate']);
@@ -343,6 +350,3 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::get('/feedbacks', [FeedbackController::class, 'adminIndex']);
     Route::delete('/feedbacks/{id}', [FeedbackController::class, 'destroy']);
 });
-Route::post('/posts/{id}/track-view', [PostController::class, 'trackView']);
-Route::post('/events/{id}/track-view', [EventController::class, 'trackView']);
-Route::post('/institutions/{id}/track-view', [InstituteController::class, 'trackView']);

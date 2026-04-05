@@ -15,9 +15,8 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        \Illuminate\Support\Facades\Log::info('AdminMiddleware called. Auth check: ' . (auth()->check() ? 'Yes' : 'No'));
         if (auth()->check()) {
-            \Illuminate\Support\Facades\Log::info('User role: ' . auth()->user()->role);
+            
         }
 
         if (!auth()->check() || auth()->user()->role !== 'Admin') {
