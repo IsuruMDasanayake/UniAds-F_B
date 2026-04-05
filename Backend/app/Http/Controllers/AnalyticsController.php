@@ -409,48 +409,8 @@ class AnalyticsController extends Controller
             'previous_data' => $compare ? array_values($fillDateCounts($previousRatings, $previousStart, $days)) : null
         ];
 
-        // 6. Demographics (All Time - All Interactions)
-        $userIds = array_unique(array_merge(
-            Follower::where('institute_id', $institute->id)->pluck('user_id')->toArray(),
-            ApplyCase::where('institute_id', $institute->id)->pluck('user_id')->toArray(),
-
-            // Post Likes
-            PostLike::join('posts', 'post_likes.post_id', '=', 'posts.id')
-                ->where('posts.institute_id', $institute->id)
-                ->pluck('post_likes.user_id')->toArray(),
-
-            // Event Interests
-            EventUserInterest::join('events', 'event_user_interests.event_id', '=', 'events.id')
-                ->where('events.institute_id', $institute->id)
-                ->pluck('event_user_interests.user_id')->toArray(),
-
-            // Event Declines
-            EventUserDeclines::join('events', 'event_user_declines.event_id', '=', 'events.id')
-                ->where('events.institute_id', $institute->id)
-                ->pluck('event_user_declines.user_id')->toArray(),
-
-            // Ratings
-            Rating::where('institute_id', $institute->id)->pluck('user_id')->toArray(),
-
-            // Post Views (Logged in users)
-            PostView::join('posts', 'post_views.post_id', '=', 'posts.id')
-                ->where('posts.institute_id', $institute->id)
-                ->whereNotNull('post_views.user_id')
-                ->pluck('post_views.user_id')->toArray(),
-
-            // Event Views (Logged in users)
-            EventView::join('events', 'event_views.event_id', '=', 'events.id')
-                ->where('events.institute_id', $institute->id)
-                ->whereNotNull('event_views.user_id')
-                ->pluck('event_views.user_id')->toArray(),
-
-            // Profile Views (Logged in users)
-            InstituteProfileView::where('institute_id', $institute->id)
-                ->whereNotNull('user_id')
-                ->pluck('user_id')->toArray()
-        ));
-
-        $demographics = $this->calculateDemographics($userIds);
+        $userQuery = $this->getInteractionUserIdsQuery($institute->id);
+        $demographics = $this->calculateDemographics($userQuery);
 
         // 7. Totals for Stat Cards
         $totals = [
@@ -1003,91 +963,67 @@ class AnalyticsController extends Controller
         $institute = auth()->user()->institute;
         $type = $request->get('interaction_type', 'all');
 
-        $userIds = [];
-
-        switch ($type) {
-            case 'likes':
-                $userIds = PostLike::join('posts', 'post_likes.post_id', '=', 'posts.id')
-                    ->where('posts.institute_id', $institute->id)
-                    ->pluck('post_likes.user_id')->toArray();
-                break;
-            case 'interests':
-                $userIds = EventUserInterest::join('events', 'event_user_interests.event_id', '=', 'events.id')
-                    ->where('events.institute_id', $institute->id)
-                    ->pluck('event_user_interests.user_id')->toArray();
-                break;
-            case 'declines':
-                $userIds = EventUserDeclines::join('events', 'event_user_declines.event_id', '=', 'events.id')
-                    ->where('events.institute_id', $institute->id)
-                    ->pluck('event_user_declines.user_id')->toArray();
-                break;
-            case 'ratings':
-                $userIds = Rating::where('institute_id', $institute->id)->pluck('user_id')->toArray();
-                break;
-            case 'followers':
-                $userIds = Follower::where('institute_id', $institute->id)->pluck('user_id')->toArray();
-                break;
-            case 'applicants':
-                $userIds = ApplyCase::where('institute_id', $institute->id)->pluck('user_id')->toArray();
-                break;
-            case 'post_view':
-                $userIds = PostView::join('posts', 'post_views.post_id', '=', 'posts.id')
-                    ->where('posts.institute_id', $institute->id)
-                    ->whereNotNull('post_views.user_id')
-                    ->pluck('post_views.user_id')->toArray();
-                break;
-            case 'event_view':
-                $userIds = EventView::join('events', 'event_views.event_id', '=', 'events.id')
-                    ->where('events.institute_id', $institute->id)
-                    ->whereNotNull('event_views.user_id')
-                    ->pluck('event_views.user_id')->toArray();
-                break;
-            case 'profile_view':
-                $userIds = InstituteProfileView::where('institute_id', $institute->id)
-                    ->whereNotNull('user_id')
-                    ->pluck('user_id')->toArray();
-                break;
-            case 'all':
-            default:
-                $userIds = array_unique(array_merge(
-                    Follower::where('institute_id', $institute->id)->pluck('user_id')->toArray(),
-                    ApplyCase::where('institute_id', $institute->id)->pluck('user_id')->toArray(),
-                    PostLike::join('posts', 'post_likes.post_id', '=', 'posts.id')
-                        ->where('posts.institute_id', $institute->id)
-                        ->pluck('post_likes.user_id')->toArray(),
-                    EventUserInterest::join('events', 'event_user_interests.event_id', '=', 'events.id')
-                        ->where('events.institute_id', $institute->id)
-                        ->pluck('event_user_interests.user_id')->toArray(),
-                    EventUserDeclines::join('events', 'event_user_declines.event_id', '=', 'events.id')
-                        ->where('events.institute_id', $institute->id)
-                        ->pluck('event_user_declines.user_id')->toArray(),
-                    Rating::where('institute_id', $institute->id)->pluck('user_id')->toArray(),
-                    PostView::join('posts', 'post_views.post_id', '=', 'posts.id')
-                        ->where('posts.institute_id', $institute->id)
-                        ->whereNotNull('post_views.user_id')
-                        ->pluck('post_views.user_id')->toArray(),
-                    EventView::join('events', 'event_views.event_id', '=', 'events.id')
-                        ->where('events.institute_id', $institute->id)
-                        ->whereNotNull('event_views.user_id')
-                        ->pluck('event_views.user_id')->toArray(),
-                    InstituteProfileView::where('institute_id', $institute->id)
-                        ->whereNotNull('user_id')
-                        ->pluck('user_id')->toArray()
-                ));
-                break;
-        }
-
-        $userIds = array_unique($userIds);
+        $userQuery = $this->getInteractionUserIdsQuery($institute->id, $type);
 
         return $this->success([
-            'demographics' => $this->calculateDemographics($userIds)
+            'demographics' => $this->calculateDemographics($userQuery)
         ]);
-
     }
 
-    private function calculateDemographics($userIds)
+    private function getInteractionUserIdsQuery($instituteId, $type = 'all')
     {
-        $users = User::whereIn('id', $userIds)->get(['gender', 'birthday', 'district', 'education_level']);
+        $queries = [];
+
+        if ($type === 'all' || $type === 'followers') {
+            $queries[] = DB::table('followers')->where('institute_id', $instituteId)->select('user_id');
+        }
+        if ($type === 'all' || $type === 'applicants') {
+            $queries[] = DB::table('apply_cases')->where('institute_id', $instituteId)->select('user_id');
+        }
+        if ($type === 'all' || $type === 'likes') {
+            $queries[] = DB::table('post_likes')->join('posts', 'post_likes.post_id', '=', 'posts.id')
+                ->where('posts.institute_id', $instituteId)->select('post_likes.user_id');
+        }
+        if ($type === 'all' || $type === 'interests') {
+            $queries[] = DB::table('event_user_interests')->join('events', 'event_user_interests.event_id', '=', 'events.id')
+                ->where('events.institute_id', $instituteId)->select('event_user_interests.user_id');
+        }
+        if ($type === 'all' || $type === 'declines') {
+            $queries[] = DB::table('event_user_declines')->join('events', 'event_user_declines.event_id', '=', 'events.id')
+                ->where('events.institute_id', $instituteId)->select('event_user_declines.user_id');
+        }
+        if ($type === 'all' || $type === 'ratings') {
+            $queries[] = DB::table('ratings')->where('institute_id', $instituteId)->select('user_id');
+        }
+        if ($type === 'all' || $type === 'post_view') {
+            $queries[] = DB::table('post_views')->join('posts', 'post_views.post_id', '=', 'posts.id')
+                ->where('posts.institute_id', $instituteId)->whereNotNull('post_views.user_id')->select('post_views.user_id');
+        }
+        if ($type === 'all' || $type === 'event_view') {
+            $queries[] = DB::table('event_views')->join('events', 'event_views.event_id', '=', 'events.id')
+                ->where('events.institute_id', $instituteId)->whereNotNull('event_views.user_id')->select('event_views.user_id');
+        }
+        if ($type === 'all' || $type === 'profile_view') {
+            $queries[] = DB::table('institute_profile_views')->where('institute_id', $instituteId)
+                ->whereNotNull('user_id')->select('user_id');
+        }
+
+        if (empty($queries)) {
+            return DB::table('users')->whereRaw('1 = 0')->select('id');
+        }
+
+        $mainQuery = array_shift($queries);
+        foreach ($queries as $query) {
+            $mainQuery->union($query);
+        }
+
+        return $mainQuery;
+    }
+
+    private function calculateDemographics($userIdQuery)
+    {
+        $users = User::whereIn('id', $userIdQuery)
+            ->get(['gender', 'birthday', 'district', 'education_level']);
 
         // Gender Distribution
         $genderDistrib = $users->filter(fn($u) => !empty($u->gender))
