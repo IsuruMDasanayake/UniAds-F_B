@@ -100,7 +100,6 @@ const PricingPage = () => {
                 reject(error);
             };
 
-            console.log("PayHere: Starting payment request...", paymentData);
             window.payhere.startPayment(paymentData);
         });
     };
@@ -121,8 +120,7 @@ const PricingPage = () => {
                 setError('Failed to initiate trial.');
             }
         } catch (err) {
-            console.error('Error starting trial:', err);
-            setError(err.response?.data?.error || 'Failed to start trial.');
+            setError(err.response?.data?.message || err.response?.data?.error || 'Failed to start trial.');
         } finally {
             setSubmitting(false);
         }
@@ -144,9 +142,7 @@ const PricingPage = () => {
             }
 
         } catch (err) {
-            console.error('Error initiating payment:', err);
-            // If manual string reject from onError
-            setError(typeof err === 'string' ? err : 'Failed to initiate payment.');
+            setError(typeof err === 'string' ? err : (err.response?.data?.message || err.response?.data?.error || 'Failed to initiate payment.'));
         } finally {
             setSubmitting(false);
         }
@@ -171,9 +167,8 @@ const PricingPage = () => {
             // Show Success Alert
             setShowSuccess(true);
         } catch (err) {
-            console.error('Error cancelling trial:', err);
             // Show Error Alert (using the same mechanism if needed, or set error state)
-            setError(err.response?.data?.error || 'Failed to cancel trial.');
+            setError(err.response?.data?.message || err.response?.data?.error || 'Failed to cancel trial.');
         } finally {
             setSubmitting(false);
         }
@@ -188,8 +183,7 @@ const PricingPage = () => {
             // Show Success Alert
             setShowSuccess(true);
         } catch (err) {
-            console.error('Error cancelling subscription:', err);
-            setError(err.response?.data?.error || 'Failed to cancel subscription.');
+            setError(err.response?.data?.message || err.response?.data?.error || 'Failed to cancel subscription.');
         } finally {
             setSubmitting(false);
         }

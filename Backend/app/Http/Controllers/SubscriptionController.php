@@ -158,8 +158,14 @@ class SubscriptionController extends Controller
         $orderId = $orderIdPrefix . $institute->id . "-" . time();
 
         // Payment details
-        $merchantId = env("PAYHERE_MERCHANT_ID");
-        $merchantSecret = env("PAYHERE_MERCHANT_SECRET");
+        $merchantId = config("services.payhere.merchant_id");
+        $merchantSecret = config("services.payhere.merchant_secret");
+        $isSandbox = config("services.payhere.is_sandbox");
+
+        if (!$merchantId || !$merchantSecret) {
+            return $this->error('Payment gateway configuration is missing on the server.', 500);
+        }
+
         $amountFormatted = number_format($amount, 2, ".", "");
         $currency = "LKR";
 
@@ -176,7 +182,7 @@ class SubscriptionController extends Controller
         );
 
         $paymentData = [
-            "sandbox" => env("PAYHERE_SANDBOX", true),
+            "sandbox" => $isSandbox,
             "merchant_id" => $merchantId,
             "return_url" => env("FRONTEND_URL_LOCAL", "http://localhost:5173") . "/pricing?success=1",
             "cancel_url" => env("FRONTEND_URL_LOCAL", "http://localhost:5173") . "/pricing?cancelled=1",
@@ -429,77 +435,102 @@ class SubscriptionController extends Controller
 
     public function apiVerifyPayment(Request $request)
     {
-        /** @var \App\Models\User $user */
         $user = auth()->user();
-        $orderId = $request->order_id;
+        $orderId = $request->input('order_id');
 
-        if (!$user->institute || !$orderId) {
-            return $this->error('Invalid data', 400);
+        if (!$orderId) {
+            return $this->error('Order ID is required.', 400);
         }
 
         $institute = $user->institute;
-        $parts = explode('-', $orderId);
-        $orderType = $parts[0] ?? 'SUB';
 
-        // Prevent duplicates
-        if ($orderType === 'TRIAL') {
-            if ($institute->trial_status === 'active' && $institute->trial_expires_at) {
-                return $this->success(null);
-            }
-            // Activate Trial
-            $institute->update([
-                'trial_status' => 'active',
-                'trial_expires_at' => now()->addDays(30),
-                'trial_cancelled_at' => null,
-                'is_premium' => true,
-                'premium_expires_at' => now()->addDays(30),
-            ]);
-        } else {
-            $existing = Subscription::where('institute_id', $institute->id)
-                ->where('gateway_subscription_id', $orderId)
-                ->first();
-
-            if ($existing) {
-                return $this->success(null);
-            }
-
-            // Renew or Create Subscription Record
-            $subscription = Subscription::where('institute_id', $institute->id)
-                ->where('status', 'expired')
-                ->latest()
-                ->first();
-
-            if ($subscription) {
-                $subscription->update([
-                    'gateway_subscription_id' => $orderId,
-                    'status' => 'active',
-                    'started_at' => now(),
-                    'ends_at' => now()->addDays(30),
-                    'is_trial' => false,
-                    'cancelled_at' => null,
-                ]);
-            } else {
-                Subscription::create([
-                    'institute_id' => $institute->id,
-                    'gateway_subscription_id' => $orderId,
-                    'plan' => 'monthly',
-                    'status' => 'active',
-                    'started_at' => now(),
-                    'ends_at' => now()->addDays(30),
-                    'is_trial' => false,
-                ]);
-            }
+        if (!$institute) {
+            return $this->error('Institute not found.', 404);
         }
 
-        // Update Institute
-        $institute->update([
-            'is_premium' => true,
-            'premium_expires_at' => now()->addDays(30),
-        ]);
+        // 1. If already active (via Webhook), sync and return
+        if ($institute->is_premium) {
+            $user->load('institute');
+            return $this->success($user, 'Payment verified and premium activated.');
+        }
 
-        // Return fresh user data for frontend immediate sync
-        $user->load('institute');
-        return $this->success($user, 'Payment verified and premium activated.');
+        /**
+         * 2. LOCAL DEVELOPMENT FALLBACK
+         * On localhost, PayHere webhooks won't reach the server.
+         * We allow immediate activation ONLY if app environment is 'local'.
+         * WARNING: In production, this logic is skipped for security.
+         */
+        if (config('app.env') === 'local') {
+            $parts = explode('-', $orderId);
+            $orderType = $parts[0] ?? 'SUB';
+
+            // Prevent duplicates
+            if ($orderType === 'TRIAL') {
+                if ($institute->trial_status === 'active' && $institute->trial_expires_at) {
+                    return $this->success(null);
+                }
+                // Activate Trial
+                $institute->update([
+                    'trial_status' => 'active',
+                    'trial_expires_at' => now()->addDays(30),
+                    'trial_cancelled_at' => null,
+                    'is_premium' => true,
+                    'premium_expires_at' => now()->addDays(30),
+                ]);
+            } else {
+                $existing = Subscription::where('institute_id', $institute->id)
+                    ->where('gateway_subscription_id', $orderId)
+                    ->first();
+
+                if ($existing) {
+                    return $this->success(null);
+                }
+
+                // Renew or Create Subscription Record
+                $subscription = Subscription::where('institute_id', $institute->id)
+                    ->where('status', 'expired')
+                    ->latest()
+                    ->first();
+
+                if ($subscription) {
+                    $subscription->update([
+                        'gateway_subscription_id' => $orderId,
+                        'status' => 'active',
+                        'started_at' => now(),
+                        'ends_at' => now()->addDays(30),
+                        'is_trial' => false,
+                        'cancelled_at' => null,
+                    ]);
+                } else {
+                    Subscription::create([
+                        'institute_id' => $institute->id,
+                        'gateway_subscription_id' => $orderId,
+                        'plan' => 'monthly',
+                        'status' => 'active',
+                        'started_at' => now(),
+                        'ends_at' => now()->addDays(30),
+                        'is_trial' => false,
+                    ]);
+                }
+
+                // Update Institute
+                $institute->update([
+                    'is_premium' => true,
+                    'premium_expires_at' => now()->addDays(30),
+                ]);
+            }
+
+            // Return fresh user data for frontend immediate sync
+            $user->load('institute');
+            return $this->success($user, 'Payment verified and premium activated (Dev Mode).');
+        }
+
+        // 3. PRODUCTION MODE
+        // Return success but with a pending status.
+        return response()->json([
+            'status' => 'pending',
+            'message' => 'Payment notification received. Premium status will be active shortly.'
+        ]);
     }
 
     // Kept for backward compatibility if needed, using old logic but redirecting to new API flow

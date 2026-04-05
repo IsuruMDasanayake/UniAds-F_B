@@ -94,6 +94,11 @@ const MessengerDropdown = ({ isOpen, onClose }) => {
         const name = otherInst?.institute_name || conv.other_participant?.user?.name || '';
         const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase());
 
+        // Show ONLY premium institutes
+        if (!isPremiumActive(otherInst)) {
+            return false;
+        }
+
         // Hide if chat is explicitly disabled for the institute
         if (otherInst && (chatEnabled === false || Number(chatEnabled) === 0)) {
             return false;

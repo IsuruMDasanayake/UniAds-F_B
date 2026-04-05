@@ -49,9 +49,12 @@ function SearchResultsPage() {
                 setUser(userRes.data.data);
 
                 const searchData = searchRes.data.data;
-                // The backend now returns paginated posts or an object with 'posts'
                 const results = searchData?.posts?.data || searchData?.posts || [];
-                setPosts(results);
+                
+                // Sort by ranking (score_cache)
+                const sortedResults = [...results].sort((a, b) => (b.score_cache || 0) - (a.score_cache || 0));
+
+                setPosts(sortedResults);
 
                 // If the search was a share_link match, auto-open the modal
                 if (searchData?.is_share_link_match && results.length === 1) {

@@ -35,8 +35,10 @@ return [
         'key' => env('GEMINI_API_KEY'),
     ],
 
-
-
-
+    'payhere' => [
+        'merchant_id' => env('PAYHERE_MERCHANT_ID'),
+        'merchant_secret' => env('PAYHERE_MERCHANT_SECRET'),
+        'is_sandbox' => env('PAYHERE_IS_SANDBOX', true),
+    ],
 
 ];
