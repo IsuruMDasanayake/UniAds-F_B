@@ -19,7 +19,6 @@ class CleanOldAnalyticsData extends Command
         DB::table('post_views')->where('viewed_at', '<', $cutoffDate)->delete();
         DB::table('event_views')->where('viewed_at', '<', $cutoffDate)->delete();
         DB::table('institute_profile_views')->where('viewed_at', '<', $cutoffDate)->delete();
-        DB::table('followers')->where('created_at', '<', $cutoffDate)->delete();
 
         $this->info("Old analytics data cleaned successfully.");
     }

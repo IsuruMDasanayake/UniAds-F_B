@@ -30,9 +30,10 @@ function EventsPage() {
         hasNextPage: hasMoreEvents,
         isFetchingNextPage: loadingMoreEvents,
         isLoading: eventsLoading,
+        refetch: refetchEvents,
     } = useInfiniteEvents({ searchQuery: debouncedSearchQuery, activeFilter });
 
-    const { data: latestEvents = [] } = useLatestEvents(2);
+    const { data: latestEvents = [], refetch: refetchLatest } = useLatestEvents(2);
 
     const interestMutation = useToggleEventInterest();
     const declineMutation = useDeclineEvent();
@@ -406,6 +407,7 @@ function EventsPage() {
                         onSuccess={() => {
                             setShowAddEventModal(false);
                             refetchEvents();
+                            refetchLatest();
                         }}
                     />
                 )}

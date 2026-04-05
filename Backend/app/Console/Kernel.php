@@ -12,11 +12,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('events:delete-past')->daily();
         $schedule->command('analytics:cleanup')->daily();
         $schedule->command('emails:fetch')->everyFiveMinutes();
         $schedule->command('notifications:send-scheduled')->dailyAt('09:00');
-        $schedule->command('chat:cleanup')->daily();
 
         // Sync expired premium statuses and subscriptions
         $schedule->command('subscriptions:sync-expiry')->everyMinute();
