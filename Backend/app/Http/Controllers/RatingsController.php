@@ -182,7 +182,7 @@ class RatingsController extends Controller
 
     public function apiAdminIndex()
     {
-        $ratings = Rating::with(['user', 'institute'])->orderBy('created_at', 'desc')->get();
+        $ratings = Rating::with(['user', 'institute'])->orderBy('created_at', 'desc')->paginate(50);
         return $this->successResponse($ratings);
     }
 }

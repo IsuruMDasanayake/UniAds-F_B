@@ -650,7 +650,7 @@ class InstituteController extends Controller
 
     public function apiAdminIndex()
     {
-        $institutes = Institute::orderBy('created_at', 'desc')->get();
+        $institutes = Institute::orderBy('created_at', 'desc')->paginate(50);
         return $this->successResponse($institutes);
     }
 
