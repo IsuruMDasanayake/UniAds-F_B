@@ -36,7 +36,9 @@ class FrontendController extends Controller
         $userId = auth()->id();
         $user = auth()->user();
 
-        $posts = Post::with(['institute', 'likes'])
+        $posts = Post::with(['institute' => function ($query) {
+            $query->withAvg('ratings', 'rating')->withCount('ratings');
+        }, 'likes'])
             ->where('status', 'active')
             ->latest()
             ->paginate(10);
@@ -53,7 +55,9 @@ class FrontendController extends Controller
                 return $group->take(5);
             });
 
-        $events = Event::with(['institute'])
+        $events = Event::with(['institute' => function ($query) {
+            $query->withAvg('ratings', 'rating')->withCount('ratings');
+        }])
             ->where('is_active', true)
             ->whereDate('event_date', '>=', Carbon::today())
             ->whereDoesntHave('declinedByUsers', function ($query) {
@@ -64,12 +68,12 @@ class FrontendController extends Controller
             ->get();
 
         // Inject liked/saved booleans (standardized logic)
-        if ($userId && $posts->count() > 0) {
-            $postIds = $posts->pluck('id')->toArray();
+        if ($userId && $posts->total() > 0) {
+            $postIds = $posts->getCollection()->pluck('id')->toArray();
             $likedPostIds = \App\Models\PostLike::where('user_id', $userId)->whereIn('post_id', $postIds)->pluck('post_id')->toArray();
             $savedPostIds = \App\Models\SavedPost::where('student_id', $userId)->whereIn('post_id', $postIds)->pluck('post_id')->toArray();
 
-            $posts->transform(function($post) use ($likedPostIds, $savedPostIds) {
+            $posts->getCollection()->transform(function($post) use ($likedPostIds, $savedPostIds) {
                 // Security: Hide sensitive institute/user data
                 if ($post->institute) {
                     $post->institute->makeHidden(['email', 'contact_number', 'gov_register_number', 'status', 'trial_status', 'followers_count']);
@@ -79,7 +83,7 @@ class FrontendController extends Controller
                 return $post;
             });
         } else {
-            $posts->transform(function($post) {
+            $posts->getCollection()->transform(function($post) {
                 if ($post->institute) {
                     $post->institute->makeHidden(['email', 'contact_number', 'gov_register_number', 'status', 'trial_status', 'followers_count']);
                 }

@@ -554,7 +554,9 @@ class PostController extends Controller
         $userId = $user ? $user->id : null;
 
         /** @var \Illuminate\Pagination\LengthAwarePaginator $posts */
-        $posts = Post::with(['institute', 'likes'])
+        $posts = Post::with(['institute' => function ($query) {
+            $query->withAvg('ratings', 'rating')->withCount('ratings');
+        }, 'likes'])
             ->where('status', 'active')
             ->latest()
             ->paginate(10);
@@ -588,7 +590,9 @@ class PostController extends Controller
 
     public function apiAdminIndex()
     {
-        $posts = Post::with('institute')->withCount('likes')->latest()->paginate(20);
+        $posts = Post::with(['institute' => function ($query) {
+            $query->withAvg('ratings', 'rating')->withCount('ratings');
+        }])->withCount('likes')->latest()->paginate(20);
         return $this->success($posts);
     }
 

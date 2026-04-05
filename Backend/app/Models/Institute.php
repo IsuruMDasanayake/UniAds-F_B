@@ -75,11 +75,19 @@ class Institute extends Model
 
     public function getAverageRatingAttribute()
     {
+        // When using withAvg('ratings', 'rating'), result is in ratings_avg_rating
+        if (array_key_exists('ratings_avg_rating', $this->attributes)) {
+            return round((float) ($this->attributes['ratings_avg_rating'] ?? 0), 1);
+        }
         return round($this->averageRating(), 1);
     }
 
     public function getRatingCountAttribute()
     {
+        // When using withCount('ratings'), result is in ratings_count
+        if (array_key_exists('ratings_count', $this->attributes)) {
+            return (int) ($this->attributes['ratings_count'] ?? 0);
+        }
         return $this->ratingCount();
     }
     

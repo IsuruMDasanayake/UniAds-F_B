@@ -213,8 +213,9 @@ class InstituteController extends Controller
 
     public function apiShowProfile(Request $request, $id)
     {
-        // Fetch the institute by ID or Slug
-        $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
+        // Fetch the institute by ID or Slug with aggregates
+        $query = Institute::withAvg('ratings', 'rating')->withCount('ratings');
+        $institute = is_numeric($id) ? $query->findOrFail($id) : $query->where('slug', $id)->firstOrFail();
         $id = $institute->id; // Use numeric ID for subsequent queries like AboutSection
         $categories = Category::all();
         $perPage = $request->query('per_page', 12);
@@ -650,7 +651,10 @@ class InstituteController extends Controller
 
     public function apiAdminIndex()
     {
-        $institutes = Institute::orderBy('created_at', 'desc')->paginate(50);
+        $institutes = Institute::withAvg('ratings', 'rating')
+            ->withCount('ratings')
+            ->orderBy('created_at', 'desc')
+            ->paginate(50);
         return $this->successResponse($institutes);
     }
 

@@ -88,7 +88,8 @@ const ReviewsModal = ({ institute, currentUser, onClose }) => {
             await axiosClient.post(`/api/institutes/${institute.id}/rate`, { rating, comment });
             setRating(0);
             setComment('');
-            fetchReviews();
+            // Auto refresh the page to update the global rating/count on the profile
+            window.location.reload();
         } catch (error) {
             console.error("Failed to submit review", error);
             setError(error.response?.data?.message || "Failed to submit review.");
@@ -104,6 +105,8 @@ const ReviewsModal = ({ institute, currentUser, onClose }) => {
             await axiosClient.delete(`/api/reviews/${reviewToDelete}`);
             setReviews(prev => prev.filter(r => r.id !== reviewToDelete));
             setReviewToDelete(null);
+            // Auto refresh the page to update the global rating/count on the profile
+            window.location.reload();
         } catch (error) {
             console.error("Failed to delete review", error);
             setError("Failed to delete review.");

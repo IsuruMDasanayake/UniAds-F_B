@@ -154,7 +154,9 @@ class EventController extends Controller
      */
     public function apiAdminIndex()
     {
-        $events = Event::with('institute')->orderBy('created_at', 'desc')->paginate(20);
+        $events = Event::with(['institute' => function ($query) {
+            $query->withAvg('ratings', 'rating')->withCount('ratings');
+        }, 'interests', 'declines'])->orderBy('created_at', 'desc')->paginate(20);
         return $this->successResponse($events);
     }
 
@@ -292,7 +294,9 @@ class EventController extends Controller
         $search = $request->query('search');
         $filter = $request->query('filter', 'all');
 
-        $query = Event::with(['institute'])
+        $query = Event::with(['institute' => function ($query) {
+            $query->withAvg('ratings', 'rating')->withCount('ratings');
+        }])
             ->withExists(['interests as is_interested' => function($q) use ($userId) {
                 $q->where('user_id', $userId);
             }])
