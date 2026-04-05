@@ -33,7 +33,8 @@ RUN install-php-extensions \
     fileinfo \
     tokenizer \
     xmlwriter \
-    ctype
+    ctype \
+    redis
 
 # Use the default production configuration
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
