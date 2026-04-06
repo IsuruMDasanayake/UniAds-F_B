@@ -2,7 +2,6 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 
 const AdminRoute = ({ children }) => {
-    const token = localStorage.getItem('ACCESS_TOKEN');
     const userStr = localStorage.getItem('APP_USER');
     let user = null;
 
@@ -15,10 +14,11 @@ const AdminRoute = ({ children }) => {
     }
 
     // Check if authenticated and is Admin
-    if (!token || !user || user.role !== 'Admin') {
-        // If we have a token but wrong role, redirect to unauthorized or home
-        // For now, redirecting to login if no token, home if wrong role
-        if (!token) return <Navigate to="/login" replace />;
+    if (!user) {
+        return <Navigate to="/login" replace />;
+    }
+
+    if (user.role !== 'Admin') {
         return <Navigate to="/" replace />;
     }
 
