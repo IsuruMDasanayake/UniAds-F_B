@@ -89,13 +89,20 @@ class InstituteController extends Controller
         ]);
 
         $institute->update($validatedData);
-
+        
+        // Use ImageOptimiser for optimized storage and ensure old files are deleted (MED-10)
         if ($request->hasFile('profile_photo')) {
-            $institute->profile_photo = $request->file('profile_photo')->store('profile_photos', 'public');
+            if ($institute->profile_photo) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($institute->profile_photo);
+            }
+            $institute->profile_photo = \App\Services\ImageOptimiser::store($request->file('profile_photo'), 'institute_photos');
         }
 
         if ($request->hasFile('cover_photo')) {
-            $institute->cover_photo = $request->file('cover_photo')->store('cover_photos', 'public');
+            if ($institute->cover_photo) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($institute->cover_photo);
+            }
+            $institute->cover_photo = \App\Services\ImageOptimiser::store($request->file('cover_photo'), 'institute_covers');
         }
 
         $institute->save();
