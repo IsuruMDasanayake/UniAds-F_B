@@ -66,21 +66,26 @@ Route::post('/email/resend-otp', [EmailVerificationController::class, 'resendOTP
 // Public Contact Form
 Route::post('/contact', [ContactController::class, 'apiSubmitContactForm']);
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    $user = $request->user();
-
-    if ($user->role === 'Institute') {
-        $user->load('institute');
-    }
-
-    if ($user->role === 'User') {
-        $user->load('savedPosts');
+Route::get('/user', function (Request $request) {
+    if (Auth::guard('sanctum')->check()) {
+        $user = Auth::guard('sanctum')->user();
+        if ($user->role === 'Institute') {
+            $user->load('institute');
+        }
+        if ($user->role === 'User') {
+            $user->load('savedPosts');
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'User fetched',
+            'data'    => $user,
+        ]);
     }
 
     return response()->json([
         'success' => true,
-        'message' => 'User fetched',
-        'data'    => $user,
+        'message' => 'No active session',
+        'data'    => null,
     ]);
 });
 

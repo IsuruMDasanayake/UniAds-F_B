@@ -13,7 +13,7 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         '/stripe/webhook',
-        'api/*',  // API routes use Sanctum token/session auth, not CSRF
+        'api/*',  // Re-added to resolve 419 CSRF mismatch on stateful login
     ];
 
 }

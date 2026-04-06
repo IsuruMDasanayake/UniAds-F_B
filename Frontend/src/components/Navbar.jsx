@@ -95,7 +95,9 @@ function Navbar({ user }) {
         } catch (error) {
             console.error('Logout error:', error);
         }
-        localStorage.removeItem('ACCESS_TOKEN');
+        // We only clear the non-sensitive APP_USER for UI state. 
+        // Token is handled by the browser/Sanctum via HttpOnly cookies.
+        localStorage.removeItem('ACCESS_TOKEN'); // Leave this for one cycle to clean up any legacy tokens
         localStorage.removeItem('APP_USER');
         navigate('/');
     };

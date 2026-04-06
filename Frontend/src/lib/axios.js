@@ -8,16 +8,11 @@ const axiosClient = axios.create({
         'Accept': 'application/json',
     },
     withCredentials: true,
+    withXSRFToken: true,
 });
 
-// Request interceptor to add the Bearer token
-axiosClient.interceptors.request.use((config) => {
-    const token = localStorage.getItem('ACCESS_TOKEN');
-    if (token && config.headers) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
+// Note: We no longer manually inject the Bearer token from localStorage.
+// Instead, we rely on secure HttpOnly cookies and withCredentials: true.
 
 import { toast } from 'sonner';
 

@@ -85,25 +85,36 @@ function App() {
     }
   });
 
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
+        // Attempt to fetch user using the session cookie
         const response = await axiosClient.get('/api/user');
         const userData = response.data.data;
         setUser(userData);
         localStorage.setItem('APP_USER', JSON.stringify(userData));
       } catch (error) {
-        if (error.response?.status === 401) {
-          setUser(null);
-          localStorage.removeItem('APP_USER');
-          localStorage.removeItem('ACCESS_TOKEN');
-        }
+        // Not logged in or session expired
+        setUser(null);
+        localStorage.removeItem('APP_USER');
+        localStorage.removeItem('ACCESS_TOKEN');
+      } finally {
+        setIsLoading(false);
       }
     };
-    if (localStorage.getItem('ACCESS_TOKEN')) {
+    
+    if (localStorage.getItem('APP_USER')) {
       fetchUser();
+    } else {
+      setIsLoading(false);
     }
   }, []);
+
+  if (isLoading) {
+    return null; // Or a loading spinner
+  }
 
   return (
     <QueryClientProvider client={queryClient}>

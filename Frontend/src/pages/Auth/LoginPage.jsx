@@ -47,19 +47,24 @@ const LoginPage = () => {
         setIsLoading(true);
 
         try {
-            // 1. Attempt Login
+            // 1. Initialize CSRF protection 
+            // Note: Use .. to go up from the /api base URL to hit the root /sanctum/csrf-cookie
+            await axiosClient.get('../sanctum/csrf-cookie');
+
+            // 2. Attempt Login
             const response = await axiosClient.post('/api/login', {
                 email,
                 password
             });
 
-            // 2. Login Successful - Save Token & User
+            // 3. Login Successful - Cookies are handled automatically by the browser
             const payload = response.data.data;
-            if (payload?.token) {
-                localStorage.setItem('ACCESS_TOKEN', payload.token);
-                if (payload.user) {
-                    localStorage.setItem('APP_USER', JSON.stringify(payload.user));
-                }
+            
+            // We no longer store the token in localStorage.
+            // Some non-sensitive user info can be stored for UI/UX if needed, 
+            // but for maximum security, we'll fetch it from /api/user.
+            if (payload?.user) {
+                localStorage.setItem('APP_USER', JSON.stringify(payload.user));
             }
 
             // Role-based redirect using window.location to ensure fresh page load

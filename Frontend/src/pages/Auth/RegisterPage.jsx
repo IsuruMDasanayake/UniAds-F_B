@@ -117,16 +117,19 @@ const RegisterPage = () => {
         setIsLoading(true);
 
         try {
-            // Attempt Register
+            // 1. Initialize CSRF protection 
+            // Note: Use .. to go up from the /api base URL to hit the root /sanctum/csrf-cookie
+            await axiosClient.get('../sanctum/csrf-cookie');
+
+            // 2. Attempt Register
             const response = await axiosClient.post('/api/register', formData);
 
-            // Save token if returned
+            // 3. Registration Successful - Cookies are handled automatically
             const payload = response.data.data;
-            if (payload?.token) {
-                localStorage.setItem('ACCESS_TOKEN', payload.token);
-                if (payload.user) {
-                    localStorage.setItem('APP_USER', JSON.stringify(payload.user));
-                }
+            
+            // We no longer store the token in localStorage to prevent XSS theft.
+            if (payload?.user) {
+                localStorage.setItem('APP_USER', JSON.stringify(payload.user));
             }
 
             // Registration successful
