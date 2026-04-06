@@ -117,3 +117,14 @@
         margin-right: 0;
     }
 }
+
+@media (max-width: 768px) {
+    .orb-1 {
+        width: 300px;
+        height: 300px;
+    }
+    .orb-2 {
+        width: 400px;
+        height: 400px;
+    }
+}
