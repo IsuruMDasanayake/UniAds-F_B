@@ -379,7 +379,7 @@ function FeedPage() {
                                                 <span>See More</span>
                                                 <Info size={16} />
                                             </button>
-                                            {user?.role === 'User' && (
+                                            {user?.role !== 'Institute' && (
                                                 <button
                                                     className={`action-btn save-btn ${post.is_saved_by_user ? 'saved' : ''}`}
                                                     onClick={() => handleSavePost(post.id)}
