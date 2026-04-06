@@ -156,7 +156,7 @@ class EventController extends Controller
     {
         $events = Event::with(['institute' => function ($query) {
             $query->withAvg('ratings', 'rating')->withCount('ratings');
-        }, 'interests', 'declines'])->orderBy('created_at', 'desc')->paginate(20);
+        }])->orderBy('created_at', 'desc')->paginate(20);
         return $this->successResponse($events);
     }
 
