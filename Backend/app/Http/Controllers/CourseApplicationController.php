@@ -43,69 +43,72 @@ class CourseApplicationController extends Controller
             return $this->error('Course applications are currently disabled for this institute.', 403);
         }
 
-        // Store application
+        // Store application atomically
         DB::beginTransaction();
         try {
-            // Already applied check
-            $alreadyApplied = ApplyCase::where('user_id', Auth::id())
-                ->where('institute_id', $institute_id)
-                ->where('course_title', $validated['course_title'])
-                ->exists();
+            // Attempt to create the application. The unique database index on (user_id, post_id)
+            // will prevent duplicates at the database level even under concurrent requests.
+            $application = ApplyCase::create([
+                'user_id'       => Auth::id(),
+                'institute_id'  => $institute_id,
+                'post_id'       => $validated['post_id'],
+                'course_title'  => $validated['course_title'],
+                'student_name'  => $validated['name'],
+                'student_email' => $validated['email'],
+                'student_phone' => $validated['phone'],
+                'message'       => Purifier::clean($validated['message']),
+                'status'        => 'new',
+                'applied_at'    => now(),
+            ]);
 
-            if (!$alreadyApplied) {
-                $application = ApplyCase::create([
-                    'user_id'       => Auth::id(),
-                    'institute_id'  => $institute_id,
-                    'post_id'       => $validated['post_id'],
-                    'course_title'  => $validated['course_title'],
-                    'student_name'  => $validated['name'],
-                    'student_email' => $validated['email'],
-                    'student_phone' => $validated['phone'],
-                    'message'       => Purifier::clean($validated['message']),
-                    'status'        => 'new',
-                    'applied_at'    => now(),
-                ]);
+            // Fetch post for notification details
+            $post = Post::with('institute')->find($validated['post_id']);
 
-                // Fetch post for notification details
-                $post = Post::with('institute')->find($validated['post_id']);
+            // Trigger Notification
+            Notification::create([
+                'institute_id' => $institute_id,
+                'type' => 'application_new',
+                'title' => 'New Course Application',
+                'message' => $validated['name'] . ' applied for ' . $validated['course_title'],
+                'data' => [
+                    'application_id' => $application->id,
+                    'post_id' => $validated['post_id'],
+                    'image' => $post ? $post->image : null
+                ]
+            ]);
 
-                // Trigger Notification
-                Notification::create([
-                    'institute_id' => $institute_id,
-                    'type' => 'application_new',
-                    'title' => 'New Course Application',
-                    'message' => $validated['name'] . ' applied for ' . $validated['course_title'],
-                    'data' => [
-                        'application_id' => $application->id,
-                        'post_id' => $validated['post_id'],
-                        'image' => $post ? $post->image : null
-                    ]
-                ]);
+            // Send Emails
+            $emailData = [
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'],
+                'message' => $validated['message'],
+                'course_title' => $validated['course_title']
+            ];
 
-                // Send Emails
-                $emailData = [
-                    'name' => $validated['name'],
-                    'email' => $validated['email'],
-                    'phone' => $validated['phone'],
-                    'message' => $validated['message'],
-                    'course_title' => $validated['course_title']
-                ];
+            \Illuminate\Support\Facades\Mail::to($institute->email)
+                ->queue(new \App\Mail\CourseApplicationMail($emailData));
 
-                \Illuminate\Support\Facades\Mail::to($institute->email)
-                    ->queue(new \App\Mail\CourseApplicationMail($emailData));
+            $studentEmailData = array_merge($emailData, [
+                'institute_name' => $post->institute->institute_name ?? $institute->institute_name,
+            ]);
 
-                $studentEmailData = array_merge($emailData, [
-                    'institute_name' => $post->institute->institute_name ?? $institute->institute_name,
-                ]);
-
-                \Illuminate\Support\Facades\Mail::to($validated['email'])
-                    ->queue(new \App\Mail\CourseApplicationStudentMail($studentEmailData));
-            }
+            \Illuminate\Support\Facades\Mail::to($validated['email'])
+                ->queue(new \App\Mail\CourseApplicationStudentMail($studentEmailData));
 
             DB::commit();
             return $this->success(null, 'Application sent successfully!');
+
+        } catch (\Illuminate\Database\QueryException $e) {
+            DB::rollBack();
+            // Handle duplicate entry (Error 1062)
+            if ($e->getCode() == '23000' || str_contains($e->getMessage(), 'Duplicate entry')) {
+                return $this->error('You have already applied for this course.', 422);
+            }
+            return $this->error('Database error: ' . $e->getMessage(), 500);
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Course application failed: ' . $e->getMessage());
             return $this->error('Failed to send application: ' . $e->getMessage(), 500);
         }
     }
