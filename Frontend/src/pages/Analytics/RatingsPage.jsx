@@ -39,19 +39,21 @@ const RatingsAnalyticsPage = () => {
         else if (!isSilent) setIsUpdating(true);
 
         try {
-            const { data } = await axiosClient.get('/api/institute/analytics/ratings', {
+            const response = await axiosClient.get('/api/institute/analytics/ratings', {
                 params: { page, search, rating, reported, sort }
             });
 
-            setReviews(data.ratings.data || []);
-            setStats(data.stats);
-            setDistribution(data.distribution);
+            const payload = response.data.data;
+
+            setReviews(payload.ratings.data || []);
+            setStats(payload.stats);
+            setDistribution(payload.distribution);
             setPagination({
-                current_page: data.ratings.current_page,
-                last_page: data.ratings.last_page,
-                total: data.ratings.total,
-                from: data.ratings.from,
-                to: data.ratings.to
+                current_page: payload.ratings.current_page,
+                last_page: payload.ratings.last_page,
+                total: payload.ratings.total,
+                from: payload.ratings.from,
+                to: payload.ratings.to
             });
         } catch (error) {
             console.error('Error fetching ratings:', error);

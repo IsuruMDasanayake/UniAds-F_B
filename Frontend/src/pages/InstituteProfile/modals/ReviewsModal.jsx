@@ -41,7 +41,7 @@ const DeleteConfirmationModal = ({ onConfirm, onCancel, title, message, isDeleti
     </div>
 );
 
-const ReviewsModal = ({ institute, currentUser, onClose }) => {
+const ReviewsModal = ({ institute, currentUser, onClose, onSuccess }) => {
     const [reviews, setReviews] = useState([]);
     const [rating, setRating] = useState(0);
     const [hoverRating, setHoverRating] = useState(0);
@@ -88,8 +88,15 @@ const ReviewsModal = ({ institute, currentUser, onClose }) => {
             await axiosClient.post(`/api/institutes/${institute.id}/rate`, { rating, comment });
             setRating(0);
             setComment('');
-            // Auto refresh the page to update the global rating/count on the profile
-            window.location.reload();
+            
+            // Soft refresh the modal data
+            await fetchReviews();
+
+            // Notify parent to update profile stats
+            if (typeof onClose === 'function' && typeof institute.onSuccess === 'function') {
+                // Not ideal, let's just trigger a prop
+            }
+            if (onSuccess) onSuccess();
         } catch (error) {
             console.error("Failed to submit review", error);
             setError(error.response?.data?.message || "Failed to submit review.");
@@ -105,8 +112,9 @@ const ReviewsModal = ({ institute, currentUser, onClose }) => {
             await axiosClient.delete(`/api/reviews/${reviewToDelete}`);
             setReviews(prev => prev.filter(r => r.id !== reviewToDelete));
             setReviewToDelete(null);
-            // Auto refresh the page to update the global rating/count on the profile
-            window.location.reload();
+            
+            // Notify parent to update profile stats
+            if (onSuccess) onSuccess();
         } catch (error) {
             console.error("Failed to delete review", error);
             setError("Failed to delete review.");

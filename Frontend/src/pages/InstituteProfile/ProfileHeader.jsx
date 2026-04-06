@@ -21,6 +21,7 @@ const ProfileHeader = ({
     setActiveTab,
     isOwner,
     onUpdate, // Function to update institute state in parent
+    onRefresh, // Function to trigger a complete soft data refresh
     showFollow, // This prop might become redundant if currentUser logic handles it
     currentUser // New prop for current user context
 }) => {
@@ -261,6 +262,7 @@ const ProfileHeader = ({
                     institute={institute}
                     currentUser={currentUser}
                     onClose={() => setShowReviews(false)}
+                    onSuccess={onRefresh}
                 />
             )}
 

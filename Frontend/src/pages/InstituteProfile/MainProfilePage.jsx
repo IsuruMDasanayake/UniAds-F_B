@@ -244,6 +244,7 @@ const MainProfilePage = () => {
             <ProfileHeader
                 institute={institute}
                 onUpdate={setInstitute}
+                onRefresh={refreshData}
                 isFollowing={isFollowing}
                 showFollow={!isOwner}
                 onFollow={handleFollow}
