@@ -38,7 +38,9 @@ const InstituteManagement = () => {
         try {
             if (!isSilent) setLoading(true);
             const response = await axiosClient.get('/api/admin/institutes');
-            setInstitutes(response.data.data || []);
+            const payload = response.data.data;
+            const fetchedInstitutes = Array.isArray(payload) ? payload : (payload?.data || []);
+            setInstitutes(fetchedInstitutes);
         } catch (error) {
             console.error('Error fetching institutes:', error);
         } finally {
