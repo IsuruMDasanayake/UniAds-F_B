@@ -60,8 +60,8 @@ Route::post('/password/forgot', [ForgotPasswordController::class, 'apiSendResetC
 Route::post('/password/reset', [ForgotPasswordController::class, 'apiResetPassword'])->middleware('throttle:5,1');
 
 // Email Verification routes (Public access for new registrations)
-Route::post('/email/verify-otp', [EmailVerificationController::class, 'verifyOTP']);
-Route::post('/email/resend-otp', [EmailVerificationController::class, 'resendOTP']);
+Route::post('/email/verify-otp', [EmailVerificationController::class, 'verifyOTP'])->middleware('throttle:3,5');
+Route::post('/email/resend-otp', [EmailVerificationController::class, 'resendOTP'])->middleware('throttle:3,5');
 
 // Public Contact Form
 Route::post('/contact', [ContactController::class, 'apiSubmitContactForm'])->middleware('throttle:3,1');
