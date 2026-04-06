@@ -64,7 +64,7 @@ Route::post('/email/verify-otp', [EmailVerificationController::class, 'verifyOTP
 Route::post('/email/resend-otp', [EmailVerificationController::class, 'resendOTP']);
 
 // Public Contact Form
-Route::post('/contact', [ContactController::class, 'apiSubmitContactForm']);
+Route::post('/contact', [ContactController::class, 'apiSubmitContactForm'])->middleware('throttle:3,1');
 
 Route::get('/user', function (Request $request) {
     if (Auth::guard('sanctum')->check()) {
@@ -161,7 +161,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/institutions/{id}/follow', [InstituteController::class, 'toggleFollow']);
 
     // Institute Contact
-    Route::post('/institutions/{id}/contact', [ContactController::class, 'apiSendContactMessage']);
+    Route::post('/institutions/{id}/contact', [ContactController::class, 'apiSendContactMessage'])->middleware('throttle:3,1');
 
     // Gallery API
     Route::get('/institutions/{id}/gallery', [GalleryController::class, 'index']);

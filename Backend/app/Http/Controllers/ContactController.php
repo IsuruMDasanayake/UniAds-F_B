@@ -73,6 +73,11 @@ class ContactController extends Controller
 
     public function apiSubmitContactForm(Request $request)
     {
+        // Honeypot check for bots
+        if ($request->filled('website')) {
+            return $this->success(null, 'Your message has been sent successfully!');
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email',
@@ -102,6 +107,11 @@ class ContactController extends Controller
 
     public function apiSendContactMessage(Request $request, $id)
     {
+        // Honeypot check for bots
+        if ($request->filled('website')) {
+            return $this->success(null, 'Your message has been sent to the institute.');
+        }
+
         // Get the institute by ID or slug
         $institute = is_numeric($id) ? Institute::findOrFail($id) : Institute::where('slug', $id)->firstOrFail();
         $id = $institute->id; // Ensure we have the numeric ID for subsequent queries if needed
