@@ -103,7 +103,7 @@ class CourseApplicationController extends Controller
             DB::rollBack();
             // Handle duplicate entry (Error 1062)
             if ($e->getCode() == '23000' || str_contains($e->getMessage(), 'Duplicate entry')) {
-                return $this->error('You have already applied for this course.', 422);
+                return $this->error('You have already applied for this course.', 200);
             }
             return $this->error('Database error: ' . $e->getMessage(), 500);
         } catch (\Exception $e) {

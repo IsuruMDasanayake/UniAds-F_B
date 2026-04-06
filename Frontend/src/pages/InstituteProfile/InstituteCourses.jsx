@@ -326,6 +326,7 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
                 isOpen={showInfoModal}
                 onClose={() => setShowInfoModal(false)}
                 course={selectedCourse}
+                institute={institute}
             />
         </div>
     );

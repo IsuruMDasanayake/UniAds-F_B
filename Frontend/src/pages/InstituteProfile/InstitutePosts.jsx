@@ -509,7 +509,8 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
                     <MoreInfoModal
                         isOpen={isInfoOpen}
                         onClose={() => setIsInfoOpen(false)}
-                        contactNumber={institute?.contact_number || 'N/A'}
+                        course={selectedPost}
+                        institute={institute}
                     />
 
                     <EditPostModal
