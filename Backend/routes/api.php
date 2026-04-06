@@ -56,8 +56,8 @@ Route::middleware('throttle:auth')->group(function () {
 });
 
 // Password Reset API routes (no auth required)
-Route::post('/password/forgot', [ForgotPasswordController::class, 'apiSendResetCode']);
-Route::post('/password/reset', [ForgotPasswordController::class, 'apiResetPassword']);
+Route::post('/password/forgot', [ForgotPasswordController::class, 'apiSendResetCode'])->middleware('throttle:5,1');
+Route::post('/password/reset', [ForgotPasswordController::class, 'apiResetPassword'])->middleware('throttle:5,1');
 
 // Email Verification routes (Public access for new registrations)
 Route::post('/email/verify-otp', [EmailVerificationController::class, 'verifyOTP']);
