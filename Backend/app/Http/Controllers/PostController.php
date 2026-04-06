@@ -308,7 +308,7 @@ class PostController extends Controller
             $filterType, $filterValue, $page, $search, $activeFilters
         ]));
 
-        $postsData = \Illuminate\Support\Facades\Cache::remember($cacheKey, 300, function () use ($filterType, $filterValue, $search, $activeFilters) {
+        $postsData = \Illuminate\Support\Facades\Cache::tags(['posts_filter_api'])->remember($cacheKey, 300, function () use ($filterType, $filterValue, $search, $activeFilters) {
             $query = Post::query()
                 ->join('institutes', 'institutes.id', '=', 'posts.institute_id')
                 ->select('posts.*')

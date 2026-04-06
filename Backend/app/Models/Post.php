@@ -42,6 +42,15 @@ class Post extends Model
                 $post->share_link = (string) Str::uuid();
             }
         });
+
+        // Clear filter cache when posts are changed
+        static::saved(function () {
+            \Illuminate\Support\Facades\Cache::tags(['posts_filter_api'])->flush();
+        });
+
+        static::deleted(function () {
+            \Illuminate\Support\Facades\Cache::tags(['posts_filter_api'])->flush();
+        });
     }
 
     public function calculateScore(): float|int
