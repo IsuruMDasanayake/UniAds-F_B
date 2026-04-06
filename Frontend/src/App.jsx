@@ -14,6 +14,7 @@ import MainProfilePage from './pages/InstituteProfile/MainProfilePage';
 import SitePrivacy from './pages/SitePrivacy';
 import TermsConditions from './pages/TermsConditions';
 import SiteRefund from './pages/SiteRefund';
+import NotFound from './pages/NotFound';
 
 // Admin Components
 import AdminLayout from './components/Admin/AdminLayout';
@@ -214,6 +215,7 @@ function App() {
                     </AdminLayout>
                   </AdminRoute>
                 } />
+                <Route path="*" element={<NotFound />} />
               </Routes>
               <FloatingAiAdvisor user={user} />
               <GlobalFeedbackModal />

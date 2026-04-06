@@ -3,10 +3,15 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use App\Traits\ApiResponse;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class Handler extends ExceptionHandler
 {
+    use ApiResponse;
+
     /**
      * The list of the inputs that are never flashed to the session on validation exceptions.
      *
@@ -25,6 +30,32 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
             //
+        });
+
+        // Custom 500 JSON Response with Correlation ID
+        $this->renderable(function (Throwable $e, $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                // Determine if it's a 500 (Server Error) or something else
+                $status = ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface) ? $e->getStatusCode() : 500;
+
+                if ($status >= 500) {
+                    $correlationId = Str::uuid()->toString();
+                    
+                    // Log the detailed error with the ID for tracking
+                    Log::error("Server Error [{$correlationId}]: " . $e->getMessage(), [
+                        'exception' => $e,
+                        'url' => $request->fullUrl(),
+                        'input' => $request->all(),
+                    ]);
+
+                    return $this->error(
+                        'A server error occurred. Please contact support with the reference ID below.', 
+                        500, 
+                        null, 
+                        $correlationId
+                    );
+                }
+            }
         });
     }
 }

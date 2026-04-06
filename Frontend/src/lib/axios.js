@@ -61,7 +61,11 @@ axiosClient.interceptors.response.use(
                     }
                     break;
                 case 500:
-                    toast.error('Server Error', { description: 'Please try again later.' });
+                    const correlationId = response.data?.correlation_id;
+                    const displayId = correlationId ? ` (Ref: ${correlationId.substring(0, 8)})` : '';
+                    toast.error('Server Error', { 
+                        description: `A server-side error occurred. Please try again later.${displayId}` 
+                    });
                     break;
                 default:
                     toast.error('Error', { description: message });

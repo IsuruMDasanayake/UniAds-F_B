@@ -47,13 +47,19 @@ trait ApiResponse
     /**
      * Standard error response
      */
-    protected function error(string $message = 'Error', int $code = 400, $errors = null): JsonResponse
+    protected function error(string $message = 'Error', int $code = 400, $errors = null, ?string $correlationId = null): JsonResponse
     {
-        return response()->json([
+        $response = [
             'success' => false,
             'message' => $message,
             'errors'  => $errors,
-        ], $code);
+        ];
+
+        if ($correlationId) {
+            $response['correlation_id'] = $correlationId;
+        }
+
+        return response()->json($response, $code);
     }
 
     /**
