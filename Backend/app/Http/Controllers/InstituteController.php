@@ -114,9 +114,10 @@ class InstituteController extends Controller
         $location = $request->query('location');
         $perPage = $request->query('per_page', 12);
 
-        $institutes = Institute::where(function($q) {
-                $q->where('status', 'approved')
-                  ->orWhere('is_premium', true);
+        $institutes = Institute::where('status', 'approved')
+            // Optionally filter by premium if requested, otherwise show all approved
+            ->when($request->query('is_premium'), function ($q) {
+                $q->where('is_premium', true);
             })
             ->when($query, function ($q) use ($query) {
                 $q->where('institute_name', 'LIKE', "%{$query}%")
