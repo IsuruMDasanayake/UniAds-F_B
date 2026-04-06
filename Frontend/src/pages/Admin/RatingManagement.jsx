@@ -35,7 +35,21 @@ const RatingManagement = () => {
         try {
             if (!isSilent) setLoading(true);
             const response = await axiosClient.get('/api/admin/ratings');
-            setRatings(response.data.data || []);
+            const payload = response.data.data;
+            const fetchedRatings = Array.isArray(payload) ? payload : (payload?.data || []);
+            setRatings(fetchedRatings);
+
+            // Extract unique institutes from the ratings for the filter dropdown
+            const uniqueInstitutes = [];
+            const instIds = new Set();
+            fetchedRatings.forEach(r => {
+                if (r.institute && !instIds.has(r.institute.id)) {
+                    instIds.add(r.institute.id);
+                    uniqueInstitutes.push(r.institute);
+                }
+            });
+            setInstitutes(uniqueInstitutes);
+
         } catch (error) {
             console.error('Error fetching ratings:', error);
         } finally {
