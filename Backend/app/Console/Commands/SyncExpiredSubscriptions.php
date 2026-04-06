@@ -39,7 +39,6 @@ class SyncExpiredSubscriptions extends Command
             ->whereNotNull('premium_expires_at')
             ->where('premium_expires_at', '<', $now)
             ->get();
-
         $countInstitutes = $expiredInstitutes->count();
         if ($countInstitutes > 0) {
             foreach ($expiredInstitutes as $institute) {
@@ -47,14 +46,36 @@ class SyncExpiredSubscriptions extends Command
                 $this->warn("Deactivated premium for Institute ID: {$institute->id} ({$institute->institute_name})");
             }
             Log::info("Deactivated premium status for {$countInstitutes} institutes via scheduler.");
+        }
 
+        // 2. Sync Institutes with expired active trials
+        $expiredTrials = Institute::where('trial_status', 'active')
+            ->whereNotNull('trial_expires_at')
+            ->where('trial_expires_at', '<', $now)
+            ->get();
+
+        $countTrials = $expiredTrials->count();
+        if ($countTrials > 0) {
+            foreach ($expiredTrials as $institute) {
+                $institute->update([
+                    'trial_status' => 'expired',
+                    'is_premium' => false,
+                    'premium_expires_at' => null
+                ]);
+                $this->warn("Expired trial for Institute ID: {$institute->id} ({$institute->institute_name})");
+            }
+            Log::info("Expired trial status for {$countTrials} institutes via scheduler.");
+        }
+
+        // 3. Post-Expiry Actions (Recalculate rankings and flush cache)
+        if ($countInstitutes > 0 || $countTrials > 0) {
             // Immediately recalculate post rankings so expired institutes drop in results right away.
             UpdatePostScoresJob::dispatch();
             $this->info("Dispatched UpdatePostScoresJob to immediately refresh post rankings.");
 
-            // Flush the filter page cache so stale cached results don't show expired institutes on top.
-            Cache::flush();
-            $this->info("Flushed page cache to ensure updated rankings are visible immediately.");
+            // Flush the specific filter page cache tag
+            Cache::tags(['posts_filter_api'])->flush();
+            $this->info("Flushed 'posts_filter_api' cache tag to ensure updated rankings are visible immediately.");
         }
 
         // 2. Sync Subscription table statuses (Precise timestamp check)

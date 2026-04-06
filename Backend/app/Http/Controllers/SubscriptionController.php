@@ -32,21 +32,11 @@ class SubscriptionController extends Controller
             return $this->error('No institute found for user.', 404);
         }
 
-        // Check if trial has expired and update status if necessary
-        if ($institute->trial_status === 'active' && $institute->trial_expires_at && now()->gte($institute->trial_expires_at)) {
-            $institute->update([
-                'trial_status' => 'expired',
-                'is_premium' => false,
-                'premium_expires_at' => null // Or keep it if you want to show when it expired
-            ]);
-        }
-
-        // Check if premium expired
-        if ($institute->is_premium && $institute->premium_expires_at && now()->gte($institute->premium_expires_at)) {
-            $institute->update(['is_premium' => false]);
-        }
-
-
+        // The following logic has been moved to the 'subscriptions:sync-expiry' scheduled command
+        // to maintain a clean, side-effect free GET request:
+        // - Trial expiration checking and status updates
+        // - Premium status expiration checking and updates
+        
         $activeSubscription = Subscription::where('institute_id', $institute->id)
             ->latest()
             ->first();
