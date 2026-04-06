@@ -14,7 +14,7 @@ export const isPremiumActive = (institute) => {
     }
 
     if (!institute.is_premium) return false;
-    if (!institute.premium_expires_at) return true; // If somehow premium but no expiry, assume active
+    if (!institute.premium_expires_at) return false; // If somehow premium but no expiry, return false (Backend policy)
 
     // Secure date parsing for SQL format (YYYY-MM-DD HH:MM:SS)
     const dateStr = String(institute.premium_expires_at).includes('T') 

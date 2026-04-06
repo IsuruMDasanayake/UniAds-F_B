@@ -727,6 +727,8 @@ class InstituteController extends Controller
             if ($institute->is_premium) {
                 if ($request->has('expires_at')) {
                     $institute->premium_expires_at = $request->expires_at;
+                } else {
+                    $institute->premium_expires_at = now()->addYear();
                 }
             } else {
                 $institute->premium_expires_at = null;
