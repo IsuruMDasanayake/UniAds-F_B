@@ -36,7 +36,7 @@ const EditPostModal = ({ isOpen, onClose, post, onUpdate }) => {
                 const flatCategories = Object.values(categoryData).flat();
                 setCategories(flatCategories);
             } catch (error) {
-                console.error("Failed to fetch categories", error);
+                console.error("Failed to fetch categories", error?.message || error);
                 setCategories([]);
             }
         };
@@ -131,7 +131,7 @@ const EditPostModal = ({ isOpen, onClose, post, onUpdate }) => {
             onUpdate(response.data.data);
             onClose();
         } catch (error) {
-            console.error("Failed to update post:", error);
+            console.error("Failed to update post:", error?.message || error);
             let messages = [];
             if (error.response?.data?.errors) {
                 messages = Object.values(error.response.data.errors).flat();

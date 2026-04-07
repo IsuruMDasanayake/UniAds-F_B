@@ -15,7 +15,7 @@ const ProgrammeInfoModal = ({ course, isOpen, onClose, onApply, onMoreInfo, user
     React.useEffect(() => {
         if (isOpen && course?.id) {
             axiosClient.post(`/api/posts/${course.id}/track-view`).catch(err => {
-                console.error("Failed to track post view:", err);
+                console.error("Failed to track post view:", err?.message || err);
             });
         }
     }, [isOpen, course?.id]);
@@ -27,7 +27,7 @@ const ProgrammeInfoModal = ({ course, isOpen, onClose, onApply, onMoreInfo, user
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
         }).catch(err => {
-            console.error('Copy failed:', err);
+            console.error('Copy failed:', err?.message || err);
         });
     };
     return (

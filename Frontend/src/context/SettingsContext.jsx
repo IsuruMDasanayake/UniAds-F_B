@@ -46,7 +46,7 @@ export const SettingsProvider = ({ children }) => {
                 link.href = data.favicon_url;
             }
         } catch (error) {
-            console.error('Failed to fetch platform settings', error);
+            console.error('Failed to fetch platform settings', error?.message || error);
         } finally {
             setLoading(false);
         }

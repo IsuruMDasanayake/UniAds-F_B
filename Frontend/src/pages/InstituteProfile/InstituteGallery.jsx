@@ -116,7 +116,7 @@ const InstituteGallery = ({ institute, isOwner, onGalleryUpdate }) => {
             setPage(payload?.current_page || 1);
             setHasMore(!!payload?.next_page_url);
         } catch (err) {
-            console.error('Gallery fetch failed', err);
+            console.error('Gallery fetch failed', err?.message || err);
         } finally {
             setInitialLoading(false);
             setLoadingMore(false);
@@ -185,7 +185,7 @@ const InstituteGallery = ({ institute, isOwner, onGalleryUpdate }) => {
             setPreviewUrl(null);
             refreshGallery();
         } catch (error) {
-            console.error("Gallery upload failed", error);
+            console.error("Gallery upload failed", error?.message || error);
             setError(error.response?.data?.message || "Failed to upload image. Please try again.");
         } finally {
             setIsUploading(false);
@@ -201,7 +201,7 @@ const InstituteGallery = ({ institute, isOwner, onGalleryUpdate }) => {
             setImageToDelete(null);
             refreshGallery();
         } catch (error) {
-            console.error("Delete failed", error);
+            console.error("Delete failed", error?.message || error);
             setError("Failed to delete image.");
         } finally {
             setIsDeleting(false);

@@ -61,7 +61,7 @@ const BroadcastMailPage = () => {
             const response = await axiosClient.get(`/api/admin/mail-templates?target_type=${targetType}`);
             setTemplates(response.data.data || []);
         } catch (error) {
-            console.error('Error fetching templates:', error);
+            console.error('Error fetching templates:', error?.message || error);
         }
     };
 
@@ -98,7 +98,7 @@ const BroadcastMailPage = () => {
             });
             setRecipientCount(response.data.data?.count ?? response.data.count ?? 0);
         } catch (error) {
-            console.error('Error fetching recipient count:', error);
+            console.error('Error fetching recipient count:', error?.message || error);
             setRecipientCount(0);
         } finally {
             setCountLoading(false);
@@ -112,7 +112,7 @@ const BroadcastMailPage = () => {
             setHistory(response.data.data || {});
             setCurrentPage(page);
         } catch (error) {
-            console.error('Error fetching history:', error);
+            console.error('Error fetching history:', error?.message || error);
         } finally {
             setHistoryLoading(false);
         }
@@ -144,7 +144,7 @@ const BroadcastMailPage = () => {
             setPreviewData(response.data.data);
             setShowPreview(true);
         } catch (error) {
-            console.error('Error previewing recipients:', error);
+            console.error('Error previewing recipients:', error?.message || error);
             showNotification('Failed to preview recipients', 'error');
         } finally {
             setLoading(false);
@@ -193,7 +193,7 @@ const BroadcastMailPage = () => {
             // Refresh history
             fetchHistory();
         } catch (error) {
-            console.error('Error sending broadcast:', error);
+            console.error('Error sending broadcast:', error?.message || error);
             showNotification(error.response?.data?.error || 'Failed to send broadcast email', 'error');
         } finally {
             setLoading(false);

@@ -189,7 +189,7 @@ const ProfileHeader = ({
                                                 const res = await ChatService.startConversation('Institute', institute.id);
                                                 selectConversation(res.data.data);
                                             } catch (e) {
-                                                console.error("Chat start error", e);
+                                                console.error("Chat start error", e?.message || e);
                                             } finally {
                                                 setIsMsgLoading(false);
                                             }

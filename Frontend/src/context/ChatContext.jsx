@@ -37,7 +37,7 @@ export const ChatProvider = ({ children, user }) => {
             const totalUnread = decryptedConversations.reduce((acc, conv) => acc + (conv.unread_count || 0), 0);
             setUnreadTotal(totalUnread);
         } catch (error) {
-            console.error('Failed to fetch conversations:', error);
+            console.error('Failed to fetch conversations:', error?.message || error);
         }
     }, [user]);
 
@@ -80,7 +80,7 @@ export const ChatProvider = ({ children, user }) => {
                 await fetchConversations(); // Re-fetch to update unread counts after DB is marked read
             }
         } catch (error) {
-            console.error('Failed to refresh messages:', error);
+            console.error('Failed to refresh messages:', error?.message || error);
         }
     }, [user, fetchConversations]);
 
@@ -152,7 +152,7 @@ export const ChatProvider = ({ children, user }) => {
             // Mark as read in backend
             await ChatService.markRead(conversation.id);
         } catch (error) {
-            console.error('Failed to fetch messages:', error);
+            console.error('Failed to fetch messages:', error?.message || error);
         } finally {
             setIsMessagesLoading(false);
         }
@@ -205,7 +205,7 @@ export const ChatProvider = ({ children, user }) => {
 
             return sentMessage;
         } catch (error) {
-            console.error('Failed to send message:', error);
+            console.error('Failed to send message:', error?.message || error);
             // 3. REMOVE ON FAILURE
             setMessages(prev => prev.filter(m => m.id !== tempId));
             throw error;

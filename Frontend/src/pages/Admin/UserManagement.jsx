@@ -196,7 +196,7 @@ const UserManagement = () => {
             const response = await axiosClient.get('/api/admin/users');
             setUsers(response.data.data.data || []);
         } catch (error) {
-            console.error('Error fetching users:', error);
+            console.error('Error fetching users:', error?.message || error);
         } finally {
             if (!isSilent) setLoading(false);
         }
@@ -237,7 +237,7 @@ const UserManagement = () => {
                 }
             }
         } catch (error) {
-            console.error('Error saving user:', error);
+            console.error('Error saving user:', error?.message || error);
             toast.error(error.response?.data?.message || 'Failed to save user');
             throw error;
         }
@@ -269,7 +269,7 @@ const UserManagement = () => {
             toast.success('User deleted successfully.');
             setDeleteModal({ isOpen: false, userId: null, userName: '' });
         } catch (error) {
-            console.error('Error deleting user:', error);
+            console.error('Error deleting user:', error?.message || error);
             toast.error(error.response?.data?.message || 'Failed to delete user');
         } finally {
             setIsDeleting(false);

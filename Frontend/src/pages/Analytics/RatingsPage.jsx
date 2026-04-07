@@ -56,7 +56,7 @@ const RatingsAnalyticsPage = () => {
                 to: payload.ratings.to
             });
         } catch (error) {
-            console.error('Error fetching ratings:', error);
+            console.error('Error fetching ratings:', error?.message || error);
         } finally {
             setLoading(false);
             setIsUpdating(false);
@@ -86,7 +86,7 @@ const RatingsAnalyticsPage = () => {
             setReportingId(null);
             fetchRatings();
         } catch (error) {
-            console.error('Error reporting review:', error);
+            console.error('Error reporting review:', error?.message || error);
         } finally {
             setIsReporting(false);
         }

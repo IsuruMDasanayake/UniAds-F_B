@@ -54,7 +54,7 @@ const AnalyticsLayout = () => {
                 }
             }
         } catch (error) {
-            console.error('Error loading user data:', error);
+            console.error('Error loading user data:', error?.message || error);
         }
 
         fetchNewAppsCount();
@@ -75,7 +75,7 @@ const AnalyticsLayout = () => {
                 setNewAppsCount(data.data.stats.new);
             }
         } catch (error) {
-            console.error('Error fetching new apps count:', error);
+            console.error('Error fetching new apps count:', error?.message || error);
         }
     };
 
@@ -88,7 +88,7 @@ const AnalyticsLayout = () => {
                 setNewInquiriesCount(data.data.stats.new);
             }
         } catch (error) {
-            console.error('Error fetching new inquiries count:', error);
+            console.error('Error fetching new inquiries count:', error?.message || error);
         }
     };
 

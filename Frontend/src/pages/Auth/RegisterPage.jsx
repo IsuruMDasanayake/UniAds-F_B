@@ -146,7 +146,7 @@ const RegisterPage = () => {
             }
 
         } catch (err) {
-            console.error('Registration error:', err);
+            console.error('Registration error:', err?.message || err);
             if (err.response && err.response.status === 422) {
                 // Laravel validation errors
                 setErrors(err.response.data.errors);

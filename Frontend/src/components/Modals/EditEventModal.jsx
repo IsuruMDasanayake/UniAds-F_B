@@ -98,7 +98,7 @@ const EditEventModal = ({ isOpen, onClose, event, onUpdate }) => {
             onUpdate(response.data.data);
             onClose();
         } catch (error) {
-            console.error("Failed to update event:", error);
+            console.error("Failed to update event:", error?.message || error);
             let messages = [];
             if (error.response?.data?.errors) {
                 messages = Object.values(error.response.data.errors).flat();

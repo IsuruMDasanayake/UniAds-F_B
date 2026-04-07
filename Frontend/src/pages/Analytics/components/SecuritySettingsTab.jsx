@@ -47,7 +47,7 @@ const SecuritySettingsTab = () => {
             // Auto hide success message after 5 seconds
             setTimeout(() => setSuccessMsg(null), 5000);
         } catch (error) {
-            console.error('Error requesting OTP:', error);
+            console.error('Error requesting OTP:', error.message);
             let extractedError = 'Failed to send verification code.';
             if (error.response?.data?.errors) {
                 extractedError = Object.values(error.response.data.errors)[0][0];
@@ -97,7 +97,7 @@ const SecuritySettingsTab = () => {
             });
             setStep(1);
         } catch (error) {
-            console.error('Error updating password:', error);
+            console.error('Error updating password:', error.message);
             let extractedError = 'Failed to update password.';
             if (error.response?.data?.errors) {
                 extractedError = Object.values(error.response.data.errors)[0][0];
@@ -121,7 +121,7 @@ const SecuritySettingsTab = () => {
             localStorage.removeItem('ACCESS_TOKEN');
             window.location.href = '/login';
         } catch (error) {
-            console.error("Logout all devices failed:", error);
+            console.error("Logout all devices failed:", error.message);
             setErrorMsg("Failed to logout from all devices. Please try again.");
             setLogoutLoading(false);
         }

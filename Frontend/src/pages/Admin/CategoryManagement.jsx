@@ -230,7 +230,7 @@ const CategoryManagement = () => {
             const response = await axiosClient.get('/api/admin/categories');
             setCategories(response.data.data || []);
         } catch (error) {
-            console.error('Error fetching categories:', error);
+            console.error('Error fetching categories:', error?.message || error);
         } finally {
             setLoading(false);
         }
@@ -248,7 +248,7 @@ const CategoryManagement = () => {
             setShowModal(false);
             fetchCategories();
         } catch (error) {
-            console.error('Error saving category:', error);
+            console.error('Error saving category:', error?.message || error);
             toast.error('Failed to save category.');
             throw error; // Re-throw for modal 'saving' state
         }
@@ -267,7 +267,7 @@ const CategoryManagement = () => {
             toast.success('Category deleted successfully.');
             setDeleteModal({ isOpen: false, id: null, name: '' });
         } catch (error) {
-            console.error('Error deleting category:', error);
+            console.error('Error deleting category:', error?.message || error);
             const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Failed to delete category.';
             toast.error(errorMessage);
         } finally {

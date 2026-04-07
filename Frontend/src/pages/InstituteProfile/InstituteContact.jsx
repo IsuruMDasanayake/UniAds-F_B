@@ -24,7 +24,7 @@ const InstituteContact = ({ institute, isOwner }) => {
             setFormData({ name: '', email: '', subject: '', message: '' });
             setTimeout(() => setStatus('idle'), 5000);
         } catch (error) {
-            console.error('Error sending message:', error);
+            console.error('Error sending message:', error?.message || error);
             setStatus('error');
             setTimeout(() => setStatus('idle'), 5000);
         }

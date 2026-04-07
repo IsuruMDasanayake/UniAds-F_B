@@ -42,7 +42,7 @@ const InstituteManagement = () => {
             const fetchedInstitutes = Array.isArray(payload) ? payload : (payload?.data || []);
             setInstitutes(fetchedInstitutes);
         } catch (error) {
-            console.error('Error fetching institutes:', error);
+            console.error('Error fetching institutes:', error?.message || error);
         } finally {
             if (!isSilent) setLoading(false);
         }
@@ -94,7 +94,7 @@ const InstituteManagement = () => {
                     setConfirmModal(prev => ({ ...prev, isOpen: false }));
                 })
                 .catch(err => {
-                    console.error('Error approving institute:', err);
+                    console.error('Error approving institute:', err?.message || err);
                     toast.error('Failed to approve institute');
                 })
                 .finally(() => {
@@ -110,7 +110,7 @@ const InstituteManagement = () => {
                     setConfirmModal(prev => ({ ...prev, isOpen: false }));
                 })
                 .catch(err => {
-                    console.error('Error unapproving institute:', err);
+                    console.error('Error unapproving institute:', err?.message || err);
                     toast.error('Failed to unapprove institute');
                 })
                 .finally(() => {
@@ -126,7 +126,7 @@ const InstituteManagement = () => {
                 inst.id === id ? { ...inst, is_premium: resp.data.data?.is_premium ?? resp.data.is_premium } : inst
             ));
         } catch (error) {
-            console.error('Error toggling premium status:', error);
+            console.error('Error toggling premium status:', error?.message || error);
         }
     };
 
@@ -150,7 +150,7 @@ const InstituteManagement = () => {
                 setEditModal({ isOpen: false, institute: null });
             }
         } catch (error) {
-            console.error('Error updating institute:', error);
+            console.error('Error updating institute:', error?.message || error);
             toast.error('Failed to update institute details');
         } finally {
             setIsUpdating(false);

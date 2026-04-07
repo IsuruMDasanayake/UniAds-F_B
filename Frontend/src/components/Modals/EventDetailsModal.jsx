@@ -17,7 +17,7 @@ const EventDetailsModal = ({ isOpen, event, onClose, onInterestToggle }) => {
     React.useEffect(() => {
         if (isOpen && event?.id) {
             axiosClient.post(`/api/events/${event.id}/track-view`).catch(err => {
-                console.error("Failed to track event view:", err);
+                console.error("Failed to track event view:", err?.message || err);
             });
         }
     }, [isOpen, event?.id]);

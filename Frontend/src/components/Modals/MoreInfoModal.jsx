@@ -60,12 +60,12 @@ const MoreInfoModal = ({ isOpen, onClose, course, institute: explicitInstitute }
                     // Single refresh after both are sent
                     await fetchConversations();
                 } catch (e) {
-                    console.error("Background message sending failed:", e);
+                    console.error("Background message sending failed:", e?.message || e);
                 }
             })();
 
         } catch (error) {
-            console.error('Failed to start inquiry:', error);
+            console.error('Failed to start inquiry:', error?.message || error);
             alert('Failed to start conversation. Please try again.');
         } finally {
             setIsSending(false);

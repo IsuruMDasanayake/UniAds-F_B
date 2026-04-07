@@ -49,7 +49,7 @@ const ChatModal = () => {
 
         setInputValue('');
         sendMessage(content).catch(error => {
-            console.error('Failed to send:', error);
+            console.error('Failed to send:', error?.message || error);
             if (error.response?.status === 422 && error.response?.data?.message) {
                 alert(error.response.data.message);
             } else {
@@ -60,7 +60,7 @@ const ChatModal = () => {
 
     const handleSendLike = () => {
         sendMessage('(like)').catch(error => {
-            console.error('Failed to send like:', error);
+            console.error('Failed to send like:', error?.message || error);
             alert('Failed to send. Please try again.');
         });
         scrollToBottom();

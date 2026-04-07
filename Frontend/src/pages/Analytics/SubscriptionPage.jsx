@@ -25,7 +25,7 @@ const SubscriptionPage = () => {
             const response = await axiosClient.get('/api/institute/analytics/subscriptions');
             setData(response.data.data);
         } catch (error) {
-            console.error('Error fetching subscription data:', error);
+            console.error('Error fetching subscription data:', error?.message || error);
         } finally {
             setLoading(false);
             setIsUpdating(false);
@@ -58,7 +58,7 @@ const SubscriptionPage = () => {
             await fetchSubscriptionData(true);
             setShowCancelModal(false);
         } catch (error) {
-            console.error('Error cancelling subscription:', error);
+            console.error('Error cancelling subscription:', error?.message || error);
         } finally {
             setCancelling(false);
         }
@@ -79,7 +79,7 @@ const SubscriptionPage = () => {
                         await axiosClient.post('/api/payment/verify', { order_id: orderId });
                         await fetchSubscriptionData(true);
                     } catch (verifyErr) {
-                        console.error('Verification error:', verifyErr);
+                        console.error('Verification error:', verifyErr?.message || verifyErr);
                         await fetchSubscriptionData(true);
                     }
                 };
@@ -97,7 +97,7 @@ const SubscriptionPage = () => {
                 window.payhere.startPayment(paymentData);
             }
         } catch (error) {
-            console.error('Error initiating payment:', error);
+            console.error('Error initiating payment:', error?.message || error);
             setIsUpdating(false);
         }
     };

@@ -69,7 +69,7 @@ const ReviewsModal = ({ institute, currentUser, onClose, onSuccess }) => {
             setReviews(res.data.data || []);
             setError(null);
         } catch (error) {
-            console.error("Failed to fetch reviews", error);
+            console.error("Failed to fetch reviews", error?.message || error);
             setError("Failed to load reviews. Please try again.");
         } finally {
             setLoading(false);
@@ -98,7 +98,7 @@ const ReviewsModal = ({ institute, currentUser, onClose, onSuccess }) => {
             }
             if (onSuccess) onSuccess();
         } catch (error) {
-            console.error("Failed to submit review", error);
+            console.error("Failed to submit review", error?.message || error);
             setError(error.response?.data?.message || "Failed to submit review.");
         } finally {
             setSubmitting(false);
@@ -116,7 +116,7 @@ const ReviewsModal = ({ institute, currentUser, onClose, onSuccess }) => {
             // Notify parent to update profile stats
             if (onSuccess) onSuccess();
         } catch (error) {
-            console.error("Failed to delete review", error);
+            console.error("Failed to delete review", error?.message || error);
             setError("Failed to delete review.");
         } finally {
             setIsDeleting(false);

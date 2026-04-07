@@ -52,7 +52,7 @@ const PostsAnalyticsPage = () => {
             setCopiedPostId(post.id);
             setTimeout(() => setCopiedPostId(null), 2000);
         }).catch(err => {
-            console.error('Copy failed:', err);
+            console.error('Copy failed:', err?.message || err);
         });
     };
 
@@ -86,7 +86,7 @@ const PostsAnalyticsPage = () => {
                 total: postsData.total
             });
         } catch (error) {
-            console.error('Error fetching posts:', error);
+            console.error('Error fetching posts:', error?.message || error);
         } finally {
             setLoading(false);
             setIsUpdating(false);
@@ -108,7 +108,7 @@ const PostsAnalyticsPage = () => {
                 });
                 setTrendData(response.data.data || null);
             } catch (error) {
-                console.error('Error fetching post trends:', error);
+                console.error('Error fetching post trends:', error?.message || error);
             } finally {
                 setLoadingTrend(false);
             }
@@ -143,7 +143,7 @@ const PostsAnalyticsPage = () => {
         try {
             await axiosClient.patch(`/api/institute/posts/${id}/status`);
         } catch (error) {
-            console.error('Error toggling status:', error);
+            console.error('Error toggling status:', error?.message || error);
             fetchPosts(); // Revert on error
         }
     };
@@ -173,7 +173,7 @@ const PostsAnalyticsPage = () => {
             setDeleteModalOpen(false);
             fetchPosts(); // Refresh list
         } catch (error) {
-            console.error('Error deleting post:', error);
+            console.error('Error deleting post:', error?.message || error);
             alert('Failed to delete post. Please try again.');
         } finally {
             setIsDeleting(false);

@@ -17,7 +17,7 @@ const GlobalFeedbackModal = () => {
                     setStatus({ type: '', message: '' });
                 }
             } catch (error) {
-                console.error("Error checking feedback eligibility:", error);
+                console.error("Error checking feedback eligibility:", error?.message || error);
             }
         };
 
@@ -38,7 +38,7 @@ const GlobalFeedbackModal = () => {
                 setIsOpen(false);
             }, 3000);
         } catch (error) {
-            console.error('Error submitting feedback:', error);
+            console.error('Error submitting feedback:', error?.message || error);
             setStatus({ type: 'error', message: error.response?.data?.message || 'Failed to submit feedback. Please try again later.' });
         } finally {
             setIsSubmitting(false);

@@ -69,7 +69,7 @@ const InstitutionsPage = () => {
             }
             setUser(currentUser);
         } catch (e) {
-            console.error('Error fetching profile', e);
+            console.error('Error fetching profile', e?.message || e);
             setUser(null);
         }
     };
@@ -98,7 +98,7 @@ const InstitutionsPage = () => {
 
             if (isFirstLoad) setIsFirstLoad(false);
         } catch (error) {
-            console.error('Error fetching institutions:', error);
+            console.error('Error fetching institutions:', error?.message || error);
         } finally {
             setLoading(false);
             setLoadingMore(false);

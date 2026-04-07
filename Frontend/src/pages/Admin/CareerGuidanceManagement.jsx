@@ -32,7 +32,7 @@ const CareerGuidanceManagement = () => {
             const response = await axiosClient.get('/api/admin/career-guidance');
             setGuidances(response.data.data || []);
         } catch (error) {
-            console.error('Error fetching career guidances:', error);
+            console.error('Error fetching career guidances:', error?.message || error);
         } finally {
             setLoading(false);
         }
@@ -50,7 +50,7 @@ const CareerGuidanceManagement = () => {
             setShowModal(false);
             fetchGuidances();
         } catch (error) {
-            console.error('Error saving career guidance:', error);
+            console.error('Error saving career guidance:', error?.message || error);
             toast.error('Failed to save career guidance.');
         }
     };
@@ -64,7 +64,7 @@ const CareerGuidanceManagement = () => {
             toast.success('Career path deleted.');
             setDeleteModal({ isOpen: false, id: null, title: '' });
         } catch (error) {
-            console.error('Error deleting:', error);
+            console.error('Error deleting:', error?.message || error);
             toast.error('Failed to delete record.');
         } finally {
             setIsDeleting(false);

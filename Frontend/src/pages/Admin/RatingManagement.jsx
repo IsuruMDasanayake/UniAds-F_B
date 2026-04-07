@@ -51,7 +51,7 @@ const RatingManagement = () => {
             setInstitutes(uniqueInstitutes);
 
         } catch (error) {
-            console.error('Error fetching ratings:', error);
+            console.error('Error fetching ratings:', error?.message || error);
         } finally {
             if (!isSilent) setLoading(false);
         }
@@ -76,7 +76,7 @@ const RatingManagement = () => {
             setRatings(ratings.filter(r => r.id !== ratingToDelete));
             setDeleteModalOpen(false);
         } catch (error) {
-            console.error('Error deleting rating:', error);
+            console.error('Error deleting rating:', error?.message || error);
         } finally {
             setIsDeleting(false);
             setRatingToDelete(null);

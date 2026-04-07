@@ -22,7 +22,7 @@ const InstituteRoute = ({ children }) => {
                     setAccessState('AUTHORIZED');
                 }
             } catch (error) {
-                console.error('Access check failed', error);
+                console.error('Access check failed', error?.message || error);
                 setAccessState('DENIED_USER');
             } finally {
                 setLoading(false);

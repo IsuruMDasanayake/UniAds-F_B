@@ -52,7 +52,7 @@ const HomePage = () => {
                         return;
                     }
                 } catch (e) {
-                    console.error('Error parsing user data:', e);
+                    console.error('Error parsing user data:', e?.message || e);
                 }
             }
             navigate('/feed');
@@ -65,7 +65,7 @@ const HomePage = () => {
                 const response = await axiosClient.get('/api/feedbacks/public');
                 setFeedbacks(response.data.data || []);
             } catch (error) {
-                console.error('Error fetching feedbacks:', error);
+                console.error('Error fetching feedbacks:', error?.message || error);
             }
         };
 
@@ -74,7 +74,7 @@ const HomePage = () => {
                 const response = await axiosClient.get('/api/institutes/partners');
                 setPartners(response.data.data || []);
             } catch (error) {
-                console.error('Error fetching partners:', error);
+                console.error('Error fetching partners:', error?.message || error);
             }
         };
 
@@ -124,7 +124,7 @@ const HomePage = () => {
             setStatus({ type: 'success', message: 'Thank you for your message! We will get back to you soon.' });
             setContactForm({ name: '', email: '', message: '' });
         } catch (error) {
-            console.error('Contact form error:', error);
+            console.error('Contact form error:', error?.message || error);
             setStatus({
                 type: 'error',
                 message: error.response?.data?.message || 'Failed to send message. Please try again later.'

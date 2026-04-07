@@ -134,7 +134,7 @@ const ProfileSettingsTab = ({ institute, onRefresh }) => {
                 }
             }
         } catch (error) {
-            console.error('Update profile error:', error);
+            console.error('Update profile error:', error?.message || error);
             if (error.response?.data?.errors) {
                 const firstErrorKey = Object.keys(error.response.data.errors)[0];
                 setErrorMsg(error.response.data.errors[firstErrorKey][0]);

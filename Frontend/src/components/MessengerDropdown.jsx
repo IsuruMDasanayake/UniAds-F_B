@@ -50,7 +50,7 @@ const MessengerDropdown = ({ isOpen, onClose }) => {
             // Filter for premium partners
             setInstitutions(dataArray.filter(i => isPremiumActive(i)));
         } catch (error) {
-            console.error('Failed to fetch institutions:', error);
+            console.error('Failed to fetch institutions:', error?.message || error);
             setInstitutions([]);
         } finally {
             setIsLoadingInst(false);
@@ -83,7 +83,7 @@ const MessengerDropdown = ({ isOpen, onClose }) => {
             selectConversation(newConv);
             onClose();
         } catch (error) {
-            console.error('Failed to start conversation:', error);
+            console.error('Failed to start conversation:', error?.message || error);
         }
     };
 

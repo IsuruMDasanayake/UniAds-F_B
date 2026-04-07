@@ -94,7 +94,7 @@ const AdminSettings = () => {
                 favicon_url: settings.favicon_url,
             });
         } catch (error) {
-            console.error('Error fetching settings:', error);
+            console.error('Error fetching settings:', error?.message || error);
             setMessage({ type: 'error', text: 'Failed to load settings' });
         } finally {
             setLoading(false);
@@ -202,7 +202,7 @@ const AdminSettings = () => {
             setRemovedSlides([]);
             fetchSettings(); // Refresh to get proper URLs and synced state
         } catch (error) {
-            console.error('Error updating settings:', error);
+            console.error('Error updating settings:', error?.message || error);
             if (error.response?.data?.errors) {
                 const backendErrors = error.response.data.errors;
                 setErrors(backendErrors);

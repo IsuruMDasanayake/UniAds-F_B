@@ -42,7 +42,7 @@ const AdminInboxPage = () => {
                 total: paginator.total
             });
         } catch (error) {
-            console.error('Error fetching emails', error);
+            console.error('Error fetching emails', error?.message || error);
         } finally {
             setLoading(false);
         }
@@ -56,7 +56,7 @@ const AdminInboxPage = () => {
             // Then fetch updated list
             await fetchEmails(1);
         } catch (error) {
-            console.error('Error syncing emails', error);
+            console.error('Error syncing emails', error?.message || error);
             // Fallback to just fetching if sync fails
             await fetchEmails(1);
         } finally {
@@ -79,7 +79,7 @@ const AdminInboxPage = () => {
                 setSelectedEmail({ ...selectedEmail, is_read: true });
             }
         } catch (error) {
-            console.error('Error marking as read', error);
+            console.error('Error marking as read', error?.message || error);
         }
     };
 
@@ -104,7 +104,7 @@ const AdminInboxPage = () => {
             }
             setDeleteModal({ isOpen: false, emailId: null, subject: '' });
         } catch (error) {
-            console.error('Error deleting email', error);
+            console.error('Error deleting email', error?.message || error);
             alert('Failed to delete email');
         } finally {
             setIsDeleting(false);

@@ -22,7 +22,7 @@ const SettingsPage = () => {
             setUser(userData);
             localStorage.setItem('APP_USER', JSON.stringify(userData));
         } catch (error) {
-            console.error("Failed to load user data inside settings:", error);
+            console.error("Failed to load user data inside settings:", error?.message || error);
         } finally {
             setLoading(false);
         }

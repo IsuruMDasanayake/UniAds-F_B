@@ -52,7 +52,7 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
                     })));
                 }
             } catch (error) {
-                console.error("Failed to fetch user data", error);
+                console.error("Failed to fetch user data", error?.message || error);
             }
         };
         fetchUserData();
@@ -115,7 +115,7 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
                 }
             }
         } catch (error) {
-            console.error("Error fetching more courses", error);
+            console.error("Error fetching more courses", error?.message || error);
             setHasMore(false);
         } finally {
             setLoadingMore(false);
@@ -213,7 +213,7 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
         try {
             await axiosClient.post(`/api/posts/${postId}/save`);
         } catch (error) {
-            console.error("Error saving post:", error);
+            console.error("Error saving post:", error?.message || error);
             // Revert on failure
             if (isCurrentlySaved) {
                 setSavedPostIds(prev => [...prev, postId]);
@@ -231,7 +231,7 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
             setCopiedPostId(course.id);
             setTimeout(() => setCopiedPostId(null), 2000);
         }).catch(err => {
-            console.error('Copy failed:', err);
+            console.error('Copy failed:', err?.message || err);
         });
     };
 

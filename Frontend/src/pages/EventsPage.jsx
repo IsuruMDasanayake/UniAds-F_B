@@ -92,7 +92,7 @@ function EventsPage() {
         setSelectedEvent(event);
         if (event.id) {
             axiosClient.post(`/api/events/${event.id}/track-view`, {})
-                .catch(error => console.error('Error tracking event view:', error));
+                .catch(error => console.error('Error tracking event view:', error?.message || error));
         }
     };
 

@@ -29,7 +29,7 @@ const UnauthorizedAccess = ({ type = 'USER' }) => {
         try {
             await axiosClient.post('/api/logout');
         } catch (error) {
-            console.error('Logout failed:', error);
+            console.error('Logout failed:', error?.message || error);
         }
         localStorage.removeItem('ACCESS_TOKEN');
         localStorage.removeItem('APP_USER');

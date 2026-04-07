@@ -123,7 +123,7 @@ const EditProfileModal = ({ institute, onClose, onUpdate }) => {
                 }, 1500);
             }
         } catch (error) {
-            console.error("DEBUG: Update failed", error);
+            console.error("DEBUG: Update failed", error?.message || error);
             let messages = [];
             if (error.response?.data?.errors) {
                 messages = Object.values(error.response.data.errors).flat();

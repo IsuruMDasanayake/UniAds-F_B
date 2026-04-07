@@ -126,7 +126,7 @@ const MainProfilePage = () => {
                 fetchExtras(id);
             }
         } catch (error) {
-            console.error("Error loading profile", error);
+            console.error("Error loading profile", error?.message || error);
             if (error.response?.status === 401 && !id) {
                 navigate('/login');
             }
@@ -143,7 +143,7 @@ const MainProfilePage = () => {
             const images = (payload && Array.isArray(payload.data)) ? payload.data : (Array.isArray(payload) ? payload : []);
             setGallery(images);
         } catch (e) {
-            console.error("Error fetching gallery", e);
+            console.error("Error fetching gallery", e?.message || e);
         }
     };
 
@@ -151,7 +151,7 @@ const MainProfilePage = () => {
         try {
             await axiosClient.post(`/api/institutions/${instId}/track-view`);
         } catch (e) {
-            console.error("Error tracking profile view", e);
+            console.error("Error tracking profile view", e?.message || e);
         }
     };
 
@@ -189,7 +189,7 @@ const MainProfilePage = () => {
             setIsFollowing(res.data.data?.status === 'followed');
             setInstitute(prev => ({ ...prev, followers_count: res.data.data?.followers_count }));
         } catch (e) {
-            console.error("Follow error", e);
+            console.error("Follow error", e?.message || e);
             // Rollback
             setIsFollowing(previousFollowing);
             setInstitute(prev => ({ ...prev, followers_count: previousFollowersCount }));

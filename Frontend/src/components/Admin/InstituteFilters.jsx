@@ -25,7 +25,7 @@ const InstituteFilters = ({ filters, onFilterChange, selectedInstitutes, onInsti
             const response = await axiosClient.get('/api/admin/broadcast-mail/institutes/list');
             setInstitutes(response.data.data || []);
         } catch (error) {
-            console.error('Error fetching institutes:', error);
+            console.error('Error fetching institutes:', error?.message || error);
         } finally {
             setLoading(false);
         }

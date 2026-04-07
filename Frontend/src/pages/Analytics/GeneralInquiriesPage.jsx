@@ -69,7 +69,7 @@ const GeneralInquiriesPage = () => {
                 to: payload.inquiries.to
             });
         } catch (error) {
-            console.error('Error fetching inquiries:', error);
+            console.error('Error fetching inquiries:', error?.message || error);
         } finally {
             setLoading(false);
             setIsUpdating(false);
@@ -106,7 +106,7 @@ const GeneralInquiriesPage = () => {
                 // Refresh sidebar badge
                 fetchNewInquiriesCount();
             } catch (error) {
-                console.error('Error marking inquiry as viewed:', error);
+                console.error('Error marking inquiry as viewed:', error?.message || error);
             }
         }
     };
@@ -134,7 +134,7 @@ const GeneralInquiriesPage = () => {
             setCommunicationsHistory(response.data.data.data || []);
             setShowHistoryModal(true);
         } catch (error) {
-            console.error('Error fetching communications history:', error);
+            console.error('Error fetching communications history:', error?.message || error);
         } finally {
             setFetchingHistory(false);
         }

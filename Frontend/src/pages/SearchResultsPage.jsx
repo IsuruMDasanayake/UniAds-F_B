@@ -62,7 +62,7 @@ function SearchResultsPage() {
                     axiosClient.post(`/api/posts/${results[0].id}/track-view`).catch(() => { });
                 }
             } catch (error) {
-                console.error('Error fetching search results:', error);
+                console.error('Error fetching search results:', error?.message || error);
             } finally {
                 setLoading(false);
             }
@@ -92,7 +92,7 @@ function SearchResultsPage() {
             const userRes = await axiosClient.get('/api/user');
             setUser(userRes.data.data);
         } catch (error) {
-            console.error('Error toggling save:', error);
+            console.error('Error toggling save:', error?.message || error);
         }
     };
 
@@ -112,7 +112,7 @@ function SearchResultsPage() {
             setCopiedPostId(post.id);
             setTimeout(() => setCopiedPostId(null), 2000);
         }).catch(err => {
-            console.error('Copy failed:', err);
+            console.error('Copy failed:', err?.message || err);
         });
     };
 

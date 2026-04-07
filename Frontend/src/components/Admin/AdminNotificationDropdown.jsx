@@ -18,7 +18,7 @@ const AdminNotificationDropdown = () => {
                 setUnreadCount(data.data.unreadCount);
             }
         } catch (error) {
-            console.error('Error fetching admin notifications:', error);
+            console.error('Error fetching admin notifications:', error?.message || error);
         }
     };
 
@@ -46,7 +46,7 @@ const AdminNotificationDropdown = () => {
             ));
             setUnreadCount(prev => Math.max(0, prev - 1));
         } catch (error) {
-            console.error('Error marking notification as read:', error);
+            console.error('Error marking notification as read:', error?.message || error);
         }
     };
 
@@ -56,7 +56,7 @@ const AdminNotificationDropdown = () => {
             setNotifications(notifications.map(n => ({ ...n, is_read: true })));
             setUnreadCount(0);
         } catch (error) {
-            console.error('Error marking all as read:', error);
+            console.error('Error marking all as read:', error?.message || error);
         }
     };
 
@@ -70,7 +70,7 @@ const AdminNotificationDropdown = () => {
                 setUnreadCount(prev => Math.max(0, prev - 1));
             }
         } catch (error) {
-            console.error('Error deleting notification:', error);
+            console.error('Error deleting notification:', error?.message || error);
         }
     };
 

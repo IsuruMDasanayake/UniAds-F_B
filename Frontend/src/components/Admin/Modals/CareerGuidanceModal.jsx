@@ -33,7 +33,7 @@ const CareerGuidanceModal = ({ show, onClose, mode, guidanceData, onSave }) => {
             await onSave(formData);
             onClose();
         } catch (error) {
-            console.error('Error saving:', error);
+            console.error('Error saving:', error?.message || error);
             alert('Failed to save data. Please check required fields.');
         } finally {
             setSaving(false);

@@ -50,7 +50,7 @@ const PricingPage = () => {
             setPricingData(response.data.data);
             setLoading(false);
         } catch (err) {
-            console.error('Error fetching pricing data:', err);
+            console.error('Error fetching pricing data:', err?.message || err);
             if (err.response && err.response.status === 403) {
                 setError('Only institutions can access the pricing page.');
             } else {
@@ -85,7 +85,7 @@ const PricingPage = () => {
                         }, 1000);
                     })
                     .catch(err => {
-                        console.error("PayHere: Verification failed, but resolving true to allow UI refresh", err);
+                        console.error("PayHere: Verification failed, but resolving true to allow UI refresh", err?.message || err);
                         resolve(true); // Resolve anyway so parent can refresh data
                     });
             };
@@ -96,7 +96,7 @@ const PricingPage = () => {
             };
 
             window.payhere.onError = function onError(error) {
-                console.error("PayHere: SDK Error:", error);
+                console.error("PayHere: SDK Error:", error?.message || error);
                 reject(error);
             };
 

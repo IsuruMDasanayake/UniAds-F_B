@@ -65,7 +65,7 @@ const ChatPage = () => {
                 const premiumOnly = dataArray.filter(inst => isPremiumActive(inst));
                 setInstitutes(premiumOnly);
             })
-            .catch(err => console.error('Failed to load institutes:', err))
+            .catch(err => console.error('Failed to load institutes:', err?.message || err))
             .finally(() => setInstitutesLoading(false));
     }, [activeCategory]);
 
@@ -94,7 +94,7 @@ const ChatPage = () => {
             await sendMessage(msgInput);
             setMsgInput('');
         } catch (error) {
-            console.error('Failed to send message:', error);
+            console.error('Failed to send message:', error?.message || error);
         } finally {
             setIsSending(false);
         }
@@ -110,7 +110,7 @@ const ChatPage = () => {
             }
             await fetchConversations();
         } catch (error) {
-            console.error('Failed to delete conversation:', error);
+            console.error('Failed to delete conversation:', error?.message || error);
         } finally {
             setIsDeleting(false);
             setDeleteTarget(null);
@@ -300,7 +300,7 @@ const ChatPage = () => {
                                                 await fetchConversations();
                                                 selectConversation(resolveOtherParticipant(res.data.data));
                                             } catch (e) {
-                                                console.error('Failed to start conversation:', e);
+                                                console.error('Failed to start conversation:', e?.message || e);
                                             }
                                         }}
                                     >

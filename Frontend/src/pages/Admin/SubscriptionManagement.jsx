@@ -33,7 +33,7 @@ const SubscriptionManagement = () => {
             const response = await axiosClient.get('/api/admin/subscriptions');
             setSubscriptions(response.data.data || []);
         } catch (error) {
-            console.error('Error fetching subscriptions:', error);
+            console.error('Error fetching subscriptions:', error?.message || error);
         } finally {
             if (!isSilent) setLoading(false);
         }
@@ -72,7 +72,7 @@ const SubscriptionManagement = () => {
             fetchSubscriptions();
             setStatusModalOpen(false);
         } catch (error) {
-            console.error('Error updating status:', error);
+            console.error('Error updating status:', error?.message || error);
         } finally {
             setIsProcessing(false);
         }

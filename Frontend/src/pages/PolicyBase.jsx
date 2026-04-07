@@ -27,7 +27,7 @@ const PolicyBase = ({ title, type }) => {
                     }));
                 }
             } catch (error) {
-                console.error(`Error fetching ${type} policy:`, error);
+                console.error(`Error fetching ${type} policy:`, error?.message || error);
             } finally {
                 setLoading(false);
             }

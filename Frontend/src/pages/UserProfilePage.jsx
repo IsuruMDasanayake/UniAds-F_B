@@ -120,7 +120,7 @@ const UserProfilePage = () => {
                 education_level: userData.education_level || ''
             }));
         } catch (error) {
-            console.error("Error fetching profile:", error);
+            console.error("Error fetching profile:", error?.message || error);
             if (error.response?.status === 401) navigate('/login');
         } finally {
             setLoading(false);
@@ -258,7 +258,7 @@ const UserProfilePage = () => {
             pdf.save(`${roadmap.career_goal.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_roadmap.pdf`);
             
         } catch (error) {
-            console.error('PDF Download failed:', error);
+            console.error('PDF Download failed:', error?.message || error);
             showAlert('error', 'Failed to generate PDF. Please try again.');
         } finally {
             setDownloadingId(null);
@@ -274,7 +274,7 @@ const UserProfilePage = () => {
             const s = dateString.includes('T') ? dateString : dateString.replace(/-/g, "/");
             return new Date(s).toLocaleDateString();
         } catch (e) {
-            console.error("Date parsing failed", e);
+            console.error("Date parsing failed", e?.message || e);
             return '';
         }
     };
@@ -284,7 +284,7 @@ const UserProfilePage = () => {
             const response = await axiosClient.get('/api/ai-advisor/saved-roadmaps');
             setSavedRoadmaps(response.data.data || []);
         } catch (error) {
-            console.error("Error fetching roadmaps:", error);
+            console.error("Error fetching roadmaps:", error?.message || error);
         }
     };
 
@@ -294,7 +294,7 @@ const UserProfilePage = () => {
             const response = await axiosClient.get('/api/applications/me');
             setApplications(response.data.data.data || []);
         } catch (error) {
-            console.error("Error fetching applications:", error);
+            console.error("Error fetching applications:", error?.message || error);
         } finally {
             setLoadingApplications(false);
         }
@@ -311,7 +311,7 @@ const UserProfilePage = () => {
             }
             setSavedPostsData(posts);
         } catch (error) {
-            console.error("Error fetching saved posts:", error);
+            console.error("Error fetching saved posts:", error?.message || error);
         } finally {
             setLoadingSavedPosts(false);
         }
@@ -343,7 +343,7 @@ const UserProfilePage = () => {
             }));
             showAlert('success', 'Post removed from saved.');
         } catch (error) {
-            console.error('Error un-saving post:', error);
+            console.error('Error un-saving post:', error?.message || error);
             showAlert('error', 'Failed to remove post.');
         }
     };
@@ -355,7 +355,7 @@ const UserProfilePage = () => {
             setCopiedPostId(post.id);
             setTimeout(() => setCopiedPostId(null), 2000);
         }).catch(err => {
-            console.error('Copy failed:', err);
+            console.error('Copy failed:', err?.message || err);
             showAlert('error', 'Failed to copy link');
         });
     };
@@ -383,7 +383,7 @@ const UserProfilePage = () => {
             }, 5000);
 
         } catch (error) {
-            console.error('Error submitting application:', error);
+            console.error('Error submitting application:', error?.message || error);
             const errorMsg = error.response?.data?.message || "Failed to submit application. Please try again.";
             setSavedSubmissionStatus({ type: 'error', message: errorMsg });
         } finally {
@@ -581,7 +581,7 @@ const UserProfilePage = () => {
             
             showAlert('success', 'Profile picture updated successfully!');
         } catch (err) {
-            console.error('Upload failed:', err);
+            console.error('Upload failed:', err?.message || err);
             showAlert('error', err.response?.data?.message || 'Failed to upload picture.');
         } finally {
             setUploading(false);

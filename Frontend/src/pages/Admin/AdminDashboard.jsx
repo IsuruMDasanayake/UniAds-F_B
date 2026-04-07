@@ -55,7 +55,7 @@ const AdminDashboard = () => {
                 const response = await axiosClient.get('/api/admin/dashboard');
                 setData(response.data.data);
             } catch (error) {
-                console.error('Error fetching dashboard data:', error);
+                console.error('Error fetching dashboard data:', error?.message || error);
             } finally {
                 if (!isSilent) setLoading(false);
             }

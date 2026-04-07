@@ -207,7 +207,7 @@ const InstituteRegisterPage = () => {
             navigate('/email-verification', { state: { email: formData.email } });
 
         } catch (err) {
-            console.error('Institute Registration error:', err);
+            console.error('Institute Registration error:', err?.message || err);
             console.error('Error response:', err.response);
             console.error('Error data:', err.response?.data);
             console.error('Validation errors:', err.response?.data?.errors);

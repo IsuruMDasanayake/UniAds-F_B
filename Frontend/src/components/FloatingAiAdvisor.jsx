@@ -87,7 +87,7 @@ const FloatingAiAdvisor = ({ user }) => {
         setProfile(payload.profile);
       }
     } catch (err) {
-      console.error('Error in AI Chat:', err);
+      console.error('Error in AI Chat:', err?.message || err);
       setError('Sorry, I encountered an error. Please try again.');
     } finally {
       setLoading(false);
@@ -131,7 +131,7 @@ const FloatingAiAdvisor = ({ user }) => {
       }, 3000);
 
     } catch (error) {
-      console.error('Error submitting application:', error);
+      console.error('Error submitting application:', error?.message || error);
       const errorMsg = error.response?.data?.message || "Failed to submit application.";
       setSubmissionStatus({ type: 'error', message: errorMsg });
     } finally {
@@ -177,7 +177,7 @@ const FloatingAiAdvisor = ({ user }) => {
         ));
       }
     } catch (err) {
-      console.error('Error saving roadmap:', err);
+      console.error('Error saving roadmap:', err?.message || err);
     }
   };
 

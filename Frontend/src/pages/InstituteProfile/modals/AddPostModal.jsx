@@ -42,7 +42,7 @@ const AddPostModal = ({ institute, onClose, onSuccess }) => {
                 const flatCategories = Object.values(categoryData).flat();
                 setCategories(flatCategories);
             } catch (error) {
-                console.error("Failed to fetch categories", error);
+                console.error("Failed to fetch categories", error?.message || error);
                 setCategories([]);
             }
         };
@@ -114,7 +114,7 @@ const AddPostModal = ({ institute, onClose, onSuccess }) => {
             onSuccess();
             onClose();
         } catch (error) {
-            console.error("DEBUG: Full Post Creation Error:", error);
+            console.error("DEBUG: Full Post Creation Error:", error?.message || error);
             console.error("DEBUG: Response Data:", error.response?.data);
 
             let messages = [];

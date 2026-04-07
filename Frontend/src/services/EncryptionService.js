@@ -63,7 +63,7 @@ const EncryptionService = {
             const binary = String.fromCharCode.apply(null, combined);
             return 'enc:' + btoa(binary);
         } catch (error) {
-            console.error('Encryption failed:', error);
+            console.error('Encryption failed:', error?.message || error);
             return text; // Fallback to plain text if encryption fails
         }
     },
@@ -110,7 +110,7 @@ const EncryptionService = {
 
             return new TextDecoder().decode(decrypted);
         } catch (error) {
-            console.error('Decryption failed:', error);
+            console.error('Decryption failed:', error?.message || error);
             // Include error detail if available for debugging
             return `[Decryption Error - ${error.name || 'Unknown'}]`;
         }

@@ -61,7 +61,7 @@ const EventsAnalyticsPage = () => {
                 total: payload.total,
             });
         } catch (error) {
-            console.error('Error fetching events:', error);
+            console.error('Error fetching events:', error?.message || error);
         } finally {
             setLoading(false);
             setIsUpdating(false);
@@ -77,7 +77,7 @@ const EventsAnalyticsPage = () => {
                 });
                 setTrendData(response.data.data || null);
             } catch (error) {
-                console.error('Error fetching event trends:', error);
+                console.error('Error fetching event trends:', error?.message || error);
             } finally {
                 setLoadingTrend(false);
             }
@@ -111,7 +111,7 @@ const EventsAnalyticsPage = () => {
         try {
             await axiosClient.patch(`/api/institute/events/${id}/status`);
         } catch (error) {
-            console.error('Error toggling status:', error);
+            console.error('Error toggling status:', error?.message || error);
             fetchEvents(); // Revert on error
         }
     };
@@ -141,7 +141,7 @@ const EventsAnalyticsPage = () => {
             setDeleteModalOpen(false);
             fetchEvents();
         } catch (error) {
-            console.error('Error deleting event:', error);
+            console.error('Error deleting event:', error?.message || error);
             alert('Failed to delete event. Please try again.');
         } finally {
             setIsDeleting(false);

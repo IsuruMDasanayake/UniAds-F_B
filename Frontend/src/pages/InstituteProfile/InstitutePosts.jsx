@@ -133,7 +133,7 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
                 }
             }
         } catch (error) {
-            console.error("Error fetching more posts", error);
+            console.error("Error fetching more posts", error?.message || error);
             setHasMore(false);
         } finally {
             setLoadingMore(false);
@@ -181,7 +181,7 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
                 ));
             }
         } catch (error) {
-            console.error("Like failed", error);
+            console.error("Like failed", error?.message || error);
             setLocalPosts(previousPosts);
         }
     };
@@ -205,7 +205,7 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
                 ));
             }
         } catch (error) {
-            console.error("Save failed", error);
+            console.error("Save failed", error?.message || error);
             setLocalPosts(previousPosts);
         }
     };
@@ -217,7 +217,7 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
             setCopiedPostId(post.id);
             setTimeout(() => setCopiedPostId(null), 2000);
         }).catch(err => {
-            console.error('Copy failed:', err);
+            console.error('Copy failed:', err?.message || err);
         });
     };
 
@@ -234,7 +234,7 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
             if (onPostUpdate) onPostUpdate();
             setIsDeleteOpen(false);
         } catch (error) {
-            console.error("Delete post failed", error);
+            console.error("Delete post failed", error?.message || error);
             alert("Failed to delete post. Please try again.");
         } finally {
             setIsDeleting(false);

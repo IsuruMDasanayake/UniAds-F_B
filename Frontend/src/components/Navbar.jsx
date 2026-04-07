@@ -93,7 +93,7 @@ function Navbar({ user }) {
         try {
             await axiosClient.post('/api/logout');
         } catch (error) {
-            console.error('Logout error:', error);
+            console.error('Logout error:', error?.message || error);
         }
         // We only clear the non-sensitive APP_USER for UI state. 
         // Token is handled by the browser/Sanctum via HttpOnly cookies.
@@ -129,7 +129,7 @@ function Navbar({ user }) {
                         return;
                     }
                 } catch (error) {
-                    console.error('Error searching link:', error);
+                    console.error('Error searching link:', error?.message || error);
                 } finally {
                     setIsSearchingLink(false);
                 }

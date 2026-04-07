@@ -46,7 +46,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
             const response = await axiosClient.get('/api/admin/inbox/unread-count');
             setUnreadCount(response.data.data?.count ?? 0);
         } catch (error) {
-            console.error('Error fetching unread count', error);
+            console.error('Error fetching unread count', error?.message || error);
         }
     };
 

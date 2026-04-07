@@ -46,7 +46,7 @@ const ApplicationsPage = () => {
             const response = await axiosClient.get('/api/institutions');
             setInstitutes(response.data.data?.data || response.data.data || []);
         } catch (error) {
-            console.error('Error fetching institutes:', error);
+            console.error('Error fetching institutes:', error?.message || error);
         }
     };
 
@@ -63,7 +63,7 @@ const ApplicationsPage = () => {
             setApplications(response.data.data.data);
             setTotalPages(response.data.data.last_page);
         } catch (error) {
-            console.error('Error fetching applications:', error);
+            console.error('Error fetching applications:', error?.message || error);
         } finally {
             setLoading(false);
         }

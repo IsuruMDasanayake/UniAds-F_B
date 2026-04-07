@@ -48,7 +48,7 @@ const PostManagement = () => {
                 last_page: response.data.data.last_page
             });
         } catch (error) {
-            console.error('Error fetching posts:', error);
+            console.error('Error fetching posts:', error?.message || error);
         } finally {
             if (!isSilent) setLoading(false);
         }
@@ -81,7 +81,7 @@ const PostManagement = () => {
             toast.success(`Post ${resp.data.data.status === 'active' ? 'activated' : 'deactivated'} successfully!`);
             setToggleModal({ isOpen: false, id: null, title: '', currentStatus: '' });
         } catch (error) {
-            console.error('Error toggling post status:', error);
+            console.error('Error toggling post status:', error?.message || error);
             toast.error('Failed to update post status.');
         } finally {
             setIsToggling(false);
@@ -105,7 +105,7 @@ const PostManagement = () => {
             toast.success('Post deleted permanently.');
             setDeleteModal({ isOpen: false, id: null, title: '' });
         } catch (error) {
-            console.error('Error deleting post:', error);
+            console.error('Error deleting post:', error?.message || error);
             toast.error('Failed to delete post.');
         } finally {
             setIsDeleting(false);

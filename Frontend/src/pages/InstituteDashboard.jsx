@@ -27,7 +27,7 @@ function InstituteDashboard() {
                 setUser(userRes.data.data);
                 setStats(analyticsRes.data.data?.overviewStats?.metrics);
             } catch (error) {
-                console.error('Failed to fetch dashboard data:', error);
+                console.error('Failed to fetch dashboard data:', error?.message || error);
                 if (error.response?.status === 401) navigate('/login');
             } finally {
                 setLoading(false);
@@ -40,7 +40,7 @@ function InstituteDashboard() {
         try {
             await axiosClient.post('/api/logout');
         } catch (error) {
-            console.error('Logout error:', error);
+            console.error('Logout error:', error?.message || error);
         }
         navigate('/');
     };

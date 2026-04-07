@@ -42,7 +42,7 @@ const DemographicChart = ({ title, type, initialData, chartType = 'pie', chartOp
                 const newData = response.data.data?.demographics?.[type];
                 setData(newData);
             } catch (error) {
-                console.error(`Error fetching demographics for ${type}:`, error);
+                console.error(`Error fetching demographics for ${type}:`, error?.message || error);
             } finally {
                 setFetching(false);
             }

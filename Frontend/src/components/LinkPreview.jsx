@@ -109,7 +109,7 @@ const LinkPreview = ({ data: initialData, url: initialUrl, showApplyButton = tru
             }, 5000);
 
         } catch (error) {
-            console.error('Error submitting application:', error);
+            console.error('Error submitting application:', error?.message || error);
             const errorMsg = error.response?.data?.message || "Failed to submit application. Please try again.";
             setSubmissionStatus({ type: 'error', message: errorMsg });
         } finally {

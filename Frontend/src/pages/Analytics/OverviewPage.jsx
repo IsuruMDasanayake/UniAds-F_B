@@ -29,7 +29,7 @@ const OverviewPage = () => {
                 const response = await axiosClient.get(`/api/institute/analytics/overview?period=${period}`);
                 setStats(response.data.data.overviewStats);
             } catch (error) {
-                console.error('Error fetching overview stats:', error);
+                console.error('Error fetching overview stats:', error?.message || error);
             } finally {
                 setLoading(false);
                 setIsUpdating(false);

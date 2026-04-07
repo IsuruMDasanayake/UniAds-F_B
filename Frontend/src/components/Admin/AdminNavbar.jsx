@@ -57,7 +57,7 @@ const AdminProfileModal = ({ isOpen, onClose, user, onUpdate }) => {
             onUpdate();
             onClose();
         } catch (err) {
-            console.error('Error updating profile:', err);
+            console.error('Error updating profile:', err?.message || err);
             setError(err.response?.data?.message || 'Failed to update profile');
         } finally {
             setIsSaving(false);
@@ -151,7 +151,7 @@ const AdminNavbar = ({ toggleSidebar }) => {
             // Sync with localStorage
             localStorage.setItem('APP_USER', JSON.stringify(userData));
         } catch (error) {
-            console.error('Error fetching admin data:', error);
+            console.error('Error fetching admin data:', error?.message || error);
             // Fallback to localStorage if API fails
             const storedUser = localStorage.getItem('APP_USER');
             if (storedUser) setAdmin(JSON.parse(storedUser));

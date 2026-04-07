@@ -52,7 +52,7 @@ const fallbackCopy = (text) => {
         document.body.removeChild(textArea);
         return successful;
     } catch (err) {
-        console.error('Fallback copy failed:', err);
+        console.error('Fallback copy failed:', err?.message || err);
         return false;
     }
 };

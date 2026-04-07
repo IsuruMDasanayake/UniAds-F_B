@@ -53,7 +53,7 @@ const ForgotPasswordPage = () => {
             }, 5000);
 
         } catch (err) {
-            console.error('Forgot password error:', err);
+            console.error('Forgot password error:', err?.message || err);
             console.error('Error response:', err.response);
             console.error('Error data:', err.response?.data);
 

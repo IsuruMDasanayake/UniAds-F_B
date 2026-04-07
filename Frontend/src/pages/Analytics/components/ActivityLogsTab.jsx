@@ -39,7 +39,7 @@ const ActivityLogsTab = () => {
                 total: response.data.data?.total ?? 0
             });
         } catch (error) {
-            console.error("Failed to fetch logs:", error);
+            console.error("Failed to fetch logs:", error?.message || error);
         } finally {
             setLoading(false);
         }
@@ -69,7 +69,7 @@ const ActivityLogsTab = () => {
             link.click();
             link.remove();
         } catch (error) {
-            console.error("Export failed:", error);
+            console.error("Export failed:", error?.message || error);
         } finally {
             setExporting(false);
         }
@@ -81,7 +81,7 @@ const ActivityLogsTab = () => {
                 await axiosClient.delete('/api/institute/activity-logs/clear');
                 fetchLogs();
             } catch (error) {
-                console.error("Failed to clear logs:", error);
+                console.error("Failed to clear logs:", error?.message || error);
             }
         }
     };

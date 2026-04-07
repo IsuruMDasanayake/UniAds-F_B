@@ -50,7 +50,7 @@ const VisibilitySettingsTab = ({ institute, onRefresh }) => {
                 if (onRefresh) onRefresh();
             }
         } catch (error) {
-            console.error('Save error:', error);
+            console.error('Save error:', error?.message || error);
             setErrorMsg(error.response?.data?.message || 'Failed to update visibility settings.');
         } finally {
             setLoading(false);

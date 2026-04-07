@@ -46,7 +46,7 @@ const ReportsPage = () => {
             link.remove();
             window.URL.revokeObjectURL(url);
         } catch (error) {
-            console.error(`Export error for ${type}:`, error);
+            console.error(`Export error for ${type}:`, error?.message || error);
         } finally {
             setLoading(prev => ({ ...prev, [type]: false }));
         }

@@ -164,7 +164,7 @@ const ResetPasswordPage = () => {
             }, 3000);
 
         } catch (err) {
-            console.error('Reset password error:', err);
+            console.error('Reset password error:', err?.message || err);
             if (err.response && err.response.status === 422) {
                 const backendErrors = err.response.data.errors || {};
                 const message = err.response.data.message;

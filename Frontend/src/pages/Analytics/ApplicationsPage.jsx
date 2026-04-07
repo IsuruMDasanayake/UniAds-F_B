@@ -79,7 +79,7 @@ const ApplicationsPage = () => {
                 to: payload.applications.to
             });
         } catch (error) {
-            console.error('Error fetching applications:', error);
+            console.error('Error fetching applications:', error?.message || error);
         } finally {
             setLoading(false);
             setIsUpdating(false);
@@ -111,7 +111,7 @@ const ApplicationsPage = () => {
                 });
                 setTrendData(response.data.data.applications || null);
             } catch (error) {
-                console.error('Error fetching application trends:', error);
+                console.error('Error fetching application trends:', error?.message || error);
             } finally {
                 setLoadingTrend(false);
             }
@@ -135,7 +135,7 @@ const ApplicationsPage = () => {
                 // Refresh sidebar badge
                 fetchNewAppsCount();
             } catch (err) {
-                console.error('Error marking as viewed:', err);
+                console.error('Error marking as viewed:', err?.message || err);
             }
         }
     };
@@ -156,7 +156,7 @@ const ApplicationsPage = () => {
             setCommunicationsHistory(response.data.data.data || []);
             setShowHistoryModal(true);
         } catch (error) {
-            console.error('Error fetching communications history:', error);
+            console.error('Error fetching communications history:', error?.message || error);
         } finally {
             setFetchingHistory(false);
         }

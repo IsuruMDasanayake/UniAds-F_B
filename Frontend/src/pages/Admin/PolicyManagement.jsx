@@ -42,7 +42,7 @@ const PolicyManagement = () => {
             const response = await axiosClient.get(endpoint);
             setPolicies(response.data.data || []);
         } catch (error) {
-            console.error('Error fetching policies:', error);
+            console.error('Error fetching policies:', error?.message || error);
         } finally {
             setLoading(false);
         }
@@ -68,7 +68,7 @@ const PolicyManagement = () => {
             setIsEditModalOpen(false);
             setCurrentPolicy(null);
         } catch (error) {
-            console.error('Error saving policy item:', error);
+            console.error('Error saving policy item:', error?.message || error);
         } finally {
             setIsProcessing(false);
         }
@@ -86,7 +86,7 @@ const PolicyManagement = () => {
             setPolicies(policies.filter(p => p.id !== sectionToDelete));
             setIsDeleteModalOpen(false);
         } catch (error) {
-            console.error('Error deleting policy item:', error);
+            console.error('Error deleting policy item:', error?.message || error);
         } finally {
             setIsProcessing(false);
             setSectionToDelete(null);

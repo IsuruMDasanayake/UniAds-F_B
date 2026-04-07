@@ -49,7 +49,7 @@ const EventManagement = () => {
                 last_page: response.data.data.last_page
             });
         } catch (error) {
-            console.error('Error fetching events:', error);
+            console.error('Error fetching events:', error?.message || error);
         } finally {
             if (!isSilent) setLoading(false);
         }
@@ -82,7 +82,7 @@ const EventManagement = () => {
             toast.success(`Event ${resp.data.data.is_active ? 'visible' : 'hidden'} successfully!`);
             setToggleModal({ isOpen: false, id: null, title: '', isActive: false });
         } catch (error) {
-            console.error('Error toggling event status:', error);
+            console.error('Error toggling event status:', error?.message || error);
             toast.error('Failed to update event status.');
         } finally {
             setIsToggling(false);
@@ -106,7 +106,7 @@ const EventManagement = () => {
             toast.success('Event deleted successfully.');
             setDeleteModal({ isOpen: false, id: null, title: '' });
         } catch (error) {
-            console.error('Error deleting event:', error);
+            console.error('Error deleting event:', error?.message || error);
             toast.error('Failed to delete event.');
         } finally {
             setIsDeleting(false);

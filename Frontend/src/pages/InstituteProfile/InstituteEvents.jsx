@@ -72,7 +72,7 @@ const InstituteEvents = ({ events, institute, isOwner, onEventsUpdate, isSidebar
                 }
             }
         } catch (error) {
-            console.error("Error fetching more events", error);
+            console.error("Error fetching more events", error?.message || error);
             setHasMore(false);
         } finally {
             setLoadingMore(false);
@@ -160,7 +160,7 @@ const InstituteEvents = ({ events, institute, isOwner, onEventsUpdate, isSidebar
                 );
 
             } catch (error) {
-                console.error("Failed to track view:", error);
+                console.error("Failed to track view:", error?.message || error);
             }
         }
     };
@@ -181,7 +181,7 @@ const InstituteEvents = ({ events, institute, isOwner, onEventsUpdate, isSidebar
             if (onEventsUpdate) onEventsUpdate();
             setDeleteModalOpen(false);
         } catch (error) {
-            console.error("Failed to delete event", error);
+            console.error("Failed to delete event", error?.message || error);
             alert("Failed to delete event. Please try again.");
         } finally {
             setIsDeleting(false);

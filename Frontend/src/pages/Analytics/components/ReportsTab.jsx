@@ -59,7 +59,7 @@ const ReportsTab = () => {
             setStatus({ type: 'success', message: 'Report generated successfully! Starting download...' });
             setTimeout(() => setStatus({ type: '', message: '' }), 5000);
         } catch (error) {
-            console.error("Failed to download report:", error);
+            console.error("Failed to download report:", error?.message || error);
             setStatus({ type: 'error', message: 'Failed to generate report. Please ensure dates are valid and try again.' });
             setTimeout(() => setStatus({ type: '', message: '' }), 10000);
         } finally {

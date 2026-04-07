@@ -31,7 +31,7 @@ const AdminFeedback = () => {
             const response = await axiosClient.get('/api/admin/feedbacks');
             setFeedbacks(response.data.data || []);
         } catch (error) {
-            console.error('Error fetching feedbacks:', error);
+            console.error('Error fetching feedbacks:', error?.message || error);
         } finally {
             if (!isSilent) setLoading(false);
         }
@@ -66,7 +66,7 @@ const AdminFeedback = () => {
             setFeedbacks(feedbacks.filter(fb => fb.id !== deleteModal.feedbackId));
             setDeleteModal({ isOpen: false, feedbackId: null, userName: '' });
         } catch (error) {
-            console.error('Error deleting feedback:', error);
+            console.error('Error deleting feedback:', error?.message || error);
         } finally {
             setIsDeleting(false);
         }

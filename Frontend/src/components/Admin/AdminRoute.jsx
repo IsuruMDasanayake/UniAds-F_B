@@ -9,7 +9,7 @@ const AdminRoute = ({ children }) => {
         try {
             user = JSON.parse(userStr);
         } catch (e) {
-            console.error('Error parsing user data', e);
+            console.error('Error parsing user data', e?.message || e);
         }
     }
 
