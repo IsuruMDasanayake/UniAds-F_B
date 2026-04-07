@@ -66,7 +66,7 @@ const EmailVerification = () => {
         setError('');
 
         try {
-            const response = await axiosClient.post('/api/email/verify-otp', { otp: otpString });
+            const response = await axiosClient.post('/api/email/verify-otp', { otp: otpString, email });
             if (response.data.success) {
                 setSuccess('Email verified successfully!');
                 setTimeout(() => {

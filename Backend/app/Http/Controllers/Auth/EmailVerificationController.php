@@ -12,6 +12,7 @@ use App\Mail\OTPVerificationMail;
 use App\Mail\WelcomeInstituteMail;
 use App\Mail\WelcomeUserMail;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -43,12 +44,13 @@ class EmailVerificationController extends Controller
     public function sendOTPGuest($email, Request $request)
     {
         // Generate 6-digit OTP
-        $otp = rand(100000, 999999);
+        $otp = random_int(100000, 999999);
 
-        // Store OTP and timestamp in session
+        // Store OTP in Cache (2 minutes TTL)
+        Cache::put("otp_verification:{$email}", $otp, 120);
+
+        // Backup in session as fallback for now
         session([
-            'verification_otp' => $otp,
-            'verification_otp_time' => now(),
             'verification_email' => $email
         ]);
 
@@ -74,22 +76,20 @@ class EmailVerificationController extends Controller
             'otp' => 'required|numeric',
         ]);
 
-        $sessionOtp = session('verification_otp');
-        $otpTime = session('verification_otp_time');
-        $email = session('verification_email');
-
-        if (!$sessionOtp || !$otpTime) {
-            return $this->error('No verification code found. Please request a new one.', 422);
+        $email = $request->email ?? session('verification_email');
+        
+        if (!$email) {
+            return $this->error('Missing email address for verification.', 422);
         }
 
-        // Check expiration (2 minutes)
-        if (now()->diffInMinutes($otpTime) >= 2) {
-            $this->clearOTPSession();
-            return $this->error('The verification code has expired.', 422);
+        $cachedOtp = Cache::get("otp_verification:{$email}");
+
+        if (!$cachedOtp) {
+            return $this->error('Verification code has expired or was not found. Please request a new one.', 422);
         }
 
-        if ($request->otp != $sessionOtp) {
-            return $this->error('Invalid verification code.', 422);
+        if ((int)$request->otp !== (int)$cachedOtp) {
+            return $this->error('The verification code you entered is incorrect.', 422);
         }
 
         // Handle Pending Registration
@@ -107,7 +107,7 @@ class EmailVerificationController extends Controller
             $user->email_verified_at = now();
             $user->save();
 
-            $this->clearOTPSession();
+            $this->clearOTPCache($email);
 
             return $this->success(['redirect' => '/feed'], 'Email verified successfully!');
         }
@@ -186,7 +186,7 @@ class EmailVerificationController extends Controller
             DB::commit();
 
             // Clear session and log user in
-            $this->clearOTPSession();
+            $this->clearOTPCache($data['email']);
             session()->forget(['pending_registration', 'pending_registration_type']);
 
             Auth::login($user);
@@ -225,13 +225,12 @@ class EmailVerificationController extends Controller
     }
 
     /**
-     * Clear OTP related session data.
+     * Clear OTP related data from Cache and Session.
      */
-    private function clearOTPSession()
+    private function clearOTPCache($email)
     {
+        Cache::forget("otp_verification:{$email}");
         session()->forget([
-            'verification_otp',
-            'verification_otp_time',
             'verification_email'
         ]);
     }
