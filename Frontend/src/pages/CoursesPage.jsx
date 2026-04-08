@@ -24,7 +24,10 @@ const CoursesPage = () => {
     const navigate = useNavigate();
     
     // TanStack Query Hooks
-    const { data: user } = useUser();
+    // Use localStorage as immediate fallback while useUser() query resolves (prevents race condition)
+    const storedUser = (() => { try { return JSON.parse(localStorage.getItem('APP_USER') || 'null'); } catch { return null; } })();
+    const { data: rawUser } = useUser();
+    const user = rawUser || storedUser;
     const { data: categoriesData = {}, isLoading: categoriesLoading } = useCategories();
     
     const [searchQuery, setSearchQuery] = useState('');

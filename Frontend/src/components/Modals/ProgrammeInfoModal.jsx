@@ -20,6 +20,7 @@ const ProgrammeInfoModal = ({ course, isOpen, onClose, onApply, onMoreInfo, user
         }
     }, [isOpen, course?.id]);
 
+
     const handleCopyLink = () => {
         if (!course?.share_link) return;
         const url = `${window.location.origin}/post/${course.share_link}`;
@@ -93,12 +94,12 @@ const ProgrammeInfoModal = ({ course, isOpen, onClose, onApply, onMoreInfo, user
                         <div className="programme-info-modal-footer">
                             {userRole === 'User' && (
                                 <>
-                                    {(activeInstitute?.applications_enabled !== false && Number(activeInstitute?.applications_enabled) !== 0 && !hideApply) && (
+                                    {(activeInstitute?.applications_enabled !== false && activeInstitute?.applications_enabled !== 0 && activeInstitute?.applications_enabled !== '0' && !hideApply) && (
                                         <button className="programme-info-apply-btn" onClick={onApply}>
                                             Apply Now <Send size={18} />
                                         </button>
                                     )}
-                                    {isPremium && (activeInstitute?.chat_enabled !== false && Number(activeInstitute?.chat_enabled) !== 0) && (
+                                    {isPremium && (activeInstitute?.chat_enabled !== false && activeInstitute?.chat_enabled !== 0 && activeInstitute?.chat_enabled !== '0') && (
                                         <button className="programme-info-info-btn" onClick={onMoreInfo}>
                                             Get More Info <Info size={18} />
                                         </button>

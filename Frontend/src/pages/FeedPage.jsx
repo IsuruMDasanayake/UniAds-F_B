@@ -77,7 +77,9 @@ function FeedPage() {
     const interestMutation = useToggleEventInterest();
     const declineMutation = useDeclineEvent();
 
-    const user = userData;
+    // Use localStorage as immediate fallback while useUser() query resolves (prevents race condition)
+    const storedUser = (() => { try { return JSON.parse(localStorage.getItem('APP_USER') || 'null'); } catch { return null; } })();
+    const user = userData || storedUser;
     const posts = postsData?.pages.flatMap(page => page.data) || [];
     const events = eventsData?.pages.flatMap(page => page.data) || [];
 
