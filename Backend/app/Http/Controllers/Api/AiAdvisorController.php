@@ -885,7 +885,7 @@ RULES
     private function callGroq($prompt, $profile, $realPosts = [], $suggestedReplies = [])
     {
         Log::info("callGroq called");
-        $apiKey = config('services.groq.key') ?? env('GROQ_API_KEY');
+        $apiKey = config('services.groq.key');
         $url    = "https://api.groq.com/openai/v1/chat/completions";
 
         try {
@@ -936,7 +936,10 @@ RULES
                 }
             }
         } catch (\Throwable $e) {
-            Log::error("Groq Call Error: " . $e->getMessage());
+            Log::error("Groq Network/Execution Error: " . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
         }
 
         return $this->success([

@@ -41,4 +41,8 @@ return [
         'is_sandbox' => env('PAYHERE_IS_SANDBOX', true),
     ],
 
+    'groq' => [
+        'key' => env('GROQ_API_KEY'),
+    ],
+
 ];
