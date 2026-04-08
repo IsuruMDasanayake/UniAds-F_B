@@ -77,40 +77,27 @@ const queryClient = new QueryClient({
 import './App.css';
 
 function App() {
-  const [user, setUser] = useState(() => {
-    try {
-      const savedUser = localStorage.getItem('APP_USER');
-      return savedUser ? JSON.parse(savedUser) : null;
-    } catch (e) {
-      return null;
-    }
-  });
+  const [user, setUser] = useState(null);
 
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        // Attempt to fetch user using the session cookie
+        // Always attempt to resolve auth from the session cookie.
+        // This handles wake-from-sleep correctly — no localStorage flag needed.
         const response = await axiosClient.get('/api/user');
         const userData = response.data.data;
         setUser(userData);
-        localStorage.setItem('APP_USER', JSON.stringify(userData));
       } catch (error) {
-        // Not logged in or session expired
+        // Not logged in or session expired — treat as unauthenticated
         setUser(null);
-        localStorage.removeItem('APP_USER');
-        localStorage.removeItem('ACCESS_TOKEN');
       } finally {
         setIsLoading(false);
       }
     };
-    
-    if (localStorage.getItem('APP_USER')) {
-      fetchUser();
-    } else {
-      setIsLoading(false);
-    }
+
+    fetchUser();
   }, []);
 
   if (isLoading) {

@@ -20,21 +20,16 @@ export const useUser = () => {
           institute: payload.institute || null
         };
         
-        // Sync with localStorage for legacy compatibility
-        localStorage.setItem('APP_USER', JSON.stringify(fullUser));
-        
         return fullUser;
       } catch (error) {
+        // 401 = not authenticated; return null so callers can treat as logged-out
         if (error.response?.status === 401) {
-          localStorage.removeItem('APP_USER');
-          localStorage.removeItem('ACCESS_TOKEN');
           return null;
         }
         throw error;
       }
     },
-    // Only fetch if we have a token
-    enabled: !!localStorage.getItem('ACCESS_TOKEN'),
+    // Always attempt to resolve auth from the session cookie — no localStorage flag needed.
     staleTime: 1000 * 60 * 15, // Profile changes rarely, cache for 15 mins
   });
 };

@@ -39,8 +39,9 @@ axiosClient.interceptors.response.use(
                     const isPublicEndpoint = publicEndpoints.some(endpoint => config?.url?.includes(endpoint));
                     
                     if (!isPublicEndpoint) {
-                        localStorage.removeItem('ACCESS_TOKEN');
-                        localStorage.removeItem('APP_USER');
+                        // Tokens are in HttpOnly cookies — no localStorage to clear.
+                        // Just redirect to home so App.jsx re-runs fetchUser() and
+                        // correctly resolves to unauthenticated state.
                         if (window.location.pathname !== '/' && !window.location.pathname.match(/^\/(login|register)/)) {
                             window.location.href = '/';
                         }
