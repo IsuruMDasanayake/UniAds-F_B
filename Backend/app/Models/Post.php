@@ -61,9 +61,8 @@ class Post extends Model
 
         $premiumBonus = $this->institute->hasActivePremium() ? 30 : 0;
         $followerBonus = log($this->institute->followers_count + 1) * 10;
-        $idBonus = ($this->id % 10) * 0.5;
 
-        return $premiumBonus + $followerBonus + $idBonus;
+        return $premiumBonus + $followerBonus;
     }
 
     public function toSearchableArray()
