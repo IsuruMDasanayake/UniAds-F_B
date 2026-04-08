@@ -702,13 +702,19 @@ class AnalyticsController extends Controller
                 'commented_count' => Rating::where('institute_id', $instituteId)->whereNotNull('comment')->where('comment', '!=', '')->count(),
             ];
 
-            // Distribution Calculation
+            // Distribution Calculation - Optimized to a single GROUP BY query
+            $distributionCounts = Rating::where('institute_id', $instituteId)
+                ->select('rating', DB::raw('count(*) as count'))
+                ->groupBy('rating')
+                ->pluck('count', 'rating')
+                ->toArray();
+
             $distribution = [
-                5 => Rating::where('institute_id', $instituteId)->where('rating', 5)->count(),
-                4 => Rating::where('institute_id', $instituteId)->where('rating', 4)->count(),
-                3 => Rating::where('institute_id', $instituteId)->where('rating', 3)->count(),
-                2 => Rating::where('institute_id', $instituteId)->where('rating', 2)->count(),
-                1 => Rating::where('institute_id', $instituteId)->where('rating', 1)->count(),
+                5 => $distributionCounts[5] ?? 0,
+                4 => $distributionCounts[4] ?? 0,
+                3 => $distributionCounts[3] ?? 0,
+                2 => $distributionCounts[2] ?? 0,
+                1 => $distributionCounts[1] ?? 0,
             ];
 
             return $this->success([
