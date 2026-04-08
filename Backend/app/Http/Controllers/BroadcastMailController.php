@@ -216,9 +216,8 @@ class BroadcastMailController extends Controller
             $filters = $request->filters ?? [];
             $selectedInstitutes = $request->selected_institutes ?? [];
 
-            // Get recipients based on priority
-            $recipients = $this->getRecipients($targetType, $recipientEmail, $filters, $selectedInstitutes);
-            $recipientCount = $recipients->count();
+            // Count first using the lightweight COUNT query — no collection loaded.
+            $recipientCount = $this->getRecipientsCount($targetType, $recipientEmail, $filters, $selectedInstitutes);
 
             if ($recipientCount === 0) {
                 return $this->error('No recipients found matching the criteria', 400);
@@ -236,22 +235,39 @@ class BroadcastMailController extends Controller
                 'created_by' => auth()->id()
             ]);
 
-            // Dispatch jobs in chunks to prevent memory issues
-            $recipients->chunk(200)->each(function ($chunk) use ($sanitizedTitle, $sanitizedMessage, $targetType) {
-                foreach ($chunk as $recipient) {
-                    $email = $recipient->email;
-                    $name = $targetType === 'users'
-                        ? $recipient->name
-                        : $recipient->institute_name;
-
+            // Stream recipients via query-builder chunk() — only 200 rows in RAM at a time.
+            // This replaces the old getRecipients()->get() call that loaded the entire
+            // collection into the PHP heap before iterating.
+            if (!empty($recipientEmail) && $targetType === 'users') {
+                // Single-address path: one direct query, no chunking needed.
+                $recipient = User::where('email', $recipientEmail)->first();
+                if ($recipient) {
                     SendBroadcastMailJob::dispatch(
                         $sanitizedTitle,
                         $sanitizedMessage,
-                        $email,
-                        $name
+                        $recipient->email,
+                        $recipient->name
                     );
                 }
-            });
+            } else {
+                // Bulk path: use query-builder chunk() so Laravel issues
+                // SELECT ... LIMIT 200 OFFSET n queries instead of one giant SELECT.
+                $this->buildRecipientQuery($targetType, $filters, $selectedInstitutes)
+                    ->chunk(200, function ($chunk) use ($sanitizedTitle, $sanitizedMessage, $targetType) {
+                        foreach ($chunk as $recipient) {
+                            $name = $targetType === 'users'
+                                ? $recipient->name
+                                : $recipient->institute_name;
+
+                            SendBroadcastMailJob::dispatch(
+                                $sanitizedTitle,
+                                $sanitizedMessage,
+                                $recipient->email,
+                                $name
+                            );
+                        }
+                    });
+            }
 
             AdminActivityLogger::log(
                 'Sent Broadcast Mail',
@@ -302,29 +318,6 @@ class BroadcastMailController extends Controller
         // Priority 3: Apply filters
         $query = $this->buildRecipientQuery($targetType, $filters, $selectedInstitutes);
         return $query->count();
-    }
-
-    /**
-     * Get recipients collection
-     */
-    private function getRecipients($targetType, $recipientEmail, $filters, $selectedInstitutes)
-    {
-        // Priority 1: Single email
-        if (!empty($recipientEmail)) {
-            if ($targetType === 'users') {
-                return User::where('email', $recipientEmail)->get();
-            }
-            return collect([]);
-        }
-
-        // Priority 2: Selected institutes
-        if ($targetType === 'institutes' && !empty($selectedInstitutes)) {
-            return Institute::whereIn('id', $selectedInstitutes)->get();
-        }
-
-        // Priority 3: Apply filters
-        $query = $this->buildRecipientQuery($targetType, $filters, $selectedInstitutes);
-        return $query->get();
     }
 
     /**
