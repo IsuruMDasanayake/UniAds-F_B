@@ -15,7 +15,7 @@ export const ChatProvider = ({ children, user }) => {
     const [unreadTotal, setUnreadTotal] = useState(0);
 
     const fetchConversations = useCallback(async () => {
-        if (!user || !localStorage.getItem('ACCESS_TOKEN')) return;
+        if (!user) return;
         try {
             const response = await ChatService.getConversations();
             const rawConversations = response.data.data;
@@ -90,7 +90,7 @@ export const ChatProvider = ({ children, user }) => {
 
     // Dual-interval Polling
     useEffect(() => {
-        if (!user || !localStorage.getItem('ACCESS_TOKEN')) return;
+        if (!user) return;
 
         // 1. Poll Conversations (every 15 seconds)
         const fetchAndScheduleConv = () => {
@@ -158,8 +158,9 @@ export const ChatProvider = ({ children, user }) => {
         }
     };
 
-    const sendMessage = async (content) => {
-        if (!activeConversation) return;
+    const sendMessage = async (content, targetConversation = null) => {
+        const conv = targetConversation || activeConversation;
+        if (!conv) return;
 
         const tempId = `temp-${Date.now()}`;
         const optimisticMessage = {
@@ -176,9 +177,9 @@ export const ChatProvider = ({ children, user }) => {
 
         try {
             // Encrypt message content before sending to API
-            const encryptedContent = await EncryptionService.encrypt(content, activeConversation.id);
+            const encryptedContent = await EncryptionService.encrypt(content, conv.id);
 
-            const response = await ChatService.sendMessage(activeConversation.id, encryptedContent);
+            const response = await ChatService.sendMessage(conv.id, encryptedContent);
             const sentMessage = response.data.data;
 
             // Update with decrypted version (original content)
@@ -189,8 +190,12 @@ export const ChatProvider = ({ children, user }) => {
 
             // Update conversation list and move to top
             setConversations(prev => {
-                const updatedConvIndex = prev.findIndex(c => c.id === activeConversation.id);
-                if (updatedConvIndex === -1) return prev;
+                const updatedConvIndex = prev.findIndex(c => c.id === conv.id);
+                if (updatedConvIndex === -1) {
+                    // If it's a completely new conversation, fetch the list fully to append it properly
+                    fetchConversations();
+                    return prev;
+                }
 
                 const updatedConv = {
                     ...prev[updatedConvIndex],

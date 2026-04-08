@@ -6,10 +6,17 @@
 
 const PLATFORM_SALT = 'uniads-secure-e2ee-salt-v1';
 
+const keyCache = {};
+
 /**
  * Derives a cryptographic key from a conversation ID and the platform salt.
+ * Caches the derived key to avoid freezing the UI with repeated expensive PBKDF2 derives.
  */
 async function deriveKey(conversationId) {
+    if (keyCache[conversationId]) {
+        return keyCache[conversationId];
+    }
+
     const encoder = new TextEncoder();
     const keyMaterial = await crypto.subtle.importKey(
         'raw',
@@ -19,7 +26,7 @@ async function deriveKey(conversationId) {
         ['deriveKey']
     );
 
-    return crypto.subtle.deriveKey(
+    const derived = await crypto.subtle.deriveKey(
         {
             name: 'PBKDF2',
             salt: encoder.encode(PLATFORM_SALT),
@@ -31,6 +38,9 @@ async function deriveKey(conversationId) {
         false,
         ['encrypt', 'decrypt']
     );
+
+    keyCache[conversationId] = derived;
+    return derived;
 }
 
 const EncryptionService = {

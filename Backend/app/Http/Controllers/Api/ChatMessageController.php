@@ -9,7 +9,7 @@ use App\Models\Message;
 use App\Models\MessageRead;
 use Illuminate\Support\Facades\DB;
 use App\Events\MessageSent;
-use Illuminate\Support\Facades\Http;
+use App\Jobs\FetchLinkPreviewJob;
 use App\Traits\ApiResponse;
 use Mews\Purifier\Facades\Purifier;
 
@@ -93,27 +93,39 @@ class ChatMessageController extends Controller
             // Clear the actual text so the bubble ONLY shows the preview card
             $messageContent = '';
         } else {
-            // General external link parsing
+            // General external link: detect only — preview fetched asynchronously.
+            // The job performs SSRF validation before making any outbound request.
             preg_match_all('/https?:\/\/[^\s]+/', $messageContent, $matches);
             if (!empty($matches[0])) {
                 $type = 'link';
-                $linkPreviewData = $this->extractLinkMetadata($matches[0][0]);
+                // link_preview_data starts null; the job fills it in after save.
             }
         }
 
-        return DB::transaction(function () use ($conversation, $institute, $user, $messageContent, $type, $linkPreviewData) {
+        // Capture detected URL outside the closure for post-transaction dispatch
+        $externalUrl = (!empty($matches[0]) && $type === 'link' && $linkPreviewData === null)
+            ? $matches[0][0]
+            : null;
+
+        return DB::transaction(function () use ($conversation, $institute, $user, $messageContent, $type, $linkPreviewData, $externalUrl) {
             $message = $conversation->messages()->create([
-                'sender_user_id' => $institute ? null : $user->id,
+                'sender_user_id'     => $institute ? null : $user->id,
                 'sender_institute_id' => $institute ? $institute->id : null,
-                'message' => $messageContent,
-                'type' => $type,
-                'link_preview_data' => $linkPreviewData
+                'message'            => $messageContent,
+                'type'               => $type,
+                'link_preview_data'  => $linkPreviewData   // null for external links initially
             ]);
 
             $message->load(['senderUser', 'senderInstitute']);
 
-            // Broadcast the event
+            // Broadcast immediately so the sender sees the message right away
             broadcast(new MessageSent($message))->toOthers();
+
+            // Dispatch the preview job AFTER the transaction commits so the
+            // worker can find the message row. SSRF validation happens inside.
+            if ($externalUrl) {
+                FetchLinkPreviewJob::dispatch($message->id, $externalUrl);
+            }
 
             return $this->success($message, 'Message sent successfully', 201);
         });
@@ -167,50 +179,7 @@ class ChatMessageController extends Controller
         });
     }
 
-    /**
-     * Helper to extract basic OpenGraph metadata from a URL
-     */
-    private function extractLinkMetadata($url)
-    {
-        try {
-            $response = Http::timeout(3)->get($url);
-            if ($response->successful()) {
-                $html = $response->body();
-
-                $title = '';
-                $description = '';
-                $image = '';
-
-                // Extract Open Graph tags
-                if (preg_match('/<meta property="?og:title"? content="([^"]+)"/i', $html, $match)) {
-                    $title = $match[1];
-                } elseif (preg_match('/<title>([^<]+)<\/title>/i', $html, $match)) {
-                    $title = $match[1];
-                }
-
-                if (preg_match('/<meta property="?og:description"? content="([^"]+)"/i', $html, $match)) {
-                    $description = $match[1];
-                } elseif (preg_match('/<meta name="?description"? content="([^"]+)"/i', $html, $match)) {
-                    $description = $match[1];
-                }
-
-                if (preg_match('/<meta property="?og:image"? content="([^"]+)"/i', $html, $match)) {
-                    $image = $match[1];
-                }
-
-                return [
-                    'url' => $url,
-                    'title' => html_entity_decode($title),
-                    'description' => html_entity_decode($description),
-                    'image' => $image,
-                ];
-            }
-        } catch (\Exception $e) {
-            // Silently fail and return minimal data
-        }
-
-        return ['url' => $url, 'title' => parse_url($url, PHP_URL_HOST)];
-    }
 }
+
 
 

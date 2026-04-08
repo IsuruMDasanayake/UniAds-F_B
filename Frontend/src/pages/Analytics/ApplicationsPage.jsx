@@ -129,7 +129,8 @@ const ApplicationsPage = () => {
             try {
                 const response = await axiosClient.put(`/api/institute/applications/${application.id}/view`);
                 // Update local state update
-                setApplications(prev => prev.map(a => a.id === application.id ? { ...a, status: 'viewed', viewed_at: response.data.data.application.viewed_at } : a));
+                const viewedAt = response.data?.data?.viewed_at;
+                setApplications(prev => prev.map(a => a.id === application.id ? { ...a, status: 'viewed', viewed_at: viewedAt || new Date().toISOString() } : a));
                 // Update stats
                 setStats(prev => ({ ...prev, new: prev.new - 1 }));
                 // Refresh sidebar badge

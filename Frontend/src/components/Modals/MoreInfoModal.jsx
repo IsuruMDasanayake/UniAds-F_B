@@ -7,7 +7,7 @@ import EncryptionService from '../../services/EncryptionService';
 import './MoreInfoModal.css';
 
 const MoreInfoModal = ({ isOpen, onClose, course, institute: explicitInstitute }) => {
-    const { selectConversation, fetchConversations } = useChat();
+    const { selectConversation, sendMessage } = useChat();
     const activeInstitute = explicitInstitute || course?.institute;
     const [selectedInquiry, setSelectedInquiry] = useState('Course Duration & Schedule');
     const [customInquiry, setCustomInquiry] = useState('');
@@ -38,31 +38,21 @@ const MoreInfoModal = ({ isOpen, onClose, course, institute: explicitInstitute }
             const response = await ChatService.startConversation('institute', activeInstitute?.id || course?.institute_id);
             const conversation = response.data.data;
 
-            // 2. Open chat UI immediately for a "premium" fast feel
-            onClose(); // Close the inquiry modal
-            await selectConversation(conversation); // Open chat and load messages
+            // 2. Open chat UI immediately
+            onClose(); 
+            selectConversation(conversation);
 
-            // 3. Send messages in the background (don't block the UI)
+            // 3. Send using Context's sendMessage so it appears on screen instantly (optimistic UI)
             const postUrl = `${window.location.origin}/post/${course.share_link}`;
             const messageText = selectedInquiry === 'Other'
                 ? `Hello, I have a specific question about this course: ${finalInquiry}`
                 : `Hello, I would like to know more about the "${finalInquiry}" for this course.`;
 
-            // Fire and forget (or rather, background processing)
-            (async () => {
-                try {
-                    // Encrypt both messages before background sending
-                    const encryptedUrl = await EncryptionService.encrypt(postUrl, conversation.id);
-                    const encryptedText = await EncryptionService.encrypt(messageText, conversation.id);
-
-                    await ChatService.sendMessage(conversation.id, encryptedUrl);
-                    await ChatService.sendMessage(conversation.id, encryptedText);
-                    // Single refresh after both are sent
-                    await fetchConversations();
-                } catch (e) {
-                    console.error("Background message sending failed:", e?.message || e);
-                }
-            })();
+            // Fire these in sequence so they order correctly in the view, no need to await them here 
+            // since they run optimistically in the background
+            sendMessage(postUrl, conversation).then(() => {
+                sendMessage(messageText, conversation);
+            }).catch(e => console.error("Message send failed:", e));
 
         } catch (error) {
             console.error('Failed to start inquiry:', error?.message || error);
