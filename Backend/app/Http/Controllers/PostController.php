@@ -254,39 +254,59 @@ class PostController extends Controller
         $userId = auth()->id(); // Get the logged-in user's ID
 
         return DB::transaction(function () use ($post, $userId) {
-            // Check if the user has already liked the post
-            $likedPost = $post->likes()->where('user_id', $userId)->first();
+            // CRIT-05 fix: use lockForUpdate to prevent concurrent deletes racing
+            // on the unlike path, and insertOrIgnore on the like path so the DB-level
+            // unique constraint on (post_id, user_id) acts as the final arbiter.
+            $existingLike = $post->likes()
+                ->where('user_id', $userId)
+                ->lockForUpdate()
+                ->first();
 
-            if ($likedPost) {
-                // If the user has liked the post, remove the like (decrease the like count)
-                $likedPost->delete();
+            if ($existingLike) {
+                // Unlike: row is locked — safe to delete without a phantom read
+                $existingLike->delete();
                 $post->where('id', $post->id)->where('likes_count', '>', 0)->decrement('likes_count');
                 $liked = false;
             } else {
-                // If the user hasn't liked yet, add the like (increase the like count)
-                $post->likes()->create(['user_id' => $userId]);
-                $post->increment('likes_count');
-                $liked = true;
-
-                // Trigger Notification
-                Notification::create([
-                    'institute_id' => $post->institute_id,
-                    'user_id' => $userId,
-                    'type' => 'post_like',
-                    'title' => 'New Like on Post',
-                    'message' => auth()->user()->name . ' liked your post: ' . $post->title,
-                    'data' => [
-                        'post_id' => $post->id,
-                        'post_title' => $post->title,
-                        'image' => $post->image
-                    ]
+                // Like: insertOrIgnore means a duplicate concurrent insert will be
+                // silently dropped by the unique constraint instead of throwing.
+                $inserted = DB::table('post_likes')->insertOrIgnore([
+                    'post_id'    => $post->id,
+                    'user_id'    => $userId,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
+
+                if ($inserted) {
+                    $post->increment('likes_count');
+
+                    // Trigger Notification only when a genuine new like is recorded
+                    Notification::create([
+                        'institute_id' => $post->institute_id,
+                        'user_id'      => $userId,
+                        'type'         => 'post_like',
+                        'title'        => 'New Like on Post',
+                        'message'      => auth()->user()->name . ' liked your post: ' . $post->title,
+                        'data'         => [
+                            'post_id'    => $post->id,
+                            'post_title' => $post->title,
+                            'image'      => $post->image,
+                        ],
+                    ]);
+
+                    $liked = true;
+                } else {
+                    // Concurrent request already inserted the like — treat as already liked
+                    $liked = true;
+                }
             }
 
-            // Return the updated like count and liked status
+            // Re-read likes_count from DB to return the authoritative value
+            $post->refresh();
+
             return $this->success([
-                'likes_count' => $post->likes_count,
-                'is_liked_by_user' => $liked
+                'likes_count'      => $post->likes_count,
+                'is_liked_by_user' => $liked,
             ], 'Status toggled');
         });
     }
