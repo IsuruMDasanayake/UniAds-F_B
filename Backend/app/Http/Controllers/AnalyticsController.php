@@ -611,28 +611,20 @@ class AnalyticsController extends Controller
         }
 
         // Apply Sorting
-        if ($request->has('sort_by') && $request->has('sort_order')) {
+        if ($request->has('sort_by') && $request->has('sort_order') && in_array($request->get('sort_by'), ['view_count', 'interested_count', 'decline_count'])) {
             $sortBy = $request->get('sort_by');
             $sortOrder = $request->get('sort_order', 'desc');
-
-            switch ($sortBy) {
-                case 'view_count':
-                    $query->orderBy('view_count', $sortOrder)->orderByDesc('created_at');
-                    break;
-                case 'interested_count':
-                    $query->orderBy('interested_count', $sortOrder)->orderByDesc('created_at');
-                    break;
-                case 'decline_count':
-                    $query->orderBy('decline_count', $sortOrder)->orderByDesc('created_at');
-                    break;
-                default:
-                    $query->orderByRaw('event_date < ? ASC', [$now])
-                        ->orderByRaw('ABS(TIMESTAMPDIFF(SECOND, event_date, ?)) ASC', [$now]);
-            }
+            $query->orderBy($sortBy, $sortOrder)->orderByDesc('created_at');
         } else {
             // Default Sort: Upcoming events closest to now, then past events closest to now
-            $query->orderByRaw('event_date < ? ASC', [$now])
-                ->orderByRaw('ABS(TIMESTAMPDIFF(SECOND, event_date, ?)) ASC', [$now]);
+            // Refactored to use Union + fromSub to ensure index usage on event_date
+            $upcoming = (clone $query)->where('event_date', '>=', $now)
+                ->orderBy('event_date', 'asc');
+
+            $past = (clone $query)->where('event_date', '<', $now)
+                ->orderBy('event_date', 'desc');
+
+            $query = Event::query()->fromSub($upcoming->unionAll($past), 'events');
         }
 
         $events = $query->paginate(10);
