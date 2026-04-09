@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\PendingRegistration;
 use App\Models\User;
 use App\Models\Institute;
 use App\Models\Notification;
@@ -93,8 +94,15 @@ class EmailVerificationController extends Controller
         }
 
         // Handle Pending Registration
-        if (session()->has('pending_registration')) {
-            return $this->processPendingRegistration(session('pending_registration'), $request);
+        // FIX: Read from the DB-backed pending_registrations table, not the PHP session.
+        // The session approach was unsafe across multiple tabs and unreliable under memory pressure.
+        $pendingRegistration = PendingRegistration::findValidByEmail($email);
+        if ($pendingRegistration) {
+            return $this->processPendingRegistration(
+                $pendingRegistration->data,
+                $pendingRegistration->type,
+                $request
+            );
         }
 
         // Handle regular authenticated user verification
@@ -118,24 +126,31 @@ class EmailVerificationController extends Controller
     /**
      * Process pending registration after successful OTP verification.
      */
-    private function processPendingRegistration($data, Request $request)
+    private function processPendingRegistration(array $data, string $type, Request $request)
     {
         try {
             DB::beginTransaction();
 
             // Create User
+            // NOTE: The password stored in $data may already be hashed (bcrypt) if it was
+            // pre-hashed before being written to the pending_registrations table.
+            // Check the flag to avoid double-hashing, which would make the password invalid.
+            $password = !empty($data['password_already_hashed'])
+                ? $data['password']
+                : Hash::make($data['password']);
+
             $user = User::create([
-                'name' => $data['institute_name'] ?? ($data['name'] ?? 'User'),
-                'email' => $data['email'],
-                'password' => Hash::make($data['password']),
-                'role' => session('pending_registration_type', 'User'),
+                'name'     => $data['institute_name'] ?? ($data['name'] ?? 'User'),
+                'email'    => $data['email'],
+                'password' => $password,
+                'role'     => $type,
             ]);
 
             $user->email_verified_at = now();
             $user->save();
 
             // Create Institute if applicable
-            if (session('pending_registration_type') === 'Institute') {
+            if ($type === 'Institute') {
                 $institute = Institute::create([
                     'user_id' => $user->id,
                     'institute_name' => $data['institute_name'],
@@ -185,9 +200,9 @@ class EmailVerificationController extends Controller
             event(new Registered($user));
             DB::commit();
 
-            // Clear session and log user in
+            // Clear OTP cache and the pending_registrations DB record on success
             $this->clearOTPCache($data['email']);
-            session()->forget(['pending_registration', 'pending_registration_type']);
+            PendingRegistration::clearForEmail($data['email']);
 
             Auth::login($user);
             $request->session()->regenerate();

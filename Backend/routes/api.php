@@ -66,6 +66,10 @@ Route::post('/email/resend-otp', [EmailVerificationController::class, 'resendOTP
 // Public Contact Form
 Route::post('/contact', [ContactController::class, 'apiSubmitContactForm'])->middleware('throttle:3,1');
 
+// PayHere IPN Webhook (MUST be public — PayHere's server sends no Sanctum session cookie)
+// Security is provided by the md5 hash verification inside apiPaymentNotify().
+Route::post('/payment/notify', [SubscriptionController::class, 'apiPaymentNotify']);
+
 Route::get('/user', function (Request $request) {
     if (Auth::guard('sanctum')->check()) {
         $user = Auth::guard('sanctum')->user();
@@ -145,7 +149,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/pricing', [SubscriptionController::class, 'apiShowPricing']);
     Route::post('/payment/initiate', [SubscriptionController::class, 'apiInitiatePayment']);
     Route::post('/payment/verify', [SubscriptionController::class, 'apiVerifyPayment']);     // For frontend callback
-    Route::post('/payment/notify', [SubscriptionController::class, 'apiPaymentNotify']);
+    // NOTE: /payment/notify is intentionally PUBLIC (above) — PayHere IPN has no auth cookie
     Route::post('/pricing/cancel', [SubscriptionController::class, 'apiCancelSubscription']); // Restore cancel
     Route::post('/trial/start', [SubscriptionController::class, 'apiStartTrial']);
     Route::post('/trial/cancel', [SubscriptionController::class, 'apiCancelTrial']);

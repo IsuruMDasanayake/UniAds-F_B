@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Institute;
 use App\Models\Notification;
+use App\Models\PendingRegistration;
 use App\Models\AdminNotification;
 use App\Providers\RouteServiceProvider;
 use App\Http\Controllers\Auth\EmailVerificationController;
@@ -49,16 +50,20 @@ class RegisteredUserController extends Controller
             'education_level' => ['required', 'string'],
         ]);
 
-        return DB::transaction(function () use ($request) {
+        // FIX: Auth::login() and session()->regenerate() are SESSION side-effects
+        // that must run OUTSIDE the DB transaction. If the transaction were to roll
+        // back (e.g. AdminNotification insert fails), the session would already have
+        // been written — leaving the user "logged in" with no corresponding DB row.
+        $user = DB::transaction(function () use ($request) {
             $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'gender' => $request->gender,
-                'birthday' => $request->birthday,
-                'district' => $request->district,
+                'name'            => $request->name,
+                'email'           => $request->email,
+                'password'        => Hash::make($request->password),
+                'gender'          => $request->gender,
+                'birthday'        => $request->birthday,
+                'district'        => $request->district,
                 'education_level' => $request->education_level,
-                'role' => 'User',
+                'role'            => 'User',
             ]);
 
             // Notify Admins about the new user registration
@@ -66,31 +71,33 @@ class RegisteredUserController extends Controller
             foreach ($admins as $admin) {
                 AdminNotification::create([
                     'user_id' => $admin->id,
-                    'type' => 'new_user_registration',
-                    'title' => 'New User Registered',
+                    'type'    => 'new_user_registration',
+                    'title'   => 'New User Registered',
                     'message' => "A new user \"{$user->name}\" has registered on the platform.",
-                    'data' => [
-                        'user_id' => $user->id,
-                        'user_name' => $user->name
-                    ]
+                    'data'    => [
+                        'user_id'   => $user->id,
+                        'user_name' => $user->name,
+                    ],
                 ]);
             }
 
             event(new Registered($user));
 
-            // Send Welcome Email to User
-            try {
-                Mail::to($user->email)->send(new WelcomeUserMail($user));
-            } catch (\Exception $e) {
-                Log::error('Welcome email failed: ' . $e->getMessage());
-            }
-
-            // Login user with session (cookie-based)
-            Auth::login($user);
-            $request->session()->regenerate();
-
-            return $this->success($user, 'Registration successful', 201);
+            return $user;
         });
+
+        // Send Welcome Email — queued so SMTP failure does not break registration
+        try {
+            Mail::to($user->email)->queue(new WelcomeUserMail($user));
+        } catch (\Exception $e) {
+            Log::error('Welcome email failed: ' . $e->getMessage());
+        }
+
+        // Session side-effects run AFTER the transaction has fully committed
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return $this->success($user, 'Registration successful', 201);
     }
 
     /**
@@ -112,24 +119,31 @@ class RegisteredUserController extends Controller
         ]);
 
         try {
-            // Sanitize description
-            if ($request->has('description')) {
-                $request->merge(['description' => Purifier::clean($request->description)]);
+            // Sanitize description before storing
+            $payload = $request->all();
+            if (!empty($payload['description'])) {
+                $payload['description'] = Purifier::clean($payload['description']);
             }
+            // Never persist the raw password — store only the hash so the DB record
+            // is safe even if it somehow leaks.
+            $payload['password'] = bcrypt($payload['password']);
+            $payload['password_already_hashed'] = true;
+            // Remove the confirmation field — not needed after validation
+            unset($payload['password_confirmation']);
 
-            // Store pending registration data in session
-            session([
-                'pending_registration' => $request->all(),
-                'pending_registration_type' => 'Institute'
-            ]);
-
-            // Ensure session is saved before returning
-            session()->save();
+            // FIX: Store pending registration in the database instead of the PHP session.
+            // Session storage is unsafe because:
+            //   1. A second browser tab overwrites the session key, losing the first tab's data.
+            //   2. Session drivers may flush under memory pressure before the user verifies.
+            // The DB record is keyed by email (updateOrCreate), so a resend OTP request
+            // from a second tab simply refreshes the TTL on the same record.
+            PendingRegistration::upsertForEmail($request->email, 'Institute', $payload);
 
             // Send verification OTP using a custom method for guests
             $otpController = new EmailVerificationController();
             return $otpController->sendOTPGuest($request->email, $request);
         } catch (\Exception $e) {
+            Log::error('Institute registration initiation failed: ' . $e->getMessage());
             return $this->error('Registration initiation failed. Please try again.', 500);
         }
     }

@@ -199,8 +199,10 @@ class SubscriptionController extends Controller
 
     public function apiPaymentNotify(Request $request)
     {
-        $merchantId = env("PAYHERE_MERCHANT_ID");
-        $merchantSecret = env("PAYHERE_MERCHANT_SECRET");
+        // FIX: Use config() not env() — env() returns null when the config cache is active
+        // (php artisan config:cache), which would make hash verification always fail in production.
+        $merchantId     = config('services.payhere.merchant_id');
+        $merchantSecret = config('services.payhere.merchant_secret');
 
         $orderId = $request->order_id; // SUB-{id}-{time}
         $paymentId = $request->payment_id;
