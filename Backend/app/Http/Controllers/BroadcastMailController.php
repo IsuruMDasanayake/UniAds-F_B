@@ -28,17 +28,44 @@ class BroadcastMailController extends Controller
         return $this->success([
             'users' => [
                 'districts' => [
-                    "Colombo", "Gampaha", "Kalutara", "Kandy", "Matale", "Nuwara Eliya",
-                    "Galle", "Matara", "Hambantota", "Jaffna", "Kilinochchi", "Mannar",
-                    "Vavuniya", "Mullaitivu", "Batticaloa", "Ampara", "Trincomalee",
-                    "Kurunegala", "Puttalam", "Anuradhapura", "Polonnaruwa", "Badulla",
-                    "Monaragala", "Ratnapura", "Kegalle"
+                    "Colombo",
+                    "Gampaha",
+                    "Kalutara",
+                    "Kandy",
+                    "Matale",
+                    "Nuwara Eliya",
+                    "Galle",
+                    "Matara",
+                    "Hambantota",
+                    "Jaffna",
+                    "Kilinochchi",
+                    "Mannar",
+                    "Vavuniya",
+                    "Mullaitivu",
+                    "Batticaloa",
+                    "Ampara",
+                    "Trincomalee",
+                    "Kurunegala",
+                    "Puttalam",
+                    "Anuradhapura",
+                    "Polonnaruwa",
+                    "Badulla",
+                    "Monaragala",
+                    "Ratnapura",
+                    "Kegalle"
                 ],
                 'education_levels' => [
-                    "O/L Student", "A/L Student", "Undergraduate", "Postgraduate", "Other"
+                    "O/L Student",
+                    "A/L Student",
+                    "Undergraduate",
+                    "Postgraduate",
+                    "Other"
                 ],
                 'age_groups' => [
-                    "Under 18", "18-22", "23-30", "30+"
+                    "Under 18",
+                    "18-22",
+                    "23-30",
+                    "30+"
                 ],
                 'genders' => ['Male', 'Female', 'Other']
             ],
@@ -47,7 +74,6 @@ class BroadcastMailController extends Controller
                 'premium_options' => ['Premium', 'Non-premium']
             ]
         ]);
-
     }
 
     /**
@@ -66,7 +92,6 @@ class BroadcastMailController extends Controller
             });
 
         return $this->successResponse($institutes);
-
     }
 
     /**
@@ -94,7 +119,6 @@ class BroadcastMailController extends Controller
         $count = $this->getRecipientsCount($targetType, $recipientEmail, $filters, $selectedInstitutes);
 
         return $this->success(['count' => $count]);
-
     }
 
     /**
@@ -189,7 +213,6 @@ class BroadcastMailController extends Controller
             'count' => $count,
             'sample' => $sample
         ]);
-
     }
 
     /**
@@ -294,7 +317,6 @@ class BroadcastMailController extends Controller
             ->paginate(15);
 
         return $this->successResponse($history);
-
     }
 
     /**

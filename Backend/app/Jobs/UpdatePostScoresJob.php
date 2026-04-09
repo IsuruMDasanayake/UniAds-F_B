@@ -9,6 +9,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+
 class UpdatePostScoresJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -52,20 +53,20 @@ class UpdatePostScoresJob implements ShouldQueue
             }
 
             DB::statement($query);
-            
+
             // Sync the updated posts to Meilisearch (Scout) so search results use the decayed scores
             $scoutQuery = \App\Models\Post::where('status', 'active')
                 ->where('created_at', '>=', now()->subDays(60));
-                
+
             if ($this->instituteId) {
                 $scoutQuery->where('institute_id', $this->instituteId);
             }
-            
+
             // Since this is a raw DB update, model events aren't fired. 
             // We must manually trigger Scout to index the new scores.
             $scoutQuery->searchable();
-            
-            $logMsg = $this->instituteId 
+
+            $logMsg = $this->instituteId
                 ? "Successfully updated score_cache and scout index for active posts of institute ID: {$this->instituteId}."
                 : 'Successfully updated score_cache and scout index for all active recent posts.';
             Log::info($logMsg);
