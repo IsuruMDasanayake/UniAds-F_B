@@ -53,24 +53,29 @@ class AnalyticsController extends Controller
         $previousStart = Carbon::now()->subDays($period * 2)->startOfDay();
 
         // 1. ALL-TIME METRICS (Always Lifetime)
-        $totalProfileViews = $institute->profile_views ?? 0;
+        // Aggregated from the daily_analytics table to include historical data (deleted items)
+        $dailyAggregates = DB::table('daily_analytics')
+            ->where('institute_id', $institute->id)
+            ->selectRaw('
+                sum(profile_views) as total_profile_views,
+                sum(post_views) as total_post_views,
+                sum(event_views) as total_event_views,
+                sum(new_followers) as total_followers,
+                sum(applications) as total_applications,
+                sum(post_likes) as total_post_likes,
+                sum(event_interests) as total_event_interests,
+                sum(new_ratings) as total_ratings
+            ')
+            ->first();
 
-        $totalPostViews = Post::where('institute_id', $institute->id)->sum('view_count');
-
-        $totalEventViews = Event::where('institute_id', $institute->id)->sum('view_count');
-
-        $totalFollowers = $institute->followers_count ?? 0;
-
-        $totalApplications = ApplyCase::where('institute_id', $institute->id)->count();
-
-        $totalPostLikes = Post::where('institute_id', $institute->id)->sum('likes_count');
-
-        $totalEventInterests = DB::table('event_user_interests')
-            ->join('events', 'event_user_interests.event_id', '=', 'events.id')
-            ->where('events.institute_id', $institute->id)
-            ->count();
-
-        $totalRatings = Rating::where('institute_id', $institute->id)->count();
+        $totalProfileViews = (int) ($dailyAggregates->total_profile_views ?? 0);
+        $totalPostViews = (int) ($dailyAggregates->total_post_views ?? 0);
+        $totalEventViews = (int) ($dailyAggregates->total_event_views ?? 0);
+        $totalFollowers = (int) ($dailyAggregates->total_followers ?? 0);
+        $totalApplications = (int) ($dailyAggregates->total_applications ?? 0);
+        $totalPostLikes = (int) ($dailyAggregates->total_post_likes ?? 0);
+        $totalEventInterests = (int) ($dailyAggregates->total_event_interests ?? 0);
+        $totalRatings = (int) ($dailyAggregates->total_ratings ?? 0);
 
         $averageRating = Rating::where('institute_id', $institute->id)->avg('rating');
         $averageRating = $averageRating ? round($averageRating, 1) : 0;
