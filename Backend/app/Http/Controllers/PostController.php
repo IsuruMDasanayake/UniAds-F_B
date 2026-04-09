@@ -328,7 +328,7 @@ class PostController extends Controller
             $filterType, $filterValue, $page, $search, $activeFilters
         ]));
 
-        $postsData = \Illuminate\Support\Facades\Cache::tags(['posts_filter_api'])->remember($cacheKey, 300, function () use ($filterType, $filterValue, $search, $activeFilters) {
+        $postsData = \Illuminate\Support\Facades\Cache::tags(['posts_filter_api'])->remember($cacheKey, 300, function () use ($filterType, $filterValue, $search, $activeFilters, $page) {
             $query = Post::query()
                 ->join('institutes', 'institutes.id', '=', 'posts.institute_id')
                 ->select('posts.*')
@@ -382,9 +382,9 @@ class PostController extends Controller
                 }
             }
 
-            return $query->orderByRaw('(CASE WHEN (institutes.is_premium = 1 AND (institutes.premium_expires_at IS NULL OR institutes.premium_expires_at > NOW())) THEN 1 ELSE 0 END) DESC')
-                ->orderByDesc('posts.score_cache')
-                ->paginate(100);
+            $rawPosts = $query->orderByDesc('posts.score_cache')->limit(300)->get();
+            $mixedPosts = \App\Services\RankingService::applyFairExposure($rawPosts, 10, 3, 2);
+            return \App\Services\RankingService::paginateCollection($mixedPosts, 100, $page);
         });
 
         // Inject user-specific boolean flags (likes/saves) dynamically outside of the cache

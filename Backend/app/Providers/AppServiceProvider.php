@@ -44,6 +44,9 @@ class AppServiceProvider extends ServiceProvider
             $view->with('institutes', collect());
         }
     });
+
+    // 3️⃣ Register Observers
+    \App\Models\Institute::observe(\App\Observers\InstituteObserver::class);
 }
 
 }

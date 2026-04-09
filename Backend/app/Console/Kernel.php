@@ -19,7 +19,7 @@ class Kernel extends ConsoleKernel
         // Sync expired premium statuses and subscriptions
         $schedule->command('subscriptions:sync-expiry')->everyMinute();
 
-        // Recalculate post scores for ranking every 15 minutes
+        // Recalculate post scores for ranking every 30 minutes
         $schedule->job(new \App\Jobs\UpdatePostScoresJob)->everyFifteenMinutes();
     }
 

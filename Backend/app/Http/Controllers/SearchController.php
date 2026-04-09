@@ -75,16 +75,19 @@ class SearchController extends Controller
         }
 
         // Normal search using Meilisearch!
-        $posts = Post::search($query)
+        $rawPosts = Post::search($query)
             ->where('status', 'active')
             ->where('created_at', '>=', now()->subDays(60)->timestamp)
-            ->orderBy('is_premium_active', 'desc')
             ->orderBy('score_cache', 'desc')
-            ->orderBy('created_at', 'desc')
             ->query(function ($builder) {
                 $builder->with('institute');
             })
-            ->paginate(15);
+            ->take(150)
+            ->get();
+
+        $mixedPosts = \App\Services\RankingService::applyFairExposure($rawPosts, 10, 3, 2);
+        $page = $request->query('page', 1);
+        $posts = \App\Services\RankingService::paginateCollection($mixedPosts, 15, $page);
 
         return $this->successResponse([
             'posts' => $posts,

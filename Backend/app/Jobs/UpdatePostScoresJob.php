@@ -9,10 +9,21 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
 class UpdatePostScoresJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    private ?int $instituteId;
+
+    /**
+     * Create a new job instance.
+     * 
+     * @param int|null $instituteId If provided, only updates scores for this institute's posts.
+     */
+    public function __construct(?int $instituteId = null)
+    {
+        $this->instituteId = $instituteId;
+    }
 
     /**
      * Execute the job.
@@ -20,19 +31,44 @@ class UpdatePostScoresJob implements ShouldQueue
     public function handle(): void
     {
         try {
-            DB::statement("
-                UPDATE posts
+            $query = "
+                UPDATE posts 
                 JOIN institutes ON posts.institute_id = institutes.id
-                SET posts.score_cache = (
-                    (CASE WHEN (institutes.is_premium = 1 AND (institutes.premium_expires_at IS NULL OR institutes.premium_expires_at > NOW())) THEN 30 ELSE 0 END) +
-                    (LOG(institutes.followers_count + 1) * 10) +
-                    (100 - TIMESTAMPDIFF(HOUR, posts.created_at, NOW())) +
-                    (MOD(posts.id, 10) * 0.5)
-                )
-                WHERE posts.status = 'active'
-            ");
+                SET posts.score_cache = ROUND(
+                    (
+                        (LOG(GREATEST(posts.likes_count, 0) + 1) * 5) + 
+                        (LOG(GREATEST(posts.view_count, 0) + 1) * 2) + 
+                        (LOG(GREATEST(institutes.followers_count, 0) + 1) * 8) + 
+                        (IF(TIMESTAMPDIFF(SECOND, posts.created_at, NOW()) < 86400, 10, 0))
+                    ) 
+                    * EXP(-0.023 * GREATEST(TIMESTAMPDIFF(DAY, posts.created_at, NOW()), 0))
+                    * IF(institutes.is_premium = 1 AND (institutes.premium_expires_at IS NULL OR institutes.premium_expires_at > NOW()), 1.5, 1.0)
+                , 4)
+                WHERE posts.status = 'active' AND posts.created_at >= DATE_SUB(NOW(), INTERVAL 60 DAY)
+            ";
+
+            if ($this->instituteId) {
+                $query .= " AND institutes.id = " . (int) $this->instituteId;
+            }
+
+            DB::statement($query);
             
-            Log::info('Successfully updated score_cache for all active posts.');
+            // Sync the updated posts to Meilisearch (Scout) so search results use the decayed scores
+            $scoutQuery = \App\Models\Post::where('status', 'active')
+                ->where('created_at', '>=', now()->subDays(60));
+                
+            if ($this->instituteId) {
+                $scoutQuery->where('institute_id', $this->instituteId);
+            }
+            
+            // Since this is a raw DB update, model events aren't fired. 
+            // We must manually trigger Scout to index the new scores.
+            $scoutQuery->searchable();
+            
+            $logMsg = $this->instituteId 
+                ? "Successfully updated score_cache and scout index for active posts of institute ID: {$this->instituteId}."
+                : 'Successfully updated score_cache and scout index for all active recent posts.';
+            Log::info($logMsg);
         } catch (\Exception $e) {
             Log::error('Failed to update post scores: ' . $e->getMessage());
         }

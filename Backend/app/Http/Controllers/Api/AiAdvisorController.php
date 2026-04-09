@@ -1005,12 +1005,14 @@ RULES
             ->join('institutes', 'posts.institute_id', '=', 'institutes.id')
             ->select('posts.*')
             ->with(['institute', 'category'])
-            ->orderByRaw('(CASE WHEN (institutes.is_premium = 1 AND (institutes.premium_expires_at IS NULL OR institutes.premium_expires_at > NOW())) THEN 1 ELSE 0 END) DESC')
-            ->limit(3)
+            ->orderByDesc('posts.score_cache')
+            ->limit(15)
             ->get();
 
+        $mixedPosts = \App\Services\RankingService::applyFairExposure($postsData, 5, 2, 1)->take(3);
+
         $instituteContext = "";
-        $mappedPosts = $postsData->map(function ($post, $idx) use (&$instituteContext) {
+        $mappedPosts = $mixedPosts->map(function ($post, $idx) use (&$instituteContext) {
             $instituteTitle = $post->institute->institute_name ?? 'UniAds Institute';
             $priceValue = $post->price ?? null;
             $price = $priceValue ? "LKR " . number_format($priceValue) : "Contact for pricing";

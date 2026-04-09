@@ -59,10 +59,25 @@ class Post extends Model
             return 0;
         }
 
-        $premiumBonus = $this->institute->hasActivePremium() ? 30 : 0;
-        $followerBonus = log($this->institute->followers_count + 1) * 10;
-
-        return $premiumBonus + $followerBonus;
+        // 1. Quality signals (normalized)
+        $likeScore = log(max($this->likes_count, 0) + 1) * 5;
+        $viewScore = log(max($this->view_count, 0) + 1) * 2;
+        
+        // 2. Authority signal
+        $followerScore = log(max($this->institute->followers_count, 0) + 1) * 8;
+        
+        // 3. Premium boost — proportional, not binary
+        $premiumBoost = $this->institute->hasActivePremium() ? 1.5 : 1.0;
+        
+        // 4. Time decay (half-life: 30 days)
+        $ageInDays = max(now()->diffInDays($this->created_at), 0);
+        $decay = exp(-0.023 * $ageInDays);
+        
+        // 5. Fresh content bonus (first 24h)
+        $freshBonus = $ageInDays < 1 ? 10 : 0;
+        
+        $base = ($likeScore + $viewScore + $followerScore + $freshBonus) * $decay;
+        return round($base * $premiumBoost, 4);
     }
 
     public function toSearchableArray()
