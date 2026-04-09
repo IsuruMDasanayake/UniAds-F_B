@@ -2,11 +2,17 @@ import React from 'react';
 import InstituteGallery from './InstituteGallery';
 import InstitutePosts from './InstitutePosts';
 import InstituteEvents from './InstituteEvents';
+import { motion } from 'framer-motion';
 import './InstituteFeed.css';
 
 const InstituteFeed = ({ institute, isOwner, posts, events, onGalleryUpdate, onEventsUpdate, onPostUpdate, user }) => {
     return (
-        <div className="institute-feed-layout">
+        <motion.div 
+            className="institute-feed-layout"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+        >
             <div className="feed-grid">
                 {/* Left Sidebar - Gallery */}
                 <div className="left-sidebar">
@@ -39,7 +45,7 @@ const InstituteFeed = ({ institute, isOwner, posts, events, onGalleryUpdate, onE
                     />
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

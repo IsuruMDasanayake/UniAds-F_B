@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MapPin, Heart, Edit2, Trash2, Send, Info, Link2, Check, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import axiosClient from '../../lib/axios';
 import { getStorageUrl } from '../../lib/config';
 import { copyToClipboard } from '../../lib/clipboard';
@@ -310,7 +311,12 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
     }
 
     return (
-        <div id="institute-profile-posts-wrapper">
+        <motion.div 
+            id="institute-profile-posts-wrapper"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+        >
             <div className="posts-container">
                 {visiblePosts.map((post, index) => (
                     <div
@@ -501,7 +507,7 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
                     />
                 </>
             )}
-        </div>
+        </motion.div>
     );
 };
 

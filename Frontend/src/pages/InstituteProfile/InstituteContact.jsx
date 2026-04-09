@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axiosClient from '../../lib/axios';
+import { motion } from 'framer-motion';
 import './InstituteContact.css';
 
 const InstituteContact = ({ institute, isOwner }) => {
@@ -36,7 +37,12 @@ const InstituteContact = ({ institute, isOwner }) => {
         : `https://www.google.com/maps?q=${encodeURIComponent(institute.location || '')}&z=15&output=embed`;
 
     return (
-        <div className="ic-page-container">
+        <motion.div 
+            className="ic-page-container"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+        >
             <div className="ic-info-header">
                 <div className="ic-header-content">
                     <h2 className="ic-title">Contact Us</h2>
@@ -197,7 +203,7 @@ const InstituteContact = ({ institute, isOwner }) => {
                     )}
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

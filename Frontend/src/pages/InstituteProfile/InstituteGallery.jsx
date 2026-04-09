@@ -230,7 +230,12 @@ const InstituteGallery = ({ institute, isOwner, onGalleryUpdate }) => {
     };
 
     return (
-        <div className="institute-gallery-container left-section">
+        <motion.div 
+            className="institute-gallery-container left-section"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+        >
             <div className="gallery-header">
                 <h2 className="gallery-title">Institute Gallery</h2>
             </div>
@@ -386,7 +391,7 @@ const InstituteGallery = ({ institute, isOwner, onGalleryUpdate }) => {
                     />
                 )}
             </AnimatePresence>
-        </div>
+        </motion.div>
     );
 };
 

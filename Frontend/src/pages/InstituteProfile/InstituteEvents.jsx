@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Calendar, MapPin, Edit2, Trash2, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 import axiosClient from '../../lib/axios';
 import { getStorageUrl } from '../../lib/config';
 import EditEventModal from '../../components/Modals/EditEventModal';
@@ -169,7 +170,12 @@ const InstituteEvents = ({ events: initialEvents, institute, isOwner, onEventsUp
     };
 
     return (
-        <div id="institute-profile-events-wrapper">
+        <motion.div 
+            id="institute-profile-events-wrapper"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+        >
             <div className="events-header">
                 {/* <h3 className="events-section-title">Events</h3> */}
             </div>
@@ -298,7 +304,7 @@ const InstituteEvents = ({ events: initialEvents, institute, isOwner, onEventsUp
                 event={viewModalOpen ? viewEvent : null}
                 onClose={() => setViewModalOpen(false)}
             />
-        </div>
+        </motion.div>
     );
 };
 

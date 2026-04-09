@@ -36,12 +36,12 @@ const MainProfilePage = () => {
         // Construct new URL based on current context (profile or institutions/:id)
         if (id) {
             // Public view
-            if (tab === 'feed') navigate(`/institutions/${id}/profile`);
-            else navigate(`/institutions/${id}/${tab}`);
+            if (tab === 'feed') navigate(`/institutions/${id}/profile`, { state: { preserveScroll: true } });
+            else navigate(`/institutions/${id}/${tab}`, { state: { preserveScroll: true } });
         } else {
             // Dashboard view
-            if (tab === 'feed') navigate(`/profile`);
-            else navigate(`/profile/${tab}`);
+            if (tab === 'feed') navigate(`/profile`, { state: { preserveScroll: true } });
+            else navigate(`/profile/${tab}`, { state: { preserveScroll: true } });
         }
     };
 

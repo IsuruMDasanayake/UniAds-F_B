@@ -126,7 +126,12 @@ const InstituteAbout = ({ about: initialAbout, institute }) => {
     // If no about section exists
     if (!about) {
         return (
-            <div className="about-container">
+            <motion.div 
+                className="about-container"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+            >
                 {isOwner ? (
                     <div className="empty-state">
                         <p className="text-content mb-4">Tell detailed stories about your institute, history, and life on campus.</p>
@@ -148,12 +153,17 @@ const InstituteAbout = ({ about: initialAbout, institute }) => {
                         window.location.reload();
                     }}
                 />
-            </div>
+            </motion.div>
         );
     }
 
     return (
-        <div className="about-container">
+        <motion.div 
+            className="about-container"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+        >
 
 
             {/* Content Sections */}
@@ -302,7 +312,7 @@ const InstituteAbout = ({ about: initialAbout, institute }) => {
                     />
                 )}
             </AnimatePresence>
-        </div>
+        </motion.div>
     );
 };
 
