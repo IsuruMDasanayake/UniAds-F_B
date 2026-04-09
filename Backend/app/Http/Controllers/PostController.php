@@ -41,8 +41,8 @@ class PostController extends Controller
                     'small_description' => 'required|string|max:200',
                     'course_name' => 'required|string',
                     'course_type' => 'required|string',
-                    'location' => 'required|array',
-                    'location.*' => 'string',
+                    'location' => 'required|array|max:10',
+                    'location.*' => 'required|string|max:100',
                     'duration' => 'required|string',
                     'course_format' => 'required|string',
                     'attendance_type' => 'required|string',
@@ -68,8 +68,9 @@ class PostController extends Controller
                     $imagePath = ImageOptimiser::store($request->file('image'), 'post_images');
                 }
 
-                // Convert array of locations to comma-separated string
-                $locations = implode(', ', $request->location);
+                // Normalize and deduplicate locations
+                $rawLocations = array_filter(array_unique(array_map('trim', $request->location)));
+                $displayLocations = implode(', ', $rawLocations);
 
                 // Robust Sanitization using HTML Purifier
                 $sanitizedDescription = Purifier::clean($request->description);
@@ -82,7 +83,7 @@ class PostController extends Controller
                     'small_description' => $sanitizedSmallDescription,
                     'course_name' => $request->course_name,
                     'course_type' => $request->course_type,
-                    'location' => $locations,
+                    'location' => $displayLocations,
                     'duration' => $request->duration,
                     'course_format' => $request->course_format,
                     'attendance_type' => $request->attendance_type,
@@ -90,6 +91,13 @@ class PostController extends Controller
                     'institute_id' => $institute->id,
                     'status' => 'active'
                 ]);
+
+                // Sync to indexed pivot table for fast filtering
+                foreach ($rawLocations as $loc) {
+                    $post->locations()->create([
+                        'location' => strtolower($loc)
+                    ]);
+                }
 
                 // Notify Admins
                 $admins = User::where('role', 'Admin')->get();
@@ -158,8 +166,8 @@ class PostController extends Controller
                 'small_description' => 'required|string|max:200',
                 'course_name' => 'required|string',
                 'course_type' => 'required|string',
-                'location' => 'required|array',
-                'location.*' => 'string',
+                'location' => 'required|array|max:10',
+                'location.*' => 'required|string|max:100',
                 'duration' => 'required|string',
                 'course_format' => 'required|string',
                 'attendance_type' => 'required|string',
@@ -183,17 +191,29 @@ class PostController extends Controller
             $sanitizedDescription = Purifier::clean($request->description);
             $sanitizedSmallDescription = Purifier::clean($request->small_description);
 
+            // Normalize locations
+            $rawLocations = array_filter(array_unique(array_map('trim', $request->location)));
+            $displayLocations = implode(', ', $rawLocations);
+
             $post->update([
                 'title' => $request->title,
                 'description' => $sanitizedDescription,
                 'small_description' => $sanitizedSmallDescription,
                 'course_name' => $request->course_name,
                 'course_type' => $request->course_type,
-                'location' => implode(', ', $request->location),
+                'location' => $displayLocations,
                 'duration' => $request->duration,
                 'course_format' => $request->course_format,
                 'attendance_type' => $request->attendance_type,
             ]);
+
+            // Sync locations to pivot table
+            $post->locations()->delete();
+            foreach ($rawLocations as $loc) {
+                $post->locations()->create([
+                    'location' => strtolower($loc)
+                ]);
+            }
 
             return $this->success($post, 'Post updated successfully!');
         } catch (\Exception $e) {
@@ -348,7 +368,9 @@ class PostController extends Controller
             // Primary Route Category Filter
             if (array_key_exists($filterType, $filterMap)) {
                 if ($filterType === 'Location') {
-                    $query->where('posts.location', 'LIKE', "%{$filterValue}%");
+                    $query->whereHas('locations', function($q) use ($filterValue) {
+                        $q->where('location', strtolower(trim($filterValue)));
+                    });
                 } else {
                     $query->where("posts." . $filterMap[$filterType], $filterValue);
                 }
@@ -370,10 +392,8 @@ class PostController extends Controller
                     if (array_key_exists($category, $filterMap) && !empty($values) && is_array($values)) {
                         $column = 'posts.' . $filterMap[$category];
                         if ($filterMap[$category] === 'location') {
-                            $query->where(function($q) use ($column, $values) {
-                                foreach ($values as $val) {
-                                    $q->orWhere($column, 'LIKE', "%{$val}%");
-                                }
+                            $query->whereHas('locations', function($q) use ($values) {
+                                $q->whereIn('location', array_map('strtolower', array_map('trim', $values)));
                             });
                         } else {
                             $query->whereIn($column, $values);

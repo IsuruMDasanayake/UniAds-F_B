@@ -164,25 +164,11 @@ class CategoryController extends Controller
                 ->toArray();
         }
 
-        // 2. Optimized location counts (Single query, memory processing)
-        $locationCounts = [];
-        $locations = $categories->where('main_category', 'Location')->pluck('name')->toArray();
-        if (!empty($locations)) {
-            // Fetch all non-null locations from posts in one go
-            $postLocations = \App\Models\Post::whereNotNull('location')
-                ->pluck('location')
-                ->toArray();
-            
-            foreach ($locations as $loc) {
-                $count = 0;
-                foreach ($postLocations as $postLoc) {
-                    if (stripos($postLoc, $loc) !== false) {
-                        $count++;
-                    }
-                }
-                $locationCounts[$loc] = $count;
-            }
-        }
+        // 2. Optimized location counts (Single indexed query)
+        $locationCounts = \App\Models\PostLocation::select('location', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+            ->groupBy('location')
+            ->pluck('total', 'location')
+            ->toArray();
 
         // 3. Map back to categories
         foreach ($categories as $category) {

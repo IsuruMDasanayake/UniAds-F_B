@@ -29,7 +29,10 @@ class ApplicationController extends Controller
         if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('course_title', 'like', "%{$search}%")
+                $q->where('course_title_snapshot', 'like', "%{$search}%")
+                    ->orWhereHas('post', function ($q) use ($search) {
+                        $q->where('title', 'like', "%{$search}%");
+                    })
                     ->orWhereHas('user', function ($q) use ($search) {
                         $q->where('name', 'like', "%{$search}%")
                             ->orWhere('email', 'like', "%{$search}%");
@@ -72,7 +75,10 @@ class ApplicationController extends Controller
             $searchTerm = '%' . $request->search . '%';
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('student_name', 'like', $searchTerm)
-                    ->orWhere('course_title', 'like', $searchTerm);
+                    ->orWhere('course_title_snapshot', 'like', $searchTerm)
+                    ->orWhereHas('post', function ($q) use ($searchTerm) {
+                        $q->where('title', 'like', $searchTerm);
+                    });
             });
         }
 

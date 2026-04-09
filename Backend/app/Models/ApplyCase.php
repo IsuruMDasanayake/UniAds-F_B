@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class ApplyCase extends Model
 {
+    protected $appends = ['course_title'];
+
     protected $fillable = [
         'user_id',
         'institute_id',
         'post_id',
-        'course_title',
+        'course_title_snapshot',
         'student_name',
         'student_email',
         'student_phone',
@@ -21,6 +23,14 @@ class ApplyCase extends Model
         'viewed_at',
         'contacted_at',
     ];
+
+    public function getCourseTitleAttribute()
+    {
+        return $this->post?->title 
+            ?? $this->post?->course_name 
+            ?? $this->course_title_snapshot 
+            ?? '[Deleted Course]';
+    }
 
     public $timestamps = true;
 

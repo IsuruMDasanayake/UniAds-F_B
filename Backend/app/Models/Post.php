@@ -158,6 +158,11 @@ class Post extends Model
         return $this->hasMany(Event::class);
     }
 
+    public function locations()
+    {
+        return $this->hasMany(PostLocation::class);
+    }
+
 
     public function savedBy()
     {

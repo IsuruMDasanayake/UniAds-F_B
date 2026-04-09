@@ -52,7 +52,7 @@ class CourseApplicationController extends Controller
                 'user_id'       => Auth::id(),
                 'institute_id'  => $institute_id,
                 'post_id'       => $validated['post_id'],
-                'course_title'  => $validated['course_title'],
+                'course_title_snapshot' => $validated['course_title'],
                 'student_name'  => $validated['name'],
                 'student_email' => $validated['email'],
                 'student_phone' => $validated['phone'],
