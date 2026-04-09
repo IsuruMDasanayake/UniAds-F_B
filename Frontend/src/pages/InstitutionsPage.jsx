@@ -6,31 +6,36 @@ import Navbar from '../components/Navbar';
 import axiosClient from '../lib/axios';
 import { getStorageUrl } from '../lib/config';
 import { isPremiumActive } from '../utils/premium';
+import { useInfiniteInstitutions } from '../hooks/useInstitutions';
+import { useUser } from '../hooks/useUser';
 import './InstitutionsPage.css';
 
 const InstitutionsPage = () => {
-    const [institutions, setInstitutions] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState(null);
+    const { data: user } = useUser();
     const [searchQuery, setSearchQuery] = useState('');
-    const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
-    const [loadingMore, setLoadingMore] = useState(false);
     const [debouncedQuery, setDebouncedQuery] = useState('');
-    const [isFirstLoad, setIsFirstLoad] = useState(true);
-    const [searching, setSearching] = useState(false);
+    const {
+        data: institutionsData,
+        fetchNextPage,
+        hasNextPage: hasMore,
+        isFetchingNextPage: loadingMore,
+        isLoading: loading,
+        isFetching: searching // Not strictly searching but corresponds to any loading state
+    } = useInfiniteInstitutions({ searchQuery: debouncedQuery });
+
+    const institutions = institutionsData?.pages.flatMap(page => (Array.isArray(page.data) ? page.data : (Array.isArray(page) ? page : []))) || [];
 
     const observer = useRef();
     const lastInstitutionRef = useCallback(node => {
         if (loading || loadingMore) return;
         if (observer.current) observer.current.disconnect();
         observer.current = new IntersectionObserver(entries => {
-            if (entries[0].isIntersecting && hasMore) {
-                setPage(prevPage => prevPage + 1);
+            if (entries[0].isIntersecting && hasMore && !loadingMore) {
+                fetchNextPage();
             }
         });
         if (node) observer.current.observe(node);
-    }, [loading, loadingMore, hasMore]);
+    }, [loading, loadingMore, hasMore, fetchNextPage]);
 
     // Debounce search query
     useEffect(() => {
@@ -39,72 +44,6 @@ const InstitutionsPage = () => {
         }, 500);
         return () => clearTimeout(timer);
     }, [searchQuery]);
-
-    // Initial fetch and search reset
-    useEffect(() => {
-        setPage(1);
-        setHasMore(true);
-        fetchInstitutions(1, true);
-    }, [debouncedQuery]);
-
-    // Fetch more pages
-    useEffect(() => {
-        if (page > 1) {
-            fetchInstitutions(page, false);
-        }
-    }, [page]);
-
-    // Fetch user profile
-    useEffect(() => {
-        fetchUserProfile();
-    }, []);
-
-    const fetchUserProfile = async () => {
-        try {
-            const profileRes = await axiosClient.get('/api/profile/me');
-            const payload = profileRes.data.data;
-            const currentUser = payload.user;
-            if (payload.role === 'Institute') {
-                currentUser.institute = payload.institute;
-            }
-            setUser(currentUser);
-        } catch (e) {
-            console.error('Error fetching profile', e?.message || e);
-            setUser(null);
-        }
-    };
-
-    const fetchInstitutions = async (pageNum, isInitial) => {
-        if (isInitial) {
-            if (isFirstLoad) setLoading(true);
-            else setSearching(true);
-        } else {
-            setLoadingMore(true);
-        }
-
-        try {
-            const response = await axiosClient.get(`/api/institutions?query=${debouncedQuery}&page=${pageNum}&per_page=12`);
-            // response.data is { success, message, data: { data: [...], current_page, ... } }
-            const paginator = response.data.data;
-            const newData = (paginator && Array.isArray(paginator.data)) ? paginator.data : (Array.isArray(paginator) ? paginator : []);
-            
-            setInstitutions(prev => isInitial ? newData : [...prev, ...newData]);
-            
-            if (paginator && paginator.current_page !== undefined) {
-                setHasMore(paginator.current_page < paginator.last_page);
-            } else {
-                setHasMore(false);
-            }
-
-            if (isFirstLoad) setIsFirstLoad(false);
-        } catch (error) {
-            console.error('Error fetching institutions:', error?.message || error);
-        } finally {
-            setLoading(false);
-            setLoadingMore(false);
-            setSearching(false);
-        }
-    };
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();

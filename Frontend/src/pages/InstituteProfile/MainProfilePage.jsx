@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axiosClient from '../../lib/axios';
+import { useInstituteProfile, useInstituteGallery } from '../../hooks/useInstituteProfile';
 import Navbar from '../../components/Navbar';
 import ProfileHeader from './ProfileHeader';
 import InstituteFeed from './InstituteFeed';
@@ -14,14 +15,9 @@ const MainProfilePage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const [institute, setInstitute] = useState(null);
     const [currentUser, setCurrentUser] = useState(null);
-    const [posts, setPosts] = useState([]);
-    const [events, setEvents] = useState([]);
-    const [about, setAbout] = useState(null);
-    const [gallery, setGallery] = useState([]);
     const [isFollowing, setIsFollowing] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [userLoading, setUserLoading] = useState(true);
 
     // Determine Active Tab from URL
     // Routes: /institutions/:id/about, /profile/contact, etc.
@@ -53,117 +49,57 @@ const MainProfilePage = () => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                // Use /api/profile/me so we get the 'institute' relation if logged in as Institute
+                setUserLoading(true);
                 const res = await axiosClient.get('/api/profile/me');
                 const payload = res.data.data;
-                const userData = payload?.user;
+                const userData = payload?.user || payload; // fallback depending on format
 
-                // If Institute, we merge the institute details so Navbar can access user.institute
                 if (payload?.role === 'Institute' && payload?.institute) {
                     userData.institute = payload.institute;
                 }
 
                 setCurrentUser(userData);
             } catch (e) {
-                // Not logged in or error
                 setCurrentUser(null);
+            } finally {
+                setUserLoading(false);
             }
         };
         fetchUser();
     }, []);
 
-    const loadProfile = async () => {
-        setLoading(true);
-        try {
-            let endpoint = '';
-            if (id) {
-                endpoint = `/api/institutions/${id}/profile`;
-            } else {
-                endpoint = `/api/profile/me`;
-            }
+    // Load Profile via TanStack Query
+    const { data: profilePayload, isLoading: profileLoading, refetch: refetchProfile } = useInstituteProfile(id);
+    const { data: galleryPayload, refetch: refetchGallery } = useInstituteGallery(id || currentUser?.institute?.id);
 
-            const response = await axiosClient.get(endpoint, {
-                params: { per_page: 12 }
-            });
-            const data = response.data.data;
+    const institute = profilePayload?.institute || null;
+    const posts = profilePayload?.posts?.data || [];
+    const events = profilePayload?.events?.data || [];
+    const about = profilePayload?.about || null;
+    const gallery = galleryPayload || [];
 
-            if (!id && data?.role === 'Institute') {
-                setInstitute(data.institute);
-                setPosts(data.posts?.data || []);
-                setEvents(data.events?.data || []);
-                setAbout(data.about);
-                
-                // Sync session cache with fresh data from server
-                const savedUser = JSON.parse(localStorage.getItem('APP_USER') || '{}');
-                if (savedUser && data.user) {
-                    const updatedUser = { ...data.user, institute: data.institute };
-                    localStorage.setItem('APP_USER', JSON.stringify(updatedUser));
-                    setCurrentUser(updatedUser);
-                }
-            } else if (id) {
-                setInstitute(data.institute);
-                setPosts(data.posts?.data || []);
-                setEvents(data.events?.data || []);
-                setAbout(data.about);
-                setIsFollowing(!!data.isFollowing);
-
-                // If this happens to be the logged in user's profile found via ID
-                if (currentUser && currentUser.id === data.institute.user_id) {
-                    const updatedUser = { ...currentUser, institute: data.institute };
-                    localStorage.setItem('APP_USER', JSON.stringify(updatedUser));
-                }
-
-                // Add redirection logic for numeric IDs to slugs
-                if (/^\d+$/.test(id) && data.institute.slug) {
-                    const newPath = location.pathname.replace(`/institutions/${id}`, `/institutions/${data.institute.slug}`);
-                    navigate(newPath, { replace: true });
-                }
-            }
-
-            if (!id && data?.institute) {
-                fetchExtras(data.institute.id);
-            } else if (id) {
-                fetchExtras(id);
-            }
-        } catch (error) {
-            console.error("Error loading profile", error?.message || error);
-            if (error.response?.status === 401 && !id) {
-                navigate('/login');
-            }
-        } finally {
-            setLoading(false);
+    // Track views exactly once per load if public
+    useEffect(() => {
+        if (id) {
+            axiosClient.post(`/api/institutions/${id}/track-view`).catch(e => console.error(e));
         }
-    };
-
-    const fetchExtras = async (instId) => {
-        try {
-            const res = await axiosClient.get(`/api/institutions/${instId}/gallery`);
-            // GalleryController returns paginated successResponse: { success: true, data: { data: [...], current_page, ... } }
-            const payload = res.data.data;
-            const images = (payload && Array.isArray(payload.data)) ? payload.data : (Array.isArray(payload) ? payload : []);
-            setGallery(images);
-        } catch (e) {
-            console.error("Error fetching gallery", e?.message || e);
-        }
-    };
-
-    const trackProfileView = async (instId) => {
-        try {
-            await axiosClient.post(`/api/institutions/${instId}/track-view`);
-        } catch (e) {
-            console.error("Error tracking profile view", e?.message || e);
-        }
-    };
+    }, [id]);
 
     useEffect(() => {
-        loadProfile();
-        if (id) {
-            trackProfileView(id);
+        if (profilePayload?.isFollowing !== undefined) {
+            setIsFollowing(!!profilePayload.isFollowing);
         }
-    }, [id, navigate]);
+        
+        // Handle URL correction for SEO/Slugs
+        if (id && institute && /^\d+$/.test(id) && institute.slug) {
+            const newPath = location.pathname.replace(`/institutions/${id}`, `/institutions/${institute.slug}`);
+            navigate(newPath, { replace: true });
+        }
+    }, [profilePayload, id, institute, navigate, location.pathname]);
 
     const refreshData = () => {
-        loadProfile();
+        refetchProfile();
+        refetchGallery();
     };
 
 
@@ -175,24 +111,21 @@ const MainProfilePage = () => {
         }
 
         const previousFollowing = isFollowing;
-        const previousFollowersCount = institute.followers_count;
+        const previousFollowersCount = institute?.followers_count || 0;
 
         // Optimistic update
         setIsFollowing(!isFollowing);
-        setInstitute(prev => ({
-            ...prev,
-            followers_count: !isFollowing ? (prev.followers_count + 1) : Math.max(0, prev.followers_count - 1)
-        }));
-
+        // Note: the component doesn't update the cache directly, but doing a soft update of local state is fine here 
+        // since we are passing down a merged generic `institute`
+        
         try {
             const res = await axiosClient.post(`/api/institutions/${institute.id}/follow`);
             setIsFollowing(res.data.data?.status === 'followed');
-            setInstitute(prev => ({ ...prev, followers_count: res.data.data?.followers_count }));
+            refetchProfile(); // Let TanStack resync correctly
         } catch (e) {
             console.error("Follow error", e?.message || e);
             // Rollback
             setIsFollowing(previousFollowing);
-            setInstitute(prev => ({ ...prev, followers_count: previousFollowersCount }));
         }
     };
 
@@ -216,7 +149,7 @@ const MainProfilePage = () => {
         console.log("View Reviews triggered");
     };
 
-    if (loading) return (
+    if (profileLoading || userLoading) return (
         <div>
             <Navbar />
             <div className="profile-loading-overlay">
@@ -243,7 +176,7 @@ const MainProfilePage = () => {
 
             <ProfileHeader
                 institute={institute}
-                onUpdate={setInstitute}
+                onUpdate={refetchProfile}
                 onRefresh={refreshData}
                 isFollowing={isFollowing}
                 showFollow={!isOwner}

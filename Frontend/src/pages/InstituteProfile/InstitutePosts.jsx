@@ -4,6 +4,7 @@ import axiosClient from '../../lib/axios';
 import { getStorageUrl } from '../../lib/config';
 import { copyToClipboard } from '../../lib/clipboard';
 import { isPremiumActive } from '../../utils/premium';
+import { useInstitutePosts } from '../../hooks/useInstituteProfile';
 import './InstitutePosts.css';
 
 // Import Modals
@@ -42,7 +43,26 @@ const PostSkeleton = () => (
 );
 
 const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostUpdate }) => {
+    // We rely mostly on query data, but keep a local synced array to allow instantaneous 
+    // optimistic updates for likes/saves without complex queryClient manipulations.
     const [localPosts, setLocalPosts] = useState(initialPosts || []);
+
+    const {
+        data: postsData,
+        fetchNextPage,
+        hasNextPage: hasMore,
+        isFetchingNextPage: loadingMore
+    } = useInstitutePosts(institute?.id, { perPage: 12 }, {
+        initialData: () => {
+            if (initialPosts && initialPosts.length > 0) {
+                return {
+                    pages: [{ data: initialPosts, next_page_url: initialPosts.length === 12 ? 'has_next' : null, current_page: 1 }],
+                    pageParams: [1]
+                };
+            }
+            return undefined;
+        }
+    });
 
     // Modal States
     const [selectedPost, setSelectedPost] = useState(null);
@@ -65,10 +85,6 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState(null);
 
-    // Infinite Scroll States
-    const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
-    const [loadingMore, setLoadingMore] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
     const observer = useRef();
 
@@ -79,64 +95,20 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Sync with props
+    // Sync query data down to local state for optimistic updates
     useEffect(() => {
-        setLocalPosts(initialPosts || []);
-        // Reset pagination if initialPosts changes (e.g. from a fresh profile load)
-        setPage(1);
-        setHasMore(true);
-    }, [initialPosts]);
-
-    const fetchMorePosts = async () => {
-        if (loadingMore || !hasMore) return;
-
-        const instId = institute?.slug || institute?.id;
-        if (!isOwner && !instId) {
-            console.warn("Institute ID/Slug missing for posts fetch");
-            return;
+        if (postsData) {
+            const fetchedPosts = postsData.pages.flatMap(page => page.data);
+            
+            // Re-merge optimistic edits if necessary, but simpler just to overwrite
+            // given user interaction patterns.
+            setLocalPosts(fetchedPosts);
         }
+    }, [postsData]);
 
-        setLoadingMore(true);
-
-        try {
-            const nextPage = page + 1;
-            let endpoint = '';
-            if (isOwner) {
-                endpoint = `/api/profile/me?page=${nextPage}`;
-            } else {
-                endpoint = `/api/institutions/${instId}/profile?page=${nextPage}`;
-            }
-
-            const response = await axiosClient.get(endpoint);
-            const newPosts = response.data.data?.posts?.data || [];
-
-            if (newPosts.length === 0) {
-                setHasMore(false);
-            } else {
-                setLocalPosts(prev => {
-                    // Filter out any duplicates to prevent key warnings
-                    const existingIds = new Set(prev.map(p => p.id));
-                    const uniqueNewPosts = newPosts.filter(p => !existingIds.has(p.id));
-                    
-                    if (uniqueNewPosts.length === 0) {
-                        setHasMore(false);
-                        return prev;
-                    }
-                    
-                    return [...prev, ...uniqueNewPosts];
-                });
-                
-                setPage(nextPage);
-                // If we got fewer than 12, we likely reached the end
-                if (newPosts.length < 12) {
-                    setHasMore(false);
-                }
-            }
-        } catch (error) {
-            console.error("Error fetching more posts", error?.message || error);
-            setHasMore(false);
-        } finally {
-            setLoadingMore(false);
+    const fetchMorePosts = () => {
+        if (!loadingMore && hasMore) {
+            fetchNextPage();
         }
     };
 
@@ -151,7 +123,7 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
         }, { threshold: 0.1 });
 
         if (node) observer.current.observe(node);
-    }, [loadingMore, hasMore, page]);
+    }, [loadingMore, hasMore, fetchNextPage]);
 
     const handleLike = async (postId) => {
         // Optimistic UI Update

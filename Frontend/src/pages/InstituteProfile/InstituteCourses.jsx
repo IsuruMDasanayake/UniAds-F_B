@@ -8,9 +8,10 @@ import ProgrammeInfoModal from '../../components/Modals/ProgrammeInfoModal';
 import ApplyNowModal from '../../components/Modals/ApplyNowModal';
 import MoreInfoModal from '../../components/Modals/MoreInfoModal';
 import { isPremiumActive } from '../../utils/premium';
+import { useInstituteCourses } from '../../hooks/useInstituteProfile';
 import './InstituteCourses.css';
 
-const InstituteCourses = ({ institute, courses, isOwner }) => {
+const InstituteCourses = ({ institute, courses: initialCourses, isOwner }) => {
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [showApplyModal, setShowApplyModal] = useState(false);
     const [showInfoModal, setShowInfoModal] = useState(false);
@@ -29,96 +30,53 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
     const [savedPostIds, setSavedPostIds] = useState([]);
     const [localCourses, setLocalCourses] = useState([]);
 
-    // Infinite Scroll States
-    const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
-    const [loadingMore, setLoadingMore] = useState(false);
+    // Infinite Scroll logic via TanStack Query
     const observer = useRef();
+    
+    // We compute the starting dataset internally for fallback 
+    // because courses originally might not have been isolated well.
+    let baseInitialCourses = initialCourses || institute?.posts || [];
+    if (!isOwner) {
+        baseInitialCourses = baseInitialCourses.filter(p => p.status === 'active');
+    }
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const response = await axiosClient.get('/api/profile/me');
-                const payload = response.data.data;
-                setUserRole(payload.role);
-                const savedIds = payload.savedPosts?.map(p => String(p.id).trim()) || [];
-                setSavedPostIds(savedIds);
-                
-                // If courses were passed, we can also sync their internal state for extra reliability
-                if (localCourses.length > 0) {
-                    setLocalCourses(current => current.map(c => ({
-                        ...c,
-                        is_saved_by_user: savedIds.includes(String(c.id).trim())
-                    })));
-                }
-            } catch (error) {
-                console.error("Failed to fetch user data", error?.message || error);
+    const {
+        data: coursesData,
+        fetchNextPage,
+        hasNextPage: hasMore,
+        isFetchingNextPage: loadingMore
+    } = useInstituteCourses(institute?.id, { perPage: 12 }, {
+        initialData: () => {
+            if (baseInitialCourses && baseInitialCourses.length > 0) {
+                return {
+                    pages: [{ data: baseInitialCourses, next_page_url: baseInitialCourses.length === 12 ? 'has_next' : null, current_page: 1 }],
+                    pageParams: [1]
+                };
             }
-        };
-        fetchUserData();
-    }, []);
-
-    useEffect(() => {
-        // If owner, show all posts. If not, show only active.
-        let initialCourses = courses || institute.posts || [];
-
-        if (!isOwner) {
-            initialCourses = initialCourses.filter(p => p.status === 'active');
+            return undefined;
         }
+    });
 
-        setLocalCourses(initialCourses);
-        // Reset pagination for new initial courses
-        setPage(1);
-        setHasMore(true);
-    }, [courses, institute.posts, isOwner]);
-
-    const fetchMoreCourses = async () => {
-        if (loadingMore || !hasMore) return;
-
-        const instId = institute?.slug || institute?.id;
-        if (!isOwner && !instId) return;
-
-        setLoadingMore(true);
-        try {
-            const nextPage = page + 1;
-            // Use per_page=12 to match our new backend default
-            const endpoint = isOwner ? `/api/profile/me?page=${nextPage}&per_page=12` : `/api/institutions/${instId}/profile?page=${nextPage}&per_page=12`;
+    useEffect(() => {
+        if (coursesData) {
+            const fetchedCourses = coursesData.pages.flatMap(page => page.data);
+            const filteredForRole = isOwner ? fetchedCourses : fetchedCourses.filter(p => p.status === 'active');
             
-            const response = await axiosClient.get(endpoint);
-            const newPosts = response.data.data?.posts?.data || [];
-
-            if (newPosts.length === 0) {
-                setHasMore(false);
+            // Sync with savedState from currentUser logic
+            if (savedPostIds.length > 0) {
+                setLocalCourses(filteredForRole.map(c => ({
+                    ...c,
+                    is_saved_by_user: savedPostIds.includes(String(c.id).trim())
+                })));
             } else {
-                setLocalCourses(prev => {
-                    const existingIds = new Set(prev.map(p => p.id));
-                    // Filter active only if not owner
-                    const filteredNew = isOwner ? newPosts : newPosts.filter(p => p.status === 'active');
-                    const uniqueNew = filteredNew.filter(p => !existingIds.has(p.id));
-                    
-                    if (uniqueNew.length === 0 && newPosts.length > 0) {
-                        return prev;
-                    }
-                    
-                    if (newPosts.length === 0) {
-                        setHasMore(false);
-                        return prev;
-                    }
-
-                    return [...prev, ...uniqueNew];
-                });
-                
-                setPage(nextPage);
-                // If we got fewer than 12, we reached the end
-                if (newPosts.length < 12) {
-                    setHasMore(false);
-                }
+                setLocalCourses(filteredForRole);
             }
-        } catch (error) {
-            console.error("Error fetching more courses", error?.message || error);
-            setHasMore(false);
-        } finally {
-            setLoadingMore(false);
+        }
+    }, [coursesData, isOwner, savedPostIds]);
+
+    const fetchMoreCourses = () => {
+        if (!loadingMore && hasMore) {
+            fetchNextPage();
         }
     };
 
@@ -133,7 +91,23 @@ const InstituteCourses = ({ institute, courses, isOwner }) => {
         });
 
         if (node) observer.current.observe(node);
-    }, [loadingMore, hasMore, page]);
+    }, [loadingMore, hasMore, fetchNextPage]);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const response = await axiosClient.get('/api/profile/me');
+                const payload = response.data.data;
+                setUserRole(payload.role);
+                const savedIds = payload.savedPosts?.map(p => String(p.id).trim()) || [];
+                setSavedPostIds(savedIds);
+            } catch (error) {
+                console.error("Failed to fetch user data", error?.message || error);
+            }
+        };
+        // Fetch user data independently
+        fetchUserData();
+    }, []);
 
 
     const openModal = (course) => {

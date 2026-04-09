@@ -39,7 +39,22 @@ function EventsPage() {
     const declineMutation = useDeclineEvent();
 
     const events = eventsData?.pages.flatMap(page => page.data) || [];
-    const totalEvents = eventsData?.pages[0]?.total || 0;
+    
+    // Maintain global total events count independent of search
+    const [globalTotalEvents, setGlobalTotalEvents] = useState(null);
+
+    useEffect(() => {
+        // Only update global total when we have data and NO active search query
+        if (!debouncedSearchQuery && activeFilter === 'all') {
+            const currentTotal = eventsData?.pages[0]?.total;
+            if (currentTotal !== undefined) {
+                setGlobalTotalEvents(currentTotal);
+            }
+        }
+    }, [debouncedSearchQuery, activeFilter, eventsData]);
+
+    // Use globally cached count if available to prevent the stat card from changing during search
+    const totalEvents = globalTotalEvents !== null ? globalTotalEvents : (eventsData?.pages[0]?.total || 0);
 
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [showAddEventModal, setShowAddEventModal] = useState(false);

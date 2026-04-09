@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import axiosClient from '../lib/axios';
 import { CheckCircle, AlertCircle, Rocket, Shield, BarChart2, Users, Star, Facebook, Layout, Loader, ArrowLeft, ChevronDown, Sparkles, X, AlertTriangle, ShieldAlert } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,9 +14,7 @@ const PricingPage = () => {
     const location = useLocation();
     const { settings } = useSettings();
 
-    const [loading, setLoading] = useState(true);
-    const [pricingData, setPricingData] = useState(null);
-    const [error, setError] = useState(null);
+    const queryClient = useQueryClient();
     const [submitting, setSubmitting] = useState(false);
 
     // Status states for UI only (cleared from URL)
@@ -26,39 +25,36 @@ const PricingPage = () => {
     const [showCancelTrialModal, setShowCancelTrialModal] = useState(false);
     const [showCancelSubModal, setShowCancelSubModal] = useState(false);
 
+    const { data: pricingData, isLoading: loading, error: queryError, refetch: fetchPricingData } = useQuery({
+        queryKey: ['pricing'],
+        queryFn: async () => {
+            const response = await axiosClient.get('/api/pricing');
+            return response.data.data;
+        },
+        retry: false,
+    });
+
+    const error = queryError ? (queryError.response?.status === 403 ? 'Only institutions can access the pricing page.' : 'Failed to load pricing information.') : null;
+
     useEffect(() => {
         // Handle URL params once on mount then clear them
         const queryParams = new URLSearchParams(location.search);
+        let updated = false;
         if (queryParams.get('success') === '1') {
             setShowSuccess(true);
-            window.history.replaceState({}, '', window.location.pathname);
+            updated = true;
             setTimeout(() => setShowSuccess(false), 5000);
         }
         if (queryParams.get('cancelled') === '1') {
             setShowCancelled(true);
-            window.history.replaceState({}, '', window.location.pathname);
+            updated = true;
             setTimeout(() => setShowCancelled(false), 5000);
         }
-
-        fetchPricingData();
-    }, [location.search]);
-
-    const fetchPricingData = async () => {
-        try {
-            setLoading(true);
-            const response = await axiosClient.get('/api/pricing');
-            setPricingData(response.data.data);
-            setLoading(false);
-        } catch (err) {
-            console.error('Error fetching pricing data:', err?.message || err);
-            if (err.response && err.response.status === 403) {
-                setError('Only institutions can access the pricing page.');
-            } else {
-                setError('Failed to load pricing information.');
-            }
-            setLoading(false);
+        
+        if (updated) {
+            window.history.replaceState({}, '', window.location.pathname);
         }
-    };
+    }, [location.search]);
 
     // Generic function to handle PayHere Payment Launch
     const launchPayHere = (paymentData) => {
