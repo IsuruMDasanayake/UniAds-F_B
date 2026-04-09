@@ -463,10 +463,10 @@ class AiAdvisorController extends Controller
                 $updateData = [
                     'education_level' => $currentProfile['education_level'],
                     'path_preference' => $currentProfile['path_preference'] ?? null,
-                    'al_stream'       => $currentProfile['al_stream'],
-                    'main_field'      => $currentProfile['main_field'],
-                    'interest'        => $currentProfile['interest'],
-                    'study_preference'=> $currentProfile['study_preference'],
+                    'al_stream'       => $currentProfile['al_stream'] ?? null,
+                    'main_field'      => $currentProfile['main_field'] ?? null,
+                    'interest'        => $currentProfile['interest'] ?? null,
+                    'study_preference'=> $currentProfile['study_preference'] ?? null,
                 ];
 
                 if (!empty($currentProfile['education_level']) && 
@@ -697,8 +697,12 @@ class AiAdvisorController extends Controller
             // ─────────────────────────────────────────────
             if ($user) {
                 $user->update([
-                    'education_level' => $currentProfile['education_level'],
-                    'interest'        => $currentProfile['interest'],
+                    'education_level' => $currentProfile['education_level'] ?? null,
+                    'path_preference' => $currentProfile['path_preference']  ?? null,
+                    'al_stream'       => $currentProfile['al_stream']        ?? null,
+                    'main_field'      => $currentProfile['main_field']       ?? null,
+                    'interest'        => $currentProfile['interest']         ?? null,
+                    'study_preference'=> $currentProfile['study_preference']  ?? null,
                 ]);
             }
 

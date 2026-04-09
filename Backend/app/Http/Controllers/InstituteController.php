@@ -684,6 +684,14 @@ class InstituteController extends Controller
                 \Illuminate\Support\Facades\Log::error('Failed to send approval email: ' . $e->getMessage());
             }
 
+            // Create Internal Notification for the Institute
+            Notification::create([
+                'institute_id' => $institute->id,
+                'type' => 'system',
+                'title' => 'Profile Approved!',
+                'message' => 'Your institute profile has been approved! You can now post courses and events.',
+            ]);
+
             AdminActivityLogger::log(
                 'Approved',
                 'Institute',
@@ -711,6 +719,14 @@ class InstituteController extends Controller
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error('Failed to send unapproval email: ' . $e->getMessage());
             }
+
+            // Create Internal Notification for the Institute
+            Notification::create([
+                'institute_id' => $institute->id,
+                'type' => 'system',
+                'title' => 'Status Updated',
+                'message' => 'Your institute status has been updated to pending/unapproved. Please contact admin for details.',
+            ]);
 
             AdminActivityLogger::log(
                 'Unapproved',

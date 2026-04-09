@@ -199,7 +199,7 @@ const InstituteRegisterPage = () => {
 
             const response = await axiosClient.post('/api/register-institute', formData);
 
-            console.log("Institute Registration Success:", response.data);
+
 
             // Save verification email for the verification page
             localStorage.setItem('VERIFICATION_EMAIL', formData.email);

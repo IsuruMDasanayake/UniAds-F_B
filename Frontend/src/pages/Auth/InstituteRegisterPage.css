@@ -260,7 +260,7 @@
 .institute-auth-container .error-text {
     color: var(--c-accent);
     font-size: 0.725rem;
-    margin-top: 1.5rem;
+    margin-top: -0.5rem;
     font-weight: 600;
     display: block;
     line-height: 1.4;
@@ -270,7 +270,7 @@
 .institute-auth-container .success-text {
     color: var(--c-success);
     font-size: 0.725rem;
-    margin-top: 1.5rem;
+    margin-top: -0.5rem;
     font-weight: 600;
     display: block;
     line-height: 1.4;

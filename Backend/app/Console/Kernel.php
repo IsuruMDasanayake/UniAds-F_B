@@ -21,6 +21,9 @@ class Kernel extends ConsoleKernel
 
         // Recalculate post scores for ranking every 30 minutes
         $schedule->job(new \App\Jobs\UpdatePostScoresJob)->everyFifteenMinutes();
+
+        // Cleanup expired pending registrations
+        $schedule->command('registrations:cleanup')->hourly();
     }
 
 

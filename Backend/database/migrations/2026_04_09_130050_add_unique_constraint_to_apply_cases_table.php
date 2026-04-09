@@ -26,18 +26,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Remove any existing duplicates first (keep the row with the lowest id)
+        // Remove any existing duplicates first (keep the oldest record for each user/post pair)
         DB::statement("
-            DELETE ac1 FROM apply_cases ac1
-            INNER JOIN apply_cases ac2
-              ON ac1.user_id = ac2.user_id
-             AND ac1.post_id = ac2.post_id
-             AND ac1.id > ac2.id
+            DELETE FROM apply_cases 
+            WHERE id NOT IN (
+                SELECT min_id FROM (
+                    SELECT MIN(id) as min_id 
+                    FROM apply_cases 
+                    GROUP BY user_id, post_id
+                ) as temp
+            )
         ");
 
-        Schema::table('apply_cases', function (Blueprint $table) {
-            $table->unique(['user_id', 'post_id'], 'apply_cases_user_post_unique');
-        });
+        $indexExists = collect(DB::select("SHOW INDEX FROM apply_cases"))->contains('Key_name', 'apply_cases_user_post_unique');
+
+        if (!$indexExists) {
+            Schema::table('apply_cases', function (Blueprint $table) {
+                $table->unique(['user_id', 'post_id'], 'apply_cases_user_post_unique');
+            });
+        }
     }
 
     /**
