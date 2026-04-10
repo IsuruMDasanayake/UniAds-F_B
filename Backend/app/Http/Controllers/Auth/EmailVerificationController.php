@@ -56,7 +56,7 @@ class EmailVerificationController extends Controller
         ]);
 
         try {
-            Mail::to($email)->send(new OTPVerificationMail($otp));
+            Mail::to($email)->queue(new OTPVerificationMail($otp));
 
             // Explicitly save session to ensure persistence in API context
             $request->session()->save();
@@ -89,9 +89,29 @@ class EmailVerificationController extends Controller
             return $this->error('Verification code has expired or was not found. Please request a new one.', 422);
         }
 
-        if ((int)$request->otp !== (int)$cachedOtp) {
-            return $this->error('The verification code you entered is incorrect.', 422);
+        // Anti-Brute Force: Track attempts for this specific OTP
+        $attemptsKey = "otp_attempts:{$email}";
+        $attempts = Cache::get($attemptsKey, 0);
+
+        if ($attempts >= 5) {
+            $this->clearOTPCache($email);
+            return $this->error('Too many incorrect attempts. Please request a new verification code for security purposes.', 429);
         }
+
+        if ((int)$request->otp !== (int)$cachedOtp) {
+            Cache::put($attemptsKey, $attempts + 1, 120);
+            
+            $remaining = 5 - ($attempts + 1);
+            $msg = 'The verification code you entered is incorrect.';
+            if ($remaining > 0) {
+                $msg .= " You have {$remaining} attempts remaining.";
+            }
+
+            return $this->error($msg, 422);
+        }
+
+        // Clear attempts on success
+        Cache::forget($attemptsKey);
 
         // Handle Pending Registration
         // FIX: Read from the DB-backed pending_registrations table, not the PHP session.
@@ -184,14 +204,14 @@ class EmailVerificationController extends Controller
 
                 // Welcome Email
                 try {
-                    Mail::to($user->email)->send(new WelcomeInstituteMail($institute));
+                    Mail::to($user->email)->queue(new WelcomeInstituteMail($institute));
                 } catch (\Exception $e) {
                     Log::error('Welcome email failed: ' . $e->getMessage());
                 }
             } else {
                 // Regular User Welcome Email
                 try {
-                    Mail::to($user->email)->send(new WelcomeUserMail($user));
+                    Mail::to($user->email)->queue(new WelcomeUserMail($user));
                 } catch (\Exception $e) {
                     Log::error('Welcome email failed: ' . $e->getMessage());
                 }
@@ -227,13 +247,11 @@ class EmailVerificationController extends Controller
         // Try to get email from Auth, Session, or Request
         $email = Auth::user() ? Auth::user()->email : (session('verification_email') ?: $request->email);
 
-        if (!$email) {
-            Log::warning('Resend OTP failed: No email found in session or request.', [
-                'session_all' => session()->all(),
-                'request_has_email' => $request->has('email')
-            ]);
-
-            return $this->error('Session expired. Please try registering again.', 422);
+        // Standardized response to prevent email enumeration. 
+        // We always return success as long as a valid email format is provided,
+        // suggesting that "if" the account exists, a code was sent.
+        if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return $this->success(['verification_required' => true], 'If the email provided is valid and registered, a new verification code has been sent.');
         }
 
         return $this->sendOTPGuest($email, $request);
@@ -245,6 +263,7 @@ class EmailVerificationController extends Controller
     private function clearOTPCache($email)
     {
         Cache::forget("otp_verification:{$email}");
+        Cache::forget("otp_attempts:{$email}");
         session()->forget([
             'verification_email'
         ]);

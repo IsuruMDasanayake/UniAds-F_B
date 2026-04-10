@@ -55,16 +55,26 @@ class RegisteredUserController extends Controller
         // back (e.g. AdminNotification insert fails), the session would already have
         // been written — leaving the user "logged in" with no corresponding DB row.
         $user = DB::transaction(function () use ($request) {
-            $user = User::create([
-                'name'            => $request->name,
-                'email'           => $request->email,
-                'password'        => Hash::make($request->password),
-                'gender'          => $request->gender,
-                'birthday'        => $request->birthday,
-                'district'        => $request->district,
-                'education_level' => $request->education_level,
-                'role'            => 'User',
-            ]);
+            try {
+                $user = User::create([
+                    'name'            => $request->name,
+                    'email'           => $request->email,
+                    'password'        => Hash::make($request->password),
+                    'gender'          => $request->gender,
+                    'birthday'        => $request->birthday,
+                    'district'        => $request->district,
+                    'education_level' => $request->education_level,
+                    'role'            => 'User',
+                ]);
+            } catch (\Illuminate\Database\QueryException $e) {
+                // Handle race condition where email is taken between validation and creation
+                if ($e->getCode() == '23000' || str_contains($e->getMessage(), 'Duplicate entry')) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'email' => ['This email address is already registered. Please try logging in.'],
+                    ]);
+                }
+                throw $e;
+            }
 
             // Notify Admins about the new user registration
             $admins = User::where('role', 'Admin')->get();

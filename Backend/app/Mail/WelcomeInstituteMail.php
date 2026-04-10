@@ -9,7 +9,9 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Institute;
 
-class WelcomeInstituteMail extends Mailable
+use Illuminate\Contracts\Queue\ShouldQueue;
+
+class WelcomeInstituteMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
