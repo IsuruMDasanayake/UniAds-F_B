@@ -402,7 +402,33 @@ class PostController extends Controller
                 }
             }
 
-            $rawPosts = $query->orderByDesc('posts.score_cache')->limit(300)->get();
+            // Fetch two separate streams to ensure the 'Fair Exposure' mixer has content for both buckets.
+            // A single 'limit(300)' query would eventually be dominated 100% by premium posts due to the 1.5x score multiplier.
+            $premiumPosts = (clone $query)
+                ->where('institutes.is_premium', true)
+                ->where(function($q) {
+                    $q->whereNull('institutes.premium_expires_at')->orWhere('institutes.premium_expires_at', '>', now());
+                })
+                ->orderByDesc('posts.score_cache')
+                ->orderByDesc('posts.id')
+                ->limit(200)
+                ->get();
+
+            $freePosts = (clone $query)
+                ->where(function($q) {
+                    $q->where('institutes.is_premium', false)
+                      ->orWhere(function($sq) {
+                          $sq->whereNotNull('institutes.premium_expires_at')->where('institutes.premium_expires_at', '<=', now());
+                      });
+                })
+                ->orderByDesc('posts.score_cache')
+                ->orderByDesc('posts.id')
+                ->limit(100)
+                ->get();
+
+            $rawPosts = $premiumPosts->merge($freePosts);
+            
+            // Apply 70/30 mixing and deduplication (max 2 per institute)
             $mixedPosts = \App\Services\RankingService::applyFairExposure($rawPosts, 10, 3, 2);
             return \App\Services\RankingService::paginateCollection($mixedPosts, 100, $page);
         });
