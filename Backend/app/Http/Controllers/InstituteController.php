@@ -677,7 +677,7 @@ class InstituteController extends Controller
             // Send Approval Email
             try {
                 if ($institute->email) {
-                    Mail::to($institute->email)->send(new InstituteApprovedMail($institute));
+                    Mail::to($institute->email)->queue(new InstituteApprovedMail($institute));
                 }
             } catch (\Exception $e) {
                 // Log error but don't fail the request
@@ -708,13 +708,13 @@ class InstituteController extends Controller
     {
         return DB::transaction(function () use ($id) {
             $institute = Institute::findOrFail($id);
-            $institute->status = 'unapproved';
+            $institute->status = 'pending';
             $institute->save();
 
             // Send Unapproval Email
             try {
                 if ($institute->email) {
-                    Mail::to($institute->email)->send(new InstituteUnapprovedMail($institute));
+                    Mail::to($institute->email)->queue(new InstituteUnapprovedMail($institute));
                 }
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error('Failed to send unapproval email: ' . $e->getMessage());
@@ -725,7 +725,7 @@ class InstituteController extends Controller
                 'institute_id' => $institute->id,
                 'type' => 'system',
                 'title' => 'Status Updated',
-                'message' => 'Your institute status has been updated to pending/unapproved. Please contact admin for details.',
+                'message' => 'Your institute status has been updated to pending. Please contact admin for details.',
             ]);
 
             AdminActivityLogger::log(
