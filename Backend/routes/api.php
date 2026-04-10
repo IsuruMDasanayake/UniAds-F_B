@@ -295,6 +295,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     // Subscriptions
     Route::get('/subscriptions', [SubscriptionController::class, 'apiAdminIndex']);
     Route::patch('/subscriptions/{id}/status', [SubscriptionController::class, 'apiToggleStatus']);
+    Route::post('/subscriptions/grant', [SubscriptionController::class, 'apiAdminGrantSubscription']);
 
     // Ratings
     Route::get('/ratings', [RatingsController::class, 'apiAdminIndex']);

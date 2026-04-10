@@ -13,6 +13,7 @@ use App\Models\User;
 
 use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\DB;
+use App\Services\AdminActivityLogger;
 
 class SubscriptionController extends Controller
 {
@@ -174,8 +175,8 @@ class SubscriptionController extends Controller
         $paymentData = [
             "sandbox" => $isSandbox,
             "merchant_id" => $merchantId,
-            "return_url" => env("FRONTEND_URL_LOCAL", "http://localhost:5173") . "/pricing?success=1",
-            "cancel_url" => env("FRONTEND_URL_LOCAL", "http://localhost:5173") . "/pricing?cancelled=1",
+            "return_url" => config('app.frontend_url') . "/pricing?success=1",
+            "cancel_url"  => config('app.frontend_url') . "/pricing?cancelled=1",
             "notify_url" => url("/api/payment/notify"), // This must be publicly accessible in prod
             "order_id" => $orderId,
             "items" => $items,
@@ -225,83 +226,101 @@ class SubscriptionController extends Controller
 
         if ($localMd5sig === $md5sig && $statusCode == 2) {
             Log::info("PayHere Payment successful", [
-                "order_id" => $orderId,
+                "order_id"   => $orderId,
                 "payment_id" => $paymentId,
             ]);
 
-            // Extract Institute ID from Order ID
-            // Format: SUB-{institute_id}-{time}
-            $parts = explode('-', $orderId);
+            // Extract Institute ID from Order ID — Format: SUB-{institute_id}-{time}
+            $parts       = explode('-', $orderId);
             $instituteId = $parts[1] ?? null;
+            $orderType   = $parts[0] ?? 'SUB';
 
-            if ($instituteId) {
-                $institute = Institute::find($instituteId);
-                if ($institute) {
-                    // Check type
-                    $parts = explode('-', $orderId);
-                    $orderType = $parts[0] ?? 'SUB'; // Default to SUB if not present, though explode should work
+            if (!$instituteId) {
+                Log::error("PayHere IPN: Could not parse instituteId from order_id", ['order_id' => $orderId]);
+                return $this->error('Invalid order format.', 400);
+            }
 
-                    if ($orderType === 'TRIAL') {
-                        // Activate Trial
-                        $institute->update([
-                            'trial_status' => 'active',
-                            'trial_expires_at' => now()->addDays(30),
-                            'trial_cancelled_at' => null,
-                            'is_premium' => true,
-                            'premium_expires_at' => now()->addDays(30),
+            $institute = Institute::find($instituteId);
+            if (!$institute) {
+                Log::error("PayHere IPN: Institute not found", ['institute_id' => $instituteId]);
+                return $this->error('Institute not found.', 404);
+            }
+
+            // IDEMPOTENCY: Bail out if this exact payment was already processed.
+            // PayHere retries webhooks on non-200 or timeout — this prevents
+            // duplicate Subscription rows and double-crediting of premium status.
+            if ($paymentId && Subscription::where('gateway_subscription_id', $paymentId)->exists()) {
+                Log::info("PayHere IPN duplicate skipped", ['payment_id' => $paymentId]);
+                return $this->success(null, 'Already processed.');
+            }
+
+            // ATOMICITY: All DB writes must succeed together or roll back entirely.
+            // Without this, a timeout between Subscription::create() and $institute->update()
+            // leaves the institute as paid-but-not-premium — requiring manual DB correction.
+            DB::transaction(function () use ($institute, $orderType, $paymentId, $orderId) {
+                if ($orderType === 'TRIAL') {
+                    // Activate Trial
+                    $institute->update([
+                        'trial_status'     => 'active',
+                        'trial_expires_at' => now()->addDays(30),
+                        'trial_cancelled_at' => null,
+                        'is_premium'       => true,
+                        'premium_expires_at' => now()->addDays(30),
+                    ]);
+                } else {
+                    // Renew existing expired subscription, or create a new one
+                    $subscription = Subscription::where('institute_id', $institute->id)
+                        ->where('status', 'expired')
+                        ->latest()
+                        ->first();
+
+                    if ($subscription) {
+                        $subscription->update([
+                            'gateway_subscription_id' => $paymentId,
+                            'status'     => 'active',
+                            'started_at' => now(),
+                            'ends_at'    => now()->addDays(30),
+                            'is_trial'   => false,
+                            'cancelled_at' => null,
                         ]);
                     } else {
-                        // Check for an existing subscription that can be renewed (expired)
-                        $subscription = Subscription::where('institute_id', $institute->id)
-                            ->where('status', 'expired')
-                            ->latest()
-                            ->first();
-
-                        if ($subscription) {
-                            $subscription->update([
-                                'gateway_subscription_id' => $paymentId,
-                                'status' => 'active',
-                                'started_at' => now(),
-                                'ends_at' => now()->addDays(30),
-                                'is_trial' => false,
-                                'cancelled_at' => null,
-                            ]);
-                        } else {
-                            Subscription::create([
-                                'institute_id' => $institute->id,
-                                'gateway_subscription_id' => $paymentId,
-                                'plan' => 'monthly',
-                                'status' => 'active',
-                                'started_at' => now(),
-                                'ends_at' => now()->addDays(30),
-                                'is_trial' => false,
-                            ]);
-                        }
-
-                        // Update Institute
-                        $institute->update([
-                            'is_premium' => true,
-                            'premium_expires_at' => now()->addDays(30),
+                        Subscription::create([
+                            'institute_id'             => $institute->id,
+                            'gateway_subscription_id'  => $paymentId,
+                            'plan'       => 'monthly',
+                            'status'     => 'active',
+                            'started_at' => now(),
+                            'ends_at'    => now()->addDays(30),
+                            'is_trial'   => false,
                         ]);
+                    }
 
-                        // Notify Admins
-                        $admins = User::where('role', 'Admin')->get();
-                        foreach ($admins as $admin) {
-                            AdminNotification::create([
-                                'user_id' => $admin->id,
-                                'type' => 'subscription_new',
-                                'title' => $orderType === 'TRIAL' ? 'New Trial Started' : 'New Subscription Received',
-                                'message' => "{$institute->institute_name} has " . ($orderType === 'TRIAL' ? "started a free trial." : "purchased a premium subscription."),
-                                'data' => [
-                                    'institute_id' => $institute->id,
-                                    'order_type' => $orderType,
-                                    'order_id' => $orderId
-                                ]
-                            ]);
-                        }
+                    // Sync institute premium status
+                    $institute->update([
+                        'is_premium'         => true,
+                        'premium_expires_at' => now()->addDays(30),
+                    ]);
+
+                    // Notify Admins (batch insert — no per-row queries)
+                    $admins = User::where('role', 'Admin')->get();
+                    if ($admins->isNotEmpty()) {
+                        $notifications = $admins->map(fn($admin) => [
+                            'user_id' => $admin->id,
+                            'type'    => 'subscription_new',
+                            'title'   => 'New Subscription Received',
+                            'message' => "{$institute->institute_name} has purchased a premium subscription.",
+                            'data'    => json_encode([
+                                'institute_id' => $institute->id,
+                                'order_id'     => $orderId,
+                            ]),
+                            'is_read'    => false,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ])->toArray();
+                        AdminNotification::insert($notifications);
                     }
                 }
-            }
+            });
 
             return $this->success(null, "Payment processed successfully");
         } else {
@@ -606,6 +625,7 @@ class SubscriptionController extends Controller
                 $institute->trial_status = 'active';
                 $institute->is_premium = true;
                 $institute->trial_cancelled_at = null;
+                $institute->trial_cancel_reason = null;
                 if (!$institute->trial_expires_at) {
                     $institute->trial_expires_at = now()->addDays(30);
                 }
@@ -614,6 +634,7 @@ class SubscriptionController extends Controller
                 $institute->trial_status = 'cancelled';
                 $institute->is_premium = false;
                 $institute->trial_cancelled_at = now();
+                $institute->trial_cancel_reason = $request->input('reason');
             } elseif ($newStatus === 'expired') {
                 $institute->trial_status = 'expired';
                 $institute->is_premium = false;
@@ -626,33 +647,106 @@ class SubscriptionController extends Controller
 
         $subscription = Subscription::findOrFail($id);
 
-        if ($newStatus === 'active') {
-            $subscription->status = 'active';
-            $subscription->cancelled_at = null;
-        } elseif ($newStatus === 'cancelled') {
-            // If cancelled, it stays active until ends_at
-            $subscription->status = 'active';
-            $subscription->cancelled_at = now();
-        } elseif ($newStatus === 'expired') {
-            $subscription->status = 'expired';
-        }
-
-        // Sync with institute status
-        $institute = Institute::find($subscription->institute_id);
-        if ($institute) {
-            if ($newStatus === 'active' || $newStatus === 'cancelled') {
-                // Both Active and Cancelled (marked for end) mean premium is currently ON
-                $institute->is_premium = true;
-                if (!$institute->premium_expires_at || $institute->premium_expires_at < now()) {
-                    $institute->premium_expires_at = $subscription->ends_at ?? now()->addDays(30);
-                }
+        return DB::transaction(function () use ($subscription, $newStatus, $request) {
+            $updates = [];
+            if ($newStatus === 'active') {
+                $updates = [
+                    'status' => 'active',
+                    'cancelled_at' => null,
+                    'cancel_reason' => null,
+                ];
+            } elseif ($newStatus === 'cancelled') {
+                $updates = [
+                    'status' => 'cancelled',
+                    'cancelled_at' => now(),
+                    'cancel_reason' => $request->input('reason') ?: 'Cancelled by admin',
+                ];
             } elseif ($newStatus === 'expired') {
-                $institute->is_premium = false;
+                $updates = ['status' => 'expired'];
             }
-            $institute->save();
-        }
 
-        $subscription->save();
-        return $this->success(['status' => $subscription->status], 'Subscription status updated');
+            $subscription->update($updates);
+
+            // Sync with institute status
+            $institute = Institute::find($subscription->institute_id);
+            if ($institute) {
+                if ($newStatus === 'active') {
+                    $institute->update([
+                        'is_premium' => true,
+                    ]);
+                    // Ensure expiry is set if missing
+                    if (!$institute->premium_expires_at || $institute->premium_expires_at < now()) {
+                        $institute->update([
+                            'premium_expires_at' => $subscription->ends_at ?? now()->addDays(30)
+                        ]);
+                    }
+                } elseif ($newStatus === 'expired' || $newStatus === 'cancelled') {
+                    $institute->update(['is_premium' => false]);
+                }
+            }
+
+            return $this->success(['status' => $subscription->status], 'Subscription status updated');
+        });
+    }
+
+    // ==========================================
+    // ADMIN: MANUALLY GRANT SUBSCRIPTION
+    // ==========================================
+
+    /**
+     * Admin manually grants a 30-day premium subscription to an institute.
+     * Creates a Subscription record and syncs the institute's is_premium flag.
+     * Requires a note for audit trail purposes.
+     */
+    public function apiAdminGrantSubscription(Request $request)
+    {
+        $request->validate([
+            'institute_id' => 'required|exists:institutes,id',
+            'days'         => 'nullable|integer|min:1|max:365',
+            'note'         => 'required|string|max:255',
+        ]);
+
+        $institute = Institute::findOrFail($request->institute_id);
+        $days      = $request->input('days', 30);
+
+        return DB::transaction(function () use ($institute, $days, $request) {
+            // Expire any previous active subscription so there's no overlap
+            Subscription::where('institute_id', $institute->id)
+                ->where('status', 'active')
+                ->update(['status' => 'expired']);
+
+            $subscription = Subscription::create([
+                'institute_id'            => $institute->id,
+                'gateway_subscription_id' => 'ADMIN-GRANT-' . now()->timestamp . '-' . $institute->id,
+                'plan'       => 'monthly',
+                'status'     => 'active',
+                'started_at' => now(),
+                'ends_at'    => now()->addDays($days),
+                'is_trial'   => false,
+                'note'       => $request->note,
+            ]);
+
+            $institute->update([
+                'is_premium'         => true,
+                'premium_expires_at' => now()->addDays($days),
+            ]);
+
+            AdminActivityLogger::log(
+                'Granted Subscription',
+                'Institute',
+                $institute->id,
+                auth()->user()->name . " manually granted a {$days}-day subscription to \"{$institute->institute_name}\". Note: {$request->note}"
+            );
+
+            // Notify the institute
+            Notification::create([
+                'institute_id' => $institute->id,
+                'type'         => 'system',
+                'title'        => 'Premium Subscription Granted',
+                'message'      => "An admin has granted you a {$days}-day premium subscription. Enjoy your premium features!",
+            ]);
+
+            return $this->success($subscription, "Subscription granted for {$days} days.");
+        });
     }
 }

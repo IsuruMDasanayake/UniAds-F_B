@@ -21,6 +21,7 @@ class Subscription extends Model
         'ends_at',
         'cancelled_at',
         'cancel_reason',
+        'note',
         'created_at',
         'updated_at',
     ];

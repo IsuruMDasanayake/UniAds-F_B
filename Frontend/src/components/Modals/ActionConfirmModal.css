@@ -57,3 +57,39 @@
 .animate-spin {
     animation: spin 1s linear infinite;
 }
+
+/* ── Input utilities for forms rendered inside ActionConfirmModal ───────────── */
+/* These must be global (not scoped) because the modal uses createPortal        */
+
+.admin-input {
+    display: block;
+    width: 100%;
+    padding: 9px 14px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.admin-input:focus {
+    border-color: #3b82f6;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.admin-input::placeholder {
+    color: #475569;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.78rem;
+    color: #94a3b8;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+}

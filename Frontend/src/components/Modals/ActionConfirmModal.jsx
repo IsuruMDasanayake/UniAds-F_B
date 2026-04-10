@@ -92,9 +92,9 @@ const ActionConfirmModal = ({
                         </div>
 
                         <h2 style={{ marginBottom: '15px', fontSize: '1.5rem', fontWeight: '800', color: '#fff' }}>{title}</h2>
-                        <p style={{ color: '#94a3b8', marginBottom: '30px', lineHeight: '1.6', fontSize: '0.95rem' }}>
+                        <div style={{ color: '#94a3b8', marginBottom: '30px', lineHeight: '1.6', fontSize: '0.95rem' }}>
                             {message}
-                        </p>
+                        </div>
 
                         <div style={{ display: 'flex', gap: '12px' }}>
                             <button

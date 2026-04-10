@@ -197,6 +197,19 @@
     border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
+.admin-subscription-scope .status-badge.status-pending-cancel {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.admin-subscription-scope .status-badge.status-cancelled,
+.admin-subscription-scope .status-badge.status-expired {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
 .admin-subscription-scope .inst-card-body {
     border-top: 1px solid rgba(255, 255, 255, 0.05);
     padding-top: 1rem;
@@ -435,4 +448,203 @@
 .admin-subscription-scope .search-box input:focus {
     background: rgba(255, 255, 255, 0.08);
     border-color: #3b82f6;
+}
+
+/* ── Stats Bar ─────────────────────────────────────────────────────────────── */
+.admin-subscription-scope .sub-stats-bar {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.admin-subscription-scope .stat-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.82rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--admin-text-muted);
+}
+.admin-subscription-scope .stat-chip strong { color: #fff; }
+.admin-subscription-scope .stat-chip.active { border-color: rgba(16, 185, 129, 0.3); color: #10b981; }
+.admin-subscription-scope .stat-chip.active strong { color: #10b981; }
+.admin-subscription-scope .stat-chip.expired { border-color: rgba(245, 158, 11, 0.3); color: #f59e0b; }
+.admin-subscription-scope .stat-chip.expired strong { color: #f59e0b; }
+
+/* ── Enriched status badges (expired / cancelled on cards) ─────────────────── */
+.admin-subscription-scope .status-badge.status-expired {
+    background: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.admin-subscription-scope .status-badge.status-cancelled {
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Enriched status pills in the modal table */
+.admin-subscription-scope .status-pill.sub-active,
+.admin-subscription-scope .status-pill.trial-active {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+}
+.admin-subscription-scope .status-pill.status-expired {
+    background: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+}
+.admin-subscription-scope .status-pill.status-cancelled {
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+}
+
+/* ── Admin action button ("Grant Subscription") in modal header ────────────── */
+.admin-subscription-scope .admin-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 7px 16px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+.admin-subscription-scope .grant-btn {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+}
+.admin-subscription-scope .grant-btn:hover {
+    background: rgba(16, 185, 129, 0.28);
+}
+
+/* ── Per-row Action buttons (Expire / Cancel) ──────────────────────────────── */
+.admin-subscription-scope .row-action-btns {
+    display: flex;
+    gap: 0.4rem;
+}
+.admin-subscription-scope .row-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+.admin-subscription-scope .expire-btn {
+    background: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.admin-subscription-scope .expire-btn:hover { background: rgba(245, 158, 11, 0.25); }
+.admin-subscription-scope .cancel-btn {
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.admin-subscription-scope .cancel-btn:hover { background: rgba(239, 68, 68, 0.25); }
+.admin-subscription-scope .row-action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Error banner ──────────────────────────────────────────────────────────── */
+.admin-subscription-scope .action-error-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 2rem;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+    font-size: 0.85rem;
+}
+
+/* ── Grant Modal ───────────────────────────────────────────────────────────── */
+.admin-subscription-scope .grant-modal {
+    max-width: 480px;
+    width: 95%;
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 2rem;
+}
+.admin-subscription-scope .grant-modal h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #fff;
+}
+.admin-subscription-scope .form-label {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--admin-text-muted);
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.admin-subscription-scope .text-danger { color: #f87171; }
+.admin-subscription-scope .admin-input {
+    display: block;
+    width: 100%;
+    padding: 9px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.admin-subscription-scope .admin-input:focus { border-color: #3b82f6; }
+.admin-subscription-scope .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+.admin-subscription-scope .admin-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+.admin-subscription-scope .cancel-modal-btn {
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--admin-text-muted);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.admin-subscription-scope .cancel-modal-btn:hover { background: rgba(255, 255, 255, 0.12); }
+.admin-subscription-scope .confirm-grant-btn {
+    background: rgba(16, 185, 129, 0.18);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+}
+.admin-subscription-scope .confirm-grant-btn:hover { background: rgba(16, 185, 129, 0.3); }
+.admin-subscription-scope .confirm-grant-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Spin animation for loading icon */
+@keyframes spin { to { transform: rotate(360deg); } }
+.admin-subscription-scope .spin { animation: spin 0.7s linear infinite; }
+
+/* Reason cell max-width */
+.admin-subscription-scope .reason-cell {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--admin-text-muted);
+    font-size: 0.82rem;
 }

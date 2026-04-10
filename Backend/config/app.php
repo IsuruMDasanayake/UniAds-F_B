@@ -61,6 +61,10 @@ return [
 
     'asset_url' => env('ASSET_URL'),
 
+    // Frontend URL for redirect/return links (e.g. PayHere return_url).
+    // Set FRONTEND_URL in your .env for production.
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:5173'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
