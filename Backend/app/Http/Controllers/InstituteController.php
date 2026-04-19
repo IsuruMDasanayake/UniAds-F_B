@@ -358,13 +358,13 @@ class InstituteController extends Controller
 
                 // Update fields conditionally to prevent partial updates from nulling existing data
                 if ($request->has('institute_name')) {
-                    $institute->institute_name = $request->institute_name;
+                    $institute->institute_name = Purifier::clean($request->institute_name);
                 }
                 if ($request->has('institute_type')) {
-                    $institute->institute_type = $request->institute_type;
+                    $institute->institute_type = Purifier::clean($request->institute_type);
                 }
                 if ($request->has('location')) {
-                    $institute->location = $request->location;
+                    $institute->location = Purifier::clean($request->location);
                 }
                 if ($request->has('email')) {
                     $institute->email = $request->email;
@@ -373,7 +373,7 @@ class InstituteController extends Controller
                     $institute->contact_number = $request->contact_number;
                 }
                 if ($request->has('website')) {
-                    $institute->website = $request->website;
+                    $institute->website = Purifier::clean($request->website);
                 }
                 if ($request->has('bio')) {
                     $institute->bio = Purifier::clean($request->bio);

@@ -50,12 +50,12 @@ class EventController extends Controller
             // Store the event data
             $event = Event::create([
                 'institute_id' => $id,
-                'event_title' => $request->event_title,
+                'event_title' => Purifier::clean($request->event_title),
                 'event_description' => $sanitizedDescription,
                 'event_image' => $eventImagePath,
                 'event_date' => $request->event_date,
-                'main_location' => $request->main_location,
-                'sub_location' => $request->sub_location,
+                'main_location' => Purifier::clean($request->main_location),
+                'sub_location' => Purifier::clean($request->sub_location),
             ]);
 
             return redirect()->route('profile.edit', ['id' => $id])->with('success', 'Event created successfully!');
@@ -91,11 +91,11 @@ class EventController extends Controller
         $sanitizedDescription = Purifier::clean($request->event_description);
 
         // Update fields individually
-        $event->event_title = $request->event_title;
+        $event->event_title = Purifier::clean($request->event_title);
         $event->event_description = $sanitizedDescription;
         $event->event_date = $request->event_date;
-        $event->sub_location = $request->sub_location;
-        $event->main_location = $request->main_location;
+        $event->sub_location = Purifier::clean($request->sub_location);
+        $event->main_location = Purifier::clean($request->main_location);
 
         // Handle file upload with Optimization
         if ($request->hasFile('event_image')) {
@@ -361,12 +361,12 @@ class EventController extends Controller
 
                 $event = Event::create([
                     'institute_id' => $institute->id,
-                    'event_title' => $request->event_title,
+                    'event_title' => Purifier::clean($request->event_title),
                     'event_description' => $sanitizedDescription,
                     'event_image' => $eventImagePath,
                     'event_date' => $request->event_date,
-                    'main_location' => $request->main_location,
-                    'sub_location' => $request->sub_location,
+                    'main_location' => Purifier::clean($request->main_location),
+                    'sub_location' => Purifier::clean($request->sub_location),
                     'is_active' => true
                 ]);
 
@@ -432,11 +432,11 @@ class EventController extends Controller
                 $sanitizedDescription = Purifier::clean($request->event_description);
 
                 $event->update([
-                    'event_title' => $request->event_title,
+                    'event_title' => Purifier::clean($request->event_title),
                     'event_description' => $sanitizedDescription,
                     'event_date' => $request->event_date,
-                    'sub_location' => $request->sub_location,
-                    'main_location' => $request->main_location,
+                    'sub_location' => Purifier::clean($request->sub_location),
+                    'main_location' => Purifier::clean($request->main_location),
                 ]);
 
                 return $this->success($event, 'Event updated successfully!');
