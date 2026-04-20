@@ -205,11 +205,11 @@ const AnalyticsLayout = () => {
                             <span className="nav-label">Settings</span>
                         </Link>
                         <Link
-                            to="/"
+                            to={`/profile`}
                             className="footer-link logout"
                         >
                             <LogOut size={20} />
-                            <span className="nav-label">Back to Home</span>
+                            <span className="nav-label">Back to Profile</span>
                         </Link>
                     </div>
                 </nav>
