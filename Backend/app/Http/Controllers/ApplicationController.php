@@ -161,7 +161,7 @@ class ApplicationController extends Controller
                 'messageContent' => $request->message,
             ];
 
-            Mail::send('emails.application_reply', $mailData, function ($mail) use ($application, $request, $institute) {
+            Mail::queue('emails.application_reply', $mailData, function ($mail) use ($application, $request, $institute) {
                 $mail->to($application->student_email)
                     ->subject('[No-Reply] ' . $request->subject)
                     ->replyTo($institute->email, $institute->institute_name);

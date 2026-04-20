@@ -39,7 +39,7 @@ class ContactController extends Controller
             'messageContent' => $request->message,
         ];
 
-        Mail::send('emails.contact', $mailData, function ($mail) use ($institute, $request) {
+        Mail::queue('emails.contact', $mailData, function ($mail) use ($institute, $request) {
             $mail->to($institute->email)
                 ->subject('Contact Message: ' . $request->subject)
                 ->from($request->email, $request->name);
@@ -62,7 +62,7 @@ class ContactController extends Controller
             'messageContent' => $request->message,
         ];
 
-        Mail::send('emails.general_contact', $mailData, function ($mail) use ($request) {
+        Mail::queue('emails.general_contact', $mailData, function ($mail) use ($request) {
             $mail->to('uniads.lk@gmail.com')
                 ->subject('New Contact Message from ' . $request->name)
                 ->from($request->email, $request->name);
@@ -91,7 +91,7 @@ class ContactController extends Controller
         ];
 
         try {
-            Mail::send('emails.general_contact', $mailData, function ($mail) use ($request) {
+            Mail::queue('emails.general_contact', $mailData, function ($mail) use ($request) {
                 // Get contact email from settings, fallback to default
                 $contactEmail = \App\Models\PlatformSetting::first()->contact_email ?? 'uniads.lk@gmail.com';
                 $mail->to($contactEmail)
@@ -146,7 +146,7 @@ class ContactController extends Controller
         ]);
 
         try {
-            Mail::send('emails.contact', $mailData, function ($mail) use ($institute, $request) {
+            Mail::queue('emails.contact', $mailData, function ($mail) use ($institute, $request) {
                 $mail->to($institute->email)
                     ->subject('Contact Message: ' . $request->subject)
                     ->from($request->email, $request->name);

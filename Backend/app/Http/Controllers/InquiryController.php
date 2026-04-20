@@ -112,7 +112,7 @@ class InquiryController extends Controller
                 'messageContent' => $request->message,
             ];
 
-            Mail::send('emails.inquiry_reply', $mailData, function ($mail) use ($inquiry, $request, $institute) {
+            Mail::queue('emails.inquiry_reply', $mailData, function ($mail) use ($inquiry, $request, $institute) {
                 $mail->to($inquiry->email)
                     ->subject('[No-Reply] ' . $request->subject)
                     ->from($institute->email, $institute->institute_name);
