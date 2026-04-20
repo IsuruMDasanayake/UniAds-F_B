@@ -69,19 +69,19 @@ const OverviewPage = () => {
             title: 'Visibility',
             items: [
                 {
-                    label: 'Profile Views',
+                    label: 'Total Profile Views',
                     value: metrics.profile_views,
                     icon: Eye,
                     color: 'blue'
                 },
                 {
-                    label: 'Post Views',
+                    label: 'Total Post Views',
                     value: metrics.post_views,
                     icon: FileText,
                     color: 'blue'
                 },
                 {
-                    label: 'Event Views',
+                    label: 'Total Event Views',
                     value: metrics.event_views,
                     icon: Calendar,
                     color: 'blue'
