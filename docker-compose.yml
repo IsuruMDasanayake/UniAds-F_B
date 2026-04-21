@@ -74,8 +74,9 @@ services:
     restart: unless-stopped
     networks:
       - uniads-network
+    command: ["redis-server", "--requirepass", "FLD3ThREU0faOAeG6r8B1ngNxw9ZcMiV"]
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "FLD3ThREU0faOAeG6r8B1ngNxw9ZcMiV", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -140,7 +141,7 @@ services:
     container_name: uniads-meilisearch
     restart: unless-stopped
     environment:
-      - MEILI_MASTER_KEY=masterKey
+      - MEILI_MASTER_KEY=F8PqnXCwzkeKcL6jgBhY5Ot9ZDxAQ2Vo
       - MEILI_ENV=development
     ports:
       - "7700:7700"

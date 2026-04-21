@@ -173,7 +173,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/institute/gallery/{id}', [GalleryController::class, 'destroy']);
 
     // Chat API
-    Route::prefix('chat')->group(function () {
+    Route::prefix('chat')->middleware('throttle:60,1')->group(function () {
         Route::get('/conversations', [ChatConversationController::class, 'index']);
         Route::post('/start', [ChatConversationController::class, 'store']);
 
