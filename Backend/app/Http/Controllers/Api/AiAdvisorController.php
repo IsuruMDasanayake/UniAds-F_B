@@ -647,10 +647,43 @@ class AiAdvisorController extends Controller
             }
 
             // ─────────────────────────────────────────────
-            // 8.5 Tell me more logic (Enriched Insight)
+            // 8.5 Tell me more / Follow-up Question Detection
             // ─────────────────────────────────────────────
-            if (preg_match('/\b(tell me more|more details|explain further)\b/i', $lastUserMessage)) {
-                $extraInstruction .= "THE USER REQUESTED MORE DETAILS. Please skip the basic introduction and provide significantly more IN-DEPTH details. Focus on: 1. Specific top-tier Sri Lankan universities or private institutes for this field. 2. Specific career growth salaries (Junior/Senior at top Colombo firms). 3. Professional bodies (e.g., SLMC, IESL, ICASL) they should join. 4. Overseas migration tips for this specific role. ";
+            $followUpMode = false;
+            $followUpQuestion = null;
+
+            // Patterns that indicate a conversational follow-up (not a new career selection)
+            $followUpPatterns = [
+                'workload'       => '/\b(workload|how busy|how much work|work hours|overtime|deadlines)\b/i',
+                'work_life'      => '/\b(work.?life balance|free time|personal life|family time|flexible hours|remote)\b/i',
+                'difficulty'     => '/\b(how hard|is it hard|how difficult|how tough|challenging|easy to learn)\b/i',
+                'salary'         => '/\b(salary|pay|earn|income|how much money|wage|compensation)\b/i',
+                'future'         => '/\b(future|prospects|job market|demand|trending|growing field|in demand)\b/i',
+                'skills'         => '/\b(what skills|skills needed|skills required|what should I learn|programming languages|tools)\b/i',
+                'overseas'       => '/\b(overseas|abroad|migrate|foreign|international|australia|canada|uk|us|usa|europe)\b/i',
+                'daily_life'     => '/\b(day to day|daily life|what do they do|typical day|routine|what is the job like)\b/i',
+                'certifications' => '/\b(certifications|certificates|exams|courses to take|professional body|join|ieee|icasl|iesl)\b/i',
+                'compare'        => '/\b(compare|vs|versus|difference between|which is better|should I choose)\b/i',
+                'tell_more'      => '/\b(tell me more|more details|explain further|elaborate|expand on)\b/i',
+                'pros_cons'      => '/\b(pros|cons|advantages|disadvantages|benefits|drawbacks|good|bad about)\b/i',
+            ];
+
+            // Only detect follow-up if the user ALREADY has a career selected
+            if (!empty($subField)) {
+                foreach ($followUpPatterns as $type => $pattern) {
+                    if (preg_match($pattern, $lastUserMessage)) {
+                        $followUpMode = true;
+                        $followUpQuestion = $lastUserMessage;
+                        Log::info("Follow-up mode detected ({$type}): '{$lastUserMessage}' for career: {$subField}");
+                        break;
+                    }
+                }
+            }
+
+            if ($followUpMode) {
+                $extraInstruction .= "CONVERSATION MODE: The user is asking a specific follow-up question about '{$subField}'. Their question is: \"{$followUpQuestion}\". DO NOT generate a full career roadmap. Instead, answer ONLY the specific question in a friendly, conversational way (3-5 sentences max). Use the database context provided to give accurate, Sri Lanka-specific details. End with a brief invitation to ask more or explore another field.";
+            } elseif (preg_match('/\b(tell me more|more details|explain further)\b/i', $lastUserMessage)) {
+                $extraInstruction .= "THE USER REQUESTED MORE DETAILS. Please skip the basic introduction and provide significantly more IN-DEPTH details. Focus on: 1. Specific top-tier Sri Lankan universities or private institutes for this field. 2. Specific career growth salaries (Junior/Senior at top Colombo firms). 3. Professional bodies (e.g., SLMC, IESL, ICASL) they should join. 4. Overseas migration tips for this specific role.";
                 Log::info("Detected 'Tell me more' command, injecting enriched instructions.");
             }
 
@@ -685,7 +718,7 @@ class AiAdvisorController extends Controller
                     return $likeField->take(5);
                 }
 
-                // Fallback 2: TAG search (NEW)
+                // Fallback 2: TAG search
                 Log::warning("No field match, trying TAG search");
                 return CareerGuidance::where('career_tags', 'LIKE', "%{$currentProfile['interest']}%")
                     ->limit(5)
@@ -706,8 +739,8 @@ class AiAdvisorController extends Controller
                 ]);
             }
 
-            Log::info("Generating final response");
-            return $this->generateResponse($matches, $currentProfile);
+            Log::info("Generating final response (follow-up: " . ($followUpMode ? 'yes' : 'no') . ")");
+            return $this->generateResponse($matches, $currentProfile, null, $followUpMode);
         } catch (\Throwable $e) {
             Log::error("FATAL Recommendation Error: " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine() . "\n" . $e->getTraceAsString());
             return $this->error('An internal error occurred. Please try again later.');
@@ -717,7 +750,7 @@ class AiAdvisorController extends Controller
     // ─────────────────────────────────────────────────────────────────────────
     // Generate the final career roadmap response using the EMY persona prompt
     // ─────────────────────────────────────────────────────────────────────────
-    private function generateResponse($matches, $currentProfile, $realPosts = null)
+    private function generateResponse($matches, $currentProfile, $realPosts = null, $followUpMode = false)
     {
         Log::info("generateResponse called", ['matches_count' => count($matches)]);
         $targetLang = $currentProfile['language'] ?? 'English';
@@ -804,6 +837,34 @@ Would you like to try one of those?",
         $stream       = $currentProfile['al_stream']         ?? 'Not specified';
         $extraRule    = $currentProfile['extra_instruction'] ?? '';
 
+        // ── Follow-up Conversation Mode ──────────────────────────────────────
+        if ($followUpMode) {
+            // For follow-ups, use a lightweight conversational prompt
+            $followUpPrompt = "You are EMY, a friendly Sri Lankan career advisor on the UniAds platform.
+
+LANGUAGE RULE: Respond ONLY in {$targetLang}. Never mix languages.
+
+USER CONTEXT
+Career of Interest: {$interest}
+Education Level: {$edu}
+A/L Stream: {$stream}
+
+DATABASE CONTEXT (use this for accurate facts)
+{$contextData}
+
+TASK
+{$extraRule}
+
+RULES
+- Be warm, friendly, and conversational — like a trusted advisor, not a report generator.
+- Keep your answer to 3–5 sentences max. Do NOT produce headings or bullet lists.
+- Base all facts (salary, skills, demand) strictly on the database context above.
+- End with one short invitation, e.g. 'Feel free to ask me anything else about {$interest}! 😊' or 'Would you like to explore another field?'";
+
+            return $this->callGroq($followUpPrompt, $currentProfile, $mappedPosts, ['Tell me more', 'Another Field']);
+        }
+
+        // ── Full Roadmap Mode ────────────────────────────────────────────────
         $prompt = "You are EMY, a friendly and professional Sri Lankan career advisor working for the UniAds platform.
 
 PERSONALITY:
@@ -880,7 +941,12 @@ RULES
 - Do not recommend illegal, unrealistic, or dangerous paths.
 {$extraRule}";
 
-        return $this->callGroq($prompt, $currentProfile, $mappedPosts, ['Another Field']);
+        return $this->callGroq($prompt, $currentProfile, $mappedPosts, [
+            'Tell me more',
+            'Work-life balance?',
+            'What skills do I need?',
+            'Another Field',
+        ]);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
