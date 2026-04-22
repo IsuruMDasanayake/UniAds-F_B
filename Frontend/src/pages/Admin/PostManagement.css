@@ -214,12 +214,24 @@
     border: 1px dashed rgba(255, 255, 255, 0.1);
 }
 
+.post-mgmt-details-info-section {
+    min-width: 0;
+}
+
 .post-mgmt-details-info-section .post-title {
     font-size: 1.8rem;
     font-weight: 700;
     margin-bottom: 1rem;
     color: #fff;
     line-height: 1.3;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    display: block;
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
 }
 
 .post-mgmt-details-meta {
