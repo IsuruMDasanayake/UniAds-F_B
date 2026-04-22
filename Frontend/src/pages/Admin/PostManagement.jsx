@@ -13,7 +13,9 @@ import {
     MapPin,
     X,
     FileText,
-    Filter
+    Filter,
+    ChevronLeft,
+    ChevronRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 import axiosClient from '../../lib/axios';
@@ -33,19 +35,41 @@ const PostManagement = () => {
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [institutes, setInstitutes] = useState([]);
     const [selectedInstitute, setSelectedInstitute] = useState('');
-    const [pagination, setPagination] = useState({ current_page: 1, last_page: 1 });
+    const [pagination, setPagination] = useState({ 
+        current_page: 1, 
+        last_page: 1,
+        total: 0,
+        per_page: 15
+    });
 
-
+    const fetchInstitutes = async () => {
+        try {
+            const response = await axiosClient.get('/api/admin/institutes/list');
+            setInstitutes(response.data.data || []);
+        } catch (error) {
+            console.error('Error fetching institutes list:', error);
+        }
+    };
 
     const fetchPosts = async (page = 1, isSilent = false) => {
         try {
             if (!isSilent) setLoading(true);
-            const response = await axiosClient.get(`/api/admin/posts?page=${page}`);
-            // Backend now returns paginated data: { data: { data: [...], ... } }
-            setPosts(response.data.data.data || []);
+            const response = await axiosClient.get('/api/admin/posts', {
+                params: {
+                    page,
+                    search: searchTerm,
+                    institute_id: selectedInstitute,
+                    per_page: 15
+                }
+            });
+            
+            const { data, current_page, last_page, total, per_page } = response.data.data;
+            setPosts(data || []);
             setPagination({
-                current_page: response.data.data.current_page,
-                last_page: response.data.data.last_page
+                current_page,
+                last_page,
+                total,
+                per_page
             });
         } catch (error) {
             console.error('Error fetching posts:', error?.message || error);
@@ -54,12 +78,29 @@ const PostManagement = () => {
         }
     };
 
+    // Fetch institutes once
     useEffect(() => {
-        fetchPosts(pagination.current_page);
+        fetchInstitutes();
+    }, []);
 
+    // Reset to page 1 on filter/search change
+    useEffect(() => {
+        setPagination(prev => ({ ...prev, current_page: 1 }));
+    }, [searchTerm, selectedInstitute]);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            fetchPosts(pagination.current_page);
+        }, searchTerm ? 500 : 0);
+
+        return () => clearTimeout(handler);
+    }, [pagination.current_page, searchTerm, selectedInstitute]);
+
+    // Background refresh
+    useEffect(() => {
         const intervalId = setInterval(() => fetchPosts(pagination.current_page, true), 30000);
         return () => clearInterval(intervalId);
-    }, [pagination.current_page]);
+    }, [pagination.current_page, searchTerm, selectedInstitute]);
 
     const handleToggleClick = (post) => {
         setToggleModal({
@@ -117,14 +158,11 @@ const PostManagement = () => {
         setShowDetailsModal(true);
     };
 
-    const filteredPosts = posts.filter(post => {
-        const matchesSearch = (post.title?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-            (post.institute?.institute_name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
-
-        const matchesInstitute = selectedInstitute === '' || post.institute_id === parseInt(selectedInstitute);
-
-        return matchesSearch && matchesInstitute;
-    });
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= pagination.last_page) {
+            setPagination(prev => ({ ...prev, current_page: newPage }));
+        }
+    };
 
     return (
         <div className="post-management-page admin-post-scope">
@@ -183,14 +221,14 @@ const PostManagement = () => {
                                         <p className="text-muted">Loading posts...</p>
                                     </td>
                                 </tr>
-                            ) : filteredPosts.length === 0 ? (
+                            ) : posts.length === 0 ? (
                                 <tr>
                                     <td colSpan="6" className="text-center p-12">
                                         <p className="text-muted">No posts found.</p>
                                     </td>
                                 </tr>
                             ) : (
-                                filteredPosts.map((post) => (
+                                posts.map((post) => (
                                     <tr key={post.id}>
                                         <td onClick={() => openDetails(post)} style={{ cursor: 'pointer' }}>
                                             <div className="post-cell">
@@ -252,26 +290,31 @@ const PostManagement = () => {
                     </table>
                 </div>
 
-                {/* Pagination Controls */}
-                <div className="table-pagination-footer flex justify-between items-center p-4 border-t border-glass">
-                    <button
-                        className="admin-btn-outline"
-                        disabled={pagination.current_page === 1}
-                        onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page - 1 }))}
-                    >
-                        Previous
-                    </button>
-                    <span className="text-muted">
-                        Page {pagination.current_page} of {pagination.last_page}
-                    </span>
-                    <button
-                        className="admin-btn-outline"
-                        disabled={pagination.current_page === pagination.last_page}
-                        onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page + 1 }))}
-                    >
-                        Next
-                    </button>
-                </div>
+                {pagination.last_page > 1 && (
+                    <div className="user-mgmt-pagination">
+                        <div className="pagination-info">
+                            Page {pagination.current_page} of {pagination.last_page} ({pagination.total} total posts)
+                        </div>
+                        <div className="pagination-controls">
+                            <button 
+                                className="pagination-btn" 
+                                onClick={() => handlePageChange(pagination.current_page - 1)}
+                                disabled={pagination.current_page === 1}
+                            >
+                                <ChevronLeft size={16} />
+                                Previous
+                            </button>
+                            <button 
+                                className="pagination-btn" 
+                                onClick={() => handlePageChange(pagination.current_page + 1)}
+                                disabled={pagination.current_page === pagination.last_page}
+                            >
+                                Next
+                                <ChevronRight size={16} />
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Post Details Modal */}

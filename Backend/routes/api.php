@@ -269,6 +269,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::delete('/users/{id}', [BackendController::class, 'apiDestroy']);
 
     // Institute Management
+    Route::get('/institutes/list', [InstituteController::class, 'apiListAll']);
     Route::get('/institutes', [InstituteController::class, 'apiAdminIndex']);
     Route::post('/institutes/{id}/approve', [InstituteController::class, 'apiApprove']);
     Route::post('/institutes/{id}/unapprove', [InstituteController::class, 'apiUnapprove']);

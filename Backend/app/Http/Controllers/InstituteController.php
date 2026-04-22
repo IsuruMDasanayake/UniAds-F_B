@@ -696,6 +696,15 @@ class InstituteController extends Controller
         return $this->successResponse($institutes);
     }
 
+    /**
+     * Get a simple list of all institutes for dropdowns
+     */
+    public function apiListAll()
+    {
+        $institutes = Institute::select('id', 'institute_name')->orderBy('institute_name')->get();
+        return $this->success($institutes);
+    }
+
 
     public function apiApprove($id)
     {

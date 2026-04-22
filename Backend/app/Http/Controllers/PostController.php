@@ -658,11 +658,29 @@ class PostController extends Controller
     // API METHODS FOR ADMIN DASHBOARD
     // ==========================================
 
-    public function apiAdminIndex()
+    public function apiAdminIndex(Request $request)
     {
-        $posts = Post::with(['institute' => function ($query) {
-            $query->withAvg('ratings', 'rating')->withCount('ratings');
-        }])->withCount('likes')->latest()->paginate(20);
+        $query = Post::with(['institute' => function ($q) {
+            $q->withAvg('ratings', 'rating')->withCount('ratings');
+        }])->withCount('likes');
+
+        // Server-side search
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhereHas('institute', function ($sq) use ($search) {
+                        $sq->where('institute_name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        // Server-side institute filter
+        if ($request->has('institute_id') && !empty($request->institute_id)) {
+            $query->where('institute_id', $request->institute_id);
+        }
+
+        $posts = $query->latest()->paginate($request->get('per_page', 15));
         return $this->success($posts);
     }
 

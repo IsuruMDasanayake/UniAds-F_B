@@ -152,12 +152,30 @@ class EventController extends Controller
     /**
      * Admin Index
      */
-    public function apiAdminIndex()
+    public function apiAdminIndex(Request $request)
     {
-        $events = Event::with(['institute' => function ($query) {
-            $query->withAvg('ratings', 'rating')->withCount('ratings');
-        }])->orderBy('created_at', 'desc')->paginate(20);
-        return $this->successResponse($events);
+        $query = Event::with(['institute' => function ($q) {
+            $q->withAvg('ratings', 'rating')->withCount('ratings');
+        }]);
+
+        // Server-side search
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('event_title', 'like', "%{$search}%")
+                    ->orWhereHas('institute', function ($sq) use ($search) {
+                        $sq->where('institute_name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        // Server-side institute filter
+        if ($request->has('institute_id') && !empty($request->institute_id)) {
+            $query->where('institute_id', $request->institute_id);
+        }
+
+        $events = $query->latest()->paginate($request->get('per_page', 15));
+        return $this->success($events);
     }
 
     /**

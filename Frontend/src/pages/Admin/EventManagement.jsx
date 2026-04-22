@@ -14,7 +14,9 @@ import {
     Heart,
     ThumbsDown,
     FileText,
-    Activity
+    Activity,
+    ChevronLeft,
+    ChevronRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 import axiosClient from '../../lib/axios';
@@ -34,19 +36,41 @@ const EventManagement = () => {
     const [isToggling, setIsToggling] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
-    const [pagination, setPagination] = useState({ current_page: 1, last_page: 1 });
+    const [pagination, setPagination] = useState({ 
+        current_page: 1, 
+        last_page: 1,
+        total: 0,
+        per_page: 15
+    });
 
-
+    const fetchInstitutes = async () => {
+        try {
+            const response = await axiosClient.get('/api/admin/institutes/list');
+            setInstitutes(response.data.data || []);
+        } catch (error) {
+            console.error('Error fetching institutes list:', error);
+        }
+    };
 
     const fetchEvents = async (page = 1, isSilent = false) => {
         try {
             if (!isSilent) setLoading(true);
-            const response = await axiosClient.get(`/api/admin/events?page=${page}`);
-            // Backend now returns paginated data: { data: { data: [...], ... } }
-            setEvents(response.data.data.data || []);
+            const response = await axiosClient.get('/api/admin/events', {
+                params: {
+                    page,
+                    search: searchTerm,
+                    institute_id: selectedInstitute,
+                    per_page: 15
+                }
+            });
+            
+            const { data, current_page, last_page, total, per_page } = response.data.data;
+            setEvents(data || []);
             setPagination({
-                current_page: response.data.data.current_page,
-                last_page: response.data.data.last_page
+                current_page,
+                last_page,
+                total,
+                per_page
             });
         } catch (error) {
             console.error('Error fetching events:', error?.message || error);
@@ -55,12 +79,29 @@ const EventManagement = () => {
         }
     };
 
+    // Fetch institutes once
     useEffect(() => {
-        fetchEvents(pagination.current_page);
+        fetchInstitutes();
+    }, []);
 
+    // Reset to page 1 on filter/search change
+    useEffect(() => {
+        setPagination(prev => ({ ...prev, current_page: 1 }));
+    }, [searchTerm, selectedInstitute]);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            fetchEvents(pagination.current_page);
+        }, searchTerm ? 500 : 0);
+
+        return () => clearTimeout(handler);
+    }, [pagination.current_page, searchTerm, selectedInstitute]);
+
+    // Silent refresh
+    useEffect(() => {
         const intervalId = setInterval(() => fetchEvents(pagination.current_page, true), 30000);
         return () => clearInterval(intervalId);
-    }, [pagination.current_page]);
+    }, [pagination.current_page, searchTerm, selectedInstitute]);
 
     const handleToggleClick = (event) => {
         setToggleModal({
@@ -118,14 +159,11 @@ const EventManagement = () => {
         setShowDetailsModal(true);
     };
 
-    const filteredEvents = events.filter(event => {
-        const matchesSearch = (event.event_title?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-            (event.institute?.institute_name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
-
-        const matchesInstitute = selectedInstitute === '' || event.institute_id === parseInt(selectedInstitute);
-
-        return matchesSearch && matchesInstitute;
-    }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= pagination.last_page) {
+            setPagination(prev => ({ ...prev, current_page: newPage }));
+        }
+    };
 
     return (
         <div className="event-management-page admin-event-scope">
@@ -184,14 +222,14 @@ const EventManagement = () => {
                                         <p className="text-muted">Loading events...</p>
                                     </td>
                                 </tr>
-                            ) : filteredEvents.length === 0 ? (
+                            ) : events.length === 0 ? (
                                 <tr>
                                     <td colSpan="5" className="text-center p-12">
-                                        <p className="text-muted">No events found.</p>
+                                        <p className="text-muted">No events found matching your criteria.</p>
                                     </td>
                                 </tr>
                             ) : (
-                                filteredEvents.map((event) => (
+                                events.map((event) => (
                                     <tr key={event.id} onClick={() => openDetails(event)} style={{ cursor: 'pointer' }}>
                                         <td>
                                             <div className="event-cell">
@@ -282,26 +320,31 @@ const EventManagement = () => {
                     </table>
                 </div>
 
-                {/* Pagination Controls */}
-                <div className="table-pagination-footer flex justify-between items-center p-4 border-t border-glass">
-                    <button
-                        className="admin-btn-outline"
-                        disabled={pagination.current_page === 1}
-                        onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page - 1 }))}
-                    >
-                        Previous
-                    </button>
-                    <span className="text-muted">
-                        Page {pagination.current_page} of {pagination.last_page}
-                    </span>
-                    <button
-                        className="admin-btn-outline"
-                        disabled={pagination.current_page === pagination.last_page}
-                        onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page + 1 }))}
-                    >
-                        Next
-                    </button>
-                </div>
+                {pagination.last_page > 1 && (
+                    <div className="user-mgmt-pagination">
+                        <div className="pagination-info">
+                            Page {pagination.current_page} of {pagination.last_page} ({pagination.total} total events)
+                        </div>
+                        <div className="pagination-controls">
+                            <button 
+                                className="pagination-btn" 
+                                onClick={() => handlePageChange(pagination.current_page - 1)}
+                                disabled={pagination.current_page === 1}
+                            >
+                                <ChevronLeft size={16} />
+                                Previous
+                            </button>
+                            <button 
+                                className="pagination-btn" 
+                                onClick={() => handlePageChange(pagination.current_page + 1)}
+                                disabled={pagination.current_page === pagination.last_page}
+                            >
+                                Next
+                                <ChevronRight size={16} />
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Details Modal */}
