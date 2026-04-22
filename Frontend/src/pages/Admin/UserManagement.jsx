@@ -11,7 +11,9 @@ import {
     Check,
     X,
     AlertTriangle,
-    Building2
+    Building2,
+    ChevronLeft,
+    ChevronRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 import axiosClient from '../../lib/axios';
@@ -183,6 +185,12 @@ const UserManagement = () => {
     const [showModal, setShowModal] = useState(false);
     const [modalMode, setModalMode] = useState('add'); // 'add' or 'edit'
     const [selectedUser, setSelectedUser] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pagination, setPagination] = useState({
+        last_page: 1,
+        total: 0,
+        per_page: 15
+    });
 
     // Delete Confirmation State
     const [deleteModal, setDeleteModal] = useState({
@@ -195,8 +203,19 @@ const UserManagement = () => {
     const fetchUsers = async (isSilent = false) => {
         try {
             if (!isSilent) setLoading(true);
-            const response = await axiosClient.get('/api/admin/users');
-            setUsers(response.data.data.data || []);
+            const response = await axiosClient.get('/api/admin/users', {
+                params: {
+                    page: currentPage,
+                    search: searchTerm,
+                    role: roleFilter,
+                    per_page: 15
+                }
+            });
+            
+            const { data, current_page, last_page, total, per_page } = response.data.data;
+            setUsers(data || []);
+            setPagination({ last_page, total, per_page });
+            setCurrentPage(current_page);
         } catch (error) {
             console.error('Error fetching users:', error?.message || error);
         } finally {
@@ -204,11 +223,24 @@ const UserManagement = () => {
         }
     };
 
+    // Use a separate effect for searchTerm and roleFilter to reset page
     useEffect(() => {
-        fetchUsers();
+        setCurrentPage(1);
+    }, [searchTerm, roleFilter]);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            fetchUsers();
+        }, searchTerm ? 500 : 0); // Debounce search
+
+        return () => clearTimeout(handler);
+    }, [currentPage, searchTerm, roleFilter]);
+
+    // Background refresh
+    useEffect(() => {
         const interval = setInterval(() => fetchUsers(true), 30000);
         return () => clearInterval(interval);
-    }, []);
+    }, [currentPage, searchTerm, roleFilter]);
 
     const handleAddUser = () => {
         setModalMode('add');
@@ -245,13 +277,11 @@ const UserManagement = () => {
         }
     };
 
-    const filteredUsers = users.filter(user => {
-        const nameMatch = (user.name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
-        const emailMatch = (user.email?.toLowerCase() || '').includes(searchTerm.toLowerCase());
-        const matchesSearch = nameMatch || emailMatch;
-        const matchesRole = roleFilter === 'All' || user.role === roleFilter;
-        return matchesSearch && matchesRole;
-    });
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= pagination.last_page) {
+            setCurrentPage(newPage);
+        }
+    };
 
     const handleDeleteClick = (user) => {
         setDeleteModal({
@@ -333,14 +363,14 @@ const UserManagement = () => {
                                         <p className="text-muted">Fetching users...</p>
                                     </td>
                                 </tr>
-                            ) : filteredUsers.length === 0 ? (
+                            ) : users.length === 0 ? (
                                 <tr>
                                     <td colSpan="5" className="text-center p-12">
                                         <p className="text-muted">No users found matching your criteria.</p>
                                     </td>
                                 </tr>
                             ) : (
-                                filteredUsers.map((user) => (
+                                users.map((user) => (
                                     <tr key={user.id}>
                                         <td>
                                             <div className="user-cell">
@@ -394,6 +424,32 @@ const UserManagement = () => {
                         </tbody>
                     </table>
                 </div>
+
+                {pagination.last_page > 1 && (
+                    <div className="user-mgmt-pagination">
+                        <div className="pagination-info">
+                            Page {currentPage} of {pagination.last_page} ({pagination.total} total users)
+                        </div>
+                        <div className="pagination-controls">
+                            <button 
+                                className="pagination-btn" 
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                            >
+                                <ChevronLeft size={16} />
+                                Previous
+                            </button>
+                            <button 
+                                className="pagination-btn" 
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === pagination.last_page}
+                            >
+                                Next
+                                <ChevronRight size={16} />
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <UserModal

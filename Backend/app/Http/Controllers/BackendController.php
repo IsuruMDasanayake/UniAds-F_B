@@ -239,11 +239,27 @@ class BackendController extends Controller
         ]);
     }
 
-    public function apiIndex()
+    public function apiIndex(Request $request)
     {
-        // Increase pagination limit to show more users on one page
-        // since frontend doesn't have pagination controls yet
-        $users = User::latest()->paginate(10);
+        $query = User::query();
+
+        // Server-side search
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        // Server-side role filter
+        if ($request->has('role') && $request->role !== 'All') {
+            $query->where('role', $request->role);
+        }
+
+        // Apply sorting and pagination
+        $users = $query->latest()->paginate($request->get('per_page', 15));
+        
         return $this->success($users);
     }
 
