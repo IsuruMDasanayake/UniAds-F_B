@@ -48,7 +48,8 @@ const CoursesPage = () => {
     const { 
         data: posts = [], 
         isLoading: postsLoading, 
-        isFetching: postsFetching 
+        isFetching: postsFetching,
+        isPlaceholderData 
     } = usePosts(filterType, filterValue, {
         searchQuery: debouncedSearchQuery,
         activeFilters: activeFilters
@@ -317,7 +318,7 @@ const CoursesPage = () => {
 
                         <div className="posts-grid-v2">
                             {/* RESULTS CONTENT */}
-                            {posts.length > 0 ? (
+                            {posts.length > 0 && !isPlaceholderData ? (
                                 <>
                                     {/* Subtle fetching indicator when update is in progress */}
                                     {postsFetching && (
@@ -396,7 +397,7 @@ const CoursesPage = () => {
                                         </motion.div>
                                     ))}
                                 </>
-                            ) : postsLoading || (postsFetching && posts.length === 0) ? (
+                            ) : postsLoading || isPlaceholderData || (postsFetching && posts.length === 0) ? (
                                 <div className="grid-loading-placeholder">
                                     <Loader2 size={48} className="chat-loader-spin" />
                                     <p>Gathering the best programs for you...</p>
