@@ -280,12 +280,18 @@ const InstituteManagement = () => {
                                                 {inst.status === 'approved' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
                                             </span>
                                         </td>
-                                        <td>
+                                        <td className="text-center">
                                             <span
-                                                className={`premium-badge ${isPremiumActive(inst) ? 'premium' : 'basic'}`}
+                                                className={`premium-badge ${isPremiumActive(inst) ? 'premium' : (inst.is_premium ? 'expired' : 'basic')}`}
+                                                title={inst.is_premium ? (isPremiumActive(inst) ? 'Premium Active' : 'Premium Expired') : 'Basic Tier'}
                                             >
-                                                <Crown size={14} />
-                                                {inst.is_premium ? (isPremiumActive(inst) ? 'Premium' : 'Expired') : 'Basic'}
+                                                {isPremiumActive(inst) ? (
+                                                    <Crown size={18} />
+                                                ) : inst.is_premium ? (
+                                                    <AlertCircle size={18} />
+                                                ) : (
+                                                    <Shield size={18} />
+                                                )}
                                             </span>
                                         </td>
                                         <td>
