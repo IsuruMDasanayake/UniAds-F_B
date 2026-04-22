@@ -611,9 +611,25 @@ class InstituteController extends Controller
             }
         }
 
+            // Validate
+            $request->validate([
+                'institute_overview' => 'nullable|string',
+                'mission' => 'nullable|string',
+                'vision' => 'nullable|string',
+                'history' => 'nullable|string',
+                'chancellor_intro' => 'nullable|string',
+                'vice_chancellor_intro' => 'nullable|string',
+                'academic_excellence' => 'nullable|string',
+                'programs_offered' => 'nullable|string',
+                'global_partnerships' => 'nullable|string',
+                'life_at_institute' => 'nullable|string',
+                'sports_recreation' => 'nullable|string',
+                'upcoming_programs' => 'nullable|string',
+            ]);
+
             $about->update($data);
 
-            return $this->success($about, 'About section updated successfully');
+            return $this->success($about->fresh(), 'About section updated successfully');
         });
     }
 
@@ -676,7 +692,7 @@ class InstituteController extends Controller
         $institutes = Institute::withAvg('ratings', 'rating')
             ->withCount('ratings')
             ->orderBy('created_at', 'desc')
-            ->paginate(50);
+            ->paginate(100);
         return $this->successResponse($institutes);
     }
 

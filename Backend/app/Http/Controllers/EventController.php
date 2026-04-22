@@ -297,7 +297,7 @@ class EventController extends Controller
         $query = Event::with(['institute' => function ($query) {
             $query->withAvg('ratings', 'rating')->withCount('ratings');
         }])
-            ->withExists(['interests as is_interested' => function($q) use ($userId) {
+            ->withExists(['interests as is_interested' => function ($q) use ($userId) {
                 $q->where('user_id', $userId);
             }])
             ->where('is_active', true);
@@ -305,8 +305,8 @@ class EventController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('event_title', 'like', "%{$search}%")
-                  ->orWhere('sub_location', 'like', "%{$search}%")
-                  ->orWhere('main_location', 'like', "%{$search}%");
+                    ->orWhere('sub_location', 'like', "%{$search}%")
+                    ->orWhere('main_location', 'like', "%{$search}%");
             });
         }
 

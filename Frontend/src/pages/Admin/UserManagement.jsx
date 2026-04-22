@@ -10,7 +10,8 @@ import {
     Filter,
     Check,
     X,
-    AlertTriangle
+    AlertTriangle,
+    Building2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import axiosClient from '../../lib/axios';
@@ -129,6 +130,7 @@ const UserModal = ({ show, onClose, mode, userData, onSave }) => {
                         <select name="role" value={formData.role} onChange={handleChange}>
                             <option value="User">Regular User</option>
                             <option value="Admin">Admin</option>
+                            <option value="Institute">Institute</option>
                         </select>
                     </div>
 
@@ -307,6 +309,7 @@ const UserManagement = () => {
                             <option value="All">All Roles</option>
                             <option value="Admin">Admin</option>
                             <option value="User">Regular User</option>
+                            <option value="Institute">Institute</option>
                         </select>
                     </div>
                 </div>
@@ -342,7 +345,13 @@ const UserManagement = () => {
                                         <td>
                                             <div className="user-cell">
                                                 <div className="user-avatar-sm">
-                                                    {user.role === 'Admin' ? <Shield size={16} /> : <UserIcon size={16} />}
+                                                    {user.role === 'Admin' ? (
+                                                        <Shield size={16} />
+                                                    ) : user.role === 'Institute' ? (
+                                                        <Building2 size={16} />
+                                                    ) : (
+                                                        <UserIcon size={16} />
+                                                    )}
                                                 </div>
                                                 <div className="user-meta">
                                                     <span className="user-name-text">{user.name}</span>
@@ -364,18 +373,16 @@ const UserManagement = () => {
                                         <td>
                                             <div className="actions-cell">
                                                 <button
-                                                    className={`icon-btn edit ${user.role === 'Institute' ? 'disabled' : ''}`}
-                                                    title={user.role === 'Institute' ? "Editing disabled for Institute users" : "Edit User"}
+                                                    className="icon-btn edit"
+                                                    title="Edit User"
                                                     onClick={() => handleEditUser(user)}
-                                                    disabled={user.role === 'Institute'}
                                                 >
                                                     <Edit2 size={16} />
                                                 </button>
                                                 <button
-                                                    className={`icon-btn delete ${user.role === 'Institute' ? 'disabled' : ''}`}
-                                                    title={user.role === 'Institute' ? "Deletion disabled for Institute users" : "Delete User"}
+                                                    className="icon-btn delete"
+                                                    title="Delete User"
                                                     onClick={() => handleDeleteClick(user)}
-                                                    disabled={user.role === 'Institute'}
                                                 >
                                                     <Trash2 size={16} />
                                                 </button>

@@ -241,7 +241,9 @@ class BackendController extends Controller
 
     public function apiIndex()
     {
-        $users = User::latest()->paginate(15);
+        // Increase pagination limit to show more users on one page
+        // since frontend doesn't have pagination controls yet
+        $users = User::latest()->paginate(10);
         return $this->success($users);
     }
 

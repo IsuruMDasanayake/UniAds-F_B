@@ -115,7 +115,7 @@ class PostController extends Controller
                         'created_at' => now(),
                         'updated_at' => now()
                     ])->toArray();
-                    
+
                     AdminNotification::insert($notifications);
                 }
 
@@ -339,13 +339,17 @@ class PostController extends Controller
         $page = $request->get('page', 1);
         $search = $request->get('search', '');
         $activeFilters = $request->get('filters', []); // e.g. ?filters[Location][]=Colombo
-        
+
         $user = Auth::guard('sanctum')->user();
         $userId = $user ? $user->id : null;
-        
+
         // Use a global cache key devoid of user-specific elements
         $cacheKey = 'api_filter_v1_' . md5(json_encode([
-            $filterType, $filterValue, $page, $search, $activeFilters
+            $filterType,
+            $filterValue,
+            $page,
+            $search,
+            $activeFilters
         ]));
 
         $postsData = \Illuminate\Support\Facades\Cache::tags(['posts_filter_api'])->remember($cacheKey, 300, function () use ($filterType, $filterValue, $search, $activeFilters, $page) {
@@ -368,7 +372,7 @@ class PostController extends Controller
             // Primary Route Category Filter
             if (array_key_exists($filterType, $filterMap)) {
                 if ($filterType === 'Location') {
-                    $query->whereHas('locations', function($q) use ($filterValue) {
+                    $query->whereHas('locations', function ($q) use ($filterValue) {
                         $q->where('location', strtolower(trim($filterValue)));
                     });
                 } else {
@@ -392,7 +396,7 @@ class PostController extends Controller
                     if (array_key_exists($category, $filterMap) && !empty($values) && is_array($values)) {
                         $column = 'posts.' . $filterMap[$category];
                         if ($filterMap[$category] === 'location') {
-                            $query->whereHas('locations', function($q) use ($values) {
+                            $query->whereHas('locations', function ($q) use ($values) {
                                 $q->whereIn('location', array_map('strtolower', array_map('trim', $values)));
                             });
                         } else {
@@ -406,7 +410,7 @@ class PostController extends Controller
             // A single 'limit(300)' query would eventually be dominated 100% by premium posts due to the 1.5x score multiplier.
             $premiumPosts = (clone $query)
                 ->where('institutes.is_premium', true)
-                ->where(function($q) {
+                ->where(function ($q) {
                     $q->whereNull('institutes.premium_expires_at')->orWhere('institutes.premium_expires_at', '>', now());
                 })
                 ->orderByDesc('posts.score_cache')
@@ -415,11 +419,11 @@ class PostController extends Controller
                 ->get();
 
             $freePosts = (clone $query)
-                ->where(function($q) {
+                ->where(function ($q) {
                     $q->where('institutes.is_premium', false)
-                      ->orWhere(function($sq) {
-                          $sq->whereNotNull('institutes.premium_expires_at')->where('institutes.premium_expires_at', '<=', now());
-                      });
+                        ->orWhere(function ($sq) {
+                            $sq->whereNotNull('institutes.premium_expires_at')->where('institutes.premium_expires_at', '<=', now());
+                        });
                 })
                 ->orderByDesc('posts.score_cache')
                 ->orderByDesc('posts.id')
@@ -427,7 +431,7 @@ class PostController extends Controller
                 ->get();
 
             $rawPosts = $premiumPosts->merge($freePosts);
-            
+
             // Apply 70/30 mixing and deduplication (max 2 per institute)
             $mixedPosts = \App\Services\RankingService::applyFairExposure($rawPosts, 10, 3, 2);
             return \App\Services\RankingService::paginateCollection($mixedPosts, 100, $page);
@@ -436,24 +440,24 @@ class PostController extends Controller
         // Inject user-specific boolean flags (likes/saves) dynamically outside of the cache
         if ($userId && $postsData->count() > 0) {
             $postIds = collect($postsData->items())->pluck('id');
-            
-            $likedPostIds = \App\Models\PostLike::where('user_id', $userId)
-                                ->whereIn('post_id', $postIds)
-                                ->pluck('post_id')
-                                ->toArray();
-                                
-            $savedPostIds = \App\Models\SavedPost::where('student_id', $userId)
-                                ->whereIn('post_id', $postIds)
-                                ->pluck('post_id')
-                                ->toArray();
 
-            $postsData->getCollection()->transform(function($post) use ($likedPostIds, $savedPostIds) {
+            $likedPostIds = \App\Models\PostLike::where('user_id', $userId)
+                ->whereIn('post_id', $postIds)
+                ->pluck('post_id')
+                ->toArray();
+
+            $savedPostIds = \App\Models\SavedPost::where('student_id', $userId)
+                ->whereIn('post_id', $postIds)
+                ->pluck('post_id')
+                ->toArray();
+
+            $postsData->getCollection()->transform(function ($post) use ($likedPostIds, $savedPostIds) {
                 $post->is_liked_by_user = in_array($post->id, $likedPostIds);
                 $post->is_saved_by_user = in_array($post->id, $savedPostIds);
                 return $post;
             });
         } else {
-            $postsData->getCollection()->transform(function($post) {
+            $postsData->getCollection()->transform(function ($post) {
                 $post->is_liked_by_user = false;
                 $post->is_saved_by_user = false;
                 return $post;
@@ -594,14 +598,14 @@ class PostController extends Controller
 
         $posts = $user->savedPosts()
             ->with(['institute', 'likes'])
-            ->withExists(['likes as is_liked_by_user' => function($q) use ($user) {
+            ->withExists(['likes as is_liked_by_user' => function ($q) use ($user) {
                 $q->where('user_id', $user->id);
             }])
             ->latest('saved_posts.created_at')
             ->paginate(10);
 
         // Map is_saved_by_user for consistency, though inherently true here
-        $posts->getCollection()->transform(function($post) {
+        $posts->getCollection()->transform(function ($post) {
             $post->is_saved_by_user = true;
             return $post;
         });
@@ -633,13 +637,13 @@ class PostController extends Controller
             $likedPostIds = \App\Models\PostLike::where('user_id', $userId)->whereIn('post_id', $postIds)->pluck('post_id')->toArray();
             $savedPostIds = \App\Models\SavedPost::where('student_id', $userId)->whereIn('post_id', $postIds)->pluck('post_id')->toArray();
 
-            $posts->getCollection()->transform(function($post) use ($likedPostIds, $savedPostIds) {
+            $posts->getCollection()->transform(function ($post) use ($likedPostIds, $savedPostIds) {
                 $post->is_liked_by_user = in_array($post->id, $likedPostIds);
                 $post->is_saved_by_user = in_array($post->id, $savedPostIds);
                 return $post;
             });
         } else {
-            $posts->getCollection()->transform(function($post) {
+            $posts->getCollection()->transform(function ($post) {
                 $post->is_liked_by_user = false;
                 $post->is_saved_by_user = false;
                 return $post;
@@ -687,11 +691,9 @@ class PostController extends Controller
         try {
             $post = Post::where('share_link', $share_link)->with('institute')->firstOrFail();
             return $this->success($post);
-
         } catch (\Exception $e) {
             // Return 200 to prevent loud browser console network errors
             return $this->success(null, 'Post not found');
         }
     }
-
 }

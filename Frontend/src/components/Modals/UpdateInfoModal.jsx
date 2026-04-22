@@ -122,7 +122,10 @@ const UpdateInfoModal = ({ isOpen, onClose, instituteId, initialData, onSuccess 
         ];
 
         textFields.forEach(field => {
-            if (formData[field] !== undefined) payload.append(field, formData[field]);
+            // Ensure we don't send literal "null" strings to the backend
+            // If it's null or undefined, send an empty string to clear it
+            const value = formData[field];
+            payload.append(field, (value === null || value === undefined) ? "" : value);
         });
 
         const fileFields = [
@@ -160,7 +163,7 @@ const UpdateInfoModal = ({ isOpen, onClose, instituteId, initialData, onSuccess 
                     setUploadProgress(percentCompleted);
                 }
             });
-            onSuccess(response.data.data?.about); // Assume backend returns updated object
+            onSuccess(response.data.data); // Backend returns the about object directly in data
             setStatus({ type: 'success', message: '' });
             setTimeout(() => onClose(), 2000);
         } catch (error) {
