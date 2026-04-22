@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Upload, Loader2, Save, AlertCircle, CheckCircle2 } from 'lucide-react';
 import axiosClient from '../../lib/axios';
 import { getStorageUrl } from '../../lib/config';
+import { decodeHTMLEntities } from '../../lib/utils';
 import './UpdateInfoModal.css';
 
 const UpdateInfoModal = ({ isOpen, onClose, instituteId, initialData, onSuccess }) => {
@@ -18,7 +19,12 @@ const UpdateInfoModal = ({ isOpen, onClose, instituteId, initialData, onSuccess 
     // Initialize with data
     useEffect(() => {
         if (isOpen && initialData) {
-            setFormData(initialData);
+            const decodedData = Object.keys(initialData).reduce((acc, key) => {
+                const value = initialData[key];
+                acc[key] = typeof value === 'string' ? decodeHTMLEntities(value) : value;
+                return acc;
+            }, {});
+            setFormData(decodedData);
             setRemovedImages({});
         }
     }, [isOpen, initialData]);

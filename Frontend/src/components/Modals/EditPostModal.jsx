@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import axiosClient from '../../lib/axios';
 import { X, Loader2 } from 'lucide-react';
 import { getStorageUrl } from '../../lib/config';
+import { decodeHTMLEntities } from '../../lib/utils';
 import '../../pages/InstituteProfile/InstituteModals.css';
 
 const EditPostModal = ({ isOpen, onClose, post, onUpdate }) => {
@@ -33,7 +34,10 @@ const EditPostModal = ({ isOpen, onClose, post, onUpdate }) => {
             try {
                 const res = await axiosClient.get('/api/categories');
                 const categoryData = res.data.data;
-                const flatCategories = Object.values(categoryData).flat();
+                const flatCategories = Object.values(categoryData).flat().map(c => ({
+                    ...c,
+                    name: decodeHTMLEntities(c.name)
+                }));
                 setCategories(flatCategories);
             } catch (error) {
                 console.error("Failed to fetch categories", error?.message || error);
@@ -47,18 +51,18 @@ const EditPostModal = ({ isOpen, onClose, post, onUpdate }) => {
     useEffect(() => {
         if (post && isOpen) {
             setFormData({
-                title: post.title || '',
-                small_description: post.small_description || '',
-                description: post.description || '',
-                course_name: post.course_name || '',
-                course_type: post.course_type || '',
-                duration: post.duration || '',
-                course_format: post.course_format || '',
-                attendance_type: post.attendance_type || '',
+                title: decodeHTMLEntities(post.title || ''),
+                small_description: decodeHTMLEntities(post.small_description || ''),
+                description: decodeHTMLEntities(post.description || ''),
+                course_name: decodeHTMLEntities(post.course_name || ''),
+                course_type: decodeHTMLEntities(post.course_type || ''),
+                duration: decodeHTMLEntities(post.duration || ''),
+                course_format: decodeHTMLEntities(post.course_format || ''),
+                attendance_type: decodeHTMLEntities(post.attendance_type || ''),
                 // If post.location is a string "A, B", convert to ["A", "B"]
-                locations: post.location ? post.location.split(', ').filter(Boolean) : []
+                locations: post.location ? post.location.split(', ').map(loc => decodeHTMLEntities(loc)).filter(Boolean) : []
             });
-            setCourseSearch(post.course_name || '');
+            setCourseSearch(decodeHTMLEntities(post.course_name || ''));
             setPreviewImage(getStorageUrl(post.image));
             setErrorMessages([]);
         }

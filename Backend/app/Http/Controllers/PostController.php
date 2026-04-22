@@ -78,10 +78,10 @@ class PostController extends Controller
 
                 // Create a new post
                 $post = Post::create([
-                    'title' => Purifier::clean($request->title),
+                    'title' => $request->title,
                     'description' => $sanitizedDescription,
-                    'small_description' => $sanitizedSmallDescription,
-                    'course_name' => Purifier::clean($request->course_name),
+                    'small_description' => $request->small_description,
+                    'course_name' => $request->course_name,
                     'course_type' => $request->course_type,
                     'location' => $displayLocations,
                     'duration' => $request->duration,
@@ -196,10 +196,10 @@ class PostController extends Controller
             $displayLocations = implode(', ', $rawLocations);
 
             $post->update([
-                'title' => Purifier::clean($request->title),
+                'title' => $request->title,
                 'description' => $sanitizedDescription,
-                'small_description' => $sanitizedSmallDescription,
-                'course_name' => Purifier::clean($request->course_name),
+                'small_description' => $request->small_description,
+                'course_name' => $request->course_name,
                 'course_type' => $request->course_type,
                 'location' => $displayLocations,
                 'duration' => $request->duration,

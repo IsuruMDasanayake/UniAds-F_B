@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import axiosClient from '../../lib/axios';
 import { getStorageUrl } from '../../lib/config';
+import { decodeHTMLEntities } from '../../lib/utils';
 import '../../pages/InstituteProfile/InstituteModals.css';
 import { X, Calendar, MapPin, ImageIcon, Loader2 } from 'lucide-react';
 
@@ -29,11 +30,11 @@ const EditEventModal = ({ isOpen, onClose, event, onUpdate }) => {
     useEffect(() => {
         if (event && isOpen) {
             setFormData({
-                event_title: event.event_title || event.title || '',
-                event_description: event.event_description || event.description || '',
+                event_title: decodeHTMLEntities(event.event_title || event.title || ''),
+                event_description: decodeHTMLEntities(event.event_description || event.description || ''),
                 event_date: event.event_date ? new Date(event.event_date).toISOString().split('T')[0] : '',
-                sub_location: event.sub_location || '',
-                main_location: event.main_location || event.location || '',
+                sub_location: decodeHTMLEntities(event.sub_location || ''),
+                main_location: decodeHTMLEntities(event.main_location || event.location || ''),
             });
             setPreviewImage(event.event_image ? getStorageUrl(event.event_image) : null);
             setImage(null);
