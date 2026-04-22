@@ -122,7 +122,7 @@ const UpdateInfoModal = ({ isOpen, onClose, instituteId, initialData, onSuccess 
         ];
 
         textFields.forEach(field => {
-            if (formData[field]) payload.append(field, formData[field]);
+            if (formData[field] !== undefined) payload.append(field, formData[field]);
         });
 
         const fileFields = [

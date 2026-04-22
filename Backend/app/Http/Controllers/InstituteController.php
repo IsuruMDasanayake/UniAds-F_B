@@ -463,7 +463,12 @@ class InstituteController extends Controller
             $data['institute_id'] = $institute->id;
 
             // Sanitize long-form fields
-            $richTextFields = ['institute_overview', 'mission', 'vision', 'accreditations', 'facilities', 'chancellor_bio', 'vice_chancellor_bio'];
+            $richTextFields = [
+                'institute_overview', 'mission', 'vision', 'history', 
+                'chancellor_intro', 'vice_chancellor_intro', 
+                'academic_excellence', 'programs_offered', 'global_partnerships', 
+                'life_at_institute', 'sports_recreation', 'upcoming_programs'
+            ];
             foreach ($richTextFields as $field) {
                 if ($request->has($field)) {
                     $data[$field] = Purifier::clean($request->input($field));
@@ -488,12 +493,12 @@ class InstituteController extends Controller
             if ($request->hasFile($field)) {
                 if (in_array($field, ['chancellor_photo', 'vice_chancellor_photo'])) {
                     // Single file
-                    $data[$field] = $request->file($field)->store('institute_about', 'public');
+                    $data[$field] = ImageOptimiser::store($request->file($field), 'institute_about');
                 } else {
                     // Multi file
                     $paths = [];
                     foreach ($request->file($field) as $file) {
-                        $paths[] = $file->store('institute_about', 'public');
+                        $paths[] = ImageOptimiser::store($file, 'institute_about');
                     }
                     $data[$field] = json_encode($paths);
                 }
@@ -525,7 +530,12 @@ class InstituteController extends Controller
             $data['institute_id'] = $about->institute_id; // Fix mass assignment vulnerability
 
             // Sanitize long-form fields
-            $richTextFields = ['institute_overview', 'mission', 'vision', 'accreditations', 'facilities', 'chancellor_bio', 'vice_chancellor_bio'];
+            $richTextFields = [
+                'institute_overview', 'mission', 'vision', 'history', 
+                'chancellor_intro', 'vice_chancellor_intro', 
+                'academic_excellence', 'programs_offered', 'global_partnerships', 
+                'life_at_institute', 'sports_recreation', 'upcoming_programs'
+            ];
             foreach ($richTextFields as $field) {
                 if ($request->has($field)) {
                     $data[$field] = Purifier::clean($request->input($field));
@@ -535,6 +545,17 @@ class InstituteController extends Controller
 
         // Handle Image Removals first
         // User sends 'removed_field' => JSON array of paths to remove
+        $singleImageFields = ['chancellor_photo', 'vice_chancellor_photo'];
+        foreach ($singleImageFields as $field) {
+            $removedKey = 'removed_' . $field;
+            if ($request->has($removedKey)) {
+                if ($about->$field) {
+                    Storage::disk('public')->delete($about->$field);
+                }
+                $data[$field] = null;
+            }
+        }
+
         $multiImageFields = ['academic_images', 'programs_images', 'partnerships_images', 'life_images', 'sports_images', 'upcoming_images', 'campus_images'];
 
         foreach ($multiImageFields as $field) {
@@ -553,16 +574,9 @@ class InstituteController extends Controller
                         $currentPaths = array_values(array_diff($currentPaths, [$path]));
                     }
                     $data[$field] = json_encode($currentPaths);
-                    // Update model immediately so subsequent adds work on clean state? 
-                    // Or just keep accumulating logic.
-                    // Better to just update $data[$field] with kept paths.
-                    // BUT, we need to pass this kept list to the next step (additions).
-                    // So let's actually update $about->$field in memory for now?
                 }
             } else {
                 // Even if no removal, we need existing paths if we are just appending?
-                // Wait, if no removal, we keep existing logic unless overridden?
-                // The standard logic is: get current, remove deleted, add new.
                 $data[$field] = $about->$field; // Keep existing by default if not modified
             }
         }
