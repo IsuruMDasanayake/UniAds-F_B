@@ -381,63 +381,52 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
                             </div>
 
                             <div className="post-footer">
-                                {isOwner && isPremium && (
-                                    <button className="post-action-btn btn-boost">
-                                        Boost Campaign
-                                    </button>
-                                )}
-
-                                {!isOwner && (
-                                    <>
-                                        {/* Bookmark - Students only */}
-                                        {user?.role === 'User' && (
-                                            <div className="save-action-wrapper">
-                                                <label className="ui-bookmark">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={!!post.is_saved_by_user}
-                                                        onChange={() => handleSave(post.id)}
-                                                    />
-                                                    <div className="bookmark">
-                                                        <svg viewBox="0 0 32 32">
-                                                            <g>
-                                                                <path d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 0 0 1 4-4h14a4 4 0 0 1 4 4z"></path>
-                                                            </g>
-                                                        </svg>
-                                                    </div>
-                                                </label>
+                                {/* Bookmark - Students only */}
+                                {!isOwner && user?.role === 'User' && (
+                                    <div className="save-action-wrapper">
+                                        <label className="ui-bookmark">
+                                            <input
+                                                type="checkbox"
+                                                checked={!!post.is_saved_by_user}
+                                                onChange={() => handleSave(post.id)}
+                                            />
+                                            <div className="bookmark">
+                                                <svg viewBox="0 0 32 32">
+                                                    <g>
+                                                        <path d="M27 4v27a1 1 0 0 1-1.625.781L16 24.281l-9.375 7.5A1 1 0 0 1 5 31V4a4 4 0 0 1 4-4h14a4 4 0 0 1 4 4z"></path>
+                                                    </g>
+                                                </svg>
                                             </div>
-                                        )}
-
-                                        {/* Copy Link Button */}
-                                        <button
-                                            className={`post-copy-btn ${copiedPostId === post.id ? 'copied' : ''}`}
-                                            onClick={() => handleCopyPostLink(post)}
-                                            title="Copy shareable link"
-                                        >
-                                            {copiedPostId === post.id ? <Check size={20} /> : <Link2 size={20} />}
-                                        </button>
-
-                                        {/* Like Button */}
-                                        <button
-                                            className={`post-action-btn btn-like ${post.is_liked_by_user ? 'liked' : ''}`}
-                                            onClick={() => handleLike(post.id)}
-                                        >
-                                            <Heart size={16} fill={post.is_liked_by_user ? 'white' : 'transparent'} />
-                                            <span>{post.likes_count || 0}</span>
-                                        </button>
-
-                                        {/* See More Button */}
-                                        <button className="post-action-btn btn-see-more" onClick={() => openProgrammeModal(post)}>
-                                            See More <Info size={16} />
-                                        </button>
-                                    </>
+                                        </label>
+                                    </div>
                                 )}
+
+                                {/* Copy Link Button */}
+                                <button
+                                    className={`post-copy-btn ${copiedPostId === post.id ? 'copied' : ''}`}
+                                    onClick={() => handleCopyPostLink(post)}
+                                    title="Copy shareable link"
+                                >
+                                    {copiedPostId === post.id ? <Check size={20} /> : <Link2 size={20} />}
+                                </button>
+
+                                {/* Like Button */}
+                                <button
+                                    className={`post-action-btn btn-like ${post.is_liked_by_user ? 'liked' : ''}`}
+                                    onClick={() => handleLike(post.id)}
+                                >
+                                    <Heart size={16} fill={post.is_liked_by_user ? 'white' : 'transparent'} />
+                                    <span>{post.likes_count || 0}</span>
+                                </button>
+
+                                {/* See More Button */}
+                                <button className="post-action-btn btn-see-more" onClick={() => openProgrammeModal(post)}>
+                                    See More <Info size={16} />
+                                </button>
                             </div>
                         </div>
                     </div>
                 ))}
-
                 {/* Loading State Footers */}
                 {loadingMore && (
                     <div className="posts-infinite-scroll-footer">
