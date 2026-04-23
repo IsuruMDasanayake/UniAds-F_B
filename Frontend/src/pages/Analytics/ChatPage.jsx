@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Send, User, MoreVertical, Paperclip, Smile, Phone, Video, Info, X, Building2, Trash2, ThumbsUp, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useChat } from '../../context/ChatContext';
 import { getStorageUrl } from '../../lib/config';
 import axiosClient from '../../lib/axios';
@@ -217,13 +218,16 @@ const ChatPage = () => {
 
                 <div className="acp-conversation-list">
                     {/* Existing conversations always shown first */}
-                    {filteredConversations.map(conv => {
+                    {filteredConversations.map((conv, idx) => {
                         const other = conv.other_participant;
                         const isActive = activeConversation?.id === conv.id;
 
                         return (
-                            <div
+                            <motion.div
                                 key={conv.id}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: idx * 0.05 }}
                                 className={`acp-conv-item ${isActive ? 'acp-active' : ''} ${conv.unread_count > 0 ? 'acp-unread' : ''}`}
                                 onClick={() => selectConversation(conv)}
                             >
@@ -265,7 +269,7 @@ const ChatPage = () => {
                                         </button>
                                     </div>
                                 </div>
-                            </div>
+                            </motion.div>
                         );
                     })}
 
@@ -405,7 +409,12 @@ const ChatPage = () => {
                     </>
                 ) : (
                     <div className="acp-empty-state">
-                        <div className="acp-empty-content">
+                        <motion.div 
+                            className="acp-empty-content"
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.5 }}
+                        >
                             <div className="acp-empty-icon-box">
                                 <Send size={48} />
                             </div>
@@ -414,7 +423,7 @@ const ChatPage = () => {
                             <span className="acp-encryption-notice">
                                 <Info size={14} /> End-to-end encrypted messaging
                             </span>
-                        </div>
+                        </motion.div>
                     </div>
                 )}
             </div>
