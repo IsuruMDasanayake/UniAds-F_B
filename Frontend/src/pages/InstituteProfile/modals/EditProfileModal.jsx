@@ -236,7 +236,7 @@ const EditProfileModal = ({ institute, onClose, onUpdate }) => {
                                     </select>
                                 </div>
                                 <div className="form-group">
-                                    <label>Location:</label>
+                                    <label>Address:</label>
                                     <input type="text" name="location" value={formData.location} onChange={handleChange} required disabled />
                                 </div>
                                 <div className="form-group">

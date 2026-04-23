@@ -217,7 +217,7 @@ const ProfileSettingsTab = ({ institute, onRefresh }) => {
 
                         <div className="sp-form-row">
                             <div className="sp-form-group">
-                                <label>Standard Location</label>
+                                <label>Address</label>
                                 <input type="text" name="location" value={formData.location} disabled style={{ backgroundColor: '#f8fafc', color: '#64748b' }} />
                             </div>
                             <div className="sp-form-group">

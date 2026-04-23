@@ -363,7 +363,7 @@ const InstituteRegisterPage = () => {
 
                         {/* Location */}
                         <div className="form-group">
-                            <label htmlFor="location">Location</label>
+                            <label htmlFor="location">Address</label>
                             <input
                                 type="text"
                                 id="location"
