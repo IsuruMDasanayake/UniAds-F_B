@@ -1,8 +1,6 @@
 /* Scoped Admin Inbox Styles */
 .admin-inbox-scope {
-    padding: 1rem;
-    height: calc(100vh - 80px);
-    /* Adjust based on navbar height */
+    height: calc(92vh - 80px);
     color: #fff;
     display: flex;
     flex-direction: column;

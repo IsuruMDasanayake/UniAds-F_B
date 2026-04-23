@@ -39,6 +39,9 @@ const AnalyticsLayout = () => {
         { path: `/analytics/${slug}/subscription`, label: 'Subscription', icon: CreditCard },
     ];
 
+    // Ref to track if we've already fetched counts to prevent spamming on tab switches
+    const hasFetched = React.useRef(false);
+
     useEffect(() => {
         try {
             const storedUser = localStorage.getItem('APP_USER');
@@ -56,15 +59,22 @@ const AnalyticsLayout = () => {
         } catch (error) {
             console.error('Error loading user data:', error?.message || error);
         }
+    }, [slug, navigate]);
+
+    useEffect(() => {
+        if (hasFetched.current) return;
+        hasFetched.current = true;
 
         fetchNewAppsCount();
         fetchNewInquiriesCount();
 
-        // Trigger the feedback modal check for institutes
-        setTimeout(() => {
+        // Trigger the feedback modal check for institutes only once
+        const timer = setTimeout(() => {
             window.dispatchEvent(new CustomEvent('showFeedbackModal'));
-        }, 2000);
-    }, [slug, navigate]);
+        }, 5000); // Increased delay slightly to avoid conflict with initial loads
+
+        return () => clearTimeout(timer);
+    }, []);
 
     const fetchNewAppsCount = async () => {
         try {

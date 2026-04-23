@@ -28,8 +28,15 @@ const EditPostModal = ({ isOpen, onClose, post, onUpdate }) => {
     const [showCourseDropdown, setShowCourseDropdown] = useState(false);
     const [showLocationDropdown, setShowLocationDropdown] = useState(false);
 
-    // Fetch categories on mount
+    // Fetch categories when opened
     useEffect(() => {
+        if (!isOpen) return;
+        
+        if (window._categoriesCache) {
+            setCategories(window._categoriesCache);
+            return;
+        }
+
         const fetchCategories = async () => {
             try {
                 const res = await axiosClient.get('/api/categories');
@@ -38,6 +45,7 @@ const EditPostModal = ({ isOpen, onClose, post, onUpdate }) => {
                     ...c,
                     name: decodeHTMLEntities(c.name)
                 }));
+                window._categoriesCache = flatCategories;
                 setCategories(flatCategories);
             } catch (error) {
                 console.error("Failed to fetch categories", error?.message || error);
@@ -45,7 +53,7 @@ const EditPostModal = ({ isOpen, onClose, post, onUpdate }) => {
             }
         };
         fetchCategories();
-    }, []);
+    }, [isOpen]);
 
     // Sync with post data
     useEffect(() => {
