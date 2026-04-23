@@ -61,8 +61,11 @@ class CourseApplicationController extends Controller
                 'applied_at'    => now(),
             ]);
 
-            // Fetch post for notification details
+            // Fetch post for notification details and increment application count
             $post = Post::with('institute')->find($validated['post_id']);
+            if ($post) {
+                $post->increment('applications_count');
+            }
 
             // Trigger Notification
             Notification::create([

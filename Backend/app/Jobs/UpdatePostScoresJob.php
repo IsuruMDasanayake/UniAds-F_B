@@ -35,15 +35,23 @@ class UpdatePostScoresJob implements ShouldQueue
             $query = "
                 UPDATE posts 
                 JOIN institutes ON posts.institute_id = institutes.id
+                LEFT JOIN (
+                    SELECT institute_id, AVG(rating) as avg_rating
+                    FROM ratings
+                    GROUP BY institute_id
+                ) AS inst_ratings ON institutes.id = inst_ratings.institute_id
                 SET posts.score_cache = ROUND(
                     (
                         (LOG(GREATEST(posts.likes_count, 0) + 1) * 5) + 
                         (LOG(GREATEST(posts.view_count, 0) + 1) * 2) + 
+                        (LOG(GREATEST(posts.applications_count, 0) + 1) * 12) + 
                         (LOG(GREATEST(institutes.followers_count, 0) + 1) * 8) + 
-                        (IF(TIMESTAMPDIFF(SECOND, posts.created_at, NOW()) < 86400, 10, 0))
+                        (IF(TIMESTAMPDIFF(SECOND, posts.created_at, NOW()) < 86400, 10, 0)) +
+                        (COALESCE(inst_ratings.avg_rating, 3.0) * 2)
                     ) 
                     * EXP(-0.023 * GREATEST(TIMESTAMPDIFF(DAY, posts.created_at, NOW()), 0))
                     * IF(institutes.is_premium = 1 AND (institutes.premium_expires_at IS NULL OR institutes.premium_expires_at > NOW()), 1.5, 1.0)
+                    * IF(posts.view_count > 100 AND (posts.likes_count + posts.applications_count) < (posts.view_count * 0.01), 0.5, 1.0)
                 , 4)
                 WHERE posts.status = 'active' AND posts.created_at >= DATE_SUB(NOW(), INTERVAL 60 DAY)
             ";
