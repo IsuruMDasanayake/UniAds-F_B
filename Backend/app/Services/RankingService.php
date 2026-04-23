@@ -128,4 +128,29 @@ class RankingService
         
         return $paginator;
     }
+    /**
+     * Shuffles posts within blocks of a specific size.
+     * Useful for the "Discovery" feed to give even visibility to latest posts.
+     */
+    public static function applyBlockShuffle(Collection $posts, int $blockSize = 10, $seed = null): Collection
+    {
+        $chunks = $posts->chunk($blockSize);
+        $shuffled = collect();
+
+        foreach ($chunks as $chunk) {
+            // Use a deterministic shuffle if a seed is provided
+            if ($seed !== null) {
+                $items = $chunk->all();
+                mt_srand($seed);
+                shuffle($items);
+                // Advance seed for next block to avoid same permutation
+                $seed++; 
+                $shuffled = $shuffled->merge($items);
+            } else {
+                $shuffled = $shuffled->merge($chunk->shuffle());
+            }
+        }
+
+        return $shuffled;
+    }
 }

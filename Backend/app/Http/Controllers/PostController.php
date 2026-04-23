@@ -623,13 +623,32 @@ class PostController extends Controller
         $user = auth()->user();
         $userId = $user ? $user->id : null;
 
-        /** @var \Illuminate\Pagination\LengthAwarePaginator $posts */
-        $posts = Post::with(['institute' => function ($query) {
-            $query->withAvg('ratings', 'rating')->withCount('ratings');
-        }, 'likes'])
-            ->where('status', 'active')
-            ->latest()
-            ->paginate(10);
+        $page = request()->query('page', 1);
+        $perPage = 10;
+        $discoveryLimit = 100;
+
+        if (($page * $perPage) <= $discoveryLimit) {
+            // DISCOVERY ZONE: Shuffled Latest
+            $rawPosts = Post::with(['institute' => function ($query) {
+                $query->withAvg('ratings', 'rating')->withCount('ratings');
+            }, 'likes'])
+                ->where('status', 'active')
+                ->latest()
+                ->take($discoveryLimit)
+                ->get();
+
+            $seed = $userId ? (crc32(date('Y-m-d') . $userId) % 1000000) : (crc32(date('Y-m-d')) % 1000000);
+            $shuffledPosts = \App\Services\RankingService::applyBlockShuffle($rawPosts, 10, $seed);
+            $posts = \App\Services\RankingService::paginateCollection($shuffledPosts, $perPage, $page);
+        } else {
+            // ARCHIVE ZONE: Standard Latest for older posts
+            $posts = Post::with(['institute' => function ($query) {
+                $query->withAvg('ratings', 'rating')->withCount('ratings');
+            }, 'likes'])
+                ->where('status', 'active')
+                ->latest()
+                ->paginate($perPage);
+        }
 
         // Inject liked/saved booleans (standardized logic)
         if ($userId && $posts->count() > 0) {
