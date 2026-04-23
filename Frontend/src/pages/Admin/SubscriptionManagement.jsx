@@ -30,7 +30,7 @@ const getStatusMeta = (sub) => {
         if (s === 'active') {
             if (isAdminCancel || s === 'cancelled') return { label: 'Trial Cancelled', className: 'status-cancelled' };
             return isCancelledVal 
-                ? { label: 'Trial Ending', className: 'status-pending-cancel' }
+                ? { label: 'Trial Cancelled', className: 'status-pending-cancel' }
                 : { label: 'Trial Active', className: 'trial-active' };
         }
         if (s === 'cancelled' || isAdminCancel) return { label: 'Trial Cancelled', className: 'status-cancelled' };
@@ -44,7 +44,7 @@ const getStatusMeta = (sub) => {
 
     if (s === 'active') {
         return isCancelledVal
-            ? { label: 'Ending', className: 'status-pending-cancel' }
+            ? { label: 'Cancelled', className: 'status-pending-cancel' }
             : { label: 'Active', className: 'sub-active' };
     }
     return { label: 'Expired', className: 'status-expired' };
@@ -274,7 +274,7 @@ const SubscriptionManagement = () => {
                     </div>
                     <div className="stat-chip expired">
                         <AlertTriangle size={15} />
-                        <span><strong>{expiredCount}</strong> Expired / Inactive</span>
+                        <span><strong>{expiredCount}</strong> Expired / Inactive / Cancelled</span>
                     </div>
                 </div>
             )}
