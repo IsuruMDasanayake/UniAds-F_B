@@ -37,7 +37,10 @@ export const ChatProvider = ({ children, user }) => {
             const totalUnread = decryptedConversations.reduce((acc, conv) => acc + (conv.unread_count || 0), 0);
             setUnreadTotal(totalUnread);
         } catch (error) {
-            console.error('Failed to fetch conversations:', error?.message || error);
+            // Ignore 401 errors (happens on logout/session expiry)
+            if (error?.response?.status !== 401) {
+                console.error('Failed to fetch conversations:', error?.message || error);
+            }
         }
     }, [user]);
 
@@ -80,7 +83,10 @@ export const ChatProvider = ({ children, user }) => {
                 await fetchConversations(); // Re-fetch to update unread counts after DB is marked read
             }
         } catch (error) {
-            console.error('Failed to refresh messages:', error?.message || error);
+            // Ignore 401 errors (happens on logout/session expiry)
+            if (error?.response?.status !== 401) {
+                console.error('Failed to refresh messages:', error?.message || error);
+            }
         }
     }, [user, fetchConversations]);
 

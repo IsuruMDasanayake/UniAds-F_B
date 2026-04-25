@@ -35,8 +35,13 @@ class Handler extends ExceptionHandler
         // Custom 500 JSON Response with Correlation ID
         $this->renderable(function (Throwable $e, $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
-                // Determine if it's a 500 (Server Error) or something else
-                $status = ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface) ? $e->getStatusCode() : 500;
+                // Determine the correct status code
+                $status = 500;
+                if ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface) {
+                    $status = $e->getStatusCode();
+                } elseif ($e instanceof \Illuminate\Auth\AuthenticationException) {
+                    $status = 401;
+                }
 
                 if ($status >= 500) {
                     $correlationId = Str::uuid()->toString();
