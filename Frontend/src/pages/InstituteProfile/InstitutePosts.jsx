@@ -100,7 +100,7 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
     useEffect(() => {
         if (postsData) {
             const fetchedPosts = postsData.pages.flatMap(page => page.data);
-            
+
             // Re-merge optimistic edits if necessary, but simpler just to overwrite
             // given user interaction patterns.
             setLocalPosts(fetchedPosts);
@@ -146,10 +146,10 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
             if (response.data.success) {
                 const payload = response.data.data;
                 setLocalPosts(current => current.map(p =>
-                    p.id === postId ? { 
-                        ...p, 
-                        likes_count: payload.likes_count, 
-                        is_liked_by_user: payload.is_liked_by_user 
+                    p.id === postId ? {
+                        ...p,
+                        likes_count: payload.likes_count,
+                        is_liked_by_user: payload.is_liked_by_user
                     } : p
                 ));
             }
@@ -311,7 +311,7 @@ const InstitutePosts = ({ posts: initialPosts, institute, isOwner, user, onPostU
     }
 
     return (
-        <motion.div 
+        <motion.div
             id="institute-profile-posts-wrapper"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}

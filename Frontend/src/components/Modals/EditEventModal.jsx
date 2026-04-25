@@ -32,7 +32,14 @@ const EditEventModal = ({ isOpen, onClose, event, onUpdate }) => {
             setFormData({
                 event_title: decodeHTMLEntities(event.event_title || event.title || ''),
                 event_description: decodeHTMLEntities(event.event_description || event.description || ''),
-                event_date: event.event_date ? new Date(event.event_date).toISOString().split('T')[0] : '',
+                event_date: event.event_date ? (function(d) {
+                    const date = new Date(d);
+                    if (isNaN(date.getTime())) return '';
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                })(event.event_date) : '',
                 sub_location: decodeHTMLEntities(event.sub_location || ''),
                 main_location: decodeHTMLEntities(event.main_location || event.location || ''),
             });

@@ -61,12 +61,12 @@ const EventDetailsModal = ({ isOpen, event, onClose, onInterestToggle }) => {
                                     src={event.event_image ? getStorageUrl(event.event_image) : 'https://via.placeholder.com/600x400?text=No+Image'}
                                     alt={event.event_title}
                                 />
-                                <div className="modal-media-overlay">
+                                {/* <div className="modal-media-overlay">
                                     <div className="event-meta-pill">
                                         <Calendar size={18} />
                                         <span>{formatDate(event.event_date)}</span>
                                     </div>
-                                </div>
+                                </div> */}
                             </div>
 
                             <div className="modal-info-side">

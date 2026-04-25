@@ -17,6 +17,9 @@ import './EventsPage.css';
 import { useUser } from '../hooks/useUser';
 import { useInfiniteEvents, useToggleEventInterest, useDeclineEvent, useLatestEvents } from '../hooks/useEvents';
 
+// Global variable to track if the session-first loader has been shown
+let hasShownSessionLoader = false;
+
 function EventsPage() {
     const { data: user } = useUser();
     const [activeFilter, setActiveFilter] = useState('all');
@@ -58,7 +61,7 @@ function EventsPage() {
 
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [showAddEventModal, setShowAddEventModal] = useState(false);
-    const [isInitialLoad, setIsInitialLoad] = useState(true);
+    const [showOverlay, setShowOverlay] = useState(!hasShownSessionLoader);
     const eventLoaderRef = useRef(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 900);
 
@@ -76,10 +79,17 @@ function EventsPage() {
     }, []);
 
     useEffect(() => {
-        if (!eventsLoading && events.length > 0) {
-            setIsInitialLoad(false);
+        // If the overlay is active, wait for data AND a minimum time to feel consistent
+        if (showOverlay) {
+            if (!eventsLoading) {
+                const timer = setTimeout(() => {
+                    setShowOverlay(false);
+                    hasShownSessionLoader = true;
+                }, 800); // 800ms minimum for that premium "WOW" feel
+                return () => clearTimeout(timer);
+            }
         }
-    }, [eventsLoading, events]);
+    }, [eventsLoading, showOverlay]);
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -93,7 +103,7 @@ function EventsPage() {
 
         if (eventLoaderRef.current) observer.observe(eventLoaderRef.current);
         return () => observer.disconnect();
-    }, [hasMoreEvents, loadingMoreEvents, fetchNextPage]);
+    }, [hasMoreEvents, loadingMoreEvents, fetchNextPage, showOverlay]);
 
     const handleMarkInterest = (eventId) => {
         interestMutation.mutate(eventId);
@@ -142,8 +152,8 @@ function EventsPage() {
         </div>
     );
 
-    // Show full-page loader only on the very first visit
-    if (eventsLoading && isInitialLoad) {
+    // Show full-page loader on the session's first visit or if data is genuinely loading
+    if (showOverlay || (eventsLoading && !hasShownSessionLoader)) {
         return (
             <div className="events-page-v2 events-loading">
                 <div className="spinner-box">
@@ -226,8 +236,8 @@ function EventsPage() {
                         </div>
                     </div>
 
-                    {/* Show skeletons during filter switches (when not the initial load) */}
-                    {eventsLoading && !isInitialLoad ? (
+                    {/* Show skeletons during filter switches (when not the initial full-page load) */}
+                    {eventsLoading && !showOverlay ? (
                          <div className="events-modern-grid">
                             {[...Array(6)].map((_, i) => (
                                 <EventSkeleton key={i} />

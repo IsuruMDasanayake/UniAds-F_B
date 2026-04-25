@@ -146,13 +146,21 @@ const InstituteEvents = ({ events: initialEvents, institute, isOwner, onEventsUp
     };
 
     // Compatibility alias: if any old reference or HMR issue expects handleEventUpdated
-    const handleEventUpdated = (e) => handleEventsRefresh();
+    const handleEventUpdated = (updatedEvent) => {
+        if (updatedEvent) {
+            setLocalEvents(current => current.map(ev =>
+                ev.id === updatedEvent.id ? { ...ev, ...updatedEvent } : ev
+            ));
+        }
+        handleEventsRefresh();
+    };
 
     const handleConfirmDelete = async () => {
         if (!selectedEvent) return;
         setIsDeleting(true);
         try {
             await axiosClient.delete(`/api/events/${selectedEvent.id}`);
+            setLocalEvents(prev => prev.filter(ev => ev.id !== selectedEvent.id));
             if (onEventsUpdate) onEventsUpdate();
             setDeleteModalOpen(false);
         } catch (error) {
@@ -288,7 +296,7 @@ const InstituteEvents = ({ events: initialEvents, institute, isOwner, onEventsUp
                 isOpen={editModalOpen}
                 onClose={() => setEditModalOpen(false)}
                 event={selectedEvent}
-                onUpdate={handleEventsRefresh}
+                onUpdate={handleEventUpdated}
             />
 
             <DeleteConfirmModal
