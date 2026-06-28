@@ -1,0 +1,53 @@
+name: Deploy Development
+
+on:
+  push:
+    branches:
+      - development
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Deploy to Server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: 22
+          command_timeout: 30m
+          script: |
+            # Navigate to the project directory (make sure this directory exists on the VPS)
+            cd /var/www/uniads_dev
+            
+            # Pull latest changes from development branch
+            git fetch origin development
+            git reset --hard origin/development
+            
+            # Set environment variables for ports to avoid conflicts
+            export APP_PORT=9000
+            export FRONTEND_PORT=9001
+            export PMA_PORT=9002
+            export MEILI_PORT=9003
+            
+            # Set frontend command to build and preview for development server
+            export FRONTEND_CMD="sh -c 'npm run build && npm run preview -- --host 0.0.0.0 --port 5173'"
+            
+            # Restart docker containers with dev profile
+            docker compose -p uniads_dev up -d --build
+            
+            # Install PHP Dependencies (since host mount overwrites vendor folder)
+            docker compose -p uniads_dev exec -T backend-app composer install --no-dev --optimize-autoloader --no-interaction
+            
+            # Run database migrations
+            docker compose -p uniads_dev exec -T backend-app php artisan migrate --force
+            
+            # Clear caches
+            docker compose -p uniads_dev exec -T backend-app php artisan cache:clear
+            docker compose -p uniads_dev exec -T backend-app php artisan config:clear

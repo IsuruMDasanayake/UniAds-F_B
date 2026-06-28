@@ -4,7 +4,6 @@ services:
     build:
       context: ./Backend
       dockerfile: Dockerfile
-    container_name: uniads-backend-app
     restart: unless-stopped
     working_dir: /var/www
     volumes:
@@ -15,7 +14,7 @@ services:
       - DB_DATABASE=uniadsnew
       - DB_USERNAME=user
       - DB_PASSWORD=password
-      - APP_URL=http://localhost:8000
+      - APP_URL=${APP_URL:-http://localhost:8000}
     networks:
       - uniads-network
     extra_hosts:
@@ -31,7 +30,6 @@ services:
     build:
       context: ./Backend
       dockerfile: Dockerfile
-    container_name: uniads-backend-worker
     restart: unless-stopped
     working_dir: /var/www
     volumes:
@@ -55,10 +53,9 @@ services:
   # Backend Nginx Service
   backend-web:
     image: nginx:alpine
-    container_name: uniads-backend-web
     restart: unless-stopped
     ports:
-      - "8000:80"
+      - "${APP_PORT:-8000}:80"
     volumes:
       - ./Backend:/var/www
       - ./Backend/docker/nginx/conf.d/:/etc/nginx/conf.d/
@@ -70,7 +67,6 @@ services:
   # Redis Service
   redis:
     image: redis:alpine
-    container_name: uniads-redis
     restart: unless-stopped
     networks:
       - uniads-network
@@ -88,22 +84,20 @@ services:
       context: ./Frontend
       dockerfile: Dockerfile
       target: build-stage # Stop at Node stage to run dev server
-    container_name: uniads-frontend
     restart: unless-stopped
     volumes:
       - ./Frontend:/app
       - frontend-node-modules:/app/node_modules # Isolated dependencies
     working_dir: /app
-    command: npm run dev -- --host
+    command: ${FRONTEND_CMD:-npm run dev -- --host}
     ports:
-      - "4000:5173"
+      - "${FRONTEND_PORT:-4000}:5173"
     networks:
       - uniads-network
 
   # Database Service
   db:
     image: mysql:8.0
-    container_name: uniads-db
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -123,12 +117,11 @@ services:
   # phpMyAdmin Service (Optional but helpful)
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: uniads-pma
     depends_on:
       db:
         condition: service_healthy
     ports:
-      - "8081:80"
+      - "${PMA_PORT:-8081}:80"
     environment:
       PMA_HOST: db
       MYSQL_ROOT_PASSWORD: root
@@ -138,13 +131,12 @@ services:
   # Meilisearch Service (Search Engine)
   meilisearch:
     image: getmeili/meilisearch:v1.6
-    container_name: uniads-meilisearch
     restart: unless-stopped
     environment:
       - MEILI_MASTER_KEY=F8PqnXCwzkeKcL6jgBhY5Ot9ZDxAQ2Vo
       - MEILI_ENV=development
     ports:
-      - "7700:7700"
+      - "${MEILI_PORT:-7700}:7700"
     volumes:
       - meilisearch-data:/meili_data
     networks:
