@@ -64,7 +64,6 @@ class SearchController extends Controller
         $sharePost = Post::with('institute')
             ->where('share_link', $searchKey)
             ->where('status', 'active')
-            ->where('created_at', '>=', now()->subDays(60))
             ->first();
 
         if ($sharePost) {
@@ -77,7 +76,6 @@ class SearchController extends Controller
         // Normal search using Meilisearch!
         $rawPosts = Post::search($query)
             ->where('status', 'active')
-            ->where('created_at', '>=', now()->subDays(60)->timestamp)
             ->orderBy('score_cache', 'desc')
             ->query(function ($builder) {
                 $builder->with('institute');
